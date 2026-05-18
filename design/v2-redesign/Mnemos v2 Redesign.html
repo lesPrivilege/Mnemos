@@ -29,7 +29,7 @@
 const { useState, useEffect, useMemo } = React;
 
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
-  "darkWarmth": 250,
+  "darkWarmth": 35,
   "tabPlacement": "top",
   "activityLayout": "rings",
   "showAllScreens": true
@@ -113,15 +113,15 @@ const App = () => {
     const h = tweaks.darkWarmth;
     style.textContent = `
       .phone-screen.dark .phone-screen-inner, .phone-screen.dark {
-        --bg:            oklch(15% 0.012 ${h});
-        --bg-card:       oklch(19% 0.014 ${h});
-        --bg-raised:     oklch(23% 0.014 ${h});
-        --bg-sunken:     oklch(12% 0.012 ${h});
-        --border:        oklch(28% 0.014 ${h});
-        --border-soft:   oklch(24% 0.012 ${h});
-        --border-strong: oklch(40% 0.018 ${h});
-        --code-bg:       oklch(12% 0.012 ${h});
-        --code-border:   oklch(24% 0.012 ${h});
+        --bg:            oklch(16% 0.014 ${h});
+        --bg-card:       oklch(20% 0.016 ${h});
+        --bg-raised:     oklch(24% 0.018 ${h});
+        --bg-sunken:     oklch(13% 0.012 ${h});
+        --border:        oklch(30% 0.018 ${h});
+        --border-soft:   oklch(26% 0.014 ${h});
+        --border-strong: oklch(42% 0.022 ${h});
+        --code-bg:       oklch(13% 0.012 ${h});
+        --code-border:   oklch(26% 0.014 ${h});
       }
     `;
   }, [tweaks.darkWarmth]);
@@ -235,7 +235,7 @@ const App = () => {
         <TweakSection title="深色模式色调 · DARK WARMTH">
           <TweakSlider label="hue" value={tweaks.darkWarmth} min={0} max={280} step={5}
             onChange={(v) => setTweak("darkWarmth", v)}
-            help="250 = 冷蓝灰 (当前)。35 = 暖砚墨。220-230 = 折中" />
+            help="35 = 温暖砚墨 (推荐)。250 = v1.1.0 冷蓝灰。220-230 = 折中" />
         </TweakSection>
         <TweakSection title="标签栏位置 · TAB PLACEMENT">
           <TweakRadio value={tweaks.tabPlacement} options={[{value:"top",label:"顶部"},{value:"bottom",label:"底部"}]} onChange={(v)=>setTweak("tabPlacement", v)}/>
@@ -264,32 +264,32 @@ document.head.appendChild(styleApply);
 const styleScope = document.createElement("style");
 styleScope.textContent = `
 .phone-screen.dark {
-  --bg:            oklch(15% 0.012 250);
-  --bg-card:       oklch(19% 0.014 250);
-  --bg-raised:     oklch(23% 0.014 250);
-  --bg-sunken:     oklch(12% 0.012 250);
-  --border:        oklch(28% 0.014 250);
-  --border-soft:   oklch(24% 0.012 250);
-  --border-strong: oklch(40% 0.018 250);
-  --ink:           oklch(94% 0.008 80);
-  --ink-2:         oklch(72% 0.012 80);
-  --ink-3:         oklch(54% 0.012 80);
-  --ink-4:         oklch(40% 0.010 80);
-  --accent:        oklch(72% 0.13 65);
-  --accent-soft:   oklch(28% 0.06 65);
-  --accent-line:   oklch(42% 0.10 65);
-  --teal:          oklch(72% 0.10 195);
+  --bg:            oklch(16% 0.014 35);
+  --bg-card:       oklch(20% 0.016 35);
+  --bg-raised:     oklch(24% 0.018 35);
+  --bg-sunken:     oklch(13% 0.012 35);
+  --border:        oklch(30% 0.018 35);
+  --border-soft:   oklch(26% 0.014 35);
+  --border-strong: oklch(42% 0.022 35);
+  --ink:           oklch(94% 0.012 80);
+  --ink-2:         oklch(74% 0.014 80);
+  --ink-3:         oklch(56% 0.014 80);
+  --ink-4:         oklch(40% 0.014 80);
+  --accent:        oklch(74% 0.13 65);
+  --accent-soft:   oklch(28% 0.06 50);
+  --accent-line:   oklch(44% 0.10 60);
+  --teal:          oklch(74% 0.10 195);
   --teal-soft:     oklch(26% 0.05 195);
-  --teal-line:     oklch(42% 0.08 195);
-  --good:          oklch(72% 0.13 155);
+  --teal-line:     oklch(44% 0.08 195);
+  --good:          oklch(74% 0.13 155);
   --good-soft:     oklch(24% 0.05 155);
-  --warn:          oklch(75% 0.13 75);
+  --warn:          oklch(76% 0.13 75);
   --warn-soft:     oklch(26% 0.05 75);
-  --danger:        oklch(70% 0.15 28);
+  --danger:        oklch(72% 0.15 28);
   --danger-soft:   oklch(26% 0.06 28);
   --plum:          oklch(72% 0.12 320);
-  --code-bg:       oklch(12% 0.012 250);
-  --code-border:   oklch(24% 0.012 250);
+  --code-bg:       oklch(13% 0.012 35);
+  --code-border:   oklch(26% 0.014 35);
   --tk-key:        oklch(74% 0.14 320);
   --tk-str:        oklch(74% 0.11 155);
   --tk-num:        oklch(76% 0.13 60);
