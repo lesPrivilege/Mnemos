@@ -2,7 +2,7 @@
 
 間隔重複記憶 + 題庫練習 + 閱讀。SM-2 算法驅動閃卡複習，支持選擇題/解答題練習，內建 markdown 文檔閱讀器。
 
-[Download APK (v1.0.0, 36MB)](https://github.com/lesPrivilege/Mnemos/releases/tag/v1.0.0) · [Screenshots](#screenshots)
+[Download APK (v1.0.0, 36MB)](https://github.com/lesPrivilege/Mnemos/releases/tag/v1.0.0)
 
 ## 設計判斷
 
@@ -71,8 +71,3 @@ src/
 - **題庫**：`questions.json`（choice + review 題型）
 - **閱讀**：`.md` / `.tex` / `.txt`
 
-## Screenshots
-
-<img src="screenshots/home.png" width="260" alt="Home — 记忆 tab" />
-<img src="screenshots/practice.png" width="260" alt="练习 tab" />
-<img src="screenshots/reading.png" width="260" alt="阅读 tab" />
