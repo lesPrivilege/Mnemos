@@ -75,13 +75,32 @@ npm run build        # production build → dist/
 ## 項目結構
 
 ```
-src/
-  lib/               flashcard 核心（storage, sm2, scheduler, renderMarkdown...）
-  quiz/lib/          quiz 核心（quizEngine, storage, questionParser）
-  reading/lib/       reading 核心（storage, renderDoc, highlights, bookmarks, stats）
-  pages/             UI 頁面（Home, DeckDetail, Review, Browse, Import, Settings...）
-  components/        共享組件（ReviewCard, CardEditor, HeroSection, ErrorBoundary, Icons）
-  styles/            index.css（OKLCH 設計系統）+ markdown.css
+Mnemos/
+├── assets/
+│   └── screenshots/              # 11 張真機截圖
+├── design/                       # hi-fi 原型（v2 redesign, activity dashboard）
+├── public/                       # 靜態 HTML 入口
+├── scripts/                      # icon gen, splash gen, import helpers, ic_foreground.svg
+├── src/
+│   ├── lib/                      # flashcard 核心（sm2, scheduler, storage, renderMarkdown...）
+│   ├── quiz/
+│   │   ├── components/
+│   │   └── lib/                  # quiz 引擎、題目解析、storage
+│   ├── reading/
+│   │   ├── components/           # ReaderPanels, ReaderToolbar
+│   │   ├── hooks/
+│   │   ├── lib/                  # renderDoc, highlights, bookmarks, stats, importer, storage
+│   │   ├── pages/                # CollectionDetail, Reader, ReadingHome...
+│   │   └── styles/
+│   ├── pages/                    # Home, DeckDetail, Review, Import, Settings, QuizPage...
+│   ├── components/               # ReviewCard, CardEditor, HeroSection, ErrorBoundary, Icons
+│   └── styles/                   # index.css（OKLCH 設計系統）+ markdown.css
+├── android/                      # Capacitor Android wrapper
+├── index.html                    # Vite 入口
+├── capacitor.config.json
+├── tailwind.config.js
+├── vite.config.js
+└── package.json
 ```
 
 ## 數據存儲
