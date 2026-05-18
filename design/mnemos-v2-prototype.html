@@ -1,0 +1,3024 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Mnemos · v2.0 Redesign</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+/* ════════════════════════════════════════════════
+   Mnemos v2 — Design tokens + base
+══════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* Light · warm parchment (hue 80) */
+  --bg:            oklch(96.5% 0.012 80);
+  --bg-card:       oklch(99% 0.006 80);
+  --bg-raised:     oklch(94% 0.016 80);
+  --bg-sunken:     oklch(92.5% 0.018 80);
+  --border:        oklch(86% 0.018 80);
+  --border-soft:   oklch(91% 0.015 80);
+  --border-strong: oklch(72% 0.025 80);
+  --ink:           oklch(22% 0.022 80);
+  --ink-2:         oklch(48% 0.020 80);
+  --ink-3:         oklch(66% 0.014 80);
+  --ink-4:         oklch(78% 0.012 80);
+  --accent:        oklch(56% 0.13 60);
+  --accent-soft:   oklch(94% 0.038 60);
+  --accent-line:   oklch(78% 0.07 60);
+  --teal:          oklch(50% 0.09 195);
+  --teal-soft:     oklch(94% 0.025 195);
+  --teal-line:     oklch(78% 0.06 195);
+  --good:          oklch(54% 0.11 155);
+  --good-soft:     oklch(94% 0.030 155);
+  --warn:          oklch(58% 0.13 70);
+  --warn-soft:     oklch(94% 0.035 70);
+  --danger:        oklch(54% 0.16 28);
+  --danger-soft:   oklch(94% 0.030 28);
+  --plum:          oklch(48% 0.10 320);
+
+  /* Code syntax — light */
+  --code-bg:       oklch(95% 0.012 80);
+  --code-border:   oklch(89% 0.014 80);
+  --tk-key:        oklch(48% 0.14 320);     /* keyword — plum */
+  --tk-str:        oklch(48% 0.11 155);     /* string — moss */
+  --tk-num:        oklch(54% 0.13 60);      /* number — ochre */
+  --tk-com:        oklch(64% 0.020 80);     /* comment — muted */
+  --tk-fn:         oklch(46% 0.11 240);     /* function — indigo */
+  --tk-op:         oklch(36% 0.022 80);     /* operator — ink */
+
+  --shadow-sm:     0 1px 2px oklch(22% 0.02 80 / 0.05);
+  --shadow-md:     0 1px 3px oklch(22% 0.02 80 / 0.06), 0 6px 24px oklch(22% 0.02 80 / 0.05);
+  --shadow-lg:     0 4px 12px oklch(22% 0.02 80 / 0.08), 0 16px 40px oklch(22% 0.02 80 / 0.08);
+
+  --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 22px;
+
+  --font-zh:    'Noto Serif SC', 'Songti SC', Georgia, serif;
+  --font-disp:  'Instrument Serif', 'Noto Serif SC', Georgia, serif;
+  --font-ui:    'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono:  'JetBrains Mono', ui-monospace, monospace;
+}
+
+.phone-screen.dark {
+  /* Dark · warm graphite (hue 35 — sienna ink, brand-cohesive) */
+  --bg:            oklch(16% 0.014 250);
+  --bg-card:       oklch(20% 0.016 250);
+  --bg-raised:     oklch(24% 0.018 250);
+  --bg-sunken:     oklch(13% 0.012 250);
+  --border:        oklch(30% 0.018 250);
+  --border-soft:   oklch(26% 0.014 250);
+  --border-strong: oklch(42% 0.022 250);
+  --ink:           oklch(95% 0.008 250);
+  --ink-2:         oklch(76% 0.012 250);
+  --ink-3:         oklch(58% 0.014 250);
+  --ink-4:         oklch(42% 0.016 250);
+  --accent:        oklch(74% 0.13 65);
+  --accent-soft:   oklch(28% 0.06 50);
+  --accent-line:   oklch(44% 0.10 60);
+  --teal:          oklch(74% 0.10 195);
+  --teal-soft:     oklch(26% 0.05 195);
+  --teal-line:     oklch(44% 0.08 195);
+  --good:          oklch(74% 0.13 155);
+  --good-soft:     oklch(24% 0.05 155);
+  --warn:          oklch(76% 0.13 75);
+  --warn-soft:     oklch(26% 0.05 75);
+  --danger:        oklch(72% 0.15 28);
+  --danger-soft:   oklch(26% 0.06 28);
+  --plum:          oklch(72% 0.12 320);
+
+  --code-bg:       oklch(13% 0.012 250);
+  --code-border:   oklch(26% 0.014 250);
+  --tk-key:        oklch(74% 0.14 320);
+  --tk-str:        oklch(74% 0.11 155);
+  --tk-num:        oklch(76% 0.13 60);
+  --tk-com:        oklch(54% 0.014 250);
+  --tk-fn:         oklch(74% 0.11 240);
+  --tk-op:         oklch(85% 0.010 250);
+
+  --shadow-sm:     0 1px 2px #0008;
+  --shadow-md:     0 1px 3px #0008, 0 6px 24px #0006;
+  --shadow-lg:     0 4px 12px #000a, 0 16px 40px #0008;
+}
+
+html, body { height: 100%; }
+body {
+  background: oklch(92% 0.018 80);
+  color: var(--stage-ink, #2D2920);
+  font-family: var(--font-ui);
+  font-feature-settings: "ss01", "cv11", "tnum";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+input, textarea { font: inherit; color: inherit; }
+a { color: inherit; text-decoration: none; }
+::-webkit-scrollbar { width: 0; height: 0; }
+input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* ─────── Stage / canvas ─────── */
+.stage {
+  --stage-ink:       #2D2920;
+  --stage-ink-2:     #4d4538;
+  --stage-ink-3:     #7a6e5c;
+  --stage-ink-4:     #a89b85;
+  --stage-rule:      oklch(86% 0.018 80);
+  --stage-rule-soft: oklch(89% 0.012 80);
+  --stage-accent:    #B86A30;
+  min-height: 100vh;
+  padding: 36px 24px 80px;
+  background:
+    radial-gradient(1400px 500px at 50% -8%, oklch(94% 0.04 60 / 0.7), transparent 60%),
+    radial-gradient(800px 400px at 50% 100%, oklch(96% 0.03 60 / 0.4), transparent 60%),
+    oklch(92% 0.018 80);
+  color: var(--stage-ink);
+}
+/* Brand header — book-cover style logo block */
+.stage-head { max-width: 1800px; margin: 0 auto 48px; padding: 32px 8px 36px; position: relative; }
+.stage-head::before, .stage-head::after { content: ""; position: absolute; left: 8px; right: 8px; height: 1px; background: linear-gradient(90deg, transparent, var(--stage-rule) 20%, var(--stage-rule) 80%, transparent); }
+.stage-head::before { top: 18px; }
+.stage-head::after { bottom: 18px; }
+.brand-hero { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 18px 0; }
+.brand-mark { color: #2D2920; }
+.brand-mark svg { display: block; filter: drop-shadow(0 4px 16px oklch(72% 0.12 60 / 0.18)); }
+.brand-name { font-family: var(--font-disp); font-size: 56px; line-height: 1; color: var(--stage-ink); letter-spacing: 0.005em; font-weight: 400; }
+.brand-motto { font-family: var(--font-disp); font-style: italic; font-size: 18px; color: oklch(72% 0.12 60); letter-spacing: 0.04em; margin-top: -4px; }
+.brand-divider { display: flex; align-items: center; gap: 14px; margin-top: 4px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.22em; color: var(--stage-ink-3); text-transform: uppercase; flex-wrap: nowrap; white-space: nowrap; }
+.brand-divider .line { width: 38px; height: 1px; background: var(--stage-rule); }
+.brand-divider .dot { color: oklch(72% 0.12 60); }
+.brand-meta-row { display: flex; justify-content: center; gap: 56px; margin-top: 26px; flex-wrap: wrap; }
+.brand-meta-item { display: flex; flex-direction: column; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 10px; color: var(--stage-ink-3); letter-spacing: 0.14em; text-transform: uppercase; }
+.brand-meta-item .zh { font-family: var(--font-disp); font-size: 22px; color: var(--stage-ink); letter-spacing: 0.04em; text-transform: none; }
+.brand-meta-item .en { color: oklch(58% 0.10 60); font-weight: 500; }
+.brand-meta-item .desc { color: var(--stage-ink-3); font-family: var(--font-zh); font-size: 11px; letter-spacing: 0.04em; text-transform: none; margin-top: 2px; white-space: nowrap; }
+.brand-corner-tl, .brand-corner-tr, .brand-corner-bl, .brand-corner-br { position: absolute; width: 18px; height: 18px; border: 1px solid var(--stage-rule); }
+.brand-corner-tl { top: 12px; left: 2px; border-right: 0; border-bottom: 0; }
+.brand-corner-tr { top: 12px; right: 2px; border-left: 0; border-bottom: 0; }
+.brand-corner-bl { bottom: 12px; left: 2px; border-right: 0; border-top: 0; }
+.brand-corner-br { bottom: 12px; right: 2px; border-left: 0; border-top: 0; }
+.grid { max-width: 1800px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 36px 28px; justify-items: center; }
+
+.section-marker { grid-column: 1/-1; margin: 18px 0 -12px; padding: 0 8px; display: flex; align-items: baseline; gap: 14px; }
+.section-marker .num { font-family: var(--font-mono); font-size: 11px; color: var(--stage-ink-3); letter-spacing: 0.16em; }
+.section-marker .ttl { font-family: var(--font-disp); font-size: 22px; color: var(--stage-ink); }
+.section-marker .ttl em { color: oklch(72% 0.12 60); font-style: italic; }
+.section-marker .line { flex: 1; height: 1px; background: linear-gradient(90deg, var(--stage-rule), transparent); }
+.section-marker .desc { font-family: var(--font-zh); font-size: 12px; color: var(--stage-ink-3); max-width: 320px; line-height: 1.6; }
+
+/* ─────── Phone bezel ─────── */
+.phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.phone-label-bar { display: flex; align-items: center; justify-content: space-between; width: 360px; padding: 0 4px 4px; }
+.phone-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--stage-ink-3, #7a6e5c); display: flex; align-items: center; gap: 8px; }
+.phone-label .num { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 4px; background: oklch(95% 0.018 80); border: 1px solid var(--stage-rule, oklch(86% 0.018 80)); color: var(--stage-ink-2, #4d4538); font-size: 10px; font-weight: 500; }
+.phone-theme-btn { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--stage-rule, oklch(86% 0.018 80)); background: oklch(96% 0.018 80); color: var(--stage-ink-2, #4d4538); font-size: 13px; display: flex; align-items: center; justify-content: center; transition: all 120ms; }
+.phone-theme-btn:hover { border-color: var(--stage-ink-3, #7a6e5c); color: var(--stage-ink, #2D2920); }
+.phone { width: 360px; height: 740px; background: #1a1a1a; border-radius: 52px; padding: 10px; position: relative; box-shadow: 0 0 0 0.5px #1a1a1a, 0 0 0 1px #2D2920, 0 30px 50px -16px oklch(40% 0.04 60 / 0.35), 0 12px 24px -10px oklch(40% 0.04 60 / 0.2); }
+.phone-screen { width: 100%; height: 100%; border-radius: 42px; overflow: hidden; background: var(--bg); position: relative; }
+/* Dynamic Island (iPhone 15+ style) */
+.phone-notch { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 92px; height: 28px; background: #050505; border-radius: 999px; z-index: 20; box-shadow: inset 0 0 0 0.5px #1a1a1a; }
+.phone-notch-dot { position: absolute; top: 50%; right: 9px; transform: translateY(-50%); width: 6px; height: 6px; border-radius: 50%; background: #141414; box-shadow: inset 0 0 0 0.5px #1f1f1f; }
+/* status bar sits behind/around island */
+.sb { padding-top: 16px !important; padding-left: 22px !important; padding-right: 22px !important; position: relative; z-index: 1; }
+.phone-screen-inner { display: flex; flex-direction: column; height: 100%; background: var(--bg); position: relative; overflow: hidden; }
+.phone-screen-scroll { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; display: flex; flex-direction: column; }
+
+/* status bar */
+.sb { display: flex; align-items: center; justify-content: space-between; padding: 8px 22px 2px; font-family: var(--font-mono); font-size: 11px; color: var(--ink); font-weight: 600; letter-spacing: 0.01em; flex-shrink: 0; }
+.sb-right { display: flex; align-items: center; gap: 5px; }
+.sb-right svg { display: block; }
+
+/* topbar */
+.topbar { min-height: 48px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; gap: 8px; background: var(--bg); position: relative; z-index: 4; }
+.topbar h1 { font-family: var(--font-disp); font-weight: 400; font-size: 22px; letter-spacing: 0; color: var(--ink); display: flex; align-items: center; gap: 10px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.topbar h1.zh { font-family: var(--font-zh); font-weight: 500; font-size: 16px; }
+.tb-actions { display: flex; gap: 2px; align-items: center; flex-shrink: 0; }
+.tb-btn { width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; color: var(--ink-2); transition: background 120ms, color 120ms; }
+.tb-btn:hover { background: var(--bg-raised); color: var(--ink); }
+
+/* buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 11px 14px; border-radius: var(--r-md); font-family: var(--font-ui); font-size: 13px; font-weight: 500; border: 1px solid transparent; transition: transform 100ms, background 140ms, border-color 140ms, color 140ms; white-space: nowrap; line-height: 1; }
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--ink); color: var(--bg); }
+.btn-ghost { background: var(--bg-card); border-color: var(--border); color: var(--ink); }
+.btn-ghost:hover { background: var(--bg-raised); }
+.btn-accent { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-line); }
+.btn-block { width: 100%; }
+.btn-sm { padding: 7px 11px; font-size: 12px; border-radius: 8px; }
+
+/* chip */
+.chip { display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg-card); font-size: 12px; color: var(--ink-2); font-family: var(--font-ui); transition: all 120ms; }
+.chip.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chip:hover:not(.on) { border-color: var(--border-strong); color: var(--ink); }
+
+/* tabs */
+.tabs-head { display: flex; margin: 0 16px; background: var(--bg-raised); border-radius: var(--r-sm); border: 1px solid var(--border-soft); padding: 3px; }
+.tabs-tab { flex: 1; padding: 8px 0; font-size: 13px; font-weight: 500; border-radius: 6px; color: var(--ink-3); display: flex; flex-direction: column; align-items: center; line-height: 1.2; gap: 1px; transition: color 180ms; }
+.tabs-tab.on { color: var(--ink); background: var(--bg-card); box-shadow: var(--shadow-sm); }
+.tabs-tab .zh { font-family: var(--font-zh); font-size: 14px; letter-spacing: 0.04em; }
+.tabs-tab .en { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-4); font-weight: 500; }
+.tabs-tab.on .en { color: var(--ink-3); }
+
+/* section title */
+.section-title { font-family: var(--font-mono); font-size: 10px; font-weight: 500; letter-spacing: 0.16em; color: var(--ink-3); text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
+.section-title::after { content: ""; flex: 1; height: 1px; background: var(--border-soft); }
+
+/* hero */
+.hero { background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: var(--r-md); padding: 16px 14px 12px; display: flex; flex-direction: column; gap: 12px; position: relative; overflow: hidden; cursor: pointer; transition: border-color 140ms; }
+.hero:hover { border-color: var(--border); }
+.hero::before { content: ""; position: absolute; top: 0; left: 16px; right: 16px; height: 1px; background: linear-gradient(90deg, transparent, var(--accent-line), transparent); }
+.hero-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.hero-head .lbl { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; }
+.streak { display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 11px; color: var(--accent); font-weight: 600; }
+.hero-row { display: flex; align-items: flex-start; justify-content: space-around; gap: 4px; }
+.hero-col { display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1 1 0; min-width: 0; }
+.hero .num { font-family: var(--font-disp); font-size: 36px; font-weight: 400; line-height: 1; color: var(--ink); font-feature-settings: "lnum","tnum"; letter-spacing: -0.01em; }
+.hero .num.accent { color: var(--accent); }
+.hero .num.teal { color: var(--teal); }
+.hero .label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; }
+.hero .zh-label { font-family: var(--font-zh); font-size: 11px; color: var(--ink-2); letter-spacing: 0.02em; }
+.hero-divider { width: 1px; height: 48px; background: var(--border-soft); align-self: center; flex-shrink: 0; }
+.hero-chart { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; min-height: 40px; padding: 0 2px; }
+.hero-bar { position: relative; height: 36px; }
+.hero-bar .b { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); width: 100%; max-width: 16px; background: var(--accent-line); border-radius: 3px 3px 1px 1px; min-height: 2px; transition: height 400ms cubic-bezier(.2,.8,.2,1); }
+.hero-bar.teal .b { background: var(--teal); }
+.hero-bar.today .b { background: var(--accent); }
+.hero-bar.empty .b { background: var(--border); }
+.hero-bar .day { position: absolute; bottom: 0; left: 0; right: 0; text-align: center; font-family: var(--font-zh); font-size: 10px; line-height: 1.2; color: var(--ink-3); }
+.hero-bar.today .day { color: var(--accent); font-weight: 600; }
+.hero-tap-hint { position: absolute; top: 12px; right: 14px; font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.12em; color: var(--ink-4); text-transform: uppercase; opacity: 0.7; }
+
+/* deck card */
+.deck { background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: var(--r-md); padding: 14px 14px 14px 0; display: grid; grid-template-columns: 56px minmax(0,1fr) auto; align-items: center; gap: 12px; cursor: pointer; transition: transform 140ms, border-color 140ms; position: relative; min-width: 0; }
+.deck:hover { border-color: var(--border); }
+.deck:active { transform: scale(0.99); }
+.deck-spine { height: 56px; margin-left: 14px; border-radius: 4px; position: relative; overflow: hidden; }
+.deck-spine::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); border-radius: 2px; }
+.deck-spine .glyph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-zh); font-size: 26px; color: var(--ink-2); font-weight: 500; padding-left: 6px; }
+.deck-spine.h0 .glyph { color: oklch(45% 0.10 60); }
+.deck-spine.h1 .glyph { color: oklch(45% 0.10 195); }
+.deck-spine.h2 .glyph { color: oklch(45% 0.10 155); }
+.deck-spine.h3 .glyph { color: oklch(45% 0.10 280); }
+.deck-spine.h0::before { background: oklch(60% 0.13 60); }
+.deck-spine.h1::before { background: oklch(60% 0.10 195); }
+.deck-spine.h2::before { background: oklch(60% 0.11 155); }
+.deck-spine.h3::before { background: oklch(60% 0.11 280); }
+.phone-screen.dark .deck-spine.h0 .glyph { color: oklch(78% 0.11 60); }
+.phone-screen.dark .deck-spine.h1 .glyph { color: oklch(78% 0.10 195); }
+.phone-screen.dark .deck-spine.h2 .glyph { color: oklch(78% 0.11 155); }
+.phone-screen.dark .deck-spine.h3 .glyph { color: oklch(78% 0.11 280); }
+
+.deck-meta { min-width: 0; }
+.deck-name { font-family: var(--font-zh); font-size: 15px; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 6px; }
+.deck-pin { color: var(--accent); font-size: 10px; line-height: 1; }
+.deck-stats { margin-top: 4px; font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); display: flex; align-items: center; gap: 6px; }
+.deck-stats .due { color: var(--accent); font-weight: 600; }
+.deck-stats .ok { color: var(--good); font-weight: 600; }
+.deck-stats .dot { color: var(--ink-4); }
+
+.deck-cta { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.cta-pill { display: inline-flex; align-items: center; gap: 5px; padding: 7px 13px; border-radius: 999px; background: var(--ink); color: var(--bg); font-family: var(--font-zh); font-size: 12px; font-weight: 500; letter-spacing: 0.02em; transition: opacity 120ms, transform 120ms; }
+.cta-pill:active { transform: scale(0.96); }
+.cta-pill:hover { opacity: 0.85; }
+.cta-pill .arr { font-family: var(--font-mono); font-size: 12px; }
+.cta-pill.teal { background: var(--teal); }
+.cta-done { width: 26px; height: 26px; border-radius: 50%; background: var(--good-soft); color: var(--good); display: inline-flex; align-items: center; justify-content: center; }
+
+/* continue card extras */
+.deck.continue .deck-spine::before { background: var(--ink-3); }
+.deck.continue .deck-spine .glyph { color: var(--ink-2); font-family: var(--font-mono); font-size: 18px; }
+.deck-dismiss { width: 26px; height: 26px; border-radius: 50%; color: var(--ink-3); display: inline-flex; align-items: center; justify-content: center; transition: background 120ms, color 120ms; }
+.deck-dismiss:hover { background: var(--bg-raised); color: var(--ink); }
+.deck-progress-tiny { width: 36px; height: 36px; position: relative; }
+
+/* deck detail */
+.dd-head { margin: 0 18px; display: flex; flex-direction: column; gap: 6px; padding-top: 6px; }
+.dd-meta { font-family: var(--font-mono); font-size: 11px; color: var(--ink-2); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.dd-meta .sep { color: var(--ink-4); }
+.dd-name { font-family: var(--font-zh); font-size: 22px; font-weight: 500; letter-spacing: 0; color: var(--ink); line-height: 1.25; }
+.dd-progress { height: 6px; border-radius: 3px; background: var(--bg-raised); overflow: hidden; }
+.dd-progress .bar { height: 100%; border-radius: 3px; background: var(--accent); transition: width 400ms; }
+.dd-progress .bar.teal { background: var(--teal); }
+.dd-progress-row { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; color: var(--ink-3); letter-spacing: 0.1em; margin-top: 4px; }
+.dd-cta-main { width: 100%; padding: 14px 16px; border-radius: var(--r-md); background: var(--ink); color: var(--bg); display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow-sm); transition: transform 100ms, opacity 140ms; }
+.dd-cta-main:active { transform: scale(0.98); }
+.dd-cta-main.teal { background: var(--teal); }
+.dd-cta-main.disabled { background: var(--bg-raised); color: var(--ink-3); }
+.dd-cta-main .left { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.dd-cta-main .lead { font-family: var(--font-zh); font-size: 15px; font-weight: 500; letter-spacing: 0.02em; }
+.dd-cta-main .lead .num { font-family: var(--font-disp); font-weight: 400; font-size: 22px; margin-right: 4px; font-feature-settings: "lnum","tnum"; }
+.dd-cta-main .sub { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.18em; opacity: 0.65; font-weight: 500; text-transform: uppercase; }
+.dd-cta-main .arr { font-family: inherit; font-size: 22px; line-height: 1; }
+.dd-secondary { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 6px; padding: 6px; background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: var(--r-md); }
+.dd-action { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px; border-radius: 8px; color: var(--ink-2); transition: background 120ms, color 120ms; }
+.dd-action:hover { background: var(--bg-raised); color: var(--ink); }
+.dd-action .lab { font-family: var(--font-zh); font-size: 11px; font-weight: 500; letter-spacing: 0.02em; }
+
+/* outline */
+.ch-row { display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 4px; border-radius: 6px; cursor: pointer; transition: background 110ms; }
+.ch-row:hover { background: var(--bg-raised); }
+.ch-caret { width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; color: var(--ink-3); transition: transform 180ms; font-family: var(--font-mono); font-size: 9px; }
+.ch-caret.open { transform: rotate(90deg); }
+.ch-name { font-family: var(--font-zh); font-size: 14px; font-weight: 500; color: var(--ink); flex: 1; }
+.ch-count { font-family: var(--font-mono); font-size: 10px; color: var(--ink-3); }
+.sec-row { display: flex; align-items: center; gap: 8px; padding: 6px 8px 6px 22px; border-radius: 6px; }
+.sec-row .ch-name { font-size: 13px; font-weight: 400; color: var(--ink-2); }
+.card-row { display: flex; align-items: center; gap: 10px; padding: 8px 12px 8px 28px; border-radius: 6px; cursor: pointer; position: relative; transition: background 110ms; }
+.card-row:hover { background: var(--bg-raised); }
+.card-row .dot-bullet { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 4px; height: 4px; border-radius: 50%; background: var(--ink-4); }
+.card-row .front { font-family: var(--font-zh); font-size: 13px; color: var(--ink); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-row .star-on { color: var(--accent); }
+.card-row .star-off { color: var(--ink-4); }
+
+/* review screen */
+.rv-progress { position: relative; height: 3px; background: var(--bg-raised); flex-shrink: 0; }
+.rv-progress .bar { height: 100%; background: var(--accent); transition: width 200ms; }
+.rv-progress .bar.teal { background: var(--teal); }
+.rv-meta { display: flex; align-items: center; justify-content: space-between; padding: 10px 18px 0; font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+.rv-meta .crumb { font-family: var(--font-zh); color: var(--ink-2); font-size: 12px; display: flex; align-items: center; gap: 6px; }
+.rv-meta .crumb .div { color: var(--ink-4); }
+.rv-meta .pos { letter-spacing: 0.06em; }
+.rv-meta .pos .now { color: var(--ink); font-weight: 600; }
+.rv-card-wrap { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 14px 18px; gap: 12px; }
+.rv-card { flex: 1; min-height: 0; background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: var(--r-lg); padding: 22px 20px 26px; position: relative; display: flex; flex-direction: column; box-shadow: var(--shadow-sm); cursor: pointer; }
+.rv-card .corner { position: absolute; top: 14px; left: 16px; font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.18em; color: var(--ink-3); text-transform: uppercase; display: flex; gap: 6px; }
+.rv-card .corner .num { color: var(--accent); font-weight: 600; letter-spacing: 0.02em; }
+.rv-card .star-btn { position: absolute; top: 12px; right: 12px; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: var(--ink-3); }
+.rv-card .star-btn.on { color: var(--accent); }
+.rv-card .ornament { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); width: 32px; height: 1px; background: linear-gradient(90deg, transparent, var(--ink-4), transparent); }
+.rv-card .body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 14px; padding: 30px 4px 18px; overflow-y: auto; align-items: center; justify-content: center; text-align: center; }
+.rv-card.flipped .body { justify-content: flex-start; align-items: stretch; text-align: left; }
+.rv-card .front-q { font-family: var(--font-zh); font-size: 20px; font-weight: 500; color: var(--ink); line-height: 1.55; letter-spacing: 0.02em; }
+.rv-card .echo { font-family: var(--font-zh); font-size: 13px; color: var(--ink-3); padding: 8px 12px; border-left: 2px solid var(--border); background: var(--bg-raised); border-radius: 0 6px 6px 0; line-height: 1.6; }
+.rv-card .reverso { width: 100%; display: flex; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: 9px; color: var(--ink-3); letter-spacing: 0.22em; text-transform: uppercase; padding: 4px 0; }
+.rv-card .reverso::before, .rv-card .reverso::after { content: ""; flex: 1; height: 1px; background: var(--border-soft); }
+.rv-card .back-a { font-family: var(--font-zh); font-size: 15px; line-height: 1.85; color: var(--ink); }
+.rv-card .back-a strong { color: var(--accent); font-weight: 600; }
+.rv-card .back-a em { color: var(--teal); font-style: italic; }
+.rv-flip-hint { text-align: center; font-family: var(--font-mono); font-size: 10px; color: var(--ink-3); letter-spacing: 0.18em; text-transform: uppercase; }
+.rate { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 0 18px 18px; flex-shrink: 0; }
+.rate-btn { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 12px 4px 10px; border-radius: var(--r-md); border: 1px solid; font-family: var(--font-ui); font-weight: 500; font-size: 13px; transition: transform 100ms; }
+.rate-btn:active { transform: scale(0.96); }
+.rate-btn .iv { font-family: var(--font-mono); font-size: 10px; opacity: 0.65; letter-spacing: 0.04em; font-weight: 500; }
+.rate-again { background: var(--danger-soft); color: var(--danger); border-color: color-mix(in oklch, var(--danger) 22%, transparent); }
+.rate-hard  { background: var(--warn-soft); color: var(--warn); border-color: color-mix(in oklch, var(--warn) 22%, transparent); }
+.rate-good  { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-line); }
+.rate-easy  { background: var(--good-soft); color: var(--good); border-color: color-mix(in oklch, var(--good) 22%, transparent); }
+
+/* quiz */
+.qa-card { flex: 1; min-height: 0; background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: var(--r-lg); padding: 22px 18px 18px; position: relative; display: flex; flex-direction: column; gap: 14px; box-shadow: var(--shadow-sm); overflow-y: auto; }
+.qa-card .corner { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.18em; color: var(--ink-3); text-transform: uppercase; display: flex; gap: 6px; }
+.qa-card .corner .num { color: var(--accent); font-weight: 600; letter-spacing: 0.02em; }
+.qa-stem { font-family: var(--font-zh); font-size: 16px; font-weight: 500; color: var(--ink); line-height: 1.65; letter-spacing: 0.02em; }
+.qa-options { display: flex; flex-direction: column; gap: 8px; }
+.qa-opt { display: flex; align-items: flex-start; gap: 10px; padding: 12px 12px; border-radius: var(--r-md); border: 1px solid var(--border-soft); background: var(--bg); font-family: var(--font-zh); font-size: 14px; color: var(--ink); cursor: pointer; transition: border-color 120ms, background 120ms, opacity 120ms; text-align: left; line-height: 1.5; }
+.qa-opt:hover:not(:disabled) { border-color: var(--border-strong); }
+.qa-opt:disabled { cursor: default; }
+.qa-opt.picked { border-color: var(--accent); background: var(--accent-soft); }
+.qa-opt.correct { border-color: var(--good); background: var(--good-soft); }
+.qa-opt.wrong { border-color: var(--danger); background: var(--danger-soft); }
+.qa-opt.faded { opacity: 0.45; }
+.qa-mark { width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--border); font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--ink-2); flex-shrink: 0; }
+.qa-opt.picked .qa-mark { border-color: var(--accent); color: var(--accent); background: var(--bg-card); }
+.qa-opt.correct .qa-mark { border-color: var(--good); color: var(--good); background: var(--bg-card); }
+.qa-opt.wrong .qa-mark { border-color: var(--danger); color: var(--danger); background: var(--bg-card); }
+.qa-text { flex: 1; }
+.qa-explain { padding: 12px 14px; background: var(--bg-raised); border-radius: var(--r-sm); border-left: 3px solid var(--teal); font-family: var(--font-zh); font-size: 13px; line-height: 1.7; color: var(--ink-2); }
+.qa-explain strong { color: var(--ink); }
+
+/* search */
+.search { margin: 0 16px; position: relative; }
+.search input { width: 100%; padding: 9px 12px 9px 32px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r-md); font-size: 13px; outline: none; transition: border-color 120ms; }
+.search input:focus { border-color: var(--accent); }
+.search input::placeholder { color: var(--ink-3); }
+.search svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--ink-3); }
+
+/* settings */
+.settings-card { background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: var(--r-md); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.settings-card .lbl { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; }
+.kv-row { display: flex; justify-content: space-between; align-items: baseline; padding: 6px 0; border-bottom: 1px dashed var(--border-soft); font-size: 13px; }
+.kv-row:last-child { border-bottom: 0; }
+.kv-row .k { color: var(--ink-2); font-family: var(--font-zh); font-size: 12px; }
+.kv-row .v { color: var(--ink); font-family: var(--font-mono); font-size: 12px; }
+.seg { display: inline-flex; padding: 3px; background: var(--bg-raised); border-radius: var(--r-sm); border: 1px solid var(--border-soft); width: 100%; }
+.seg button { flex: 1; padding: 7px 10px; font-size: 12px; font-weight: 500; border-radius: 6px; color: var(--ink-2); display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.seg button.on { background: var(--bg-card); color: var(--ink); box-shadow: var(--shadow-sm); }
+.dropzone { border: 1.5px dashed var(--border); border-radius: var(--r-md); padding: 22px 16px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; background: var(--bg); transition: border-color 140ms, background 140ms; }
+.dropzone:hover { border-color: var(--accent-line); background: var(--accent-soft); }
+.dropzone .icon { width: 36px; height: 36px; border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--ink-2); }
+.dropzone .label { font-family: var(--font-zh); font-size: 13px; color: var(--ink); }
+.dropzone .ext { font-family: var(--font-mono); font-size: 10px; color: var(--ink-3); letter-spacing: 0.08em; }
+.textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 10px 12px; font-size: 13px; font-family: var(--font-zh); outline: none; resize: none; min-height: 100px; transition: border-color 120ms; }
+.textarea:focus { border-color: var(--accent); }
+
+/* empty */
+.empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 56px 24px; text-align: center; color: var(--ink-3); }
+.empty .glyph { font-family: var(--font-disp); font-size: 60px; color: var(--ink-4); line-height: 1; }
+.empty .msg { font-family: var(--font-zh); font-size: 14px; letter-spacing: 0.02em; }
+.empty .motto { font-family: var(--font-disp); font-style: italic; font-size: 13px; color: var(--ink-3); margin-top: -4px; }
+
+/* document row */
+.doc-row { display: flex; align-items: center; gap: 10px; padding: 11px 8px 11px 22px; border-radius: 6px; cursor: pointer; position: relative; transition: background 110ms; border-bottom: 1px solid var(--border-soft); }
+.doc-row:last-child { border-bottom: 0; }
+.doc-row:hover { background: var(--bg-raised); }
+.doc-row .doc-dot { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); width: 6px; height: 6px; border-radius: 50%; background: var(--teal); opacity: 0.6; }
+.doc-row .doc-dot.read { background: var(--ink-4); opacity: 1; }
+.doc-row .doc-title { font-family: var(--font-zh); font-size: 13px; color: var(--ink); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+.doc-row .doc-meta { font-family: var(--font-mono); font-size: 10px; color: var(--ink-3); letter-spacing: 0.06em; flex-shrink: 0; }
+.doc-row .doc-fmt { font-family: var(--font-mono); font-size: 9px; padding: 2px 5px; border-radius: 3px; border: 1px solid var(--border); color: var(--ink-3); letter-spacing: 0.08em; flex-shrink: 0; }
+
+/* reader */
+.reader-prose { padding: 24px 28px 80px; width: 100%; max-width: 480px; margin: 0 auto; font-family: var(--font-zh); box-sizing: border-box; min-width: 0; }
+.reader-prose h1 { font-family: var(--font-disp); font-size: 26px; font-weight: 400; color: var(--ink); line-height: 1.25; margin-bottom: 4px; letter-spacing: 0; }
+.reader-prose .author { font-family: var(--font-mono); font-size: 10px; color: var(--ink-3); letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 24px; padding-bottom: 14px; border-bottom: 1px solid var(--border-soft); }
+.reader-prose h2 { font-family: var(--font-zh); font-size: 17px; font-weight: 600; color: var(--ink); margin-top: 26px; margin-bottom: 10px; letter-spacing: 0.02em; }
+.reader-prose h2::before { content: "§ "; color: var(--accent); font-family: var(--font-disp); font-weight: 400; }
+.reader-prose p { font-family: var(--font-zh); font-size: 15px; line-height: 1.95; color: var(--ink); margin-bottom: 14px; text-indent: 2em; letter-spacing: 0.01em; }
+.reader-prose h2 + p { text-indent: 2em; }
+.reader-prose blockquote { border-left: 3px solid var(--accent-line); padding: 4px 0 4px 14px; margin: 14px 0; color: var(--ink-2); font-style: italic; font-family: var(--font-zh); }
+.reader-prose .hl { background: oklch(94% 0.06 80); padding: 1px 2px; border-bottom: 1.5px solid var(--accent); cursor: pointer; transition: background 200ms; }
+.phone-screen.dark .reader-prose .hl { background: oklch(28% 0.06 60); }
+.reader-prose .hl.flash { animation: hlFlash 600ms ease-out; }
+@keyframes hlFlash { 0% { background: var(--accent); color: var(--bg); } 100% { background: oklch(94% 0.06 80); color: var(--ink); } }
+.reader-prose code { font-family: var(--font-mono); font-size: 0.9em; background: var(--bg-raised); padding: 1px 5px; border-radius: 3px; color: var(--accent); }
+
+/* code block syntax highlighting */
+.code-block { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: var(--r-md); padding: 14px 14px 14px 0; font-family: var(--font-mono); font-size: 11px; line-height: 1.75; color: var(--ink-2); overflow-x: auto; position: relative; max-width: 100%; min-width: 0; white-space: pre; }
+.code-block > div { white-space: pre; }
+.code-block-head { position: absolute; top: 0; right: 0; padding: 4px 10px 0; font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.18em; color: var(--ink-4); text-transform: uppercase; background: var(--code-bg); border-bottom-left-radius: 6px; border-left: 1px solid var(--code-border); border-bottom: 1px solid var(--code-border); }
+.code-block .ln { display: inline-block; width: 28px; text-align: right; padding-right: 12px; color: var(--ink-4); user-select: none; }
+.code-block .tk-key { color: var(--tk-key); font-weight: 500; }
+.code-block .tk-str { color: var(--tk-str); }
+.code-block .tk-num { color: var(--tk-num); }
+.code-block .tk-com { color: var(--tk-com); font-style: italic; }
+.code-block .tk-fn  { color: var(--tk-fn); }
+.code-block .tk-op  { color: var(--tk-op); }
+
+/* reader chrome (top + bottom bars) */
+.rd-topbar { position: absolute; top: 0; left: 0; right: 0; height: 56px; padding: 16px 14px 0; display: flex; align-items: center; gap: 8px; background: linear-gradient(180deg, var(--bg) 70%, transparent); z-index: 6; transition: transform 240ms cubic-bezier(.2,.8,.2,1), opacity 240ms; }
+.rd-topbar.hidden { transform: translateY(-100%); opacity: 0; pointer-events: none; }
+.rd-topbar .ttl { font-family: var(--font-zh); font-size: 14px; font-weight: 500; color: var(--ink); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rd-toolbar { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 2px; padding: 6px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 999px; box-shadow: var(--shadow-md); z-index: 6; transition: transform 240ms cubic-bezier(.2,.8,.2,1), opacity 240ms; backdrop-filter: blur(12px); }
+.rd-toolbar.hidden { transform: translateX(-50%) translateY(160%); opacity: 0; pointer-events: none; }
+.rd-tool { width: 38px; height: 38px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; color: var(--ink-2); transition: background 120ms, color 120ms; }
+.rd-tool:hover { background: var(--bg-raised); color: var(--ink); }
+.rd-tool.on { background: var(--ink); color: var(--bg); }
+.rd-progress-pill { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; border-radius: 999px; background: var(--bg-card); border: 1px solid var(--border-soft); font-family: var(--font-mono); font-size: 10px; color: var(--ink-3); letter-spacing: 0.06em; z-index: 5; }
+.rd-progress-pill .bar-mini { width: 50px; height: 3px; border-radius: 2px; background: var(--bg-raised); overflow: hidden; }
+.rd-progress-pill .bar-mini .fill { height: 100%; background: var(--accent); }
+.rd-settings-row { position: absolute; bottom: 64px; left: 16px; right: 16px; padding: 12px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r-md); box-shadow: var(--shadow-md); z-index: 5; display: flex; flex-direction: column; gap: 10px; }
+.rd-settings-row .lbl { font-family: var(--font-mono); font-size: 9px; color: var(--ink-3); letter-spacing: 0.16em; text-transform: uppercase; }
+.rd-settings-row .row { display: flex; align-items: center; gap: 8px; }
+.rd-settings-row .row .seg { flex: 1; }
+
+/* reader side panel */
+.rd-panel { position: absolute; top: 0; left: 0; bottom: 0; width: 78%; max-width: 300px; background: var(--bg-card); border-right: 1px solid var(--border); z-index: 7; transform: translateX(-100%); transition: transform 280ms cubic-bezier(.2,.8,.2,1); display: flex; flex-direction: column; }
+.rd-panel.open { transform: translateX(0); box-shadow: 6px 0 24px #0006; }
+.rd-panel-head { padding: 14px 16px 10px; border-bottom: 1px solid var(--border-soft); display: flex; align-items: center; justify-content: space-between; }
+.rd-panel-head h3 { font-family: var(--font-zh); font-size: 14px; font-weight: 600; color: var(--ink); }
+.rd-panel-head .sub { font-family: var(--font-mono); font-size: 9px; color: var(--ink-3); letter-spacing: 0.16em; text-transform: uppercase; margin-top: 2px; }
+.rd-panel-body { flex: 1; overflow-y: auto; padding: 8px 8px 18px; }
+.rd-panel-foot { padding: 10px 12px; border-top: 1px solid var(--border-soft); }
+.rd-toc-item { display: flex; gap: 8px; padding: 8px 10px; border-radius: 6px; cursor: pointer; transition: background 110ms; font-family: var(--font-zh); font-size: 13px; color: var(--ink-2); line-height: 1.5; }
+.rd-toc-item:hover { background: var(--bg-raised); }
+.rd-toc-item.l1 { color: var(--ink); font-weight: 500; }
+.rd-toc-item.l2 { padding-left: 22px; font-size: 12px; }
+.rd-toc-item.cur { color: var(--accent); background: var(--accent-soft); }
+.rd-hl-item { padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border-soft); margin-bottom: 6px; font-family: var(--font-zh); font-size: 12px; color: var(--ink-2); line-height: 1.6; cursor: pointer; transition: border-color 120ms; position: relative; }
+.rd-hl-item:hover { border-color: var(--border); }
+.rd-hl-item .hl-meta { font-family: var(--font-mono); font-size: 9px; color: var(--ink-3); letter-spacing: 0.1em; margin-bottom: 4px; text-transform: uppercase; }
+.rd-hl-item .hl-text { border-left: 2px solid var(--accent); padding-left: 8px; }
+.rd-overlay { position: absolute; inset: 0; background: #0006; z-index: 6; opacity: 0; pointer-events: none; transition: opacity 240ms; }
+.rd-overlay.on { opacity: 1; pointer-events: auto; }
+
+/* highlight save fab */
+.hl-fab { position: absolute; padding: 8px 14px; border-radius: 999px; background: var(--ink); color: var(--bg); font-family: var(--font-zh); font-size: 12px; font-weight: 500; box-shadow: var(--shadow-md); z-index: 8; display: inline-flex; align-items: center; gap: 6px; transform: translateX(-50%); animation: fabPop 180ms ease-out; }
+@keyframes fabPop { 0% { transform: translateX(-50%) scale(0.85); opacity: 0; } 100% { transform: translateX(-50%) scale(1); opacity: 1; } }
+.hl-fab .arr { font-family: var(--font-mono); font-size: 11px; opacity: 0.6; }
+
+/* toast */
+.toast { position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); padding: 8px 16px; border-radius: 999px; background: var(--ink); color: var(--bg); font-family: var(--font-zh); font-size: 12px; box-shadow: var(--shadow-md); z-index: 30; animation: toastIn 180ms ease-out; }
+@keyframes toastIn { 0% { transform: translateX(-50%) translateY(8px); opacity: 0; } 100% { transform: translateX(-50%) translateY(0); opacity: 1; } }
+
+/* activity dashboard */
+.act-rings { display: flex; align-items: center; justify-content: center; padding: 18px 0 8px; gap: 0; position: relative; }
+.act-ring-svg { width: 200px; height: 200px; }
+.act-ring-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; padding: 0 8px; margin-top: 6px; }
+.act-ring-stats .col { display: flex; flex-direction: column; align-items: center; padding: 8px 4px; }
+.act-ring-stats .col .dot { width: 8px; height: 8px; border-radius: 50%; }
+.act-ring-stats .col .dot.recall { background: var(--accent); }
+.act-ring-stats .col .dot.practice { background: var(--teal); }
+.act-ring-stats .col .dot.read { background: var(--good); }
+.act-ring-stats .col .num { font-family: var(--font-disp); font-size: 22px; color: var(--ink); margin-top: 4px; line-height: 1; }
+.act-ring-stats .col .lab { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em; color: var(--ink-3); text-transform: uppercase; margin-top: 4px; }
+.act-ring-stats .col .zh { font-family: var(--font-zh); font-size: 11px; color: var(--ink-2); margin-top: 1px; }
+.heatmap { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; padding: 8px 0 4px; }
+.heat-cell { aspect-ratio: 1; border-radius: 3px; background: var(--bg-raised); transition: transform 100ms; cursor: pointer; }
+.heat-cell.l1 { background: oklch(88% 0.04 60); }
+.heat-cell.l2 { background: oklch(78% 0.08 60); }
+.heat-cell.l3 { background: oklch(66% 0.12 60); }
+.heat-cell.l4 { background: oklch(56% 0.13 60); }
+.phone-screen.dark .heat-cell { background: oklch(22% 0.014 250); }
+.phone-screen.dark .heat-cell.l1 { background: oklch(36% 0.06 60); }
+.phone-screen.dark .heat-cell.l2 { background: oklch(48% 0.10 60); }
+.phone-screen.dark .heat-cell.l3 { background: oklch(60% 0.13 60); }
+.phone-screen.dark .heat-cell.l4 { background: oklch(74% 0.13 60); }
+.heat-cell.today { outline: 1.5px solid var(--ink); outline-offset: 1px; }
+.heat-cell:hover { transform: scale(1.15); }
+.heat-legend { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 9px; color: var(--ink-3); letter-spacing: 0.1em; padding: 0 4px; }
+.heat-legend .lvl { width: 10px; height: 10px; border-radius: 2px; }
+
+/* prompt guide */
+.tag-pill { display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 999px; background: var(--bg-raised); font-family: var(--font-mono); font-size: 9px; color: var(--ink-3); letter-spacing: 0.12em; text-transform: uppercase; }
+.q-tag { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border); color: var(--ink-3); }
+.q-tag.choice { color: var(--accent); border-color: var(--accent-line); }
+.q-tag.review { color: var(--teal); border-color: var(--teal-line); }
+.sep { color: var(--ink-4); }
+
+/* completion screen */
+.done-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 32px 24px; text-align: center; }
+.done-mark { width: 72px; height: 72px; border-radius: 50%; background: var(--good-soft); border: 1px solid color-mix(in oklch, var(--good) 30%, transparent); display: flex; align-items: center; justify-content: center; color: var(--good); }
+.done-title { font-family: var(--font-disp); font-size: 30px; color: var(--ink); margin-top: 4px; line-height: 1; }
+.done-zh { font-family: var(--font-zh); font-size: 13px; color: var(--ink-2); letter-spacing: 0.06em; }
+.done-stats { display: flex; gap: 14px; font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); margin-top: 6px; }
+.done-stats .v { color: var(--ink); font-weight: 600; }
+.done-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; width: 100%; margin-top: 12px; }
+.done-grid .cell { padding: 10px 4px; border-radius: 8px; font-family: var(--font-mono); font-size: 11px; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.done-grid .cell .num { font-size: 18px; font-weight: 600; }
+.done-grid .again { color: var(--danger); background: var(--danger-soft); }
+.done-grid .hard  { color: var(--warn); background: var(--warn-soft); }
+.done-grid .good  { color: var(--accent); background: var(--accent-soft); }
+.done-grid .easy  { color: var(--good); background: var(--good-soft); }
+
+/* search results */
+.sr-section { margin-bottom: 12px; }
+.sr-section h4 { font-family: var(--font-mono); font-size: 9px; color: var(--ink-3); letter-spacing: 0.18em; text-transform: uppercase; padding: 4px 4px 6px; display: flex; align-items: center; gap: 8px; }
+.sr-section h4 .ct { color: var(--ink-4); }
+.sr-item { padding: 10px 12px; border-radius: 8px; cursor: pointer; transition: background 110ms; display: flex; gap: 10px; align-items: flex-start; }
+.sr-item:hover { background: var(--bg-raised); }
+.sr-item .sr-tag { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.12em; padding: 2px 6px; border-radius: 4px; background: var(--bg-raised); color: var(--ink-3); flex-shrink: 0; margin-top: 1px; }
+.sr-item .sr-body { flex: 1; min-width: 0; }
+.sr-item .sr-title { font-family: var(--font-zh); font-size: 13px; color: var(--ink); }
+.sr-item .sr-snip { font-family: var(--font-zh); font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+.sr-item .sr-snip mark { background: var(--accent-soft); color: var(--accent); padding: 0 2px; border-radius: 2px; }
+
+</style>
+</head>
+<body style="background-color: rgb(253, 250, 250)">
+<div style="position:fixed;top:0;left:0;right:0;z-index:9999;padding:6px 16px;background:oklch(22% 0.022 80);color:oklch(96.5% 0.012 80);font-family:Inter,system-ui,sans-serif;font-size:12px;text-align:center;letter-spacing:0.04em;">UI/UX 设计预览 · 非功能产品</div>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel">
+
+// tweaks-panel.jsx
+// Reusable Tweaks shell + form-control helpers.
+//
+// Owns the host protocol (listens for __activate_edit_mode / __deactivate_edit_mode,
+// posts __edit_mode_available / __edit_mode_set_keys / __edit_mode_dismissed) so
+// individual prototypes don't re-roll it. Ships a consistent set of controls so you
+// don't hand-draw <input type="range">, segmented radios, steppers, etc.
+//
+// Usage (in an HTML file that loads React + Babel):
+//
+//   const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+//     "primaryColor": "#D97757",
+//     "palette": ["#D97757", "#29261b", "#f6f4ef"],
+//     "fontSize": 16,
+//     "density": "regular",
+//     "dark": false
+//   }/*EDITMODE-END*/;
+//
+//   function App() {
+//     const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+//     return (
+//       <div style={{ fontSize: t.fontSize, color: t.primaryColor }}>
+//         Hello
+//         <TweaksPanel>
+//           <TweakSection label="Typography" />
+//           <TweakSlider label="Font size" value={t.fontSize} min={10} max={32} unit="px"
+//                        onChange={(v) => setTweak('fontSize', v)} />
+//           <TweakRadio  label="Density" value={t.density}
+//                        options={['compact', 'regular', 'comfy']}
+//                        onChange={(v) => setTweak('density', v)} />
+//           <TweakSection label="Theme" />
+//           <TweakColor  label="Primary" value={t.primaryColor}
+//                        options={['#D97757', '#2A6FDB', '#1F8A5B', '#7A5AE0']}
+//                        onChange={(v) => setTweak('primaryColor', v)} />
+//           <TweakColor  label="Palette" value={t.palette}
+//                        options={[['#D97757', '#29261b', '#f6f4ef'],
+//                                  ['#475569', '#0f172a', '#f1f5f9']]}
+//                        onChange={(v) => setTweak('palette', v)} />
+//           <TweakToggle label="Dark mode" value={t.dark}
+//                        onChange={(v) => setTweak('dark', v)} />
+//         </TweaksPanel>
+//       </div>
+//     );
+//   }
+//
+// ─────────────────────────────────────────────────────────────────────────────
+
+const __TWEAKS_STYLE = `
+  .twk-panel{position:fixed;right:16px;bottom:16px;z-index:2147483646;width:280px;
+    max-height:calc(100vh - 32px);display:flex;flex-direction:column;
+    transform:scale(var(--dc-inv-zoom,1));transform-origin:bottom right;
+    background:rgba(250,249,247,.78);color:#29261b;
+    -webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);
+    border:.5px solid rgba(255,255,255,.6);border-radius:14px;
+    box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 40px rgba(0,0,0,.18);
+    font:11.5px/1.4 ui-sans-serif,system-ui,-apple-system,sans-serif;overflow:hidden}
+  .twk-hd{display:flex;align-items:center;justify-content:space-between;
+    padding:10px 8px 10px 14px;cursor:move;user-select:none}
+  .twk-hd b{font-size:12px;font-weight:600;letter-spacing:.01em}
+  .twk-x{appearance:none;border:0;background:transparent;color:rgba(41,38,27,.55);
+    width:22px;height:22px;border-radius:6px;cursor:default;font-size:13px;line-height:1}
+  .twk-x:hover{background:rgba(0,0,0,.06);color:#29261b}
+  .twk-body{padding:2px 14px 14px;display:flex;flex-direction:column;gap:10px;
+    overflow-y:auto;overflow-x:hidden;min-height:0;
+    scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.15) transparent}
+  .twk-body::-webkit-scrollbar{width:8px}
+  .twk-body::-webkit-scrollbar-track{background:transparent;margin:2px}
+  .twk-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:4px;
+    border:2px solid transparent;background-clip:content-box}
+  .twk-body::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25);
+    border:2px solid transparent;background-clip:content-box}
+  .twk-row{display:flex;flex-direction:column;gap:5px}
+  .twk-row-h{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+  .twk-lbl{display:flex;justify-content:space-between;align-items:baseline;
+    color:rgba(41,38,27,.72)}
+  .twk-lbl>span:first-child{font-weight:500}
+  .twk-val{color:rgba(41,38,27,.5);font-variant-numeric:tabular-nums}
+
+  .twk-sect{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    color:rgba(41,38,27,.45);padding:10px 0 0}
+  .twk-sect:first-child{padding-top:0}
+
+  .twk-field{appearance:none;width:100%;height:26px;padding:0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;
+    background:rgba(255,255,255,.6);color:inherit;font:inherit;outline:none}
+  .twk-field:focus{border-color:rgba(0,0,0,.25);background:rgba(255,255,255,.85)}
+  select.twk-field{padding-right:22px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='rgba(0,0,0,.5)' d='M0 0h10L5 6z'/></svg>");
+    background-repeat:no-repeat;background-position:right 8px center}
+
+  .twk-slider{appearance:none;-webkit-appearance:none;width:100%;height:4px;margin:6px 0;
+    border-radius:999px;background:rgba(0,0,0,.12);outline:none}
+  .twk-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+    width:14px;height:14px;border-radius:50%;background:#fff;
+    border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+  .twk-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
+    background:#fff;border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+
+  .twk-seg{position:relative;display:flex;padding:2px;border-radius:8px;
+    background:rgba(0,0,0,.06);user-select:none}
+  .twk-seg-thumb{position:absolute;top:2px;bottom:2px;border-radius:6px;
+    background:rgba(255,255,255,.9);box-shadow:0 1px 2px rgba(0,0,0,.12);
+    transition:left .15s cubic-bezier(.3,.7,.4,1),width .15s}
+  .twk-seg.dragging .twk-seg-thumb{transition:none}
+  .twk-seg button{appearance:none;position:relative;z-index:1;flex:1;border:0;
+    background:transparent;color:inherit;font:inherit;font-weight:500;min-height:22px;
+    border-radius:6px;cursor:default;padding:4px 6px;line-height:1.2;
+    overflow-wrap:anywhere}
+
+  .twk-toggle{position:relative;width:32px;height:18px;border:0;border-radius:999px;
+    background:rgba(0,0,0,.15);transition:background .15s;cursor:default;padding:0}
+  .twk-toggle[data-on="1"]{background:#34c759}
+  .twk-toggle i{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+  .twk-toggle[data-on="1"] i{transform:translateX(14px)}
+
+  .twk-num{display:flex;align-items:center;height:26px;padding:0 0 0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;background:rgba(255,255,255,.6)}
+  .twk-num-lbl{font-weight:500;color:rgba(41,38,27,.6);cursor:ew-resize;
+    user-select:none;padding-right:8px}
+  .twk-num input{flex:1;min-width:0;height:100%;border:0;background:transparent;
+    font:inherit;font-variant-numeric:tabular-nums;text-align:right;padding:0 8px 0 0;
+    outline:none;color:inherit;-moz-appearance:textfield}
+  .twk-num input::-webkit-inner-spin-button,.twk-num input::-webkit-outer-spin-button{
+    -webkit-appearance:none;margin:0}
+  .twk-num-unit{padding-right:8px;color:rgba(41,38,27,.45)}
+
+  .twk-btn{appearance:none;height:26px;padding:0 12px;border:0;border-radius:7px;
+    background:rgba(0,0,0,.78);color:#fff;font:inherit;font-weight:500;cursor:default}
+  .twk-btn:hover{background:rgba(0,0,0,.88)}
+  .twk-btn.secondary{background:rgba(0,0,0,.06);color:inherit}
+  .twk-btn.secondary:hover{background:rgba(0,0,0,.1)}
+
+  .twk-swatch{appearance:none;-webkit-appearance:none;width:56px;height:22px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:6px;padding:0;cursor:default;
+    background:transparent;flex-shrink:0}
+  .twk-swatch::-webkit-color-swatch-wrapper{padding:0}
+  .twk-swatch::-webkit-color-swatch{border:0;border-radius:5.5px}
+  .twk-swatch::-moz-color-swatch{border:0;border-radius:5.5px}
+
+  .twk-chips{display:flex;gap:6px}
+  .twk-chip{position:relative;appearance:none;flex:1;min-width:0;height:46px;
+    padding:0;border:0;border-radius:6px;overflow:hidden;cursor:default;
+    box-shadow:0 0 0 .5px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.06);
+    transition:transform .12s cubic-bezier(.3,.7,.4,1),box-shadow .12s}
+  .twk-chip:hover{transform:translateY(-1px);
+    box-shadow:0 0 0 .5px rgba(0,0,0,.18),0 4px 10px rgba(0,0,0,.12)}
+  .twk-chip[data-on="1"]{box-shadow:0 0 0 1.5px rgba(0,0,0,.85),
+    0 2px 6px rgba(0,0,0,.15)}
+  .twk-chip>span{position:absolute;top:0;bottom:0;right:0;width:34%;
+    display:flex;flex-direction:column;box-shadow:-1px 0 0 rgba(0,0,0,.1)}
+  .twk-chip>span>i{flex:1;box-shadow:0 -1px 0 rgba(0,0,0,.1)}
+  .twk-chip>span>i:first-child{box-shadow:none}
+  .twk-chip svg{position:absolute;top:6px;left:6px;width:13px;height:13px;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,.3))}
+`;
+
+// ── useTweaks ───────────────────────────────────────────────────────────────
+// Single source of truth for tweak values. setTweak persists via the host
+// (__edit_mode_set_keys → host rewrites the EDITMODE block on disk).
+function useTweaks(defaults) {
+  const [values, setValues] = React.useState(defaults);
+  // Accepts either setTweak('key', value) or setTweak({ key: value, ... }) so a
+  // useState-style call doesn't write a "[object Object]" key into the persisted
+  // JSON block.
+  const setTweak = React.useCallback((keyOrEdits, val) => {
+    const edits = typeof keyOrEdits === 'object' && keyOrEdits !== null
+      ? keyOrEdits : { [keyOrEdits]: val };
+    setValues((prev) => ({ ...prev, ...edits }));
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits }, '*');
+    // Same-window signal so in-page listeners (deck-stage rail thumbnails)
+    // can react — the parent message only reaches the host, not peers.
+    window.dispatchEvent(new CustomEvent('tweakchange', { detail: edits }));
+  }, []);
+  return [values, setTweak];
+}
+
+// ── TweaksPanel ─────────────────────────────────────────────────────────────
+// Floating shell. Registers the protocol listener BEFORE announcing
+// availability — if the announce ran first, the host's activate could land
+// before our handler exists and the toolbar toggle would silently no-op.
+// The close button posts __edit_mode_dismissed so the host's toolbar toggle
+// flips off in lockstep; the host echoes __deactivate_edit_mode back which
+// is what actually hides the panel.
+function TweaksPanel({ title = 'Tweaks', noDeckControls = false, children }) {
+  const [open, setOpen] = React.useState(false);
+  const dragRef = React.useRef(null);
+  // Auto-inject a rail toggle when a <deck-stage> is on the page. The
+  // toggle drives the deck's per-viewer _railVisible via window message;
+  // state is mirrored from the same localStorage key the deck reads so
+  // the control reflects reality across reloads. The mechanism is the
+  // message — authors who want custom placement can post it directly
+  // and pass noDeckControls to suppress this one.
+  const hasDeckStage = React.useMemo(
+    () => typeof document !== 'undefined' && !!document.querySelector('deck-stage'),
+    [],
+  );
+  const [railVisible, setRailVisible] = React.useState(() => {
+    try { return localStorage.getItem('deck-stage.railVisible') !== '0'; } catch (e) { return true; }
+  });
+  const toggleRail = (on) => {
+    setRailVisible(on);
+    window.postMessage({ type: '__deck_rail_visible', on }, '*');
+  };
+  const offsetRef = React.useRef({ x: 16, y: 16 });
+  const PAD = 16;
+
+  const clampToViewport = React.useCallback(() => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const w = panel.offsetWidth, h = panel.offsetHeight;
+    const maxRight = Math.max(PAD, window.innerWidth - w - PAD);
+    const maxBottom = Math.max(PAD, window.innerHeight - h - PAD);
+    offsetRef.current = {
+      x: Math.min(maxRight, Math.max(PAD, offsetRef.current.x)),
+      y: Math.min(maxBottom, Math.max(PAD, offsetRef.current.y)),
+    };
+    panel.style.right = offsetRef.current.x + 'px';
+    panel.style.bottom = offsetRef.current.y + 'px';
+  }, []);
+
+  React.useEffect(() => {
+    if (!open) return;
+    clampToViewport();
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', clampToViewport);
+      return () => window.removeEventListener('resize', clampToViewport);
+    }
+    const ro = new ResizeObserver(clampToViewport);
+    ro.observe(document.documentElement);
+    return () => ro.disconnect();
+  }, [open, clampToViewport]);
+
+  React.useEffect(() => {
+    const onMsg = (e) => {
+      const t = e?.data?.type;
+      if (t === '__activate_edit_mode') setOpen(true);
+      else if (t === '__deactivate_edit_mode') setOpen(false);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
+  const dismiss = () => {
+    setOpen(false);
+    window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*');
+  };
+
+  const onDragStart = (e) => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const r = panel.getBoundingClientRect();
+    const sx = e.clientX, sy = e.clientY;
+    const startRight = window.innerWidth - r.right;
+    const startBottom = window.innerHeight - r.bottom;
+    const move = (ev) => {
+      offsetRef.current = {
+        x: startRight - (ev.clientX - sx),
+        y: startBottom - (ev.clientY - sy),
+      };
+      clampToViewport();
+    };
+    const up = () => {
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mouseup', up);
+    };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  };
+
+  if (!open) return null;
+  return (
+    <>
+      <style>{__TWEAKS_STYLE}</style>
+      <div ref={dragRef} className="twk-panel" data-noncommentable=""
+           style={{ right: offsetRef.current.x, bottom: offsetRef.current.y }}>
+        <div className="twk-hd" onMouseDown={onDragStart}>
+          <b>{title}</b>
+          <button className="twk-x" aria-label="Close tweaks"
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={dismiss}>✕</button>
+        </div>
+        <div className="twk-body">
+          {hasDeckStage && !noDeckControls && (
+            <TweakSection label="Deck">
+              <TweakToggle label="Thumbnail rail" value={railVisible} onChange={toggleRail} />
+            </TweakSection>
+          )}
+          {children}
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ── Layout helpers ──────────────────────────────────────────────────────────
+
+function TweakSection({ label, children }) {
+  return (
+    <>
+      <div className="twk-sect">{label}</div>
+      {children}
+    </>
+  );
+}
+
+function TweakRow({ label, value, children, inline = false }) {
+  return (
+    <div className={inline ? 'twk-row twk-row-h' : 'twk-row'}>
+      <div className="twk-lbl">
+        <span>{label}</span>
+        {value != null && <span className="twk-val">{value}</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+// ── Controls ────────────────────────────────────────────────────────────────
+
+function TweakSlider({ label, value, min = 0, max = 100, step = 1, unit = '', onChange }) {
+  return (
+    <TweakRow label={label} value={`${value}${unit}`}>
+      <input type="range" className="twk-slider" min={min} max={max} step={step}
+             value={value} onChange={(e) => onChange(Number(e.target.value))} />
+    </TweakRow>
+  );
+}
+
+function TweakToggle({ label, value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-lbl"><span>{label}</span></div>
+      <button type="button" className="twk-toggle" data-on={value ? '1' : '0'}
+              role="switch" aria-checked={!!value}
+              onClick={() => onChange(!value)}><i /></button>
+    </div>
+  );
+}
+
+function TweakRadio({ label, value, options, onChange }) {
+  const trackRef = React.useRef(null);
+  const [dragging, setDragging] = React.useState(false);
+  // The active value is read by pointer-move handlers attached for the lifetime
+  // of a drag — ref it so a stale closure doesn't fire onChange for every move.
+  const valueRef = React.useRef(value);
+  valueRef.current = value;
+
+  // Segments wrap mid-word once per-segment width runs out. The track is
+  // ~248px (280 panel − 28 body pad − 4 seg pad), each button loses 12px
+  // to its own padding, and 11.5px system-ui averages ~6.3px/char — so 2
+  // options fit ~16 chars each, 3 fit ~10. Past that (or >3 options), fall
+  // back to a dropdown rather than wrap.
+  const labelLen = (o) => String(typeof o === 'object' ? o.label : o).length;
+  const maxLen = options.reduce((m, o) => Math.max(m, labelLen(o)), 0);
+  const fitsAsSegments = maxLen <= ({ 2: 16, 3: 10 }[options.length] ?? 0);
+  if (!fitsAsSegments) {
+    // <select> emits strings — map back to the original option value so the
+    // fallback stays type-preserving (numbers, booleans) like the segment path.
+    const resolve = (s) => {
+      const m = options.find((o) => String(typeof o === 'object' ? o.value : o) === s);
+      return m === undefined ? s : typeof m === 'object' ? m.value : m;
+    };
+    return <TweakSelect label={label} value={value} options={options}
+                        onChange={(s) => onChange(resolve(s))} />;
+  }
+  const opts = options.map((o) => (typeof o === 'object' ? o : { value: o, label: o }));
+  const idx = Math.max(0, opts.findIndex((o) => o.value === value));
+  const n = opts.length;
+
+  const segAt = (clientX) => {
+    const r = trackRef.current.getBoundingClientRect();
+    const inner = r.width - 4;
+    const i = Math.floor(((clientX - r.left - 2) / inner) * n);
+    return opts[Math.max(0, Math.min(n - 1, i))].value;
+  };
+
+  const onPointerDown = (e) => {
+    setDragging(true);
+    const v0 = segAt(e.clientX);
+    if (v0 !== valueRef.current) onChange(v0);
+    const move = (ev) => {
+      if (!trackRef.current) return;
+      const v = segAt(ev.clientX);
+      if (v !== valueRef.current) onChange(v);
+    };
+    const up = () => {
+      setDragging(false);
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+
+  return (
+    <TweakRow label={label}>
+      <div ref={trackRef} role="radiogroup" onPointerDown={onPointerDown}
+           className={dragging ? 'twk-seg dragging' : 'twk-seg'}>
+        <div className="twk-seg-thumb"
+             style={{ left: `calc(2px + ${idx} * (100% - 4px) / ${n})`,
+                      width: `calc((100% - 4px) / ${n})` }} />
+        {opts.map((o) => (
+          <button key={o.value} type="button" role="radio" aria-checked={o.value === value}>
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </TweakRow>
+  );
+}
+
+function TweakSelect({ label, value, options, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <select className="twk-field" value={value} onChange={(e) => onChange(e.target.value)}>
+        {options.map((o) => {
+          const v = typeof o === 'object' ? o.value : o;
+          const l = typeof o === 'object' ? o.label : o;
+          return <option key={v} value={v}>{l}</option>;
+        })}
+      </select>
+    </TweakRow>
+  );
+}
+
+function TweakText({ label, value, placeholder, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <input className="twk-field" type="text" value={value} placeholder={placeholder}
+             onChange={(e) => onChange(e.target.value)} />
+    </TweakRow>
+  );
+}
+
+function TweakNumber({ label, value, min, max, step = 1, unit = '', onChange }) {
+  const clamp = (n) => {
+    if (min != null && n < min) return min;
+    if (max != null && n > max) return max;
+    return n;
+  };
+  const startRef = React.useRef({ x: 0, val: 0 });
+  const onScrubStart = (e) => {
+    e.preventDefault();
+    startRef.current = { x: e.clientX, val: value };
+    const decimals = (String(step).split('.')[1] || '').length;
+    const move = (ev) => {
+      const dx = ev.clientX - startRef.current.x;
+      const raw = startRef.current.val + dx * step;
+      const snapped = Math.round(raw / step) * step;
+      onChange(clamp(Number(snapped.toFixed(decimals))));
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+  return (
+    <div className="twk-num">
+      <span className="twk-num-lbl" onPointerDown={onScrubStart}>{label}</span>
+      <input type="number" value={value} min={min} max={max} step={step}
+             onChange={(e) => onChange(clamp(Number(e.target.value)))} />
+      {unit && <span className="twk-num-unit">{unit}</span>}
+    </div>
+  );
+}
+
+// Relative-luminance contrast pick — checkmarks drawn over a swatch need to
+// read on both #111 and #fafafa without per-option configuration. Hex input
+// only (#rgb / #rrggbb); named or rgb()/hsl() colors fall through to "light".
+function __twkIsLight(hex) {
+  const h = String(hex).replace('#', '');
+  const x = h.length === 3 ? h.replace(/./g, (c) => c + c) : h.padEnd(6, '0');
+  const n = parseInt(x.slice(0, 6), 16);
+  if (Number.isNaN(n)) return true;
+  const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  return r * 299 + g * 587 + b * 114 > 148000;
+}
+
+const __TwkCheck = ({ light }) => (
+  <svg viewBox="0 0 14 14" aria-hidden="true">
+    <path d="M3 7.2 5.8 10 11 4.2" fill="none" strokeWidth="2.2"
+          strokeLinecap="round" strokeLinejoin="round"
+          stroke={light ? 'rgba(0,0,0,.78)' : '#fff'} />
+  </svg>
+);
+
+// TweakColor — curated color/palette picker. Each option is either a single
+// hex string or an array of 1-5 hex strings; the card adapts — a lone color
+// renders solid, a palette renders colors[0] as the hero (left ~2/3) with the
+// rest stacked in a sharp column on the right. onChange emits the
+// option in the shape it was passed (string stays string, array stays array).
+// Without options it falls back to the native color input for back-compat.
+function TweakColor({ label, value, options, onChange }) {
+  if (!options || !options.length) {
+    return (
+      <div className="twk-row twk-row-h">
+        <div className="twk-lbl"><span>{label}</span></div>
+        <input type="color" className="twk-swatch" value={value}
+               onChange={(e) => onChange(e.target.value)} />
+      </div>
+    );
+  }
+  // Native <input type=color> emits lowercase hex per the HTML spec, so
+  // compare case-insensitively. String() guards JSON.stringify(undefined),
+  // which returns the primitive undefined (no .toLowerCase).
+  const key = (o) => String(JSON.stringify(o)).toLowerCase();
+  const cur = key(value);
+  return (
+    <TweakRow label={label}>
+      <div className="twk-chips" role="radiogroup">
+        {options.map((o, i) => {
+          const colors = Array.isArray(o) ? o : [o];
+          const [hero, ...rest] = colors;
+          const sup = rest.slice(0, 4);
+          const on = key(o) === cur;
+          return (
+            <button key={i} type="button" className="twk-chip" role="radio"
+                    aria-checked={on} data-on={on ? '1' : '0'}
+                    aria-label={colors.join(', ')} title={colors.join(' · ')}
+                    style={{ background: hero }}
+                    onClick={() => onChange(o)}>
+              {sup.length > 0 && (
+                <span>
+                  {sup.map((c, j) => <i key={j} style={{ background: c }} />)}
+                </span>
+              )}
+              {on && <__TwkCheck light={__twkIsLight(hero)} />}
+            </button>
+          );
+        })}
+      </div>
+    </TweakRow>
+  );
+}
+
+function TweakButton({ label, onClick, secondary = false }) {
+  return (
+    <button type="button" className={secondary ? 'twk-btn secondary' : 'twk-btn'}
+            onClick={onClick}>{label}</button>
+  );
+}
+
+Object.assign(window, {
+  useTweaks, TweaksPanel, TweakSection, TweakRow,
+  TweakSlider, TweakToggle, TweakRadio, TweakSelect,
+  TweakText, TweakNumber, TweakColor, TweakButton,
+});
+
+</script>
+<script type="text/babel">
+/* eslint-disable */
+// ════════════════════════════════════════════════
+// Mnemos · Atoms — icons, brand mark, status bar
+// ════════════════════════════════════════════════
+
+const Icon = ({ name, size = 16, stroke = 1.5, ...rest }) => {
+  const s = size;
+  const sw = stroke;
+  const common = { width: s, height: s, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: sw, strokeLinecap: "round", strokeLinejoin: "round", ...rest };
+  switch (name) {
+    case "back":      return <svg {...common}><path d="M15 18l-6-6 6-6"/></svg>;
+    case "fwd":       return <svg {...common}><path d="M9 18l6-6-6-6"/></svg>;
+    case "search":    return <svg {...common}><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>;
+    case "settings":  return <svg {...common}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1A2 2 0 1 1 4.3 17l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>;
+    case "plus":      return <svg {...common}><path d="M12 5v14M5 12h14"/></svg>;
+    case "minus":     return <svg {...common}><path d="M5 12h14"/></svg>;
+    case "x":         return <svg {...common}><path d="M18 6L6 18M6 6l12 12"/></svg>;
+    case "check":     return <svg {...common}><path d="M20 6L9 17l-5-5"/></svg>;
+    case "import":    return <svg {...common}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>;
+    case "export":    return <svg {...common}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>;
+    case "cards":     return <svg {...common}><rect x="3" y="6" width="14" height="14" rx="2"/><path d="M7 6V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-2"/></svg>;
+    case "book":      return <svg {...common}><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>;
+    case "pen":       return <svg {...common}><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>;
+    case "list":      return <svg {...common}><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>;
+    case "highlight": return <svg {...common}><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4z"/><path d="M14 5l5 5"/></svg>;
+    case "bookmark":  return <svg {...common}><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>;
+    case "more":      return <svg {...common}><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>;
+    case "menu":      return <svg {...common}><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>;
+    case "sun":       return <svg {...common}><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>;
+    case "moon":      return <svg {...common}><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>;
+    case "star":      return <svg {...common}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>;
+    case "starf":     return <svg {...common} fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>;
+    case "edit":      return <svg {...common}><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>;
+    case "trash":     return <svg {...common}><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>;
+    case "stats":     return <svg {...common}><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>;
+    case "doc":       return <svg {...common}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>;
+    case "folder":    return <svg {...common}><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>;
+    case "play":      return <svg {...common}><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/></svg>;
+    case "pause":     return <svg {...common}><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>;
+    case "rotate":    return <svg {...common}><polyline points="23 4 23 10 17 10"/><path d="M20.49 15A9 9 0 1 1 5.64 5.64L23 10"/></svg>;
+    case "flame":     return <svg {...common}><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.4-.5-2-1-3-1.3-2.4-.5-4.5 2-6 .3 1.5 1 2.6 2 3 2 1 4 3 4 7a6 6 0 0 1-12 0c0-1 .3-2 .7-2.5.4 0 1 1 1.8 1z" fill="currentColor" stroke="none"/></svg>;
+    case "eye":       return <svg {...common}><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
+    case "type":      return <svg {...common}><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>;
+    case "spacing":   return <svg {...common}><path d="M3 6h18M3 12h18M3 18h18"/></svg>;
+    case "margin":    return <svg {...common}><rect x="3" y="3" width="18" height="18" rx="2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>;
+    case "info":      return <svg {...common}><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>;
+    case "circle":    return <svg {...common}><circle cx="12" cy="12" r="10"/></svg>;
+    case "heart":     return <svg {...common}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>;
+    case "tag":       return <svg {...common}><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>;
+    case "calendar":  return <svg {...common}><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>;
+    default: return null;
+  }
+};
+
+// Brand mark — Mnemos M with foot serifs (V1 ic_foreground.svg)
+const MnemosMark = ({ size = 22, stroke, accent }) => {
+  const c = stroke || "#2D2920";
+  const a = accent || "#B86A30";
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+      <path d="M10 52 L10 14 L20 14 L32 30 L44 14 L54 14 L54 52" stroke={c} strokeWidth="6" strokeLinecap="square" strokeLinejoin="miter" fill="none"/>
+      <path d="M22 24 L32 38 L42 24" stroke={a} strokeWidth="4" strokeLinecap="square" strokeLinejoin="miter" fill="none"/>
+      <rect x="6" y="50" width="12" height="4" fill={c}/>
+      <rect x="46" y="50" width="12" height="4" fill={c}/>
+    </svg>
+  );
+};
+
+// Status bar (iOS-style)
+const StatusBar = ({ time = "9:41" }) => (
+  <div className="sb">
+    <span>{time}</span>
+    <span className="sb-right">
+      {/* signal */}
+      <svg width="16" height="10" viewBox="0 0 16 10" fill="currentColor"><rect x="0" y="6" width="2.5" height="4" rx="0.5"/><rect x="3.5" y="4" width="2.5" height="6" rx="0.5"/><rect x="7" y="2" width="2.5" height="8" rx="0.5"/><rect x="10.5" y="0" width="2.5" height="10" rx="0.5"/></svg>
+      {/* wifi */}
+      <svg width="14" height="10" viewBox="0 0 14 10" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"><path d="M1 4.2 A9 9 0 0 1 13 4.2"/><path d="M3 6.4 A6 6 0 0 1 11 6.4"/><path d="M5 8.6 A3 3 0 0 1 9 8.6"/></svg>
+      {/* battery */}
+      <svg width="22" height="10" viewBox="0 0 22 10" fill="none"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" opacity="0.5"/><rect x="2" y="2" width="15" height="6" rx="1" fill="currentColor"/><rect x="19.5" y="3" width="1.5" height="4" rx="0.5" fill="currentColor" opacity="0.5"/></svg>
+    </span>
+  </div>
+);
+
+// hash to spine class
+const spineClass = (str) => {
+  let h = 0; for (const c of str || "") h = (h * 31 + c.charCodeAt(0)) | 0;
+  return `h${Math.abs(h) % 4}`;
+};
+
+// Topbar
+const Topbar = ({ left, right, title, zh, onBack }) => (
+  <div className="topbar">
+    <div style={{display: "flex", alignItems: "center", gap: 6, minWidth: 0, flex: 1}}>
+      {onBack && (
+        <button className="tb-btn" onClick={onBack} aria-label="back"><Icon name="back" size={18}/></button>
+      )}
+      {left}
+      {title && <h1 className={zh ? "zh" : ""}>{title}</h1>}
+    </div>
+    <div className="tb-actions">{right}</div>
+  </div>
+);
+
+// Phone wrapper for canvas
+const Phone = ({ label, num, theme, onTheme, children, screenLabel }) => (
+  <div className="phone-wrap" data-screen-label={screenLabel}>
+    <div className="phone-label-bar">
+      <div className="phone-label">
+        {num != null && <span className="num">{String(num).padStart(2,"0")}</span>}
+        {label}
+      </div>
+      {onTheme && (
+        <button className="phone-theme-btn" onClick={onTheme} aria-label="toggle theme">
+          {theme === "dark" ? <Icon name="moon" size={13}/> : <Icon name="sun" size={13}/>}
+        </button>
+      )}
+    </div>
+    <div className={"phone " + (theme === "dark" ? "dark-host" : "")}>
+      <div className={"phone-screen " + (theme === "dark" ? "dark" : "")}>
+        <div className="phone-notch"><div className="phone-notch-dot"/></div>
+        <div className="phone-screen-inner" style={theme === "dark" ? null : null}>
+          {children}
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+Object.assign(window, { Icon, MnemosMark, StatusBar, spineClass, Topbar, Phone });
+
+</script>
+<script type="text/babel">
+/* eslint-disable */
+// ════════════════════════════════════════════════
+// Mnemos · Mock data — 3 subsystems with realistic Chinese content
+// ════════════════════════════════════════════════
+
+const DATA = {
+  // ─── Recall · 卡组 ───
+  decks: [
+    {
+      id: "d1", name: "目录学·版本通论", glyph: "目", pinned: true,
+      total: 168, mastered: 72, due: 24, newCards: 8,
+      lastReviewed: "今天 09:22",
+      chapters: [
+        { name: "第一章 · 简策·缣帛时期", cards: 18, sections: [
+          { name: "1.1 简牍制度", cards: [
+            { front: "什么是「编简成策」？", back: "用麻绳或丝纶将削制好的竹简或木牍编联成册，是中国书籍最早的形制，盛行于先秦至汉魏。" },
+            { front: "「册」字与「篇」字本义？", back: "「册」象编简之形，指编联好的简策本身；「篇」原为竹简单位，后引申为书中的章节。" },
+            { front: "汉代「尺牍」一般多长？", back: "约一汉尺（约 23 cm），故称尺牍；汉简实物多在 22-23 cm 之间。", starred: true },
+          ]},
+          { name: "1.2 缣帛书写", cards: [
+            { front: "缣帛书在何时被纸取代？", back: "自东汉造纸术成熟后，缣帛因价昂逐步退出日常书写；唐宋以降仅用于经籍写本与重要文书。" },
+            { front: "缣帛幅面如何制度？", back: "汉制缣幅广二尺二寸（约 50 cm），写就一定长度后卷起。马王堆帛书即为典型实物。", starred: true },
+          ]},
+        ]},
+        { name: "第二章 · 卷轴时期", cards: 32, sections: [
+          { name: "2.1 卷轴形制", cards: [
+            { front: "卷轴书由哪四部分构成？", back: "由轴（杆）、卷（书叶）、签（标题签）、帙（包裹）四部分构成；展卷由右向左阅读。" },
+            { front: "为何唐前以卷为单位？", back: "沿袭缣帛与早期纸卷形制，「卷」遂成唐前书籍最普遍的编次单位；一部书往往分若干卷，一卷一轴。", starred: true },
+          ]},
+          { name: "2.2 旋风装与梵夹装", cards: [
+            { front: "旋风装的形制？", back: "在长卷底纸上，自右至左逐叶错粘小张书叶；卷起时如鳞次相叠，展开时似旋风翻飞，故名。" },
+          ]},
+        ]},
+        { name: "第三章 · 册页时期", cards: 38, sections: [
+          { name: "3.1 装订形制", cards: [
+            { front: "经折装的形制？", back: "将长卷按固定宽度反复折叠成方册，首末粘以硬质封面。源出佛经，盛行唐宋。" },
+            { front: "蝴蝶装与包背装的区别？", back: "蝴蝶装将印面对折后中缝粘连，开卷时如蝶翼展开；包背装则将书叶背对背折，加皮包脊后线钉。" },
+            { front: "线装书一般几针订？", back: "通常用四针眼或六针眼线钉；眼距取等分或天地略宽中间略密，是明清最常见的形制。" },
+          ]},
+          { name: "3.2 版式术语", cards: [
+            { front: "「鱼尾」「象鼻」分别指什么？", back: "鱼尾为版心中部的折页对位标记，呈鱼尾状；象鼻为版心上下两端的细黑线条。" },
+            { front: "什么是「白口」「黑口」？", back: "版心折处不印墨条为「白口」；印满墨条为「黑口」；细窄者称「细黑口」。" },
+          ]},
+        ]},
+        { name: "第四章 · 雕版与活字", cards: 22 },
+        { name: "第五章 · 鉴定与流传", cards: 18 },
+      ],
+    },
+    { id: "d2", name: "拉丁语·名词六格", glyph: "拉", total: 88, mastered: 88, due: 0, newCards: 0, lastReviewed: "昨天 21:14" },
+    { id: "d3", name: "希腊文献选读·词汇", glyph: "希", total: 124, mastered: 41, due: 12, newCards: 8, lastReviewed: "3天前" },
+    { id: "d4", name: "计算机系统基础·术语", glyph: "系", total: 64, mastered: 24, due: 5, newCards: 0, lastReviewed: "1周前" },
+  ],
+
+  // ─── Practice · 题库（只保留一个 CS 科目用于代码/MD/LaTeX 渲染演示）───
+  subjects: [
+    { id: "s1", name: "数据结构与算法", glyph: "算", pinned: true,
+      total: 218, done: 142, accuracy: 0.78, wrongCount: 31, starredCount: 12, due: 18,
+      chapters: [
+        { name: "第一章 · 算法分析基础", total: 24, done: 22, hasReview: true },
+        { name: "第二章 · 线性表与栈队列", total: 35, done: 30, hasReview: true },
+        { name: "第三章 · 树与二叉树", total: 42, done: 28, hasReview: true },
+        { name: "第四章 · 图论", total: 38, done: 14 },
+        { name: "第五章 · 排序算法", total: 36, done: 26 },
+        { name: "第六章 · 查找与散列", total: 28, done: 14 },
+        { name: "第七章 · 字符串匹配", total: 15, done: 8 },
+      ],
+    },
+  ],
+
+  // ─── Reading · 阅读集合 ───
+  collections: [
+    { id: "c1", name: "古籍版本学·读本", glyph: "版", docCount: 12, readCount: 5, totalMinutes: 248,
+      docs: [
+        { id: "doc1", title: "前言 · 版本学的学科定位", format: "MD", words: 3820, progress: 1.0, lastRead: "今天" },
+        { id: "doc2", title: "二分查找：复杂度与实现", format: "MD", words: 5240, progress: 0.62, lastRead: "今天" },
+        { id: "doc3", title: "宋刻本的鉴定要点", format: "MD", words: 6120, progress: 0.34, lastRead: "昨天" },
+        { id: "doc4", title: "明清坊刻与官刻", format: "MD", words: 4980, progress: 0.0, lastRead: "—" },
+        { id: "doc5", title: "稿本、抄本与影印本", format: "MD", words: 5640, progress: 0.0, lastRead: "—" },
+      ],
+    },
+    { id: "c2", name: "算法导论·选篇", glyph: "算", docCount: 9, readCount: 2, totalMinutes: 76 },
+    { id: "c3", name: "经典文献选读", glyph: "经", docCount: 6, readCount: 6, totalMinutes: 184 },
+  ],
+
+  // Activity (last 90 days, fake)
+  activity: (() => {
+    const out = [];
+    let seed = 12345;
+    const rand = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+    for (let i = 89; i >= 0; i--) {
+      const dow = i % 7;
+      const weekendDip = (dow === 0 || dow === 6) ? 0.5 : 1;
+      out.push({
+        d: i,
+        recall:   Math.round(rand() * 30 * weekendDip),
+        practice: Math.round(rand() * 18 * weekendDip),
+        readMin:  Math.round(rand() * 45 * weekendDip),
+      });
+    }
+    return out;
+  })(),
+
+  // Today's targets
+  targets: { recall: 30, practice: 15, readMin: 30 },
+  todayProgress: { recall: 23, practice: 11, readMin: 28 },
+
+  // weekly bars (this week, 7 days)
+  weekRecall: [12, 18, 8, 22, 14, 19, 11],
+  weekPractice: [4, 7, 3, 8, 5, 6, 2],
+  weekReadMin: [22, 35, 14, 41, 18, 28, 12],
+};
+
+// Document content for reader
+const DOC_CONTENT = {
+  doc2: {
+    title: "二分查找：复杂度与实现",
+    author: "算法导论·选篇 · 第七篇",
+    sections: [
+      { id: "s1", level: 1, title: "§ 1 问题陈述" },
+      { id: "s2", level: 2, title: "1.1 形式化定义" },
+      { id: "s3", level: 2, title: "1.2 直觉与不变式" },
+      { id: "s4", level: 1, title: "§ 2 实现" },
+      { id: "s5", level: 2, title: "2.1 迭代写法" },
+      { id: "s6", level: 2, title: "2.2 边界陷阱" },
+      { id: "s7", level: 1, title: "§ 3 复杂度分析" },
+    ],
+    paras: [
+      { type: "h2", id: "s1", text: "§ 1 问题陈述" },
+      { type: "p", text: "二分查找（binary search）是计算机科学中最古老、也最容易被写错的算法之一。它的核心思想朴素：每一次比较都将搜索区间精确折半，从而以对数级别的开销在有序序列中定位目标。" },
+      { type: "h2", id: "s2", text: "1.1 形式化定义" },
+      { type: "p", text: "给定一个非降有序序列 a[0..n−1] 与目标值 x，二分查找返回某个下标 i 使 a[i] = x，或在 x 不存在时返回 -1。算法维护一个候选区间 [lo, hi]，每一轮通过比较中点元素 a[mid] 与 x 将其折半。", hl: ["二分查找"] },
+      { type: "h2", id: "s3", text: "1.2 直觉与不变式" },
+      { type: "p", text: "正确的二分查找写法依赖于明确的循环不变式。常用的两种风格中，闭区间 [lo, hi] 写法的不变式为：「若 x 存在，则 x 必在 a[lo..hi] 之中」。这一不变式在每一次迭代结束时都必须重新成立——这是写对二分查找的关键。", hl: ["循环不变式", "闭区间 [lo, hi]"] },
+      { type: "quote", text: "Although the basic idea of binary search is comparatively straightforward, the details can be surprisingly tricky. —— Donald E. Knuth" },
+      { type: "h2", id: "s4", text: "§ 2 实现" },
+      { type: "p", text: "下面给出一份遵循闭区间不变式的 Python 实现。注意 mid 的计算使用 lo + (hi − lo) // 2 而非 (lo + hi) // 2，以避免在 32 位整型语言（如 C / Java）中发生溢出——这一细节早期 JDK 二分实现亦曾踩坑。", hl: ["lo + (hi − lo) // 2"] },
+      { type: "code", lang: "PYTHON", lines: [
+        { tokens: [["com", "# 闭区间 [lo, hi] 二分查找"]] },
+        { tokens: [["key", "def"], ["op", " "], ["fn", "binary_search"], ["op", "(arr, x):"]] },
+        { tokens: [["op", "    lo, hi = "], ["num", "0"], ["op", ", "], ["fn", "len"], ["op", "(arr) - "], ["num", "1"]] },
+        { tokens: [["op", "    "], ["key", "while"], ["op", " lo <= hi:"]] },
+        { tokens: [["op", "        mid = lo + (hi - lo) // "], ["num", "2"]] },
+        { tokens: [["op", "        "], ["key", "if"], ["op", "   arr[mid] == x: "], ["key", "return"], ["op", " mid"]] },
+        { tokens: [["op", "        "], ["key", "elif"], ["op", " arr[mid] <  x: lo = mid + "], ["num", "1"]] },
+        { tokens: [["op", "        "], ["key", "else"], ["op", ":              hi = mid - "], ["num", "1"]] },
+        { tokens: [["op", "    "], ["key", "return"], ["op", " -"], ["num", "1"]] },
+      ]},
+      { type: "h2", id: "s5", text: "2.1 迭代写法" },
+      { type: "p", text: "迭代写法的优点是避免函数调用开销与栈深度问题；其结构与递归一一对应，但更易于读懂运行时的状态机。在生产代码中应优先选择迭代写法。", hl: ["迭代写法"] },
+      { type: "h2", id: "s6", text: "2.2 边界陷阱" },
+      { type: "p", text: "若改用开区间 [lo, hi) 写法，则不变式、初值与终止条件都需相应调整。混用两种风格是绝大多数 bug 的来源。常见陷阱包括：（1）mid 上下整问题；（2）lo / hi 更新跳变；（3）整型溢出。" },
+      { type: "h2", id: "s7", text: "§ 3 复杂度分析" },
+      { type: "p", text: "设 T(n) 表示长度为 n 数组的最坏比较次数。由于每轮迭代将区间长度折半，递推式为 T(n) = T(⌊n/2⌋) + 1，T(1) = 1。逐次展开得 T(n) = ⌈log₂(n+1)⌉。", hl: ["T(n) = T(⌊n/2⌋) + 1"] },
+      { type: "p", text: "若需更精确的平均复杂度，可在均匀分布假设下计算期望比较次数 E[T(n)] ≈ log₂(n) − 1，即约比最坏情况少一次。这一结果在大规模有序集合的查找性能调优中具有实际意义。" },
+    ],
+    bookmarks: [
+      { id: "bm1", paraIdx: 4, snippet: "循环不变式", time: "今天 09:14" },
+      { id: "bm2", paraIdx: 8, snippet: "Python 实现", time: "今天 09:38" },
+    ],
+  },
+};
+
+// Quiz data
+const QUIZ_DATA = {
+  s1: {
+    name: "数据结构与算法",
+    chapter: "第二章 · 线性表与栈队列",
+    questions: [
+      {
+        id: "q1", type: "choice",
+        stem: "以下哪种数据结构具有「后进先出」（LIFO）的访问顺序？",
+        options: [
+          { k: "A", t: "队列（Queue）" },
+          { k: "B", t: "栈（Stack）" },
+          { k: "C", t: "以数组为底层实现的双端队列" },
+          { k: "D", t: "循环队列（Circular Queue）" },
+        ],
+        correct: "B",
+        explanation: "栈的定义性质即为后进先出。后压入的元素总是先被弹出，只能从栈顶进行插入与删除。队列的访问顺序是先进先出（FIFO）。",
+      },
+      {
+        id: "q2", type: "choice",
+        stem: "在长度为 n 的有序数组上进行二分查找，最坏情况下的时间复杂度为？",
+        options: [
+          { k: "A", t: "O(1)" },
+          { k: "B", t: "O(log n)" },
+          { k: "C", t: "O(n)" },
+          { k: "D", t: "O(n log n)" },
+        ],
+        correct: "B",
+        explanation: "每一轮迭代将候选区间折半，递推式 T(n) = T(⌊n/2⌋) + 1。展开后得 T(n) = ⌈log₂(n+1)⌉，即 O(log n)。",
+      },
+    ],
+  },
+};
+
+window.DATA = DATA;
+window.DOC_CONTENT = DOC_CONTENT;
+window.QUIZ_DATA = QUIZ_DATA;
+
+</script>
+<script type="text/babel">
+/* eslint-disable */
+// ════════════════════════════════════════════════
+// Mnemos · Home (3 tabs) + shared subsections
+// ════════════════════════════════════════════════
+const { useState, useMemo } = React;
+
+const HeroSection = ({ tab, onActivity }) => {
+  // numbers vary by tab
+  const cfg = {
+    practice: { lbl: "本周 · THIS WEEK", main: 142, mainLab: "DONE", mainZh: "完成", side: [
+      { num: "78%", lab: "ACCURACY", zh: "正确率", t: "teal" },
+      { num: 31, lab: "WRONG", zh: "错题", t: "accent" },
+    ], bars: DATA.weekPractice, accent: "accent" },
+    recall: { lbl: "今日 · TODAY", main: 23, mainLab: "DUE", mainZh: "待复习", side: [
+      { num: 142, lab: "REVIEWED", zh: "已复习", t: "teal" },
+      { num: 7, lab: "STREAK", zh: "连续", t: "accent" },
+    ], bars: DATA.weekRecall, accent: "accent" },
+    reading: { lbl: "本周 · THIS WEEK", main: 184, mainLab: "MIN", mainZh: "分钟", side: [
+      { num: 8, lab: "DOCS", zh: "文档", t: "teal" },
+      { num: 24, lab: "HIGHLIGHTS", zh: "高亮", t: "accent" },
+    ], bars: DATA.weekReadMin, accent: "teal" },
+  }[tab];
+  const max = Math.max(...cfg.bars, 1);
+  const today = 4; // 周五
+  const days = ["一","二","三","四","五","六","日"];
+  return (
+    <div className="hero" onClick={onActivity}>
+      <div className="hero-head">
+        <div className="lbl">{cfg.lbl}</div>
+        <div style={{display: "flex", alignItems: "center", gap: 6}}>
+          <div className="streak"><Icon name="flame" size={11}/> 7 日</div>
+          <span style={{fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: 0.12, color: "var(--ink-4)", opacity: 0.7}}>↗</span>
+        </div>
+      </div>
+      <div className="hero-row">
+        <div className="hero-col">
+          <div className={"num " + cfg.accent}>{cfg.main}</div>
+          <div className="label">{cfg.mainLab}</div>
+          <div className="zh-label">{cfg.mainZh}</div>
+        </div>
+        <div className="hero-divider"/>
+        {cfg.side.map((s,i) => (
+          <div key={i} className="hero-col">
+            <div className={"num " + s.t}>{s.num}</div>
+            <div className="label">{s.lab}</div>
+            <div className="zh-label">{s.zh}</div>
+          </div>
+        ))}
+      </div>
+      <div className="hero-chart">
+        {cfg.bars.map((v,i) => {
+          const h = Math.max(2, Math.round((v/max) * 22));
+          const cls = i === today ? "today" : (v === 0 ? "empty" : (cfg.accent === "teal" ? "teal" : ""));
+          return (
+            <div key={i} className={"hero-bar " + cls}>
+              <div className="b" style={{height: h + "px"}}/>
+              <div className="day">{days[i]}</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+const ContinueCard = ({ tab, onClick, onDismiss }) => {
+  const cfg = {
+    practice: { glyph: "→", name: "数据结构与算法 · 第二章", stat: "继续 · 第 14 / 32 题", pct: 0.44 },
+    recall:   { glyph: "→", name: "目录学·版本通论", stat: "继续 · 还有 24 张待复习", pct: 0.43 },
+    reading:  { glyph: "→", name: "二分查找：复杂度与实现", stat: "继续阅读 · 古籍版本学·读本", pct: 0.62 },
+  }[tab];
+  return (
+    <div className="deck continue" onClick={onClick}>
+      <div className="deck-spine"><div className="glyph">{cfg.glyph}</div></div>
+      <div className="deck-meta">
+        <div className="deck-name">{cfg.name}</div>
+        <div className="deck-stats">{cfg.stat}</div>
+      </div>
+      <div className="deck-cta">
+        <div className="deck-progress-tiny">
+          <svg viewBox="0 0 36 36" width="36" height="36">
+            <circle cx="18" cy="18" r="15" fill="none" stroke="var(--bg-raised)" strokeWidth="2.5"/>
+            <circle cx="18" cy="18" r="15" fill="none" stroke="var(--accent)" strokeWidth="2.5"
+              strokeDasharray={`${cfg.pct * 94.2} 100`} strokeLinecap="round"
+              transform="rotate(-90 18 18)"/>
+            <text x="18" y="20.5" textAnchor="middle" fontSize="9" fontFamily="var(--font-mono)" fill="var(--ink-2)" fontWeight="600">{Math.round(cfg.pct*100)}</text>
+          </svg>
+        </div>
+        <button className="deck-dismiss" onClick={(e) => { e.stopPropagation(); onDismiss && onDismiss(); }}><Icon name="x" size={14}/></button>
+      </div>
+    </div>
+  );
+};
+
+const DeckCard = ({ d, onClick }) => {
+  const cls = spineClass(d.id);
+  return (
+    <div className="deck" onClick={onClick}>
+      <div className={"deck-spine " + cls}><div className="glyph">{d.glyph}</div></div>
+      <div className="deck-meta">
+        <div className="deck-name">
+          {d.name}
+          {d.pinned && <span className="deck-pin">◆</span>}
+        </div>
+        <div className="deck-stats">
+          {d.due > 0 ? <span className="due">{d.due} 待复习</span> : <span className="ok">已学完</span>}
+          <span className="dot">·</span>
+          <span>{d.mastered}/{d.total}</span>
+          {d.newCards > 0 && <><span className="dot">·</span><span>{d.newCards} 新</span></>}
+        </div>
+      </div>
+      <div className="deck-cta">
+        {d.due > 0 ? (
+          <button className="cta-pill" onClick={(e)=>{e.stopPropagation(); onClick();}}>
+            复习 <span className="arr">→</span>
+          </button>
+        ) : (
+          <span className="cta-done"><Icon name="check" size={14} stroke={2}/></span>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const SubjectCard = ({ s, onClick }) => {
+  const cls = spineClass(s.id + "p");
+  return (
+    <div className="deck" onClick={onClick}>
+      <div className={"deck-spine " + cls}><div className="glyph">{s.glyph}</div></div>
+      <div className="deck-meta">
+        <div className="deck-name">
+          {s.name}
+          {s.pinned && <span className="deck-pin">◆</span>}
+        </div>
+        <div className="deck-stats">
+          <span>{s.done}/{s.total}</span>
+          <span className="dot">·</span>
+          <span className="ok">{Math.round(s.accuracy*100)}%</span>
+          {s.wrongCount > 0 && <><span className="dot">·</span><span className="due">{s.wrongCount} 错</span></>}
+        </div>
+      </div>
+      <div className="deck-cta">
+        {s.due > 0 ? (
+          <button className="cta-pill teal">练习 <span className="arr">→</span></button>
+        ) : (
+          <span className="cta-done"><Icon name="check" size={14} stroke={2}/></span>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const CollectionCard = ({ c, onClick }) => {
+  const cls = spineClass(c.id + "r");
+  return (
+    <div className="deck" onClick={onClick}>
+      <div className={"deck-spine " + cls}><div className="glyph">{c.glyph}</div></div>
+      <div className="deck-meta">
+        <div className="deck-name">{c.name}</div>
+        <div className="deck-stats">
+          <span>{c.readCount}/{c.docCount} 读完</span>
+          <span className="dot">·</span>
+          <span>{c.totalMinutes} 分钟</span>
+        </div>
+      </div>
+      <div className="deck-cta">
+        <button className="cta-pill">阅读 <span className="arr">→</span></button>
+      </div>
+    </div>
+  );
+};
+
+// Bottom action row (import / new)
+const BottomActions = ({ items }) => (
+  <div style={{padding: "0 16px 16px", display: "flex", gap: 8}}>
+    {items.map((it,i) => (
+      <button key={i} className="btn btn-ghost btn-block" onClick={it.onClick}>
+        <Icon name={it.icon} size={14}/> {it.label}
+      </button>
+    ))}
+  </div>
+);
+
+// Brand header (page top)
+const BrandHeader = ({ subtitle, onSearch, onSettings, onImport }) => (
+  <div className="topbar" style={{paddingTop: 4}}>
+    <div style={{display: "flex", alignItems: "center", gap: 10, minWidth: 0, flex: 1}}>
+      <MnemosMark size={22}/>
+      <div style={{minWidth: 0}}>
+        <div style={{fontFamily: "var(--font-disp)", fontSize: 18, color: "var(--ink)", lineHeight: 1, letterSpacing: 0}}>Mnemos</div>
+        <div style={{fontFamily: "var(--font-disp)", fontSize: 10, fontStyle: "italic", color: "var(--ink-3)", letterSpacing: 0.04, marginTop: 1}}>memoria principium</div>
+      </div>
+    </div>
+    <div className="tb-actions">
+      <button className="tb-btn" onClick={onSearch}><Icon name="search" size={17}/></button>
+      <button className="tb-btn" onClick={onImport}><Icon name="import" size={17}/></button>
+      <button className="tb-btn" onClick={onSettings}><Icon name="settings" size={17}/></button>
+    </div>
+  </div>
+);
+
+const TabsHead = ({ tab, setTab, placement = "top" }) => {
+  const tabs = [
+    { id: "practice", zh: "练习", en: "PRACTICE" },
+    { id: "recall",   zh: "记忆", en: "RECALL" },
+    { id: "reading",  zh: "阅读", en: "READING" },
+  ];
+  return (
+    <div className="tabs-head" style={placement === "bottom" ? { margin: "8px 16px 0", flexShrink: 0 } : null}>
+      {tabs.map(t => (
+        <button key={t.id} className={"tabs-tab " + (tab === t.id ? "on" : "")} onClick={() => setTab(t.id)}>
+          <span className="zh">{t.zh}</span>
+          <span className="en">{t.en}</span>
+        </button>
+      ))}
+    </div>
+  );
+};
+
+// Sort header
+const SortRow = ({ sort, setSort, options }) => (
+  <div style={{display: "flex", gap: 6, padding: "0 16px", alignItems: "center"}}>
+    <span style={{fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: 0.16, color: "var(--ink-3)", textTransform: "uppercase", marginRight: 4}}>排序</span>
+    {options.map(o => (
+      <button key={o.id} className={"chip " + (sort === o.id ? "on" : "")} onClick={() => setSort(o.id)}>{o.label}</button>
+    ))}
+  </div>
+);
+
+// ─── Home ───
+const HomeScreen = ({ tab, setTab, nav, theme, onTheme, tabPlacement }) => {
+  const [sort, setSort] = useState("recent");
+  const [continueDismissed, setContinueDismissed] = useState({});
+
+  const Practice = (
+    <div style={{display: "flex", flexDirection: "column", gap: 14}}>
+      <HeroSection tab="practice" onActivity={() => nav("activity")}/>
+      {!continueDismissed.practice && <ContinueCard tab="practice" onClick={() => nav("quiz")} onDismiss={() => setContinueDismissed(s => ({...s, practice: true}))}/>}
+      <SortRow sort={sort} setSort={setSort} options={[{id: "recent", label: "最近"}, {id: "name", label: "名称"}, {id: "due", label: "待做"}]}/>
+      <div style={{display: "flex", flexDirection: "column", gap: 8, padding: "0 16px"}}>
+        {DATA.subjects.map(s => <SubjectCard key={s.id} s={s} onClick={() => nav("setdetail", s)}/>)}
+      </div>
+    </div>
+  );
+
+  const Recall = (
+    <div style={{display: "flex", flexDirection: "column", gap: 14}}>
+      <HeroSection tab="recall" onActivity={() => nav("activity")}/>
+      {!continueDismissed.recall && <ContinueCard tab="recall" onClick={() => nav("review", DATA.decks[0])} onDismiss={() => setContinueDismissed(s => ({...s, recall: true}))}/>}
+      <SortRow sort={sort} setSort={setSort} options={[{id: "recent", label: "最近"}, {id: "name", label: "名称"}, {id: "due", label: "待复习"}]}/>
+      <div style={{display: "flex", flexDirection: "column", gap: 8, padding: "0 16px"}}>
+        {DATA.decks.map(d => <DeckCard key={d.id} d={d} onClick={() => nav("deckdetail", d)}/>)}
+      </div>
+    </div>
+  );
+
+  const Reading = (
+    <div style={{display: "flex", flexDirection: "column", gap: 14}}>
+      <HeroSection tab="reading" onActivity={() => nav("activity")}/>
+      {!continueDismissed.reading && <ContinueCard tab="reading" onClick={() => nav("reader", { docId: "doc2", collectionId: "c1" })} onDismiss={() => setContinueDismissed(s => ({...s, reading: true}))}/>}
+      <SortRow sort={sort} setSort={setSort} options={[{id: "recent", label: "最近"}, {id: "name", label: "名称"}, {id: "unread", label: "未读"}]}/>
+      <div style={{display: "flex", flexDirection: "column", gap: 8, padding: "0 16px"}}>
+        {DATA.collections.map(c => <CollectionCard key={c.id} c={c} onClick={() => nav("collectiondetail", c)}/>)}
+      </div>
+    </div>
+  );
+
+  const body = { practice: Practice, recall: Recall, reading: Reading }[tab];
+  const bottomBar = { practice: [{ icon: "import", label: "导入题库", onClick: () => nav("import") }],
+                      recall: [{ icon: "import", label: "导入卡组", onClick: () => nav("import") }, { icon: "plus", label: "新建卡组" }],
+                      reading: [{ icon: "import", label: "导入文档", onClick: () => nav("import") }, { icon: "plus", label: "新建集合" }],
+                    }[tab];
+  return (
+    <>
+      <StatusBar/>
+      <BrandHeader onSearch={() => nav("search")} onImport={() => nav("import")} onSettings={() => nav("settings")}/>
+      {tabPlacement === "top" && <TabsHead tab={tab} setTab={setTab}/>}
+      <div className="phone-screen-scroll" style={{padding: "12px 0 8px"}}>
+        {body}
+      </div>
+      <BottomActions items={bottomBar}/>
+      {tabPlacement === "bottom" && <TabsHead tab={tab} setTab={setTab} placement="bottom"/>}
+    </>
+  );
+};
+
+window.HeroSection = HeroSection; window.HomeScreen = HomeScreen; window.DeckCard = DeckCard;
+window.SubjectCard = SubjectCard; window.CollectionCard = CollectionCard; window.BrandHeader = BrandHeader;
+window.TabsHead = TabsHead; window.BottomActions = BottomActions; window.ContinueCard = ContinueCard;
+
+</script>
+<script type="text/babel">
+/* eslint-disable */
+// ════════════════════════════════════════════════
+// Mnemos · Detail screens — Deck / Set / Collection
+// ════════════════════════════════════════════════
+const { useState: useStateDD } = React;
+
+// ─── DeckDetail ───
+const DeckDetail = ({ d, nav, onBack }) => {
+  const [openCh, setOpenCh] = useStateDD({ 0: true });
+  const [openSec, setOpenSec] = useStateDD({});
+  const pct = d.mastered / d.total;
+  const allDone = d.mastered === d.total;
+  return (
+    <>
+      <StatusBar/>
+      <Topbar onBack={onBack} title={d.name} zh right={
+        <>
+          <button className="tb-btn"><Icon name="search" size={17}/></button>
+          <button className="tb-btn"><Icon name="more" size={17}/></button>
+        </>
+      }/>
+      <div className="phone-screen-scroll" style={{padding: "8px 0 16px", display: "flex", flexDirection: "column", gap: 14}}>
+        <div className="dd-head">
+          <div className="dd-meta">
+            <span>共 {d.total} 张</span><span className="sep">·</span>
+            <span>已掌握 {d.mastered}</span><span className="sep">·</span>
+            <span>{Math.round(pct*100)}%</span>
+            {d.lastReviewed && <><span className="sep">·</span><span>{d.lastReviewed}</span></>}
+          </div>
+          <div className="dd-progress"><div className="bar" style={{width: (pct*100) + "%"}}/></div>
+        </div>
+        <div style={{padding: "0 16px", display: "flex", flexDirection: "column", gap: 8}}>
+          <button className={"dd-cta-main " + (allDone ? "disabled" : "")} onClick={() => !allDone && nav("review", d)}>
+            <span className="left">
+              <span className="lead">{allDone ? "已学完" : <><span className="num">{d.due}</span>张待复习</>}</span>
+              <span className="sub">{allDone ? "ALL CAUGHT UP" : "TAP TO REVIEW"}</span>
+            </span>
+            <span className="arr">{allDone ? <Icon name="check" size={20} stroke={2}/> : "→"}</span>
+          </button>
+          <div className="dd-secondary">
+            <button className="dd-action"><Icon name="eye" size={17}/><span className="lab">浏览</span></button>
+            <button className="dd-action"><Icon name="rotate" size={17}/><span className="lab">全部复习</span></button>
+            <button className="dd-action"><Icon name="import" size={17}/><span className="lab">导入</span></button>
+            <button className="dd-action"><Icon name="plus" size={17}/><span className="lab">新卡片</span></button>
+          </div>
+        </div>
+        <div style={{padding: "0 18px"}}>
+          <div className="section-title">章节大纲 · CHAPTERS</div>
+          <div style={{marginTop: 8}}>
+            {(d.chapters || []).map((ch, i) => (
+              <div key={i}>
+                <div className="ch-row" onClick={() => setOpenCh(s => ({...s, [i]: !s[i]}))}>
+                  <span className={"ch-caret " + (openCh[i] ? "open" : "")}>▸</span>
+                  <span className="ch-name">{ch.name}</span>
+                  <span className="ch-count">{ch.cards}</span>
+                </div>
+                {openCh[i] && (ch.sections || []).map((sec, j) => (
+                  <div key={j}>
+                    <div className="ch-row sec-row" onClick={() => setOpenSec(s => ({...s, [`${i}-${j}`]: !s[`${i}-${j}`]}))}>
+                      <span className={"ch-caret " + (openSec[`${i}-${j}`] ? "open" : "")}>▸</span>
+                      <span className="ch-name">{sec.name}</span>
+                      <span className="ch-count">{sec.cards.length}</span>
+                    </div>
+                    {openSec[`${i}-${j}`] && sec.cards.map((c, k) => (
+                      <div key={k} className="card-row">
+                        <span className="dot-bullet"/>
+                        <span className="front">{c.front}</span>
+                        <Icon name={c.starred ? "starf" : "star"} size={13} stroke={1.4} className={c.starred ? "star-on" : "star-off"} style={{color: c.starred ? "var(--accent)" : "var(--ink-4)"}}/>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+// ─── SetDetail (Practice subject) ───
+const SetDetail = ({ s, nav, onBack }) => {
+  const [openCh, setOpenCh] = useStateDD({ 1: true });
+  const pct = s.done / s.total;
+  return (
+    <>
+      <StatusBar/>
+      <Topbar onBack={onBack} title={s.name} zh right={<>
+        <button className="tb-btn"><Icon name="search" size={17}/></button>
+        <button className="tb-btn"><Icon name="more" size={17}/></button>
+      </>}/>
+      <div className="phone-screen-scroll" style={{padding: "8px 0 16px", display: "flex", flexDirection: "column", gap: 14}}>
+        <div className="dd-head">
+          <div className="dd-meta">
+            <span>共 {s.total} 题</span><span className="sep">·</span>
+            <span>已做 {s.done}</span><span className="sep">·</span>
+            <span style={{color: "var(--good)", fontWeight: 600}}>{Math.round(s.accuracy*100)}%</span>
+            <span className="sep">·</span>
+            <span style={{color: "var(--accent)", fontWeight: 600}}>{s.wrongCount} 错题</span>
+          </div>
+          <div className="dd-progress"><div className="bar teal" style={{width: (pct*100) + "%"}}/></div>
+        </div>
+        <div style={{padding: "0 16px", display: "flex", flexDirection: "column", gap: 8}}>
+          <button className="dd-cta-main teal" onClick={() => nav("quiz", s)}>
+            <span className="left">
+              <span className="lead">开始练习</span>
+              <span className="sub">CONTINUE FROM 第四章</span>
+            </span>
+            <span className="arr">→</span>
+          </button>
+          <div className="dd-secondary">
+            <button className="dd-action"><Icon name="x" size={17}/><span className="lab">错题 {s.wrongCount}</span></button>
+            <button className="dd-action"><Icon name="starf" size={16}/><span className="lab">收藏 {s.starredCount}</span></button>
+            <button className="dd-action"><Icon name="import" size={17}/><span className="lab">导入</span></button>
+            <button className="dd-action"><Icon name="export" size={17}/><span className="lab">导出</span></button>
+          </div>
+        </div>
+        <div style={{padding: "0 18px"}}>
+          <div className="section-title">章节 · CHAPTERS</div>
+          <div style={{marginTop: 8}}>
+            {(s.chapters || []).map((ch, i) => {
+              const cp = ch.done / ch.total;
+              return (
+                <div key={i}>
+                  <div className="ch-row" onClick={() => setOpenCh(s2 => ({...s2, [i]: !s2[i]}))}>
+                    <span className={"ch-caret " + (openCh[i] ? "open" : "")}>▸</span>
+                    <span className="ch-name">{ch.name}</span>
+                    <div style={{display: "flex", alignItems: "center", gap: 8}}>
+                      <span className="ch-count">{ch.done}/{ch.total}</span>
+                      <div style={{width: 32, height: 3, background: "var(--bg-raised)", borderRadius: 2, overflow: "hidden"}}>
+                        <div style={{width: (cp*100)+"%", height: "100%", background: "var(--teal)"}}/>
+                      </div>
+                    </div>
+                  </div>
+                  {openCh[i] && (
+                    <div style={{padding: "4px 22px 8px", display: "flex", gap: 8, flexWrap: "wrap"}}>
+                      <button className="btn btn-sm btn-accent" onClick={() => nav("quiz", s)}><Icon name="play" size={11}/> 选择题</button>
+                      {ch.hasReview && <button className="btn btn-sm btn-ghost"><Icon name="pen" size={11}/> 解答题</button>}
+                      <button className="btn btn-sm btn-ghost"><Icon name="x" size={11}/> 错题回顾</button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+// ─── CollectionDetail ───
+const CollectionDetail = ({ c, nav, onBack }) => {
+  return (
+    <>
+      <StatusBar/>
+      <Topbar onBack={onBack} title={c.name} zh right={<>
+        <button className="tb-btn"><Icon name="search" size={17}/></button>
+        <button className="tb-btn"><Icon name="more" size={17}/></button>
+      </>}/>
+      <div className="phone-screen-scroll" style={{padding: "8px 0 16px", display: "flex", flexDirection: "column", gap: 14}}>
+        <div className="dd-head">
+          <div className="dd-meta">
+            <span>共 {c.docCount} 篇</span><span className="sep">·</span>
+            <span>已读 {c.readCount}</span><span className="sep">·</span>
+            <span>{c.totalMinutes} 分钟</span><span className="sep">·</span>
+            <span style={{color: "var(--accent)"}}>24 高亮</span>
+          </div>
+        </div>
+        <div style={{padding: "0 16px", display: "flex", flexDirection: "column", gap: 8}}>
+          <button className="dd-cta-main" onClick={() => nav("reader", { docId: "doc2", collectionId: c.id })}>
+            <span className="left">
+              <span className="lead">继续阅读</span>
+              <span className="sub">二分查找：复杂度与实现 · 62%</span>
+            </span>
+            <span className="arr">→</span>
+          </button>
+          <div className="dd-secondary">
+            <button className="dd-action"><Icon name="import" size={17}/><span className="lab">导入</span></button>
+            <button className="dd-action"><Icon name="plus" size={17}/><span className="lab">新文档</span></button>
+            <button className="dd-action"><Icon name="export" size={17}/><span className="lab">导出高亮</span></button>
+            <button className="dd-action"><Icon name="stats" size={17}/><span className="lab">统计</span></button>
+          </div>
+        </div>
+        <div style={{padding: "0 18px"}}>
+          <div className="section-title">文档 · DOCUMENTS</div>
+          <div style={{marginTop: 8}}>
+            {(c.docs || []).map((doc, i) => (
+              <div key={doc.id} className="doc-row" onClick={() => nav("reader", { docId: doc.id, collectionId: c.id })}>
+                <span className={"doc-dot " + (doc.progress === 1 ? "read" : "")}/>
+                <span className="doc-title">{doc.title}</span>
+                <span className="doc-meta">{doc.progress > 0 && doc.progress < 1 ? Math.round(doc.progress*100) + "%" : (doc.progress === 1 ? "✓" : "")}</span>
+                <span className="doc-fmt">{doc.format}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+window.DeckDetail = DeckDetail; window.SetDetail = SetDetail; window.CollectionDetail = CollectionDetail;
+
+</script>
+<script type="text/babel">
+/* eslint-disable */
+// ════════════════════════════════════════════════
+// Mnemos · Review (flashcard) + Quiz screens
+// ════════════════════════════════════════════════
+const { useState: useStateRV } = React;
+
+const ReviewScreen = ({ d, onBack, nav }) => {
+  const [idx, setIdx] = useStateRV(0);
+  const [flipped, setFlipped] = useStateRV(false);
+  const [done, setDone] = useStateRV(false);
+  const [stats, setStats] = useStateRV({ again: 0, hard: 0, good: 1, easy: 0, correct: 1 });
+
+  const cards = [
+    { front: "「编简成策」是什么？", back: "用麻绳或丝纶将简牍编联成册，是中国书籍最早的形制，盛行于先秦至汉魏。" },
+    { front: "经折装的形制？", back: "将长卷按固定宽度反复折叠成方册，首末粘以硬质封面。源出佛经，盛行唐宋。" },
+    { front: "线装书一般几针订？", back: "通常用四针眼或六针眼线钉；眼距取等分或天地略宽中间略密。" },
+  ];
+  const total = d?.due || 23;
+  const card = cards[idx % cards.length];
+
+  const rate = (kind) => {
+    setStats(s => ({...s, [kind]: s[kind] + 1, correct: s.correct + (kind !== "again" ? 1 : 0)}));
+    if (idx + 1 >= 3) { setDone(true); return; }
+    setIdx(i => i + 1); setFlipped(false);
+  };
+
+  if (done) {
+    return (
+      <>
+        <StatusBar/>
+        <Topbar onBack={onBack} right={<button className="tb-btn"><Icon name="x" size={18}/></button>}/>
+        <div className="done-wrap">
+          <div className="done-mark"><Icon name="check" size={32} stroke={2}/></div>
+          <div className="done-title">Mnēmosúnē</div>
+          <div className="done-zh">本组复习完毕</div>
+          <div className="done-stats">
+            <span><span className="v">{stats.again+stats.hard+stats.good+stats.easy}</span> 已复习</span>
+            <span className="sep">·</span>
+            <span style={{color: "var(--good)"}}><span className="v" style={{color: "var(--good)"}}>{Math.round(stats.correct/(stats.again+stats.hard+stats.good+stats.easy)*100)}%</span> 正确率</span>
+          </div>
+          <div className="done-grid">
+            <div className="cell again"><span className="num">{stats.again}</span>重来</div>
+            <div className="cell hard"><span className="num">{stats.hard}</span>困难</div>
+            <div className="cell good"><span className="num">{stats.good}</span>记住</div>
+            <div className="cell easy"><span className="num">{stats.easy}</span>容易</div>
+          </div>
+          <div style={{display: "flex", gap: 8, width: "100%", marginTop: 14}}>
+            <button className="btn btn-ghost btn-block" onClick={onBack}>返回卡组</button>
+            <button className="btn btn-primary btn-block" onClick={() => { setDone(false); setIdx(0); setStats({ again: 0, hard: 0, good: 0, easy: 0, correct: 0 }); }}>再来一组</button>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <StatusBar/>
+      <Topbar onBack={onBack} right={<button className="tb-btn"><Icon name="x" size={18}/></button>}/>
+      <div className="rv-progress"><div className="bar" style={{width: ((idx+1)/3*100) + "%"}}/></div>
+      <div className="rv-meta">
+        <div className="crumb">{d?.name || "目录学·版本通论"}<span className="div">·</span>第三章</div>
+        <div className="pos"><span className="now">{idx+1}</span> / 3</div>
+      </div>
+      <div className="rv-card-wrap">
+        <div className={"rv-card " + (flipped ? "flipped" : "")} onClick={() => setFlipped(true)}>
+          <div className="corner"><span className="num">{idx+1}</span><span>· {flipped ? "VERSO" : "RECTO"}</span></div>
+          <button className="star-btn" onClick={(e) => e.stopPropagation()}><Icon name="star" size={16}/></button>
+          <div className="body">
+            {!flipped ? (
+              <div className="front-q">{card.front}</div>
+            ) : (
+              <>
+                <div className="echo">{card.front}</div>
+                <div className="reverso">REVERSO</div>
+                <div className="back-a">{card.back}</div>
+              </>
+            )}
+          </div>
+          <div className="ornament"/>
+        </div>
+        {!flipped ? (
+          <div className="rv-flip-hint">轻点翻面 · TAP TO FLIP</div>
+        ) : (
+          <div className="rate">
+            <button className="rate-btn rate-again" onClick={() => rate("again")}>重来<span className="iv">&lt; 1m</span></button>
+            <button className="rate-btn rate-hard" onClick={() => rate("hard")}>困难<span className="iv">6m</span></button>
+            <button className="rate-btn rate-good" onClick={() => rate("good")}>记住<span className="iv">1d</span></button>
+            <button className="rate-btn rate-easy" onClick={() => rate("easy")}>容易<span className="iv">4d</span></button>
+          </div>
+        )}
+      </div>
+    </>
+  );
+};
+
+// ─── Quiz ───
+const QuizScreen = ({ s, onBack }) => {
+  const data = QUIZ_DATA.s1;
+  const [idx, setIdx] = useStateRV(0);
+  const [picked, setPicked] = useStateRV(null);
+  const [submitted, setSubmitted] = useStateRV(false);
+  const [starred, setStarred] = useStateRV(false);
+  const [score, setScore] = useStateRV({ correct: 0, total: 0 });
+  const [done, setDone] = useStateRV(false);
+  const q = data.questions[idx];
+
+  const submit = () => {
+    if (!picked) return;
+    setSubmitted(true);
+    setScore(sc => ({ correct: sc.correct + (picked === q.correct ? 1 : 0), total: sc.total + 1 }));
+  };
+  const next = () => {
+    if (idx + 1 >= data.questions.length) { setDone(true); return; }
+    setIdx(i => i + 1); setPicked(null); setSubmitted(false); setStarred(false);
+  };
+
+  if (done) {
+    return (
+      <>
+        <StatusBar/>
+        <Topbar onBack={onBack} right={<button className="tb-btn"><Icon name="x" size={18}/></button>}/>
+        <div className="done-wrap">
+          <div className="done-mark" style={{background: "var(--teal-soft)", borderColor: "var(--teal-line)", color: "var(--teal)"}}><Icon name="check" size={32} stroke={2}/></div>
+          <div className="done-title">一组练毕</div>
+          <div className="done-zh">{data.chapter}</div>
+          <div className="done-stats">
+            <span><span className="v">{score.total}</span> 题</span>
+            <span className="sep">·</span>
+            <span><span className="v" style={{color: "var(--good)"}}>{score.correct}</span> 正确</span>
+            <span className="sep">·</span>
+            <span><span className="v" style={{color: "var(--good)"}}>{Math.round(score.correct/score.total*100)}%</span> 正确率</span>
+          </div>
+          <div style={{display: "flex", gap: 8, width: "100%", marginTop: 18}}>
+            <button className="btn btn-ghost btn-block">错题回顾</button>
+            <button className="btn btn-primary btn-block" onClick={() => { setDone(false); setIdx(0); setPicked(null); setSubmitted(false); setScore({correct: 0, total: 0}); }}>再来一组</button>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <StatusBar/>
+      <Topbar onBack={onBack} right={
+        <>
+          <button className="tb-btn" onClick={() => setStarred(!starred)} style={{color: starred ? "var(--accent)" : null}}>
+            <Icon name={starred ? "starf" : "star"} size={17}/>
+          </button>
+          <button className="tb-btn"><Icon name="more" size={17}/></button>
+        </>
+      }/>
+      <div className="rv-progress"><div className="bar teal" style={{width: ((idx+1)/data.questions.length*100) + "%"}}/></div>
+      <div className="rv-meta">
+        <div className="crumb">{data.name}<span className="div">·</span>{data.chapter}</div>
+        <div className="pos"><span className="now">{idx+1}</span> / {data.questions.length}</div>
+      </div>
+      <div className="rv-card-wrap">
+        <div className="qa-card">
+          <div className="corner">
+            <span className="num">{idx+1}</span><span>· 选择题 · 单选</span>
+          </div>
+          <div className="qa-stem">{q.stem}</div>
+          <div className="qa-options">
+            {q.options.map(o => {
+              let cls = "qa-opt";
+              if (!submitted && picked === o.k) cls += " picked";
+              if (submitted && o.k === q.correct) cls += " correct";
+              if (submitted && picked === o.k && picked !== q.correct) cls += " wrong";
+              if (submitted && o.k !== q.correct && picked !== o.k) cls += " faded";
+              return (
+                <button key={o.k} className={cls} disabled={submitted} onClick={() => setPicked(o.k)}>
+                  <span className="qa-mark">{o.k}</span>
+                  <span className="qa-text">{o.t}</span>
+                </button>
+              );
+            })}
+          </div>
+          {submitted && (
+            <div className="qa-explain">
+              <strong>解析 · </strong>{q.explanation}
+            </div>
+          )}
+        </div>
+        <div style={{padding: "0"}}>
+          {!submitted ? (
+            <button className="btn btn-primary btn-block" disabled={!picked} onClick={submit}
+              style={!picked ? {opacity: 0.4, cursor: "not-allowed"} : null}>
+              提交答案
+            </button>
+          ) : (
+            <button className="btn btn-primary btn-block" onClick={next}>
+              {idx + 1 >= data.questions.length ? "完成 →" : "下一题 →"}
+            </button>
+          )}
+        </div>
+      </div>
+    </>
+  );
+};
+
+window.ReviewScreen = ReviewScreen; window.QuizScreen = QuizScreen;
+
+</script>
+<script type="text/babel">
+/* eslint-disable */
+// ════════════════════════════════════════════════
+// Mnemos · Reader (immersive, side panels, tap-toggle)
+// ════════════════════════════════════════════════
+const { useState: useStateRD, useEffect: useEffectRD, useRef: useRefRD } = React;
+
+const ReaderScreen = ({ docId = "doc2", onBack }) => {
+  const doc = DOC_CONTENT[docId] || DOC_CONTENT.doc2;
+  const [chromeVisible, setChromeVisible] = useStateRD(true);
+  const [panel, setPanel] = useStateRD(null); // null | toc | highlight | bookmark
+  const [showSettings, setShowSettings] = useStateRD(false);
+  const [fontSize, setFontSize] = useStateRD("中");
+  const [lineH, setLineH] = useStateRD("正常");
+  const [margin, setMargin] = useStateRD("中");
+  const [hlFab, setHlFab] = useStateRD(null); // {x, y}
+  const [highlights, setHighlights] = useStateRD([
+    { id: "h1", paraIdx: 2, text: "瞬时速度", time: "今天 09:08" },
+    { id: "h2", paraIdx: 3, text: "越来越小的区间上的平均变化率", time: "今天 09:11" },
+    { id: "h3", paraIdx: 11, text: "乘积法则 (uv)' = u'v + uv'", time: "今天 09:36" },
+  ]);
+  const [flashIdx, setFlashIdx] = useStateRD(null);
+  const [toast, setToast] = useStateRD(null);
+  const [progress, setProgress] = useStateRD(0.62);
+  const scrollRef = useRefRD(null);
+
+  const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 1400); };
+
+  const onProseTap = (e) => {
+    if (e.target.closest(".hl")) return; // selection click handled
+    if (panel) { setPanel(null); return; }
+    setChromeVisible(v => !v);
+    setShowSettings(false);
+  };
+
+  // simulate selection — clicking a paragraph long shows fab
+  const simulateSelection = (e, paraIdx) => {
+    e.stopPropagation();
+    const r = e.currentTarget.getBoundingClientRect();
+    const phone = e.currentTarget.closest(".phone-screen-inner").getBoundingClientRect();
+    setHlFab({ x: r.left + r.width/2 - phone.left, y: r.bottom - phone.top + 8, paraIdx, text: "选中文字示例片段" });
+  };
+
+  const saveHighlight = () => {
+    if (!hlFab) return;
+    const newH = { id: "h" + Date.now(), paraIdx: hlFab.paraIdx, text: hlFab.text, time: "刚刚" };
+    setHighlights(arr => [newH, ...arr]);
+    setFlashIdx(hlFab.paraIdx);
+    setTimeout(() => setFlashIdx(null), 600);
+    setHlFab(null);
+    showToast("已保存高亮");
+    setPanel("highlight");
+    setChromeVisible(true);
+  };
+
+  const fontSizes = { "小": 14, "中": 15, "大": 17 };
+  const lineHs = { "紧": 1.7, "正常": 1.95, "松": 2.2 };
+  const margins = { "窄": 16, "中": 28, "宽": 40 };
+
+  return (
+    <div style={{position: "relative", flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", background: "var(--bg)"}}>
+      <StatusBar/>
+
+      {/* tiny progress pill, persistent */}
+      {!chromeVisible && (
+        <div className="rd-progress-pill">
+          <span>{Math.round(progress*100)}%</span>
+          <div className="bar-mini"><div className="fill" style={{width: (progress*100)+"%"}}/></div>
+        </div>
+      )}
+
+      {/* Top bar */}
+      <div className={"rd-topbar " + (chromeVisible ? "" : "hidden")}>
+        <button className="tb-btn" onClick={onBack}><Icon name="back" size={18}/></button>
+        <div className="ttl">{doc.title}</div>
+        <button className="tb-btn"><Icon name="more" size={17}/></button>
+      </div>
+
+      {/* Prose */}
+      <div ref={scrollRef} className="phone-screen-scroll" onClick={onProseTap} style={{padding: 0}}>
+        <div className="reader-prose" style={{
+          fontSize: fontSizes[fontSize] + "px",
+          lineHeight: lineHs[lineH],
+          padding: `${chromeVisible ? "70px" : "40px"} ${margins[margin]}px 100px`,
+          transition: "padding 240ms",
+        }}>
+          <h1>{doc.title}</h1>
+          <div className="author">{doc.author}</div>
+          {doc.paras.map((p, i) => {
+            if (p.type === "h2") return <h2 key={i} id={p.id}>{p.text.replace(/^§ /, "").replace(/^[\d.]+\s*/, "")}</h2>;
+            if (p.type === "quote") return <blockquote key={i}>{p.text}</blockquote>;
+            if (p.type === "code") {
+              return (
+                <pre key={i} className="code-block">
+                  <span className="code-block-head">{p.lang}</span>
+                  {p.lines.map((ln, li) => (
+                    <div key={li}><span className="ln">{li+1}</span>{ln.tokens.map((tk, ti) => tk.length === 0 ? null : <span key={ti} className={"tk-" + tk[0]}>{tk[1]}</span>)}</div>
+                  ))}
+                </pre>
+              );
+            }
+            // paragraph with optional highlights
+            let content = p.text;
+            const parts = [];
+            let rest = content;
+            const hls = (p.hl || []).slice();
+            // also include saved highlights for this paraIdx
+            highlights.forEach(h => { if (h.paraIdx === i && !hls.includes(h.text)) hls.push(h.text); });
+
+            const flash = flashIdx === i;
+            // Render with each hl wrapped
+            let nodes = [content];
+            hls.forEach(h => {
+              const next = [];
+              nodes.forEach(n => {
+                if (typeof n !== "string") { next.push(n); return; }
+                const idx = n.indexOf(h);
+                if (idx === -1) { next.push(n); return; }
+                next.push(n.slice(0, idx));
+                next.push(<span key={"hl-"+i+"-"+h.length+"-"+idx} className={"hl " + (flash ? "flash" : "")} onDoubleClick={(e)=>simulateSelection(e,i)}>{h}</span>);
+                next.push(n.slice(idx + h.length));
+              });
+              nodes = next;
+            });
+            return (
+              <p key={i} onContextMenu={(e)=>{e.preventDefault(); simulateSelection(e,i);}}>{nodes}</p>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Highlight FAB */}
+      {hlFab && (
+        <button className="hl-fab" style={{left: hlFab.x, top: Math.min(hlFab.y, 600)}} onClick={saveHighlight}>
+          <Icon name="highlight" size={12}/> 保存高亮 <span className="arr">↵</span>
+        </button>
+      )}
+
+      {/* Settings expansion */}
+      {showSettings && chromeVisible && (
+        <div className="rd-settings-row" onClick={(e)=>e.stopPropagation()}>
+          <div className="lbl"><Icon name="type" size={10} style={{verticalAlign: "middle", marginRight: 4}}/> 字号</div>
+          <div className="seg">{["小","中","大"].map(o => <button key={o} className={fontSize===o?"on":""} onClick={()=>setFontSize(o)}>{o}</button>)}</div>
+          <div className="lbl"><Icon name="spacing" size={10} style={{verticalAlign: "middle", marginRight: 4}}/> 行距</div>
+          <div className="seg">{["紧","正常","松"].map(o => <button key={o} className={lineH===o?"on":""} onClick={()=>setLineH(o)}>{o}</button>)}</div>
+          <div className="lbl"><Icon name="margin" size={10} style={{verticalAlign: "middle", marginRight: 4}}/> 边距</div>
+          <div className="seg">{["窄","中","宽"].map(o => <button key={o} className={margin===o?"on":""} onClick={()=>setMargin(o)}>{o}</button>)}</div>
+        </div>
+      )}
+
+      {/* Bottom toolbar */}
+      <div className={"rd-toolbar " + (chromeVisible ? "" : "hidden")}>
+        <button className={"rd-tool " + (panel === "toc" ? "on" : "")} onClick={()=>{setPanel(panel==="toc"?null:"toc"); setShowSettings(false);}}><Icon name="list" size={17}/></button>
+        <button className={"rd-tool " + (panel === "highlight" ? "on" : "")} onClick={()=>{setPanel(panel==="highlight"?null:"highlight"); setShowSettings(false);}}><Icon name="highlight" size={17}/></button>
+        <button className={"rd-tool " + (panel === "bookmark" ? "on" : "")} onClick={()=>{setPanel(panel==="bookmark"?null:"bookmark"); setShowSettings(false);}}><Icon name="bookmark" size={17}/></button>
+        <button className={"rd-tool " + (showSettings ? "on" : "")} onClick={()=>setShowSettings(s=>!s)}><Icon name="settings" size={17}/></button>
+      </div>
+
+      {/* Side panels overlay */}
+      <div className={"rd-overlay " + (panel ? "on" : "")} onClick={() => setPanel(null)}/>
+
+      <div className={"rd-panel " + (panel === "toc" ? "open" : "")}>
+        <div className="rd-panel-head">
+          <div><h3>目录</h3><div className="sub">TABLE OF CONTENTS</div></div>
+          <button className="tb-btn" onClick={() => setPanel(null)}><Icon name="x" size={16}/></button>
+        </div>
+        <div className="rd-panel-body">
+          {doc.sections.map((s, i) => (
+            <div key={i} className={"rd-toc-item l" + s.level + (s.id === "s4" ? " cur" : "")}>{s.title}</div>
+          ))}
+        </div>
+      </div>
+
+      <div className={"rd-panel " + (panel === "highlight" ? "open" : "")}>
+        <div className="rd-panel-head">
+          <div><h3>高亮 <span style={{color: "var(--ink-3)", fontWeight: 400, fontSize: 12}}>{highlights.length}</span></h3><div className="sub">HIGHLIGHTS</div></div>
+          <button className="tb-btn" onClick={() => setPanel(null)}><Icon name="x" size={16}/></button>
+        </div>
+        <div className="rd-panel-body">
+          {highlights.map(h => (
+            <div key={h.id} className="rd-hl-item">
+              <div className="hl-meta">{h.time} · § 2.{h.paraIdx > 7 ? "2" : "1"}</div>
+              <div className="hl-text">{h.text}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className={"rd-panel " + (panel === "bookmark" ? "open" : "")}>
+        <div className="rd-panel-head">
+          <div><h3>书签 <span style={{color: "var(--ink-3)", fontWeight: 400, fontSize: 12}}>{doc.bookmarks.length}</span></h3><div className="sub">BOOKMARKS</div></div>
+          <button className="tb-btn" onClick={() => setPanel(null)}><Icon name="x" size={16}/></button>
+        </div>
+        <div className="rd-panel-body">
+          {doc.bookmarks.map(b => (
+            <div key={b.id} className="rd-hl-item" style={{borderLeft: "2px solid var(--teal)"}}>
+              <div className="hl-meta">{b.time}</div>
+              <div style={{fontFamily: "var(--font-zh)", fontSize: 12, color: "var(--ink)"}}>{b.snippet}</div>
+            </div>
+          ))}
+          <button className="btn btn-ghost btn-block" style={{marginTop: 12}} onClick={() => showToast("已添加书签")}>
+            <Icon name="plus" size={13}/> 在当前位置添加书签
+          </button>
+        </div>
+        <div className="rd-panel-foot">
+          <button className="btn btn-ghost btn-block" onClick={() => showToast("已导出高亮")}>
+            <Icon name="export" size={13}/> 导出高亮 · MARKDOWN
+          </button>
+        </div>
+      </div>
+
+      {toast && <div className="toast">{toast}</div>}
+
+      {/* Hint to test selection */}
+      {chromeVisible && !hlFab && !panel && (
+        <div style={{position: "absolute", bottom: 64, left: "50%", transform: "translateX(-50%)", fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--ink-4)", letterSpacing: 0.16, textTransform: "uppercase", pointerEvents: "none"}}>
+          双击段落 · 模拟选词
+        </div>
+      )}
+    </div>
+  );
+};
+
+window.ReaderScreen = ReaderScreen;
+
+</script>
+<script type="text/babel">
+/* eslint-disable */
+// ════════════════════════════════════════════════
+// Mnemos · Activity dashboard + Import + Settings + Search + PromptGuide
+// ════════════════════════════════════════════════
+const { useState: useStateMS } = React;
+
+// ─── Activity ───
+const ActivityScreen = ({ onBack, layout = "rings" }) => {
+  const days = DATA.activity;
+  const today = days[days.length - 1];
+  // level by total activity
+  const lvl = (d) => {
+    const t = d.recall + d.practice + d.readMin/3;
+    if (t === 0) return 0;
+    if (t < 8) return 1;
+    if (t < 18) return 2;
+    if (t < 30) return 3;
+    return 4;
+  };
+  // last 35 days, oldest first
+  const cells = days.slice(-35);
+  const totals = days.reduce((a, d) => ({ recall: a.recall+d.recall, practice: a.practice+d.practice, readMin: a.readMin+d.readMin }), { recall: 0, practice: 0, readMin: 0 });
+
+  // ring progress
+  const r1 = Math.min(1, today.recall / DATA.targets.recall);
+  const r2 = Math.min(1, today.practice / DATA.targets.practice);
+  const r3 = Math.min(1, today.readMin / DATA.targets.readMin);
+  const ring = (r, radius, color) => {
+    const c = 2 * Math.PI * radius;
+    return (<>
+      <circle cx="100" cy="100" r={radius} fill="none" stroke="var(--bg-raised)" strokeWidth="14"/>
+      <circle cx="100" cy="100" r={radius} fill="none" stroke={color} strokeWidth="14"
+        strokeDasharray={`${c*r} ${c}`} strokeLinecap="round" transform="rotate(-90 100 100)"/>
+    </>);
+  };
+
+  const dayLabels = ["一","二","三","四","五","六","日"];
+
+  return (
+    <>
+      <StatusBar/>
+      <Topbar onBack={onBack} title="活动 · ACTIVITY" right={<button className="tb-btn"><Icon name="calendar" size={17}/></button>}/>
+      <div className="phone-screen-scroll" style={{padding: "8px 16px 24px", display: "flex", flexDirection: "column", gap: 18}}>
+
+        {layout !== "heatmap" && (
+          <div style={{background: "var(--bg-card)", border: "1px solid var(--border-soft)", borderRadius: 14, padding: "16px 12px"}}>
+            <div style={{display: "flex", justifyContent: "space-between", alignItems: "baseline"}}>
+              <div className="section-title" style={{flex: "0 0 auto", paddingRight: 12}}>今日 · TODAY</div>
+            </div>
+            <div className="act-rings">
+              <svg className="act-ring-svg" viewBox="0 0 200 200">
+                {ring(r1, 86, "var(--accent)")}
+                {ring(r2, 66, "var(--teal)")}
+                {ring(r3, 46, "var(--good)")}
+                <text x="100" y="96" textAnchor="middle" fontFamily="var(--font-disp)" fontSize="38" fill="var(--ink)">{Math.round((r1+r2+r3)/3*100)}</text>
+                <text x="100" y="116" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="9" fill="var(--ink-3)" letterSpacing="2">PERCENT</text>
+              </svg>
+            </div>
+            <div className="act-ring-stats">
+              <div className="col"><span className="dot recall"/><span className="num">{today.recall}</span><span className="lab">RECALL</span><span className="zh">记忆 · {DATA.targets.recall}</span></div>
+              <div className="col"><span className="dot practice"/><span className="num">{today.practice}</span><span className="lab">PRACTICE</span><span className="zh">练习 · {DATA.targets.practice}</span></div>
+              <div className="col"><span className="dot read"/><span className="num">{today.readMin}<span style={{fontSize: 11, color: "var(--ink-3)", marginLeft: 2}}>m</span></span><span className="lab">READING</span><span className="zh">阅读 · {DATA.targets.readMin}</span></div>
+            </div>
+          </div>
+        )}
+
+        {layout !== "rings" && (
+          <div style={{background: "var(--bg-card)", border: "1px solid var(--border-soft)", borderRadius: 14, padding: "16px 14px"}}>
+            <div style={{display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6}}>
+              <div className="section-title" style={{flex: "0 0 auto", paddingRight: 12}}>近 5 周 · LAST 5 WEEKS</div>
+              <div style={{fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--ink-3)", letterSpacing: 0.08}}>{days.filter(d => lvl(d) > 0).length} 天活跃</div>
+            </div>
+            <div style={{display: "flex", alignItems: "flex-start", gap: 8, padding: "8px 0"}}>
+              <div style={{display: "flex", flexDirection: "column", gap: 3, marginTop: 2, flexShrink: 0}}>
+                {dayLabels.map(l => <div key={l} style={{height: "calc((100% - 18px)/7)", minHeight: 14, fontFamily: "var(--font-zh)", fontSize: 9, color: "var(--ink-3)", display: "flex", alignItems: "center"}}>{l}</div>)}
+              </div>
+              <div className="heatmap" style={{flex: 1, gridTemplateColumns: "repeat(5, 1fr)", gap: 4}}>
+                {/* render as 5 weeks of 7 days each, columns = weeks */}
+                {[0,1,2,3,4,5,6].map(dow => (
+                  cells.map((d, i) => i % 7 === dow ? (
+                    <div key={`${dow}-${i}`} className={"heat-cell l" + lvl(d) + (d === today ? " today" : "")} style={{gridRow: dow + 1, gridColumn: Math.floor(i/7) + 1}} title={`Day ${i}`}/>
+                  ) : null).filter(Boolean)
+                ))}
+              </div>
+            </div>
+            <div className="heat-legend" style={{justifyContent: "flex-end", marginTop: 8}}>
+              <span>较少</span>
+              <div className="lvl heat-cell"/>
+              <div className="lvl heat-cell l1"/>
+              <div className="lvl heat-cell l2"/>
+              <div className="lvl heat-cell l3"/>
+              <div className="lvl heat-cell l4"/>
+              <span>较多</span>
+            </div>
+          </div>
+        )}
+
+        <div style={{background: "var(--bg-card)", border: "1px solid var(--border-soft)", borderRadius: 14, padding: "16px 14px"}}>
+          <div className="section-title">90 天 · 90 DAYS</div>
+          <div className="act-ring-stats" style={{gridTemplateColumns: "1fr 1fr 1fr", marginTop: 12}}>
+            <div className="col"><span className="dot recall"/><span className="num">{totals.recall}</span><span className="lab">CARDS</span><span className="zh">复习卡片</span></div>
+            <div className="col"><span className="dot practice"/><span className="num">{totals.practice}</span><span className="lab">QUESTIONS</span><span className="zh">练习题</span></div>
+            <div className="col"><span className="dot read"/><span className="num">{Math.round(totals.readMin/60)}<span style={{fontSize: 11, color: "var(--ink-3)", marginLeft: 2}}>h</span></span><span className="lab">READING</span><span className="zh">阅读时长</span></div>
+          </div>
+        </div>
+
+        <div style={{textAlign: "center", fontFamily: "var(--font-disp)", fontStyle: "italic", color: "var(--ink-3)", fontSize: 13, paddingTop: 6}}>
+          memoria principium
+        </div>
+      </div>
+    </>
+  );
+};
+
+// ─── Import ───
+const ImportScreen = ({ onBack }) => {
+  const [tab, setTab] = useStateMS("quiz");
+  return (
+    <>
+      <StatusBar/>
+      <Topbar onBack={onBack} title="导入 · IMPORT"/>
+      <div className="tabs-head" style={{margin: "8px 16px 0"}}>
+        {[{id: "quiz", zh: "题库", en: "JSON"}, {id: "deck", zh: "卡组", en: "MARKDOWN"}, {id: "doc", zh: "文档", en: "DOC · MD"}].map(t => (
+          <button key={t.id} className={"tabs-tab " + (tab === t.id ? "on" : "")} onClick={() => setTab(t.id)}>
+            <span className="zh">{t.zh}</span><span className="en">{t.en}</span>
+          </button>
+        ))}
+      </div>
+      <div className="phone-screen-scroll" style={{padding: "14px 16px 16px", display: "flex", flexDirection: "column", gap: 14}}>
+        <button className="dropzone">
+          <div className="icon"><Icon name="import" size={18}/></div>
+          <div className="label">{tab === "quiz" ? "选择题库 JSON 文件" : tab === "deck" ? "选择 Markdown 卡片文件" : "选择文档文件"}</div>
+          <div className="ext">{tab === "quiz" ? ".JSON" : tab === "deck" ? ".MD" : ".DOC · .DOCX · .MD · .TXT"}</div>
+        </button>
+        <div style={{display: "flex", alignItems: "center", gap: 8}}>
+          <div style={{flex: 1, height: 1, background: "var(--border-soft)"}}/>
+          <span style={{fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: 0.16, textTransform: "uppercase"}}>或粘贴内容</span>
+          <div style={{flex: 1, height: 1, background: "var(--border-soft)"}}/>
+        </div>
+        <textarea className="textarea" placeholder={
+          tab === "quiz" ? '{\n  "name": "数据结构与算法",\n  "questions": [...]\n}'
+          : tab === "deck" ? "## 第一章\n\n### 卡片正面\n答案内容..."
+          : "标题\n\n正文内容..."
+        }/>
+        <div style={{display: "flex", flexDirection: "column", gap: 6}}>
+          <div style={{fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--ink-3)", letterSpacing: 0.16, textTransform: "uppercase"}}>目标 · TARGET</div>
+          <select style={{padding: "10px 12px", background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 10, fontSize: 13, color: "var(--ink)", fontFamily: "var(--font-zh)"}}>
+            <option>{tab === "quiz" ? "数据结构与算法" : tab === "deck" ? "目录学·版本通论" : "古籍版本学·读本"}</option>
+            <option>新建...</option>
+          </select>
+        </div>
+        {tab === "deck" && (
+          <button className="btn btn-ghost btn-block" style={{justifyContent: "space-between"}}>
+            <span style={{display: "flex", alignItems: "center", gap: 8}}><Icon name="info" size={13}/> 制卡提示词指南</span>
+            <span>→</span>
+          </button>
+        )}
+        <button className="btn btn-primary btn-block">导入</button>
+      </div>
+    </>
+  );
+};
+
+// ─── Settings ───
+const SettingsScreen = ({ onBack, theme, onTheme, onActivity }) => {
+  return (
+    <>
+      <StatusBar/>
+      <Topbar onBack={onBack} title="设置 · SETTINGS"/>
+      <div className="phone-screen-scroll" style={{padding: "12px 16px 24px", display: "flex", flexDirection: "column", gap: 14}}>
+        <div className="settings-card">
+          <div className="lbl">外观 · APPEARANCE</div>
+          <div className="seg">
+            <button className={theme==="light"?"on":""} onClick={()=>onTheme("light")}><Icon name="sun" size={12}/> 浅色</button>
+            <button className={theme==="dark"?"on":""} onClick={()=>onTheme("dark")}><Icon name="moon" size={12}/> 深色</button>
+            <button onClick={()=>onTheme("system")}><Icon name="circle" size={12}/> 跟随</button>
+          </div>
+          <div className="kv-row"><span className="k">字体</span><span className="v">Noto Serif SC</span></div>
+          <div className="kv-row"><span className="k">显示密度</span><span className="v">舒适</span></div>
+        </div>
+
+        <div className="settings-card">
+          <div className="lbl">统计 · STATISTICS</div>
+          <button className="btn btn-ghost btn-block" style={{justifyContent: "space-between"}} onClick={onActivity}>
+            <span style={{display: "flex", alignItems: "center", gap: 8}}><Icon name="stats" size={14}/> 活动仪表板</span>
+            <span>→</span>
+          </button>
+          <div className="kv-row"><span className="k">连续天数</span><span className="v" style={{color: "var(--accent)"}}>7 天</span></div>
+          <div className="kv-row"><span className="k">总复习</span><span className="v">1,284 张</span></div>
+          <div className="kv-row"><span className="k">总练习</span><span className="v">412 题</span></div>
+          <div className="kv-row"><span className="k">总阅读</span><span className="v">28 小时</span></div>
+        </div>
+
+        <div className="settings-card">
+          <div className="lbl">数据 · DATA</div>
+          <button className="btn btn-ghost btn-block" style={{justifyContent: "space-between"}}>
+            <span style={{display: "flex", alignItems: "center", gap: 8}}><Icon name="export" size={14}/> 导出全部数据</span>
+            <span style={{fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--ink-3)"}}>.JSON</span>
+          </button>
+          <button className="btn btn-ghost btn-block" style={{justifyContent: "space-between"}}>
+            <span style={{display: "flex", alignItems: "center", gap: 8}}><Icon name="import" size={14}/> 导入备份</span>
+            <span>→</span>
+          </button>
+        </div>
+
+        <div className="settings-card" style={{borderColor: "color-mix(in oklch, var(--danger) 18%, var(--border-soft))"}}>
+          <div className="lbl" style={{color: "var(--danger)"}}>危险区 · DANGER ZONE</div>
+          <button className="btn btn-block" style={{background: "var(--danger-soft)", color: "var(--danger)", border: "1px solid color-mix(in oklch, var(--danger) 22%, transparent)"}}>
+            清除全部数据
+          </button>
+        </div>
+
+        <div style={{textAlign: "center", padding: "12px 0 4px", display: "flex", flexDirection: "column", gap: 4, alignItems: "center"}}>
+          <MnemosMark size={26}/>
+          <div style={{fontFamily: "var(--font-disp)", fontSize: 14, color: "var(--ink-2)"}}>Mnemos · v2.0.0</div>
+          <div style={{fontFamily: "var(--font-disp)", fontStyle: "italic", fontSize: 11, color: "var(--ink-3)"}}>memoria principium</div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+// ─── Search ───
+const SearchScreen = ({ onBack }) => {
+  const [q, setQ] = useStateMS("装订");
+  return (
+    <>
+      <StatusBar/>
+      <Topbar onBack={onBack} title="" zh left={
+        <div style={{flex: 1, position: "relative"}}>
+          <input autoFocus value={q} onChange={(e)=>setQ(e.target.value)} placeholder="搜索题库 · 卡片 · 文档"
+            style={{width: "100%", padding: "8px 12px 8px 32px", background: "var(--bg-raised)", border: "1px solid transparent", borderRadius: 10, fontSize: 13, outline: "none", fontFamily: "var(--font-zh)"}}/>
+          <Icon name="search" size={14} style={{position: "absolute", left: 10, top: 9, color: "var(--ink-3)"}}/>
+        </div>
+      }/>
+      <div className="phone-screen-scroll" style={{padding: "12px 12px 16px"}}>
+        {q && (
+          <>
+            <div className="sr-section">
+              <h4>记忆 · RECALL <span className="ct">3</span></h4>
+              <div className="sr-item"><span className="sr-tag">卡片</span><div className="sr-body"><div className="sr-title">蝴蝶<mark>装</mark>与包背<mark>装</mark>的区别？</div><div className="sr-snip">目录学·版本通论 · 3.1 装订形制</div></div></div>
+              <div className="sr-item"><span className="sr-tag">卡片</span><div className="sr-body"><div className="sr-title">经折<mark>装</mark>的形制？</div><div className="sr-snip">目录学·版本通论 · 3.1 装订形制</div></div></div>
+              <div className="sr-item"><span className="sr-tag">卡片</span><div className="sr-body"><div className="sr-title">线<mark>装</mark>书一般几针订？</div><div className="sr-snip">目录学·版本通论 · 3.1 装订形制</div></div></div>
+            </div>
+            <div className="sr-section">
+              <h4>阅读 · READING <span className="ct">2</span></h4>
+              <div className="sr-item"><span className="sr-tag">高亮</span><div className="sr-body"><div className="sr-title">…宋代以降书籍形制由卷轴改为<mark>装</mark>订成册…</div><div className="sr-snip">古籍版本学·读本 · 卷轴与册页之变 · 今天 09:11</div></div></div>
+              <div className="sr-item"><span className="sr-tag">文档</span><div className="sr-body"><div className="sr-title">卷轴与册页之变</div><div className="sr-snip">古籍版本学·读本 · 5,240 字</div></div></div>
+            </div>
+            <div className="sr-section">
+              <h4>系统 · SYSTEM <span className="ct">1</span></h4>
+              <div className="sr-item"><span className="sr-tag">集合</span><div className="sr-body"><div className="sr-title">古籍版本学·读本</div><div className="sr-snip">12 篇 · 248 分钟 · 24 高亮</div></div></div>
+            </div>
+          </>
+        )}
+      </div>
+    </>
+  );
+};
+
+// ─── PromptGuide (Markdown card generation) ───
+const PromptGuideScreen = ({ onBack }) => {
+  const [tab, setTab] = useStateMS("general");
+  const blocks = tab === "general" ? [
+    { lbl: "用途", body: "把任意学习材料（讲义 / 课文 / 笔记）转成「问 — 答」式的记忆卡片。" },
+    { lbl: "提示词模板", body: "请将下列内容拆分为间隔重复用的卡片。每张卡片用 Markdown 标题表示问题，标题下的段落表示答案。要求：\n• 每张卡只覆盖一个原子知识点\n• 问题简洁、明确，避免「以下哪一项…」\n• 答案不超过两句话，含必要的公式与符号" },
+    { lbl: "输出格式", body: "## 问题一\n答案一段。\n\n## 问题二\n答案一段。" },
+  ] : [
+    { lbl: "用途", body: "为词汇 / 术语生成结构化卡片，正面术语，背面包含释义、例句、记忆要点。" },
+    { lbl: "提示词模板", body: "请将下列单词列表生成记忆卡片。每张卡正面为单词原形，背面为「释义 · 词性 · 例句」三段式：\n• 释义：精炼，避免循环定义\n• 词性：n. / v. / adj. 等英文缩写\n• 例句：原文中的实际语境" },
+    { lbl: "输出格式", body: "## abrogate\n**v.** 废除（法律或正式协议）\n*The treaty was abrogated by mutual consent.*" },
+  ];
+  return (
+    <>
+      <StatusBar/>
+      <Topbar onBack={onBack} title="制卡指南 · PROMPT GUIDE"/>
+      <div className="tabs-head" style={{margin: "8px 16px 0"}}>
+        {[{id: "general", zh: "通用知识", en: "GENERAL"}, {id: "vocab", zh: "单词制卡", en: "VOCABULARY"}].map(t => (
+          <button key={t.id} className={"tabs-tab " + (tab === t.id ? "on" : "")} onClick={() => setTab(t.id)}>
+            <span className="zh">{t.zh}</span><span className="en">{t.en}</span>
+          </button>
+        ))}
+      </div>
+      <div className="phone-screen-scroll" style={{padding: "14px 16px 18px", display: "flex", flexDirection: "column", gap: 10}}>
+        {blocks.map((b, i) => (
+          <div key={i} className="settings-card">
+            <div className="lbl">{b.lbl}</div>
+            <div style={{fontFamily: i === 1 || i === 2 ? "var(--font-mono)" : "var(--font-zh)", fontSize: i === 1 || i === 2 ? 11 : 13, lineHeight: 1.7, color: "var(--ink)", whiteSpace: "pre-wrap"}}>{b.body}</div>
+            {i === 1 && <button className="btn btn-ghost btn-sm" style={{alignSelf: "flex-start"}}>复制提示词</button>}
+          </div>
+        ))}
+      </div>
+    </>
+  );
+};
+
+window.ActivityScreen = ActivityScreen;
+window.ImportScreen = ImportScreen;
+window.SettingsScreen = SettingsScreen;
+window.SearchScreen = SearchScreen;
+window.PromptGuideScreen = PromptGuideScreen;
+
+</script>
+
+<script type="text/babel">
+const { useState, useEffect, useMemo } = React;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "darkWarmth": 250,
+  "tabPlacement": "top",
+  "activityLayout": "rings",
+  "showAllScreens": true
+}/*EDITMODE-END*/;
+
+// Per-phone navigation hook
+const usePhoneNav = (initial = "home") => {
+  const [stack, setStack] = useState([{ scr: initial, ctx: null }]);
+  const cur = stack[stack.length - 1];
+  const nav = (scr, ctx) => setStack(s => [...s, { scr, ctx: ctx || null }]);
+  const back = () => setStack(s => s.length > 1 ? s.slice(0, -1) : s);
+  const reset = (scr) => setStack([{ scr, ctx: null }]);
+  return { cur, nav, back, reset };
+};
+
+// Render a screen given a route
+const ScreenRouter = ({ phoneId, initial, theme, onTheme, tabPlacement }) => {
+  const { cur, nav, back, reset } = usePhoneNav(initial);
+  const [tab, setTab] = useState(initial === "home-recall" ? "recall" : initial === "home-reading" ? "reading" : "practice");
+
+  let inner;
+  switch (cur.scr) {
+    case "home":
+    case "home-practice":
+    case "home-recall":
+    case "home-reading":
+      inner = <HomeScreen tab={tab} setTab={setTab} nav={nav} theme={theme} onTheme={onTheme} tabPlacement={tabPlacement}/>;
+      break;
+    case "deckdetail":
+      inner = <DeckDetail d={cur.ctx || DATA.decks[0]} nav={nav} onBack={back}/>;
+      break;
+    case "setdetail":
+      inner = <SetDetail s={cur.ctx || DATA.subjects[0]} nav={nav} onBack={back}/>;
+      break;
+    case "collectiondetail":
+      inner = <CollectionDetail c={cur.ctx || DATA.collections[0]} nav={nav} onBack={back}/>;
+      break;
+    case "review":
+      inner = <ReviewScreen d={cur.ctx} onBack={back} nav={nav}/>;
+      break;
+    case "quiz":
+      inner = <QuizScreen s={cur.ctx} onBack={back}/>;
+      break;
+    case "reader":
+      inner = <ReaderScreen docId={cur.ctx?.docId || "doc2"} onBack={back}/>;
+      break;
+    case "activity":
+      inner = <ActivityScreen onBack={back}/>;
+      break;
+    case "import":
+      inner = <ImportScreen onBack={back}/>;
+      break;
+    case "settings":
+      inner = <SettingsScreen onBack={back} theme={theme} onTheme={onTheme} onActivity={() => nav("activity")}/>;
+      break;
+    case "search":
+      inner = <SearchScreen onBack={back}/>;
+      break;
+    case "prompt":
+      inner = <PromptGuideScreen onBack={back}/>;
+      break;
+    default:
+      inner = <HomeScreen tab={tab} setTab={setTab} nav={nav} theme={theme} onTheme={onTheme} tabPlacement={tabPlacement}/>;
+  }
+  return inner;
+};
+
+// Top-level App
+const App = () => {
+  const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const [globalTheme, setGlobalTheme] = useState(null); // override per-phone if set
+
+  // Apply dark warmth (hue) globally to dark mode
+  useEffect(() => {
+    let style = document.getElementById("dark-warmth-override");
+    if (!style) {
+      style = document.createElement("style");
+      style.id = "dark-warmth-override";
+      document.head.appendChild(style);
+    }
+    const h = tweaks.darkWarmth;
+    style.textContent = `
+      .phone-screen.dark .phone-screen-inner, .phone-screen.dark {
+        --bg:            oklch(16% 0.014 ${h});
+        --bg-card:       oklch(20% 0.016 ${h});
+        --bg-raised:     oklch(24% 0.018 ${h});
+        --bg-sunken:     oklch(13% 0.012 ${h});
+        --border:        oklch(30% 0.018 ${h});
+        --border-soft:   oklch(26% 0.014 ${h});
+        --border-strong: oklch(42% 0.022 ${h});
+        --code-bg:       oklch(13% 0.012 ${h});
+        --code-border:   oklch(26% 0.014 ${h});
+      }
+    `;
+  }, [tweaks.darkWarmth]);
+
+  // Each phone defines: id, label, screen, theme(default), description
+  const PHONES = useMemo(() => {
+    const all = [
+      { id: "home-r", label: "首页 · 记忆", scr: "home-recall", theme: "light", section: "home" },
+      { id: "home-p", label: "首页 · 练习", scr: "home-practice", theme: "light", section: "home" },
+      { id: "home-rd", label: "首页 · 阅读", scr: "home-reading", theme: "light", section: "home" },
+      { id: "home-dark", label: "首页 · 深色", scr: "home-recall", theme: "dark", section: "home" },
+
+      { id: "dd", label: "卡组详情", scr: "deckdetail", theme: "light", section: "detail" },
+      { id: "sd", label: "题库详情", scr: "setdetail", theme: "light", section: "detail" },
+      { id: "cd", label: "阅读集合", scr: "collectiondetail", theme: "light", section: "detail" },
+
+      { id: "rv", label: "复习 · 正面", scr: "review", theme: "light", section: "study" },
+      { id: "qz", label: "练习 · 选择题", scr: "quiz", theme: "light", section: "study" },
+      { id: "rv-dark", label: "复习 · 深色", scr: "review", theme: "dark", section: "study" },
+
+      { id: "rd", label: "阅读器", scr: "reader", theme: "light", section: "reader" },
+      { id: "rd-dark", label: "阅读器 · 深色", scr: "reader", theme: "dark", section: "reader" },
+
+      { id: "act", label: "活动仪表板", scr: "activity", theme: "light", section: "system" },
+      { id: "act-dark", label: "活动 · 深色", scr: "activity", theme: "dark", section: "system" },
+      { id: "imp", label: "导入", scr: "import", theme: "light", section: "system" },
+      { id: "set", label: "设置", scr: "settings", theme: "light", section: "system" },
+      { id: "search", label: "全局搜索", scr: "search", theme: "light", section: "system" },
+      { id: "prompt", label: "制卡指南", scr: "prompt", theme: "light", section: "system" },
+    ];
+    return tweaks.showAllScreens ? all : all.slice(0, 8);
+  }, [tweaks.showAllScreens]);
+
+  // theme per-phone (clickable toggle)
+  const [phoneThemes, setPhoneThemes] = useState({});
+  const themeOf = (p) => phoneThemes[p.id] || p.theme;
+  const toggleTheme = (id) => setPhoneThemes(s => ({...s, [id]: (s[id] || PHONES.find(p=>p.id===id).theme) === "dark" ? "light" : "dark"}));
+
+  const sections = [
+    { id: "home",   num: "I",   ttl: <>首页 <em>· Home</em></>, desc: "三个子系统共享同一首页结构：HeroSection 显示阶段统计、ContinueCard 提示进行中的会话、卡片列表按时间排序。" },
+    { id: "detail", num: "II",  ttl: <>详情 <em>· Detail</em></>, desc: "卡组、题库、阅读集合统一为「主 CTA · 四宫格次操作 · 内容大纲」三段式。深色 CTA 即视觉锚点。" },
+    { id: "study",  num: "III", ttl: <>研学 <em>· Study</em></>, desc: "翻卡 · 评分 · 答题 · 解析。两套相同的进度条 + 卡片 + 操作行结构，仅色调与组件不同。" },
+    { id: "reader", num: "IV",  ttl: <>阅读 <em>· Reader</em></>, desc: "全屏沉浸式。点击切换工具栏；浮动玻璃工具条；左滑面板（目录/高亮/书签）；选词浮动按钮。双击段落模拟选词。" },
+    { id: "system", num: "V",   ttl: <>系统 <em>· System</em></>, desc: "活动仪表板（三色环 + 35 日热力图 + 90 日总览）、导入、设置、全局搜索、制卡提示词。" },
+  ];
+
+  return (
+    <>
+      <div className="stage">
+        <div className="stage-head">
+          <span className="brand-corner-tl"/><span className="brand-corner-tr"/>
+          <span className="brand-corner-bl"/><span className="brand-corner-br"/>
+          <div className="brand-hero">
+            <div className="brand-mark">
+              <svg width="84" height="84" viewBox="0 0 64 64" fill="none">
+                <path d="M10 52 L10 14 L20 14 L32 30 L44 14 L54 14 L54 52" stroke="#2D2920" strokeWidth="6" strokeLinecap="square" strokeLinejoin="miter" fill="none"/>
+                <path d="M22 24 L32 38 L42 24" stroke="#B86A30" strokeWidth="4" strokeLinecap="square" strokeLinejoin="miter" fill="none"/>
+                <rect x="6" y="50" width="12" height="4" fill="#2D2920"/>
+                <rect x="46" y="50" width="12" height="4" fill="#2D2920"/>
+              </svg>
+            </div>
+            <div className="brand-name">Mnemos</div>
+            <div className="brand-motto">memoria principium</div>
+            <div className="brand-divider">
+              <span className="line"/>
+              <span>VERSION 2.0</span>
+              <span className="dot">✦</span>
+              <span>18 SCREENS</span>
+              <span className="dot">✦</span>
+              <span>3 SUBSYSTEMS</span>
+              <span className="line"/>
+            </div>
+          </div>
+          <div className="brand-meta-row">
+            <div className="brand-meta-item">
+              <span className="zh">记忆</span>
+              <span className="en">RECALL</span>
+              <span className="desc">SM-2 间隔重复</span>
+            </div>
+            <div className="brand-meta-item">
+              <span className="zh">练习</span>
+              <span className="en">PRACTICE</span>
+              <span className="desc">选择 · 解答</span>
+            </div>
+            <div className="brand-meta-item">
+              <span className="zh">阅读</span>
+              <span className="en">READING</span>
+              <span className="desc">高亮 · 书签 · 导出</span>
+            </div>
+          </div>
+        </div>
+
+        {sections.map(sec => {
+          const phones = PHONES.filter(p => p.section === sec.id);
+          if (!phones.length) return null;
+          return (
+            <React.Fragment key={sec.id}>
+              <div className="grid">
+                <div className="section-marker">
+                  <span className="num">§ {sec.num}</span>
+                  <span className="ttl">{sec.ttl}</span>
+                  <span className="line"/>
+                  <span className="desc">{sec.desc}</span>
+                </div>
+                {phones.map((p, i) => (
+                  <Phone
+                    key={p.id}
+                    label={p.label}
+                    num={i + 1}
+                    theme={themeOf(p)}
+                    onTheme={() => toggleTheme(p.id)}
+                    screenLabel={p.label}
+                  >
+                    <ScreenRouter
+                      phoneId={p.id}
+                      initial={p.scr}
+                      theme={themeOf(p)}
+                      onTheme={() => toggleTheme(p.id)}
+                      tabPlacement={tweaks.tabPlacement}
+                    />
+                  </Phone>
+                ))}
+              </div>
+            </React.Fragment>
+          );
+        })}
+
+        <div style={{maxWidth: 1800, margin: "60px auto 0", padding: "32px 8px 0", borderTop: "1px solid var(--stage-rule, oklch(86% 0.018 80))", display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 24, flexWrap: "wrap"}}>
+          <div>
+            <div style={{fontFamily: "var(--font-disp)", fontStyle: "italic", color: "#B86A30", fontSize: 18}}>memoria principium</div>
+            <div style={{fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--stage-ink-3, #7a6e5c)", letterSpacing: 0.16, textTransform: "uppercase", marginTop: 4}}>记忆乃万事之始</div>
+          </div>
+          <div style={{fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--stage-ink-3, #7a6e5c)", letterSpacing: 0.14, textAlign: "right", lineHeight: 1.7}}>
+            <div>HUE · 80 (PARCHMENT) · {tweaks.darkWarmth} (DARK)</div>
+            <div>OKLCH · 4 SPINE COLORS · 6 CODE TOKENS</div>
+            <div>NOTO SERIF SC · INSTRUMENT SERIF · INTER · JETBRAINS MONO</div>
+          </div>
+        </div>
+      </div>
+
+      <TweaksPanel title="Tweaks">
+        <TweakSection title="深色模式色调 · DARK WARMTH">
+          <TweakSlider label="hue" value={tweaks.darkWarmth} min={0} max={280} step={5}
+            onChange={(v) => setTweak("darkWarmth", v)}
+            help="35 = 温暖砚墨 (推荐)。250 = v1.1.0 冷蓝灰。220-230 = 折中" />
+        </TweakSection>
+        <TweakSection title="标签栏位置 · TAB PLACEMENT">
+          <TweakRadio value={tweaks.tabPlacement} options={[{value:"top",label:"顶部"},{value:"bottom",label:"底部"}]} onChange={(v)=>setTweak("tabPlacement", v)}/>
+        </TweakSection>
+        <TweakSection title="活动仪表 · ACTIVITY LAYOUT">
+          <TweakSelect value={tweaks.activityLayout} options={[
+            {value:"both", label:"环 + 热力图"},
+            {value:"rings", label:"仅三色环"},
+            {value:"heatmap", label:"仅热力图"},
+          ]} onChange={(v)=>setTweak("activityLayout", v)}/>
+        </TweakSection>
+        <TweakSection title="显示范围">
+          <TweakToggle label="全部 18 屏" value={tweaks.showAllScreens} onChange={(v)=>setTweak("showAllScreens", v)}/>
+        </TweakSection>
+      </TweaksPanel>
+    </>
+  );
+};
+
+// dark class apply per phone
+const styleApply = document.createElement("style");
+styleApply.textContent = `.phone-screen.dark .phone-screen-inner { color-scheme: dark; }`;
+document.head.appendChild(styleApply);
+
+// Apply .phone-screen.dark scoped overrides to .phone-screen.dark
+const styleScope = document.createElement("style");
+styleScope.textContent = `
+.phone-screen.dark {
+  --bg:            oklch(16% 0.014 250);
+  --bg-card:       oklch(20% 0.016 250);
+  --bg-raised:     oklch(24% 0.018 250);
+  --bg-sunken:     oklch(13% 0.012 250);
+  --border:        oklch(30% 0.018 250);
+  --border-soft:   oklch(26% 0.014 250);
+  --border-strong: oklch(42% 0.022 250);
+  --ink:           oklch(95% 0.008 250);
+  --ink-2:         oklch(76% 0.012 250);
+  --ink-3:         oklch(58% 0.014 250);
+  --ink-4:         oklch(42% 0.016 250);
+  --accent:        oklch(74% 0.13 65);
+  --accent-soft:   oklch(28% 0.06 50);
+  --accent-line:   oklch(46% 0.10 60);
+  --teal:          oklch(74% 0.10 195);
+  --teal-soft:     oklch(26% 0.05 195);
+  --teal-line:     oklch(44% 0.08 195);
+  --good:          oklch(74% 0.13 155);
+  --good-soft:     oklch(24% 0.05 155);
+  --warn:          oklch(76% 0.13 75);
+  --warn-soft:     oklch(26% 0.05 75);
+  --danger:        oklch(72% 0.15 28);
+  --danger-soft:   oklch(26% 0.06 28);
+  --plum:          oklch(72% 0.12 320);
+  --code-bg:       oklch(13% 0.012 250);
+  --code-border:   oklch(26% 0.014 250);
+  --tk-key:        oklch(78% 0.13 320);
+  --tk-str:        oklch(76% 0.10 155);
+  --tk-num:        oklch(78% 0.12 60);
+  --tk-com:        oklch(54% 0.014 250);
+  --tk-fn:         oklch(76% 0.10 240);
+  --tk-op:         oklch(86% 0.010 250);
+  --shadow-sm:     0 1px 2px #0008;
+  --shadow-md:     0 1px 3px #0008, 0 6px 24px #0006;
+  --shadow-lg:     0 4px 12px #000a, 0 16px 40px #0008;
+}
+.phone-screen.dark .reader-prose .hl { background: oklch(30% 0.07 60); }
+.phone-screen.dark .deck-spine.h0 .glyph { color: oklch(78% 0.11 60); }
+.phone-screen.dark .deck-spine.h1 .glyph { color: oklch(78% 0.10 195); }
+.phone-screen.dark .deck-spine.h2 .glyph { color: oklch(78% 0.11 155); }
+.phone-screen.dark .deck-spine.h3 .glyph { color: oklch(78% 0.11 280); }
+.phone-screen.dark .heat-cell { background: oklch(22% 0.014 250); }
+.phone-screen.dark .heat-cell.l1 { background: oklch(36% 0.06 60); }
+.phone-screen.dark .heat-cell.l2 { background: oklch(48% 0.10 60); }
+.phone-screen.dark .heat-cell.l3 { background: oklch(60% 0.13 60); }
+.phone-screen.dark .heat-cell.l4 { background: oklch(74% 0.13 60); }
+`;
+document.head.appendChild(styleScope);
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
