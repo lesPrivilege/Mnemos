@@ -50,7 +50,7 @@ npm run build        # production build → dist/
 ```
 Mnemos/
 ├── assets/
-│   └── screenshots/              # 12 张真机截图
+│   └── screenshots/              # 真机截图与暗/浅色总览图
 ├── design/                       # hi-fi 原型（v2 redesign, activity dashboard）
 ├── public/                       # 静态 HTML 入口
 ├── scripts/                      # icon gen, splash gen, import helpers, ic_foreground.svg
@@ -92,28 +92,12 @@ Mnemos/
 
 ## 附录：真机截图
 
-Mnemos 已打包为可安装的 Android App。下列截图来自真机运行版本，覆盖记忆、练习、阅读、导入、制卡提示和设置等核心工作流。
+Mnemos 已打包为可安装的 Android App。下列总览图来自真机比例截图，覆盖记忆、练习、阅读、活动、导入、制卡提示和设置等核心工作流。
 
 <p align="center">
-  <img src="assets/screenshots/1.jpg" width="30%" alt="screenshot 1" />
-  <img src="assets/screenshots/2.jpg" width="30%" alt="screenshot 2" />
-  <img src="assets/screenshots/3.jpg" width="30%" alt="screenshot 3" />
+  <img src="assets/screenshots/overview-dark.jpg" width="86%" alt="Mnemos dark mode screenshot overview" />
 </p>
 
 <p align="center">
-  <img src="assets/screenshots/4.jpg" width="30%" alt="screenshot 4" />
-  <img src="assets/screenshots/5.jpg" width="30%" alt="screenshot 5" />
-  <img src="assets/screenshots/6.jpg" width="30%" alt="screenshot 6" />
-</p>
-
-<p align="center">
-  <img src="assets/screenshots/7.jpg" width="30%" alt="screenshot 7" />
-  <img src="assets/screenshots/8.jpg" width="30%" alt="screenshot 8" />
-  <img src="assets/screenshots/9.jpg" width="30%" alt="screenshot 9" />
-</p>
-
-<p align="center">
-  <img src="assets/screenshots/10.jpg" width="30%" alt="screenshot 10" />
-  <img src="assets/screenshots/11.jpg" width="30%" alt="screenshot 11" />
-  <img src="assets/screenshots/12.jpg" width="30%" alt="screenshot 12" />
+  <img src="assets/screenshots/overview-light.jpg" width="86%" alt="Mnemos light mode screenshot overview" />
 </p>

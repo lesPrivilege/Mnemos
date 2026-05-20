@@ -7,7 +7,12 @@ import {
 } from '../quiz/lib/storage'
 import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
 import { SUBJECT_HUE } from '../quiz/lib/subjectMeta'
-import { DAILY_LIMIT_KEY, exportData as exportFlashcardData } from '../lib/storage'
+import {
+  DAILY_LIMIT_KEY,
+  clearAllFlashcardData,
+  clearAllFlashcardProgress,
+  exportData as exportFlashcardData,
+} from '../lib/storage'
 import { getAllDeckStats } from '../lib/scheduler'
 import { localToday } from '../lib/dateUtils'
 import { exportReadingData, clearReadingStats, clearAllReadingData } from '../reading/lib/backup'
@@ -23,6 +28,38 @@ import pkg from '../../package.json'
 function formatBytes(bytes) {
   if (bytes < 1024) return `${bytes} B`
   return `${(bytes / 1024).toFixed(1)} KB`
+}
+
+function ActionRow({ title, detail, action, tone = 'danger', confirm, onClick, disabled }) {
+  return (
+    <div className="settings-action">
+      <div className="settings-action-copy">
+        <span className="settings-action-title">{title}</span>
+        {detail && <span className="settings-action-detail">{detail}</span>}
+      </div>
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={disabled}
+        className={`settings-action-btn ${tone} ${confirm ? 'confirm' : ''}`}
+      >
+        {action}
+      </button>
+    </div>
+  )
+}
+
+function BackupButton({ primary, children, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={primary ? 'settings-backup-btn primary' : 'settings-backup-btn'}
+    >
+      <DownloadIcon size={16} />
+      <span>{children}</span>
+    </button>
+  )
 }
 
 export default function Settings() {
@@ -78,6 +115,9 @@ export default function Settings() {
 
   useEffect(() => { refresh() }, [])
 
+  const flashcardTotal = flashcardStats?.reduce((s, d) => s + d.totalCards, 0) || 0
+  const flashcardDue = flashcardStats?.reduce((s, d) => s + d.dueCount, 0) || 0
+
   const handleExportFlashcard = () => {
     const json = exportFlashcardData()
     const blob = new Blob([json], { type: 'application/json' })
@@ -88,6 +128,12 @@ export default function Settings() {
     const data = exportReadingData()
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
     downloadBlob(blob, `mnemos-reading-${localToday()}.json`)
+  }
+
+  const handleExportQuiz = () => {
+    const json = exportQuizData()
+    const blob = new Blob([json], { type: 'application/json' })
+    downloadBlob(blob, `mnemos-quiz-${localToday()}.json`)
   }
 
   const handleExportAll = () => {
@@ -112,6 +158,29 @@ export default function Settings() {
       refresh()
     } else {
       setShowConfirm('progress')
+    }
+  }
+
+  const handleClearFlashcardProgress = () => {
+    if (showConfirm === 'flashcard-progress') {
+      clearAllFlashcardProgress()
+      setShowConfirm(null)
+      refresh()
+    } else {
+      setShowConfirm('flashcard-progress')
+    }
+  }
+
+  const handleClearFlashcards = () => {
+    if (showConfirm === 'flashcards') {
+      clearAllFlashcardData()
+      localStorage.removeItem(DAILY_LIMIT_KEY)
+      setDailyLimit('')
+      setShowConfirm(null)
+      refresh()
+      navigate('/')
+    } else {
+      setShowConfirm('flashcards')
     }
   }
 
@@ -171,69 +240,134 @@ export default function Settings() {
           </div>
         </div>
 
-        {/* Flashcard stats */}
-        {flashcardStats && flashcardStats.length > 0 && (
-          <div className="settings-card">
-            <div className="lbl">记忆卡 · CARDS</div>
-            <div className="kv-row">
-              <span className="k">卡组</span>
-              <span className="v">{flashcardStats.length}</span>
-            </div>
-            <div className="kv-row">
-              <span className="k">总卡片</span>
-              <span className="v">{flashcardStats.reduce((s, d) => s + d.totalCards, 0)}</span>
-            </div>
-            <div className="kv-row">
-              <span className="k">待复习</span>
-              <span className="v" style={{ color: 'var(--accent)' }}>{flashcardStats.reduce((s, d) => s + d.dueCount, 0)}</span>
-            </div>
+        {/* Recall module */}
+        <section className="settings-card settings-module">
+          <div className="lbl">记忆 · RECALL</div>
+          <div className="settings-metrics">
+            <div><span>{flashcardStats?.length || 0}</span><em>卡组</em></div>
+            <div><span>{flashcardTotal}</span><em>卡片</em></div>
+            <div><span style={{ color: 'var(--accent)' }}>{flashcardDue}</span><em>待复习</em></div>
           </div>
-        )}
+          <div className="settings-field">
+            <div>
+              <span className="settings-field-title">每日上限</span>
+              <span className="settings-field-hint">限定记忆卡当天复习数量</span>
+            </div>
+            <input type="number" value={dailyLimit} onChange={(e) => setDailyLimit(e.target.value)}
+              placeholder="不限" min="1"
+              className="settings-field-input" />
+          </div>
+          <div className="settings-action-group">
+            <div className="settings-action-group-title">数据</div>
+            <ActionRow
+              title="重置记忆进度"
+              detail="保留卡组、卡片和收藏，重新开始排程"
+              action={showConfirm === 'flashcard-progress' ? '确认重置' : '重置'}
+              confirm={showConfirm === 'flashcard-progress'}
+              onClick={handleClearFlashcardProgress}
+              disabled={!flashcardTotal}
+            />
+            <ActionRow
+              title="删除全部记忆卡"
+              detail="删除所有卡组和卡片"
+              action={showConfirm === 'flashcards' ? '确认删除' : '删除'}
+              confirm={showConfirm === 'flashcards'}
+              onClick={handleClearFlashcards}
+              disabled={!flashcardTotal}
+            />
+          </div>
+          {(showConfirm === 'flashcard-progress' || showConfirm === 'flashcards') && (
+            <div className="settings-confirm-note">
+              此操作只影响记忆卡模块，请确认是否继续？
+            </div>
+          )}
+        </section>
 
-        {/* Flashcard daily limit */}
-        <div className="settings-card">
-          <div className="lbl">每日上限 · DAILY LIMIT</div>
-          <input type="number" value={dailyLimit} onChange={(e) => setDailyLimit(e.target.value)}
-            placeholder="不限" min="1"
-            className="w-full py-[9px] px-3 rounded-md border bg-bg text-ink font-mono text-sm outline-none focus:border-accent"
-            style={{ borderColor: 'var(--border)' }} />
-          <div className="text-[11px] text-ink-3 font-zh tracking-[0.04em]">限定每日复习的最大数量</div>
-        </div>
-
-        {/* Quiz storage statistics */}
+        {/* Practice module */}
         {storageStats && (
-          <div className="settings-card">
-            <div className="lbl">练习 · QUIZ</div>
-            <div className="kv-row">
-              <span className="k">总题数</span>
-              <span className="v">{storageStats.totalQuestions}</span>
+          <section className="settings-card settings-module">
+            <div className="lbl">练习 · PRACTICE</div>
+            <div className="settings-metrics">
+              <div><span>{storageStats.totalQuestions}</span><em>题目</em></div>
+              <div><span>{storageStats.totalProgress}</span><em>已练习</em></div>
+              <div><span>{storageStats.totalStarred}</span><em>收藏</em></div>
             </div>
-            <div className="kv-row">
-              <span className="k">已练习</span>
-              <span className="v">{storageStats.totalProgress}</span>
+            <div className="settings-action-group">
+              <div className="settings-action-group-title">科目</div>
+              {subjects.length > 0 ? subjects.map(subject => {
+                const subjStats = storageStats?.bySubject[subject]
+                const hue = SUBJECT_HUE[subject] || 0
+                const progressCount = storageStats?.progressBySubject[subject] || 0
+
+                return (
+                  <div key={subject} className="settings-subject-row">
+                    <div style={{
+                      width: 4, height: 36, borderRadius: 2,
+                      background: `oklch(60% 0.10 ${60 + hue * 55})`,
+                      flexShrink: 0,
+                    }} />
+                    <div className="settings-subject-copy">
+                      <span>{getSubjectDisplayName(subject)}</span>
+                      <em>{subjStats ? `${subjStats.total}题` : ''}{progressCount > 0 && ` · ${progressCount}条进度`}</em>
+                    </div>
+                    <div className="settings-subject-actions">
+                      {progressCount > 0 && (
+                        <button onClick={() => handleClearSubjectProgress(subject)}
+                          className={`settings-action-btn warn ${subjectConfirm === `clear-${subject}` ? 'confirm' : ''}`}>
+                          {subjectConfirm === `clear-${subject}` ? '确认重置' : '重置'}
+                        </button>
+                      )}
+                      <button onClick={() => handleDeleteSubject(subject)}
+                        className={`settings-action-btn danger ${subjectConfirm === `delete-${subject}` ? 'confirm' : ''}`}>
+                        {subjectConfirm === `delete-${subject}` ? '确认删除' : '删除'}
+                      </button>
+                    </div>
+                  </div>
+                )
+              }) : (
+                <div className="settings-empty-note">暂无题库</div>
+              )}
             </div>
-            <div className="kv-row">
-              <span className="k">收藏</span>
-              <span className="v">{storageStats.totalStarred}</span>
+            <div className="settings-action-group">
+              <div className="settings-action-group-title">数据</div>
+              <ActionRow
+                title="重置练习进度"
+                detail="保留题库和收藏，只清空答题记录"
+                action={showConfirm === 'progress' ? '确认重置' : '重置'}
+                confirm={showConfirm === 'progress'}
+                onClick={handleClearProgress}
+                disabled={!storageStats.totalProgress}
+              />
+              <ActionRow
+                title="删除全部题库"
+                detail="删除所有题目、进度和继续练习记录"
+                action={showConfirm === 'questions' ? '确认删除' : '删除'}
+                confirm={showConfirm === 'questions'}
+                onClick={handleClearQuestions}
+                disabled={!storageStats.totalQuestions}
+              />
             </div>
-            <div className="kv-row">
-              <span className="k">存储占用</span>
-              <span className="v">{formatBytes(storageStats.storage.totalSize)}</span>
-            </div>
-          </div>
+            {subjectConfirm && (
+              <div className="settings-confirm-note">
+                此操作只影响该科目，请确认是否继续？
+              </div>
+            )}
+            {(showConfirm === 'progress' || showConfirm === 'questions') && (
+              <div className="settings-confirm-note">
+                此操作只影响练习模块，请确认是否继续？
+              </div>
+            )}
+          </section>
         )}
 
-        {/* Reading stats */}
-        {readingInfo && (readingInfo.collections > 0 || readingInfo.totalMinutes > 0) && (
-          <div className="settings-card">
+        {/* Reading module */}
+        {readingInfo && (
+          <section className="settings-card settings-module">
             <div className="lbl">阅读 · READING</div>
-            <div className="kv-row">
-              <span className="k">文集</span>
-              <span className="v">{readingInfo.collections}</span>
-            </div>
-            <div className="kv-row">
-              <span className="k">文档</span>
-              <span className="v">{readingInfo.documents}</span>
+            <div className="settings-metrics">
+              <div><span>{readingInfo.collections}</span><em>文集</em></div>
+              <div><span>{readingInfo.documents}</span><em>文档</em></div>
+              <div><span>{readingInfo.totalMinutes}</span><em>分钟</em></div>
             </div>
             <div className="kv-row">
               <span className="k">高亮</span>
@@ -243,167 +377,65 @@ export default function Settings() {
               <span className="k">书签</span>
               <span className="v">{readingInfo.bookmarks}</span>
             </div>
-            {readingInfo.totalMinutes > 0 && (
-              <div className="kv-row">
-                <span className="k">累计阅读</span>
-                <span className="v">{readingInfo.totalMinutes >= 60
-                  ? `${Math.floor(readingInfo.totalMinutes / 60)}h ${readingInfo.totalMinutes % 60}m`
-                  : `${readingInfo.totalMinutes}m`}</span>
-              </div>
-            )}
             {readingInfo.docsCompleted > 0 && (
               <div className="kv-row">
                 <span className="k">读完</span>
                 <span className="v">{readingInfo.docsCompleted}</span>
               </div>
             )}
-          </div>
-        )}
-
-        {/* Subject management */}
-        {subjects.length > 0 && (
-          <div className="settings-card">
-            <div className="lbl">科目 · SUBJECTS</div>
-            {subjects.map(subject => {
-              const subjStats = storageStats?.bySubject[subject]
-              const hue = SUBJECT_HUE[subject] || 0
-              const progressCount = storageStats?.progressBySubject[subject] || 0
-
-              return (
-                <div key={subject} className="border-b py-3 flex items-center gap-3" style={{ borderColor: 'var(--border-soft)' }}>
-                  <div style={{
-                    width: 4, height: 36, borderRadius: 2,
-                    background: `oklch(60% 0.10 ${60 + hue * 55})`,
-                    flexShrink: 0,
-                  }} />
-                  <div className="flex-1 min-w-0">
-                    <div className="font-zh text-[14px] font-medium text-ink truncate">
-                      {getSubjectDisplayName(subject)}
-                    </div>
-                    <div className="font-mono text-[11px] text-ink-3">
-                      {subjStats ? `${subjStats.total}题` : ''}
-                      {progressCount > 0 && ` · ${progressCount}条进度`}
-                    </div>
-                  </div>
-                  <div className="flex gap-1.5 flex-shrink-0">
-                    {progressCount > 0 && (
-                      <button onClick={() => handleClearSubjectProgress(subject)}
-                        className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors ${
-                          subjectConfirm === `clear-${subject}`
-                            ? 'bg-warn text-white'
-                            : 'text-warn'
-                        }`}
-                        style={subjectConfirm !== `clear-${subject}` ? { background: 'var(--warn-soft)' } : {}}>
-                        {subjectConfirm === `clear-${subject}` ? '确认重置' : '重置'}
-                      </button>
-                    )}
-                    <button onClick={() => handleDeleteSubject(subject)}
-                      className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors ${
-                        subjectConfirm === `delete-${subject}`
-                          ? 'bg-danger text-white'
-                          : 'text-danger'
-                      }`}
-                      style={subjectConfirm !== `delete-${subject}` ? { background: 'var(--danger-soft)' } : {}}>
-                      {subjectConfirm === `delete-${subject}` ? '确认删除' : '删除'}
-                    </button>
-                  </div>
-                </div>
-              )
-            })}
-            {subjectConfirm && (
-              <div className="mt-2 p-3 rounded-md font-zh text-xs leading-relaxed"
-                style={{ background: 'var(--danger-soft)', color: 'var(--danger)' }}>
-                此操作不可撤销，请确认是否继续？
+            <div className="settings-action-group">
+              <div className="settings-action-group-title">数据</div>
+              <ActionRow
+                title="重置阅读统计"
+                detail="保留文集、文档、高亮和书签"
+                action={showConfirm === 'reading-stats' ? '确认重置' : '重置'}
+                confirm={showConfirm === 'reading-stats'}
+                disabled={!readingInfo.totalMinutes && !readingInfo.docsCompleted}
+                onClick={() => {
+                  if (showConfirm === 'reading-stats') {
+                    clearReadingStats()
+                    setShowConfirm(null)
+                    refresh()
+                  } else {
+                    setShowConfirm('reading-stats')
+                  }
+                }}
+              />
+              <ActionRow
+                title="删除全部阅读数据"
+                detail="删除文集、文档、高亮、书签和阅读设置"
+                action={showConfirm === 'reading-all' ? '确认删除' : '删除'}
+                confirm={showConfirm === 'reading-all'}
+                disabled={!readingInfo.collections && !readingInfo.documents}
+                onClick={() => {
+                  if (showConfirm === 'reading-all') {
+                    clearAllReadingData()
+                    setShowConfirm(null)
+                    refresh()
+                  } else {
+                    setShowConfirm('reading-all')
+                  }
+                }}
+              />
+            </div>
+            {(showConfirm === 'reading-stats' || showConfirm === 'reading-all') && (
+              <div className="settings-confirm-note">
+                此操作只影响阅读模块，请确认是否继续？
               </div>
             )}
-          </div>
+          </section>
         )}
 
         {/* Data export */}
-        <div className="settings-card">
-          <div className="lbl">导出 · EXPORT</div>
-          <div className="flex gap-2">
-            <button onClick={handleExportFlashcard}
-              className="btn btn-ghost flex-1 inline-flex items-center justify-center gap-1.5">
-              <DownloadIcon size={16} /> 记忆卡
-            </button>
-            <button onClick={handleExportReading}
-              className="btn btn-ghost flex-1 inline-flex items-center justify-center gap-1.5">
-              <DownloadIcon size={16} /> 阅读
-            </button>
-            <button onClick={handleExportAll}
-              className="flex-1 py-2.5 rounded-md font-body text-sm font-medium bg-ink text-bg inline-flex items-center justify-center gap-1.5 active:scale-[0.97] transition-transform">
-              <DownloadIcon size={16} /> 全部
-            </button>
+        <section className="settings-card settings-module">
+          <div className="lbl">备份 · BACKUP</div>
+          <div className="settings-backup-list">
+            <BackupButton primary onClick={handleExportAll}>完整备份</BackupButton>
+            <BackupButton onClick={handleExportFlashcard}>仅导出记忆</BackupButton>
+            <BackupButton onClick={handleExportQuiz}>仅导出练习</BackupButton>
+            <BackupButton onClick={handleExportReading}>仅导出阅读</BackupButton>
           </div>
-        </div>
-
-        {/* Danger zone */}
-        <div className="settings-card" style={{ borderColor: 'color-mix(in oklch, var(--danger) 30%, transparent)' }}>
-          <div className="lbl" style={{ color: 'var(--danger)' }}>危险操作 · DANGER ZONE</div>
-          <div className="kv-row">
-            <span className="k">清除练习进度</span>
-            <button onClick={handleClearProgress}
-              className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors ${
-                showConfirm === 'progress' ? 'bg-danger text-white' : 'text-danger'
-              }`}
-              style={showConfirm !== 'progress' ? { background: 'var(--danger-soft)' } : {}}>
-              {showConfirm === 'progress' ? '确认清除' : '清除'}
-            </button>
-          </div>
-          <div className="kv-row">
-            <span className="k">清除全部题库</span>
-            <button onClick={handleClearQuestions}
-              className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors ${
-                showConfirm === 'questions' ? 'bg-danger text-white' : 'text-danger'
-              }`}
-              style={showConfirm !== 'questions' ? { background: 'var(--danger-soft)' } : {}}>
-              {showConfirm === 'questions' ? '确认删除' : '删除'}
-            </button>
-          </div>
-          <div className="kv-row">
-            <span className="k">重置阅读统计</span>
-            <button onClick={() => {
-              if (showConfirm === 'reading-stats') {
-                clearReadingStats()
-                setShowConfirm(null)
-                refresh()
-              } else {
-                setShowConfirm('reading-stats')
-              }
-            }}
-              className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors ${
-                showConfirm === 'reading-stats' ? 'bg-danger text-white' : 'text-danger'
-              }`}
-              style={showConfirm !== 'reading-stats' ? { background: 'var(--danger-soft)' } : {}}>
-              {showConfirm === 'reading-stats' ? '确认重置' : '重置'}
-            </button>
-          </div>
-          <div className="kv-row">
-            <span className="k">清除全部阅读数据</span>
-            <button onClick={() => {
-              if (showConfirm === 'reading-all') {
-                clearAllReadingData()
-                setShowConfirm(null)
-                refresh()
-              } else {
-                setShowConfirm('reading-all')
-              }
-            }}
-              className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors ${
-                showConfirm === 'reading-all' ? 'bg-danger text-white' : 'text-danger'
-              }`}
-              style={showConfirm !== 'reading-all' ? { background: 'var(--danger-soft)' } : {}}>
-              {showConfirm === 'reading-all' ? '确认删除' : '删除'}
-            </button>
-          </div>
-          {showConfirm && (
-            <div className="mt-2 p-3 rounded-md font-zh text-xs leading-relaxed"
-              style={{ background: 'var(--danger-soft)', color: 'var(--danger)' }}>
-              此操作不可撤销，请确认是否继续？
-            </div>
-          )}
-        </div>
+        </section>
 
         {/* About */}
         <div className="settings-card">

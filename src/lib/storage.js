@@ -188,6 +188,23 @@ export function importData(jsonString) {
   }
 }
 
+export function clearAllFlashcardData() {
+  saveData(getDefaultData())
+}
+
+export function clearAllFlashcardProgress() {
+  const data = loadData()
+  const today = localToday()
+  for (const card of data.cards) {
+    card.easiness = 2.5
+    card.interval = 0
+    card.repetitions = 0
+    card.dueDate = today
+    card.updatedAt = new Date().toISOString()
+  }
+  saveData(data)
+}
+
 export function parseImportData(jsonString) {
   try {
     return normalizeData(JSON.parse(jsonString))
