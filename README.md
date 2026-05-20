@@ -50,7 +50,7 @@ npm run build        # production build → dist/
 ```
 Mnemos/
 ├── assets/
-│   └── screenshots/              # 11 张真机截图
+│   └── screenshots/              # 12 张真机截图
 ├── design/                       # hi-fi 原型（v2 redesign, activity dashboard）
 ├── public/                       # 静态 HTML 入口
 ├── scripts/                      # icon gen, splash gen, import helpers, ic_foreground.svg
@@ -95,24 +95,25 @@ Mnemos/
 Mnemos 已打包为可安装的 Android App。下列截图来自真机运行版本，覆盖记忆、练习、阅读、导入、制卡提示和设置等核心工作流。
 
 <p align="center">
-  <img src="assets/screenshots/app-home-recall.jpg" width="30%" alt="Recall home" />
-  <img src="assets/screenshots/app-home-practice.jpg" width="30%" alt="Practice home" />
-  <img src="assets/screenshots/app-home-reading.jpg" width="30%" alt="Reading home" />
+  <img src="assets/screenshots/1.jpg" width="30%" alt="screenshot 1" />
+  <img src="assets/screenshots/2.jpg" width="30%" alt="screenshot 2" />
+  <img src="assets/screenshots/3.jpg" width="30%" alt="screenshot 3" />
 </p>
 
 <p align="center">
-  <img src="assets/screenshots/app-quiz-detail.jpg" width="30%" alt="Quiz detail" />
-  <img src="assets/screenshots/app-quiz-question.jpg" width="30%" alt="Quiz question" />
-  <img src="assets/screenshots/app-deck-detail.jpg" width="30%" alt="Deck detail" />
+  <img src="assets/screenshots/4.jpg" width="30%" alt="screenshot 4" />
+  <img src="assets/screenshots/5.jpg" width="30%" alt="screenshot 5" />
+  <img src="assets/screenshots/6.jpg" width="30%" alt="screenshot 6" />
 </p>
 
 <p align="center">
-  <img src="assets/screenshots/app-import-json.jpg" width="30%" alt="Import JSON" />
-  <img src="assets/screenshots/app-import-markdown.jpg" width="30%" alt="Import markdown" />
-  <img src="assets/screenshots/app-prompt-guide.jpg" width="30%" alt="Prompt guide" />
+  <img src="assets/screenshots/7.jpg" width="30%" alt="screenshot 7" />
+  <img src="assets/screenshots/8.jpg" width="30%" alt="screenshot 8" />
+  <img src="assets/screenshots/9.jpg" width="30%" alt="screenshot 9" />
 </p>
 
 <p align="center">
-  <img src="assets/screenshots/app-import-doc.jpg" width="30%" alt="Import document" />
-  <img src="assets/screenshots/app-settings.jpg" width="30%" alt="Settings" />
+  <img src="assets/screenshots/10.jpg" width="30%" alt="screenshot 10" />
+  <img src="assets/screenshots/11.jpg" width="30%" alt="screenshot 11" />
+  <img src="assets/screenshots/12.jpg" width="30%" alt="screenshot 12" />
 </p>
