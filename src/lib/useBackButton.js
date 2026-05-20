@@ -22,6 +22,7 @@ const ROUTES = [
   ['/prompt-guide',        '/import'],
   ['/import',              '/'],
 
+  ['/activity',            '/'],
   ['/settings',            '/'],
   ['/wrong',               '/'],
   ['/starred',             '/'],
@@ -63,6 +64,12 @@ function getParent(pathname, searchParams) {
     if (child === '/import' && searchParams) {
       const deckId = searchParams.get('deckId')
       if (deckId) resolved = `/deck/${deckId}`
+    }
+
+    // Special: subject-scoped quiz utilities return to the subject detail.
+    if ((child === '/wrong' || child === '/starred') && searchParams) {
+      const subject = searchParams.get('subject')
+      if (subject) resolved = `/set/${subject}`
     }
 
     return resolved

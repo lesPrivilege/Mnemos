@@ -1,13 +1,16 @@
 // Shared body for ReadingHome and ReadingHomeContent
 // Accepts h (useReadingHome return) as props so both wrappers share one hook instance
 import { useNavigate, Link } from 'react-router-dom'
-import { getDocumentsByCollection } from '../lib/storage'
+import { getDocumentsByCollection, toggleCollectionPin } from '../lib/storage'
 import { getWeeklyMinutes } from '../lib/stats'
-import { PlusIcon, TrashIcon, UploadIcon, LayersIcon, SparkIcon } from '../../components/Icons'
+import { PlusIcon, TrashIcon, UploadIcon, LayersIcon, SparkIcon, PinIcon } from '../../components/Icons'
 import { HeroSection } from '../../components/HeroSection'
+import EmptyState from '../../components/EmptyState'
 
 export default function ReadingHomeBody({ h }) {
   const navigate = useNavigate()
+  const docCount = h.collections.reduce((sum, c) => sum + getDocumentsByCollection(c.id).length, 0)
+  const isEmptyLibrary = h.collections.length === 0
 
   return (
     <>
@@ -38,16 +41,25 @@ export default function ReadingHomeBody({ h }) {
             const maxCount = Math.max(1, ...weekly.chart.map(d => d.count))
             return (
               <HeroSection
-                label="本周 · THIS WEEK"
-                right={[{ icon: <SparkIcon size={14} />, text: `${weekly.totalThisWeek} 分钟`, warn: true }]}
-                metrics={[
-                  { value: weekly.totalThisWeek, label: 'MIN', zhLabel: '分钟', accent: true },
-                  { value: h.stats.docsCompleted, label: 'DONE', zhLabel: '完成' },
-                  { value: h.collections.reduce((sum, c) => sum + getDocumentsByCollection(c.id).length, 0), label: 'DOCS', zhLabel: '文档' },
-                ]}
+                label={isEmptyLibrary ? '准备 · READY' : '本周 · THIS WEEK'}
+                right={isEmptyLibrary
+                  ? [{ icon: <UploadIcon size={14} />, text: '待导入' }]
+                  : [{ icon: <SparkIcon size={14} />, text: `${weekly.totalThisWeek} 分钟`, warn: true }]}
+                metrics={isEmptyLibrary
+                  ? [
+                      { value: h.collections.length, label: 'COLS', zhLabel: '集合', accent: true },
+                      { value: weekly.totalThisWeek, label: 'MIN', zhLabel: '分钟' },
+                      { value: docCount, label: 'DOCS', zhLabel: '文档' },
+                    ]
+                  : [
+                      { value: weekly.totalThisWeek, label: 'MIN', zhLabel: '分钟', accent: true },
+                      { value: h.stats.docsCompleted, label: 'DONE', zhLabel: '完成' },
+                      { value: docCount, label: 'DOCS', zhLabel: '文档' },
+                    ]}
                 chartData={weekly.chart}
                 chartColor="teal"
                 chartMax={maxCount}
+                to="/activity"
               />
             )
           })()}
@@ -72,6 +84,11 @@ export default function ReadingHomeBody({ h }) {
             </div>
           )}
 
+          <div className="list-head">
+            <div className="section-title">集合 · COLLECTIONS</div>
+            <span className="count">{h.collections.length}</span>
+          </div>
+
           {h.collections.length > 0 && (
             <div className="flex items-center gap-2">
               <div className="seg" style={{ display: 'inline-flex', width: 'auto' }}>
@@ -83,7 +100,11 @@ export default function ReadingHomeBody({ h }) {
           )}
 
           {h.sorted.length === 0 && !h.showNewCol && (
-            <div className="empty"><LayersIcon size={48} style={{ color: 'var(--ink-4)' }} /><div className="msg">还没有阅读集合</div><div className="motto-zh">新建集合以开始阅读</div></div>
+            <EmptyState
+              icon={<LayersIcon size={48} />}
+              title="还没有阅读集合"
+              hint="导入或新建集合即可开始阅读"
+            />
           )}
 
           {h.sorted.map((col) => {
@@ -110,6 +131,13 @@ export default function ReadingHomeBody({ h }) {
                   </div>
                 </div>
                 <div className="deck-cta" style={{ gap: 6 }}>
+                  <button
+                    className="inline-flex items-center justify-center w-7 h-7 rounded-md text-ink-3 opacity-40 hover:opacity-100 hover:text-accent hover:bg-accent-soft transition-colors flex-shrink-0"
+                    onClick={(e) => { e.stopPropagation(); toggleCollectionPin(col.id); h.refresh() }}
+                    title={col.pinned ? '取消置顶' : '置顶集合'}
+                    aria-label={col.pinned ? '取消置顶' : '置顶集合'}>
+                    <PinIcon size={15} filled={col.pinned} />
+                  </button>
                   <button
                     className="inline-flex items-center justify-center w-7 h-7 rounded-md text-ink-3 opacity-40 hover:opacity-100 hover:text-danger hover:bg-danger-soft transition-colors flex-shrink-0"
                     onClick={(e) => { e.stopPropagation(); h.handleDeleteCollection(col.id, col.name) }}

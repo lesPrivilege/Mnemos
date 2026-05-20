@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useBackButton } from '../lib/useBackButton'
 import { getWrongQuestions } from '../quiz/lib/quizEngine'
 import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
@@ -11,8 +11,10 @@ import '../styles/markdown.css'
 export default function Wrong() {
   const navigate = useNavigate()
   const { goBack } = useBackButton()
+  const [searchParams] = useSearchParams()
+  const subject = searchParams.get('subject')
   const [wrongQuestions, setWrongQuestions] = useState([])
-  const [selectedSubject, setSelectedSubject] = useState(null)
+  const [selectedSubject, setSelectedSubject] = useState(subject)
   const [subjects, setSubjects] = useState([])
 
   const refresh = () => {
@@ -21,6 +23,7 @@ export default function Wrong() {
   }
 
   useEffect(() => { refresh() }, [selectedSubject])
+  useEffect(() => { setSelectedSubject(subject) }, [subject])
 
   const handleDelete = (id) => {
     if (!confirm('删除这道题目？此操作不可撤销。')) return

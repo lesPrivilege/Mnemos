@@ -6,6 +6,7 @@ import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
 import { SUBJECT_HUE, SUBJECT_GLYPH } from '../quiz/lib/subjectMeta'
 import { UploadIcon, SparkIcon, PlusIcon, PasteIcon } from '../components/Icons'
 import { HeroSection } from '../components/HeroSection'
+import EmptyState from '../components/EmptyState'
 
 function getTimeAgo(ts) {
   const mins = Math.floor((Date.now() - ts) / 60000)
@@ -162,6 +163,7 @@ export function QuizHomeContent() {
   const [weekStats, setWeekStats] = useState({ doneThisWeek: 0, correctRate: 0, chart: [] })
   const [showNewSubject, setShowNewSubject] = useState(false)
   const [newSubjectJson, setNewSubjectJson] = useState('')
+  const isEmptyLibrary = subjects.length === 0
 
   const refresh = () => {
     setSubjects(getSubjectList())
@@ -197,35 +199,42 @@ export function QuizHomeContent() {
     <div className="scr">
       {/* Hero */}
       <HeroSection
-        label="本周 · THIS WEEK"
-        right={[{ icon: <SparkIcon size={14} />, text: `正确率 ${weekStats.correctRate}%`, warn: true }]}
-        metrics={[
-          { value: wrongCount, label: 'WRONG', zhLabel: '错题', accent: true },
-          { value: weekStats.doneThisWeek, label: 'DONE', zhLabel: '本周' },
-          { value: totalQs, label: 'TOTAL', zhLabel: '总数' },
-        ]}
+        label={isEmptyLibrary ? '准备 · READY' : '本周 · THIS WEEK'}
+        right={isEmptyLibrary
+          ? [{ icon: <UploadIcon size={14} />, text: '待导入' }]
+          : [{ icon: <SparkIcon size={14} />, text: `正确率 ${weekStats.correctRate}%`, warn: true }]}
+        metrics={isEmptyLibrary
+          ? [
+              { value: subjects.length, label: 'SETS', zhLabel: '题库', accent: true },
+              { value: wrongCount, label: 'WRONG', zhLabel: '错题' },
+              { value: totalQs, label: 'QUEST', zhLabel: '题目' },
+            ]
+          : [
+              { value: wrongCount, label: 'WRONG', zhLabel: '错题', accent: true },
+              { value: weekStats.doneThisWeek, label: 'DONE', zhLabel: '本周' },
+              { value: totalQs, label: 'TOTAL', zhLabel: '总数' },
+            ]}
         chartData={weekStats.chart.map(d => ({ count: d.n, isToday: d.today, label: d.d }))}
         chartColor="teal"
+        to="/activity"
       />
 
       {/* Continue card */}
       <ContinueCard subjects={subjects} onDismiss={() => { clearLastSession(); refresh() }} />
 
       {/* Subject list header */}
-      {subjects.length > 0 && (
-        <div className="list-head">
-          <div className="section-title" style={{ flex: 'none' }}>科目 · SUBJECTS</div>
-          <span className="count">{subjects.length}</span>
-        </div>
-      )}
+      <div className="list-head">
+        <div className="section-title" style={{ flex: 'none' }}>科目 · SUBJECTS</div>
+        <span className="count">{subjects.length}</span>
+      </div>
 
       {/* Subject list */}
       {subjects.length === 0 ? (
-        <div className="empty">
-          <div className="glyph">?</div>
-          <div className="msg">暂无题库</div>
-          <div className="motto-zh">导入题库即可开始</div>
-        </div>
+        <EmptyState
+          icon={<PasteIcon size={48} />}
+          title="暂无题库"
+          hint="导入或新建题库即可开始"
+        />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {subjects.map(s => (

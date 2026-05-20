@@ -204,7 +204,7 @@ export default function CollectionDetail() {
       <div className="flex-shrink-0 px-[18px] pb-[14px] flex flex-col gap-2" style={{ background: 'var(--bg)' }}>
         <div className="dd-cta" style={{ margin: 0 }}>
           {continueDoc ? (
-            <button className="dd-cta-main" onClick={() => navigate(`/reading/doc/${continueDoc.id}`)}>
+            <button className="dd-cta-main" onClick={() => navigate(`/reading/doc/${continueDoc.id}?col=${id}`)}>
               <div className="left">
                 <span className="lead">{continueDoc.title}</span>
                 <span className="sub">CONTINUE · 继续阅读</span>

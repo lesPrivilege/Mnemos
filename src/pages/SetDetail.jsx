@@ -48,6 +48,11 @@ export default function SetDetail() {
   const starredChapterNames = new Set(
     questions.filter(q => starredIds.has(q.id) && q.chapter).map(q => q.chapter)
   )
+  const starredCount = questions.filter(q => starredIds.has(q.id)).length
+  const starredByChapter = questions.reduce((map, q) => {
+    if (starredIds.has(q.id)) map[q.chapter || '未分类'] = (map[q.chapter || '未分类'] || 0) + 1
+    return map
+  }, {})
 
   const filteredChapters = chapters.filter(ch => {
     if (filter === 'choice') return ch.choice > 0
@@ -127,17 +132,17 @@ export default function SetDetail() {
             </button>
             {typeCounts.choice > 0 && (
               <button onClick={() => setFilter('choice')} className={`chip ${filter === 'choice' ? 'on' : ''}`}>
-                选择
+                选择 · {typeCounts.choice}
               </button>
             )}
             {typeCounts.review > 0 && (
               <button onClick={() => setFilter('review')} className={`chip ${filter === 'review' ? 'on' : ''}`}>
-                解答
+                解答 · {typeCounts.review}
               </button>
             )}
             <button onClick={() => setFilter('starred')} className={`chip ${filter === 'starred' ? 'on' : ''}`}>
               <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l2.7 5.9 6.3.6-4.8 4.5 1.5 6.5L12 17l-5.7 3.5 1.5-6.5L3 9.5l6.3-.6z" /></svg>
-              收藏
+              收藏 · {starredCount}
             </button>
           </div>
         </div>
@@ -147,6 +152,7 @@ export default function SetDetail() {
           <div className="card-list">
             {filteredChapters.map(ch => {
               const isOpen = expandedChapter === ch.name
+              const chStarred = starredByChapter[ch.name] || 0
               return (
                 <div key={ch.name}>
                   <div className="card-row" onClick={() => setExpandedChapter(isOpen ? null : ch.name)}
@@ -155,7 +161,10 @@ export default function SetDetail() {
                     <span className="front" style={{ fontWeight: 500, paddingLeft: 8 }}>{ch.name}</span>
                     <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--ink-3)' }}>
                       {ch.total}题
+                      {ch.choice > 0 && <span style={{ marginLeft: 6 }}>选{ch.choice}</span>}
+                      {ch.review > 0 && <span style={{ marginLeft: 6 }}>答{ch.review}</span>}
                       {ch.wrong > 0 && <span style={{ color: 'var(--danger)', marginLeft: 6 }}>{ch.wrong}错</span>}
+                      {chStarred > 0 && <span style={{ color: 'var(--accent)', marginLeft: 6 }}>{chStarred}★</span>}
                     </span>
                   </div>
                   {isOpen && (
@@ -183,7 +192,7 @@ export default function SetDetail() {
             })}
             {filteredChapters.length === 0 && (
               <div style={{ padding: '24px', textAlign: 'center', color: 'var(--ink-3)', fontSize: 13 }}>
-                暂无章节数据
+                {filter === 'starred' ? '暂无收藏章节' : '暂无章节数据'}
               </div>
             )}
           </div>

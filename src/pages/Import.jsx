@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { addQuestions, importData as importQuizData, mergeImportData as mergeQuizData } from '../quiz/lib/storage'
 import { parseQuestionsJson, getQuestionsStats } from '../quiz/lib/questionParser'
 import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
-import { addDeck, addCard, getCards, getDecks, importData, mergeData, parseImportData, loadData } from '../lib/storage'
+import { addDeck, addCard, getDeck, getCards, getDecks, importData, mergeData, parseImportData, loadData } from '../lib/storage'
 import { parseMdToCards } from '../lib/mdParser'
 import { getCollections, addCollection, addDocument } from '../reading/lib/storage'
 import { importReadingData, mergeReadingData } from '../reading/lib/backup'
@@ -16,6 +16,8 @@ export default function Import() {
   const { goBack } = useBackButton()
   const [searchParams] = useSearchParams()
   const fileInputRef = useRef(null)
+  const mdTargetDeckId = searchParams.get('deckId')
+  const mdTargetDeck = mdTargetDeckId ? getDeck(mdTargetDeckId) : null
   const [importTab, setImportTab] = useState(() => {
     const tab = searchParams.get('tab')
     if (tab === 'md') return 'md'
@@ -51,7 +53,7 @@ export default function Import() {
     if (!mdPreview) return { count: 0, filtered: [] }
     const trimmedName = mdDeckName.trim() || mdPreview.defaultName
     const decks = getDecks()
-    const existingDeck = decks.find(d => d.name === trimmedName)
+    const existingDeck = mdTargetDeck || decks.find(d => d.name === trimmedName)
     const existingCards = existingDeck ? getCards(existingDeck.id) : []
     if (existingCards.length === 0) return { count: 0, filtered: mdPreview.cards }
     const existingFronts = new Set(existingCards.map(c => c.front.trim()))
@@ -160,24 +162,24 @@ export default function Import() {
   const processMd = (content, defaultName) => {
     const { cards, deckName } = parseMdToCards(content, defaultName)
     if (cards.length === 0) {
-      alert('未识别到卡片。请确认 .md 格式是否正确。')
+      alert('未识别到卡片。可以粘贴 MD 列表，或用纯文本按「正面换行背面」成组输入。')
       return
     }
     setMdPreview({ cards, defaultName: deckName || defaultName })
-    setMdDeckName(deckName || defaultName)
+    setMdDeckName(mdTargetDeck?.name || deckName || defaultName)
   }
 
   const handleConfirmMd = () => {
     if (!mdPreview || mdPreview.cards.length === 0) return
     const name = mdDeckName.trim() || mdPreview.defaultName
     const cardsToImport = skipDup ? dedup.filtered : mdPreview.cards
-    const deck = addDeck(name)
+    const deck = mdTargetDeck || addDeck(name)
     for (const card of cardsToImport) {
       addCard(deck.id, card.front, card.back, card.type, card.chapter, card.section)
     }
-    alert(`导入完成！\n卡组: ${name}\n卡片: ${cardsToImport.length}${skipDup && dedup.count > 0 ? `\n跳过重复: ${dedup.count}` : ''}`)
+    alert(`导入完成！\n卡组: ${deck.name}\n卡片: ${cardsToImport.length}${skipDup && dedup.count > 0 ? `\n跳过重复: ${dedup.count}` : ''}`)
     reset()
-    navigate('/')
+    navigate(mdTargetDeck ? `/deck/${mdTargetDeck.id}` : '/')
   }
 
   // ---- JSON backup handlers (flashcard) ----
@@ -389,10 +391,11 @@ export default function Import() {
         </header>
         <main className="flex-1 overflow-y-auto p-[18px] flex flex-col gap-4">
           <div className="settings-card">
-            <div className="lbl">卡组名称</div>
+            <div className="lbl">{mdTargetDeck ? '导入到卡组' : '卡组名称'}</div>
             <input value={mdDeckName} onChange={(e) => setMdDeckName(e.target.value)}
+              disabled={!!mdTargetDeck}
               className="w-full py-[9px] px-3 rounded-md border bg-bg text-ink font-zh text-sm outline-none focus:border-accent"
-              style={{ borderColor: 'var(--border)' }} />
+              style={{ borderColor: 'var(--border)', opacity: mdTargetDeck ? 0.72 : 1 }} />
             <div className="kv-row"><span className="k">解析卡片</span><span className="v">{mdPreview.cards.length}</span></div>
             {dedup.count > 0 && (
               <>
@@ -494,10 +497,10 @@ export default function Import() {
         {/* Tab toggle */}
         <div className="seg">
           <button onClick={() => setImportTab('json')} className={importTab === 'json' ? 'on' : ''}>
-            题库 · JSON
+            做题 · JSON
           </button>
           <button onClick={() => setImportTab('md')} className={importTab === 'md' ? 'on' : ''}>
-            记忆卡 · MD
+            闪卡 · MD
           </button>
           <button onClick={() => setImportTab('reading')} className={importTab === 'reading' ? 'on' : ''}>
             阅读 · DOC
@@ -506,6 +509,12 @@ export default function Import() {
 
         {importTab === 'json' ? (
           <>
+            <div className="settings-card">
+              <div className="lbl">做题导入 · PRACTICE</div>
+              <div className="kv-row"><span className="k">目标</span><span className="v">按科目与章节练习</span></div>
+              <div className="kv-row"><span className="k">内容</span><span className="v">选择题 / 解答题</span></div>
+              <div className="kv-row"><span className="k">导入后</span><span className="v">进入练习模块</span></div>
+            </div>
             <div className="settings-card">
               <div className="lbl">文件导入 · FILE</div>
               <div onClick={() => fileInputRef.current?.click()}
@@ -532,6 +541,12 @@ export default function Import() {
           </>
         ) : importTab === 'reading' ? (
           <>
+            <div className="settings-card">
+              <div className="lbl">阅读导入 · READING</div>
+              <div className="kv-row"><span className="k">目标</span><span className="v">长文阅读与标注</span></div>
+              <div className="kv-row"><span className="k">内容</span><span className="v">文档 / 讲义 / 笔记</span></div>
+              <div className="kv-row"><span className="k">导入后</span><span className="v">放入阅读集合</span></div>
+            </div>
             <div className="settings-card">
               <div className="lbl">文件导入 · FILE</div>
               <div onClick={() => fileInputRef.current?.click()}
@@ -563,6 +578,12 @@ export default function Import() {
         ) : (
           <>
             <div className="settings-card">
+              <div className="lbl">闪卡导入 · RECALL</div>
+              <div className="kv-row"><span className="k">目标</span><span className="v">间隔复习与主动回忆</span></div>
+              <div className="kv-row"><span className="k">内容</span><span className="v">正面 / 背面卡片</span></div>
+              <div className="kv-row"><span className="k">导入后</span><span className="v">{mdTargetDeck ? `追加到「${mdTargetDeck.name}」` : '生成卡组'}</span></div>
+            </div>
+            <div className="settings-card">
               <div className="lbl">文件导入 · FILE</div>
               <div onClick={() => fileInputRef.current?.click()}
                 onDragOver={handleDropzoneDragOver} onDragLeave={handleDropzoneDragLeave} onDrop={handleDropzoneDrop}
@@ -575,7 +596,7 @@ export default function Import() {
             <div className="settings-card">
               <div className="lbl">粘贴 Markdown</div>
               <textarea className="textarea" value={pasteMd} onChange={(e) => setPasteMd(e.target.value)}
-                placeholder="# 章节&#10;## 小节&#10;- 正面&#10;  - 背面" />
+                placeholder="# 章节&#10;## 小节&#10;* 正面&#10;  * 背面要点" />
               <button onClick={handlePasteSubmit} disabled={!pasteMd.trim()}
                 className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-md font-body text-sm font-medium active:scale-[0.97] transition-transform disabled:opacity-40"
                 style={{ background: 'var(--accent-soft)', color: 'var(--accent)', border: '1px solid var(--accent-line)' }}>

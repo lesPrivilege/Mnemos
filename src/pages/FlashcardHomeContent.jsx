@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { PlusIcon, UploadIcon, FlameIcon, StarIcon, MnemosMark } from '../components/Icons'
+import { PlusIcon, UploadIcon, FlameIcon, StarIcon, PinIcon, MnemosMark } from '../components/Icons'
 import { getAllDeckStats } from '../lib/scheduler'
 import { addDeck, deleteDecks, togglePin, loadData } from '../lib/storage'
 import { localToday, isoToLocalDate, localDow, formatLocalDate } from '../lib/dateUtils'
 import { HeroSection } from '../components/HeroSection'
 import { loadReviewSession, clearReviewSession } from '../lib/reviewSession'
+import EmptyState from '../components/EmptyState'
 
 const DAY_LABELS = ['日', '一', '二', '三', '四', '五', '六']
 
@@ -74,6 +75,7 @@ export function FlashcardHomeContent() {
   const totalDue = decks.reduce((sum, d) => sum + d.dueCount, 0)
   const reviewedToday = decks.reduce((sum, d) => sum + d.reviewedToday, 0)
   const totalCards = decks.reduce((sum, d) => sum + d.totalCards, 0)
+  const isEmptyLibrary = decks.length === 0
 
   const futureDistribution = decks.reduce((merged, deck) => {
     if (merged.length === 0) return deck.futureDistribution.map((d) => ({ ...d }))
@@ -112,19 +114,27 @@ export function FlashcardHomeContent() {
       {/* Hero — hidden in edit mode */}
       {!editing && (
         <HeroSection
-          label="今日 · TODAY"
+          label={isEmptyLibrary ? '准备 · READY' : '今日 · TODAY'}
           right={[
-            ...(streak > 0 ? [{ icon: <FlameIcon size={14} />, text: `${streak} 日` }] : []),
-            ...(starredCount > 0 ? [{ icon: <StarIcon size={14} />, text: String(starredCount) }] : []),
+            ...(isEmptyLibrary ? [{ icon: <UploadIcon size={14} />, text: '待导入' }] : []),
+            ...(!isEmptyLibrary && streak > 0 ? [{ icon: <FlameIcon size={14} />, text: `${streak} 日` }] : []),
+            ...(!isEmptyLibrary && starredCount > 0 ? [{ icon: <StarIcon size={14} />, text: String(starredCount) }] : []),
           ]}
-          metrics={[
-            { value: totalDue, label: 'DUE', zhLabel: '待复习', accent: true },
-            { value: reviewedToday, label: 'DONE', zhLabel: '今日' },
-            { value: totalCards, label: 'TOTAL', zhLabel: '总数' },
-          ]}
+          metrics={isEmptyLibrary
+            ? [
+                { value: decks.length, label: 'DECKS', zhLabel: '卡组', accent: true },
+                { value: totalDue, label: 'DUE', zhLabel: '待复习' },
+                { value: totalCards, label: 'CARDS', zhLabel: '卡片' },
+              ]
+            : [
+                { value: totalDue, label: 'DUE', zhLabel: '待复习', accent: true },
+                { value: reviewedToday, label: 'DONE', zhLabel: '今日' },
+                { value: totalCards, label: 'TOTAL', zhLabel: '总数' },
+              ]}
           chartData={weekChart.map(d => ({ count: d.count, isToday: d.isToday, label: DAY_LABELS[d.dow] }))}
           chartColor=""
           chartMax={maxCount}
+          to="/activity"
         />
       )}
 
@@ -157,11 +167,11 @@ export function FlashcardHomeContent() {
 
       {/* Deck list */}
       {decks.length === 0 ? (
-        <div className="empty">
-          <MnemosMark size={48} accent="var(--accent)" />
-          <div className="msg">暂无卡组</div>
-          <div className="motto-zh">导入或新建卡组即可开始</div>
-        </div>
+        <EmptyState
+          icon={<MnemosMark size={48} accent="var(--accent)" />}
+          title="暂无卡组"
+          hint="导入或新建卡组即可开始"
+        />
       ) : (
         <div className="flex flex-col gap-2">
           {sorted.map((deck) => {
@@ -212,6 +222,13 @@ export function FlashcardHomeContent() {
                     </div>
                   </div>
                   <div className="deck-cta" style={{ gap: 6 }}>
+                    <button
+                      className="inline-flex items-center justify-center w-7 h-7 rounded-md text-ink-3 opacity-40 hover:opacity-100 hover:text-accent hover:bg-accent-soft transition-colors flex-shrink-0"
+                      onClick={(e) => { e.stopPropagation(); e.preventDefault(); togglePin(deck.id); refresh() }}
+                      title={deck.pinned ? '取消置顶' : '置顶卡组'}
+                      aria-label={deck.pinned ? '取消置顶' : '置顶卡组'}>
+                      <PinIcon size={15} filled={deck.pinned} />
+                    </button>
                     <button
                       className="inline-flex items-center justify-center w-7 h-7 rounded-md text-ink-3 opacity-40 hover:opacity-100 hover:text-danger hover:bg-danger-soft transition-colors flex-shrink-0"
                       onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (confirm(`删除卡组「${deck.name}」？此操作不可撤销。`)) { deleteDecks([deck.id]); refresh() } }}
