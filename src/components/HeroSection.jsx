@@ -8,7 +8,7 @@
  *   chartData – array of { count, isToday, label }
  *   chartColor – "" | "teal"
  */
-import { FlameIcon, SparkIcon, StarIcon } from './Icons'
+import { Link } from 'react-router-dom'
 
 function HeroMetrics({ metrics }) {
   return (
@@ -41,10 +41,11 @@ function HeroChart({ data, color, chartMax }) {
   )
 }
 
-export function HeroSection({ label, right, metrics, chartData, chartColor, chartMax }) {
+export function HeroSection({ label, right, metrics, chartData, chartColor, chartMax, to }) {
   if (!right) right = []
+  const Root = to ? Link : 'div'
   return (
-    <div className="hero">
+    <Root className={`hero ${to ? 'hero-link' : ''}`} {...(to ? { to } : {})}>
       <div className="hero-head">
         <span className="lbl">{label}</span>
         <div className="hero-head-right">
@@ -58,6 +59,6 @@ export function HeroSection({ label, right, metrics, chartData, chartColor, char
       </div>
       <HeroMetrics metrics={metrics} />
       <HeroChart data={chartData} color={chartColor} chartMax={chartMax} />
-    </div>
+    </Root>
   )
 }

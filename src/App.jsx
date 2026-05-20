@@ -12,6 +12,7 @@ import Starred from './pages/Starred'
 import Search from './pages/Search'
 import PromptGuide from './pages/PromptGuide'
 import Settings from './pages/Settings'
+import Activity from './pages/Activity'
 import SetDetail from './pages/SetDetail'
 import ReadingHome from './reading/pages/ReadingHome'
 import Reader from './reading/pages/Reader'
@@ -35,6 +36,7 @@ export default function App() {
         <Route path="/import" element={<ImportPage />} />
         <Route path="/prompt-guide" element={<PromptGuide />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/activity" element={<Activity />} />
         <Route path="/reading" element={<ReadingHome />} />
         <Route path="/reading/doc/:id" element={<Reader />} />
         <Route path="/collection/:id" element={<CollectionDetail />} />
