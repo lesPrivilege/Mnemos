@@ -1,14 +1,24 @@
-# Mnemos
+# Mnemos — 间隔重复记忆 · 题库练习 · Markdown 阅读
 
-间隔重复记忆 + 题库练习 + 阅读。SM-2 算法驱动闪卡复习，支持选择题/解答题练习，内建 markdown 文档阅读器。
+三天独立完成，vibe coding（OpenCode + MiMo）。
 
 [Download APK (v1.0.0, 37MB)](https://github.com/lesPrivilege/Mnemos/releases/tag/v1.0.0)
 
-## 设计判断
+<p align="center">
+  <img src="assets/screenshots/overview-dark.jpg" width="86%" alt="Mnemos 界面总览" />
+</p>
 
-Mnemos 在架构上做了一个明确选择：**不在程序内集成 LLM API，只消费结构化输入**。
+React 18 · Vite 6 · Tailwind 3 · Capacitor 8 · marked + KaTeX + DOMPurify
 
-闪卡的 markdown 结构、题库的 JSON、阅读的文档——这些内容的生成、整理、结构化工作，全部由外部的 CLI 工具与本地 skill 完成（reading-companion、md-cleaner 等）。Mnemos 只负责**呈现、调度与用户交互**。
+SM-2 驱动闪卡复习、选择题/解答题练习、内建 markdown 阅读器，三个模块统一切换，localStorage 持久化，无后端依赖。
+
+架构上 Mnemos 不做 LLM API 集成，只消费结构化输入：闪卡用 markdown，题库用 JSON，阅读用 .md/.tex。内容生成由外部 CLI 与本地 skill 完成（reading-companion、md-cleaner 等），应用层只负责呈现、调度与交互。这个边界让应用逻辑不随模型迭代折旧，结构化文档也不绑定具体 LLM 客户端。
+
+## 架构补充说明
+
+Mnemos 在架构上做了一个明确选择：不在程序内集成 LLM API，只消费结构化输入。
+
+闪卡的 markdown、题库的 JSON、阅读的文档——这些内容的生成、整理、结构化工作，全部由外部的 CLI 工具与本地 skill 完成。Mnemos 只负责呈现、调度与用户交互。
 
 这个分工带来几个结果：
 
