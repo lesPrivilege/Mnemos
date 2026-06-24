@@ -1,5 +1,8 @@
 // Generic Promise-based IndexedDB key-value helper
 // One DB, store name passed in. Each module owns its own store names.
+//
+// To add a new store: bump DB_VERSION and add a createObjectStore call
+// in onupgradeneeded. idbGet/idbSet will throw on a missing store otherwise.
 
 const DB_NAME = 'mnemos'
 const DB_VERSION = 1
