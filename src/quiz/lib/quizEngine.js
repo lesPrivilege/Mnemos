@@ -74,7 +74,8 @@ export function submitAnswer(questionId, userAnswer) {
   if (q.type === 'choice') {
     const expected = q.answer?.trim().toUpperCase()
     const given = userAnswer?.trim().toUpperCase()
-    correct = expected === given
+    const norm = s => s.replace(/[^A-Z]/g, '').split('').sort().join('')
+    correct = norm(expected) === norm(given)
     if (!correct) explanation = `你的答案: ${given || '未作答'}。正确答案: ${expected}。${explanation}`
   } else {
     // review: 展示参考答案或解析

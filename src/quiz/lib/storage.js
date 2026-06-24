@@ -18,7 +18,15 @@ export function loadQuestions() {
 }
 
 export function saveQuestions(questions) {
-  localStorage.setItem(STORAGE_KEYS.QUESTIONS, JSON.stringify(questions))
+  try {
+    localStorage.setItem(STORAGE_KEYS.QUESTIONS, JSON.stringify(questions))
+  } catch (e) {
+    if (e.name === 'QuotaExceededError' || e.code === 22) {
+      console.warn('Quiz: storage full — questions not saved')
+    } else {
+      throw e
+    }
+  }
 }
 
 export function addQuestions(newQuestions) {
@@ -60,11 +68,15 @@ export function loadProgress() {
 }
 
 export function saveProgress(progress) {
-  localStorage.setItem(STORAGE_KEYS.PROGRESS, JSON.stringify(progress))
-}
-
-function getQuestionProgress(questionId) {
-  return loadProgress()[questionId] || defaultProgress()
+  try {
+    localStorage.setItem(STORAGE_KEYS.PROGRESS, JSON.stringify(progress))
+  } catch (e) {
+    if (e.name === 'QuotaExceededError' || e.code === 22) {
+      console.warn('Quiz: storage full — progress not saved')
+    } else {
+      throw e
+    }
+  }
 }
 
 export function recordAttempt(questionId, correct) {
@@ -91,12 +103,6 @@ export function recordAttempt(questionId, correct) {
 
   saveProgress(progress)
   return prog
-}
-
-function resetProgress(questionId) {
-  const p = loadProgress()
-  delete p[questionId]
-  saveProgress(p)
 }
 
 export function clearAllProgress() { saveProgress({}) }

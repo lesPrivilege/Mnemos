@@ -130,7 +130,33 @@ export default function Reader() {
         mark.style.cssText = 'background:var(--accent-soft);border-radius:2px;padding:0 1px'
         range.surroundContents(mark)
       }
-    } catch { /* crosses element boundary */ }
+    } catch {
+      try {
+        const sel = window.getSelection()
+        if (sel && sel.rangeCount > 0) {
+          const range = sel.getRangeAt(0)
+          const css = 'background:var(--accent-soft);border-radius:2px;padding:0 1px'
+          const tree = document.createTreeWalker(
+            range.commonAncestorContainer,
+            NodeFilter.SHOW_TEXT
+          )
+          let node = tree.currentNode
+          while (node) {
+            if (range.intersectsNode(node)) {
+              const r = document.createRange()
+              if (node === range.startContainer) r.setStart(node, range.startOffset)
+              else r.setStartBefore(node)
+              if (node === range.endContainer) r.setEnd(node, range.endOffset)
+              else r.setEndAfter(node)
+              const m = document.createElement('mark')
+              m.style.cssText = css
+              try { r.surroundContents(m) } catch {}
+            }
+            node = tree.nextNode()
+          }
+        }
+      } catch {}
+    }
     setSelection(null)
     window.getSelection()?.removeAllRanges()
     setActivePanel('highlights')
