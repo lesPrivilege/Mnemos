@@ -77,14 +77,14 @@ export function submitAnswer(questionId, userAnswer) {
     const norm = s => s.replace(/[^A-Z]/g, '').split('').sort().join('')
     correct = norm(expected) === norm(given)
     if (!correct) explanation = `你的答案: ${given || '未作答'}。正确答案: ${expected}。${explanation}`
+    const prog = recordAttempt(questionId, correct)
+    return { correct, explanation, status: prog.status, wrongStreak: prog.wrongStreak }
   } else {
-    // review: 展示参考答案或解析
+    // review: show reference answer, don't record — user self-rates
     explanation = q.answer || q.explanation || '暂无解析'
     if (q.solution_path) explanation = `参考答案路径: ${q.solution_path}\n\n${explanation}`
+    return { correct: null, explanation, selfRate: true }
   }
-
-  const prog = recordAttempt(questionId, correct)
-  return { correct, explanation, status: prog.status, wrongStreak: prog.wrongStreak }
 }
 
 export function markQuestion(questionId, correct) {
