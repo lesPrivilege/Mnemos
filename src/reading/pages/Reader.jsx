@@ -5,6 +5,7 @@ import { getDocument, updateReadingProgress, getReadingSettings, updateReadingSe
 import { useBackButton } from '../../lib/useBackButton'
 import { renderDoc, extractToc } from '../lib/renderDoc'
 import { getHighlightsByDoc, addHighlight, deleteHighlight } from '../lib/highlights'
+import { repaintHighlights } from '../lib/highlightAnchor'
 import { getBookmarksByDoc, addBookmark, deleteBookmark } from '../lib/bookmarks'
 import { startSession, endSession, markDocCompleted } from '../lib/stats'
 import { exportHighlightsMd } from '../lib/exportHighlights'
@@ -62,6 +63,14 @@ export default function Reader() {
     })
   }, [html])
 
+  // ── Repaint highlights after render ─────────────────
+
+  useEffect(() => {
+    if (!html || !highlights.length) return
+    const container = scrollRef.current?.querySelector('.card-content')
+    if (container) repaintHighlights(container, highlights)
+  }, [html, highlights])
+
   // ── Scroll + completion ─────────────────────────────
 
   const handleScroll = useCallback(() => {
@@ -113,22 +122,30 @@ export default function Reader() {
 
   const handleSaveHighlight = () => {
     if (!selection || !doc) return
-    const rendered = scrollRef.current?.textContent || doc.content || ''
+    const container = scrollRef.current?.querySelector('.card-content')
+    const rendered = container?.textContent || scrollRef.current?.textContent || doc.content || ''
     const idx = rendered.toLowerCase().indexOf(selection.text.toLowerCase())
     const start = Math.max(0, idx - 60)
     const end = Math.min(rendered.length, idx + selection.text.length + 60)
     const snippet = (start > 0 ? '...' : '') + rendered.slice(start, end) + (end < rendered.length ? '...' : '')
-    addHighlight(doc.id, selection.text, snippet)
-    setHighlights(getHighlightsByDoc(doc.id))
+
+    // Compute textOffset from the selection range within the content container
+    let textOffset = -1
+    let hlLength = selection.text.length
     try {
       const sel = window.getSelection()
-      if (sel && sel.rangeCount > 0) {
+      if (sel && sel.rangeCount > 0 && container) {
         const range = sel.getRangeAt(0)
-        const mark = document.createElement('mark')
-        mark.style.cssText = 'background:var(--accent-soft);border-radius:2px;padding:0 1px'
-        range.surroundContents(mark)
+        const preRange = document.createRange()
+        preRange.selectNodeContents(container)
+        preRange.setEnd(range.startContainer, range.startOffset)
+        textOffset = preRange.toString().length
+        hlLength = range.toString().length
       }
-    } catch { /* crosses element boundary */ }
+    } catch {}
+
+    addHighlight(doc.id, selection.text, snippet, textOffset, hlLength)
+    setHighlights(getHighlightsByDoc(doc.id))
     setSelection(null)
     window.getSelection()?.removeAllRanges()
     setActivePanel('highlights')
@@ -151,7 +168,20 @@ export default function Reader() {
     setActivePanel(null)
   }
 
-  const handleDeleteHighlight = (hId) => { deleteHighlight(hId); setHighlights(getHighlightsByDoc(doc.id)) }
+  const handleDeleteHighlight = (hId) => {
+    deleteHighlight(hId)
+    setHighlights(getHighlightsByDoc(doc.id))
+    // Remove painted marks from DOM
+    const container = scrollRef.current?.querySelector('.card-content')
+    if (container) {
+      const marks = container.querySelectorAll(`mark[data-hl-id="${hId}"]`)
+      for (const mark of marks) {
+        const parent = mark.parentNode
+        while (mark.firstChild) parent.insertBefore(mark.firstChild, mark)
+        parent.removeChild(mark)
+      }
+    }
+  }
   const handleDeleteBookmark = (bId) => { deleteBookmark(bId); setBookmarks(getBookmarksByDoc(doc.id)) }
   const handleAddBookmark = () => { if (!doc) return; addBookmark(doc.id, scrollPct); setBookmarks(getBookmarksByDoc(doc.id)); showToast('已添加书签') }
   const handleUpdateSettings = (f) => { setSettings(updateReadingSettings(f)) }
