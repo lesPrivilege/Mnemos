@@ -1,7 +1,7 @@
 // Reader — immersive reading with auto-hide chrome
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
-import { getDocument, updateReadingProgress, getReadingSettings, updateReadingSettings } from '../lib/storage'
+import { getDocument, getDocumentContent, updateReadingProgress, getReadingSettings, updateReadingSettings } from '../lib/storage'
 import { useBackButton } from '../../lib/useBackButton'
 import { renderDoc, extractToc } from '../lib/renderDoc'
 import { getHighlightsByDoc, addHighlight, deleteHighlight } from '../lib/highlights'
@@ -44,7 +44,9 @@ export default function Reader() {
     const d = getDocument(id)
     if (!d) { goBack(); return }
     setDoc(d)
-    renderDoc(d.content, d.format).then(h => { setHtml(h); setToc(extractToc(h)) })
+    getDocumentContent(id).then(content => {
+      renderDoc(content, d.format).then(h => { setHtml(h); setToc(extractToc(h)) })
+    })
     setHighlights(getHighlightsByDoc(id))
     setBookmarks(getBookmarksByDoc(id))
     startSession(id)

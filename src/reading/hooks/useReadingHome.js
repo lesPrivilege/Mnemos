@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import {
   getCollections, addCollection, deleteCollection,
   getDocumentsByCollection, getRecentDocuments, getContinueReading,
+  migrateBodiesToIDB,
 } from '../lib/storage'
 import { searchDocuments } from '../lib/search'
 import { getReadingStats } from '../lib/stats'
@@ -27,7 +28,9 @@ export function useReadingHome() {
     setStats(getReadingStats())
   }, [dismissedContinue])
 
-  useEffect(refresh, [])
+  useEffect(() => {
+    migrateBodiesToIDB().then(refresh)
+  }, [])
 
   // ── Search ──────────────────────────────────────────
 
@@ -35,7 +38,7 @@ export function useReadingHome() {
     if (debounceRef.current) clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(() => {
       if (!query.trim()) { setSearchResults([]); return }
-      setSearchResults(searchDocuments(query))
+      searchDocuments(query).then(setSearchResults)
     }, 300)
     return () => clearTimeout(debounceRef.current)
   }, [query])

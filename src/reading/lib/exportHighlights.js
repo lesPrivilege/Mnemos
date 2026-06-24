@@ -2,16 +2,20 @@
 import { extractToc } from './renderDoc'
 
 /**
- * @param {object} doc — { title, content, format }
+ * @param {object} doc — { title }
  * @param {object[]} highlights — [{ selectedText, contextSnippet, createdAt }]
- * @param {string} html — rendered HTML (for TOC extraction)
+ * @param {string} html — rendered HTML (for TOC extraction and section splitting)
  * @returns {string} markdown
  */
 export function exportHighlightsMd(doc, highlights, html) {
   if (!highlights.length) return ''
 
   const toc = extractToc(html)
-  const sections = splitByHeadings(doc.content, toc)
+  // Use rendered text from HTML for section splitting
+  const parser = new DOMParser()
+  const htmlDoc = parser.parseFromString(html, 'text/html')
+  const bodyText = htmlDoc.body?.textContent || ''
+  const sections = splitByHeadings(bodyText, toc)
 
   // Group highlights under the best-matching heading
   const groups = []

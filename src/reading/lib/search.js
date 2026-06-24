@@ -1,15 +1,15 @@
 // Lightweight document search — title + content substring matching
 // No external dependencies, client-side only
 
-import { getDocuments } from './storage'
+import { getDocuments, getDocumentContent } from './storage'
 
 /**
  * Search documents by query string
  * @param {string} query - search term
  * @param {number} limit - max results
- * @returns {{doc: object, snippet: string}[]}
+ * @returns {Promise<{doc: object, snippet: string}[]>}
  */
-export function searchDocuments(query, limit = 20) {
+export async function searchDocuments(query, limit = 20) {
   if (!query || !query.trim()) return []
   const q = query.trim().toLowerCase()
   const docs = getDocuments()
@@ -17,19 +17,23 @@ export function searchDocuments(query, limit = 20) {
 
   for (const doc of docs) {
     const titleMatch = (doc.title || '').toLowerCase().includes(q)
-    const contentMatch = (doc.content || '').toLowerCase().includes(q)
-
-    if (!titleMatch && !contentMatch) continue
-
+    let contentMatch = false
     let snippet = ''
-    if (contentMatch) {
-      snippet = extractSnippet(doc.content, q, 80)
+
+    if (titleMatch) {
+      // Title match — no need to load content
+    } else {
+      // Need to check content (from IDB)
+      const content = await getDocumentContent(doc.id)
+      contentMatch = (content || '').toLowerCase().includes(q)
+      if (!contentMatch) continue
+      snippet = extractSnippet(content, q, 80)
     }
 
     results.push({
       doc,
       snippet,
-      titleMatch, // for sorting: title matches first
+      titleMatch,
     })
   }
 
