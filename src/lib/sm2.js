@@ -8,11 +8,16 @@ export function sm2(card, quality) {
 
   let newE, newInterval, newReps
 
-  if (quality < 3) {
-    // 失败：重置
+  if (quality === 1) {
+    // Again：重置
     newReps = 0
     newInterval = 1
-    newE = easiness
+    newE = easiness + 0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)
+  } else if (quality === 2) {
+    // Hard：通过，缩短间隔
+    newReps = repetitions + 1
+    newInterval = Math.max(1, Math.round(interval * 1.2))
+    newE = easiness + 0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)
   } else {
     // 成功
     if (repetitions === 0) {
