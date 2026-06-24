@@ -11,13 +11,15 @@ export function getAllHighlights() {
   return load(KEY, [])
 }
 
-export function addHighlight(docId, selectedText, contextSnippet = '') {
+export function addHighlight(docId, selectedText, contextSnippet = '', textOffset = -1, length = 0) {
   const highlights = load(KEY, [])
   const highlight = {
     id: crypto.randomUUID(),
     docId,
     selectedText,
     contextSnippet,
+    textOffset,
+    length,
     note: '',
     createdAt: new Date().toISOString(),
   }
