@@ -130,8 +130,11 @@ export function getRecentDocuments(limit = 5) {
 }
 
 export function getContinueReading() {
-  return getDocuments()
-    .find(d => d.lastReadAt && d.scrollPct > 0 && d.scrollPct < 100) || null
+  const candidates = getDocuments()
+    .filter(d => d.lastReadAt && d.scrollPct > 0 && d.scrollPct < 100)
+  if (candidates.length === 0) return null
+  candidates.sort((a, b) => b.lastReadAt.localeCompare(a.lastReadAt))
+  return candidates[0]
 }
 
 // ── Settings ─────────────────────────────────────────
