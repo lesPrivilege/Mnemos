@@ -63,10 +63,6 @@ export function saveProgress(progress) {
   localStorage.setItem(STORAGE_KEYS.PROGRESS, JSON.stringify(progress))
 }
 
-function getQuestionProgress(questionId) {
-  return loadProgress()[questionId] || defaultProgress()
-}
-
 export function recordAttempt(questionId, correct) {
   const progress = loadProgress()
   const now = Math.floor(Date.now() / 1000)
@@ -91,12 +87,6 @@ export function recordAttempt(questionId, correct) {
 
   saveProgress(progress)
   return prog
-}
-
-function resetProgress(questionId) {
-  const p = loadProgress()
-  delete p[questionId]
-  saveProgress(p)
 }
 
 export function clearAllProgress() { saveProgress({}) }

@@ -119,53 +119,6 @@ function normalizeOptions(options) {
 }
 
 /**
- * 合并多个 JSON 文件的题目
- */
-function mergeQuestionFiles(files) {
-  const merged = {
-    questions: [],
-    errors: [],
-  }
-
-  const seenIds = new Set()
-
-  for (const { content, path } of files) {
-    const result = parseQuestionsJson(content, path)
-
-    for (const q of result.questions) {
-      if (seenIds.has(q.id)) {
-        merged.errors.push(`重复题目 ID: ${q.id}，已跳过`)
-        continue
-      }
-      seenIds.add(q.id)
-      merged.questions.push(q)
-    }
-
-    merged.errors.push(...result.errors)
-  }
-
-  return merged
-}
-
-/**
- * 验证题目数据完整性
- */
-function validateQuestion(question) {
-  const errors = []
-  if (!question.id) errors.push('缺少 id')
-  if (!question.type) errors.push('缺少 type')
-  if (!question.question) errors.push('缺少 question')
-  if (question.type === 'choice') {
-    if (!question.options || question.options.length === 0) errors.push('选择题缺少选项')
-    if (!question.answer) errors.push('选择题缺少答案')
-  }
-  if (question.type === 'review') {
-    if (!question.answer && !question.explanation) errors.push('解答题缺少参考答案或解析')
-  }
-  return { valid: errors.length === 0, errors }
-}
-
-/**
  * 获取题目统计信息
  */
 export function getQuestionsStats(questions) {
