@@ -30,6 +30,7 @@ export default function Review() {
   const [flipped, setFlipped] = useState(false)
   const [toast, setToast] = useState(null)
   const lastRef = useRef(null)
+  const completedRef = useRef(false)
   const toastTimer = useRef(null)
 
   useEffect(() => {
@@ -44,10 +45,10 @@ export default function Review() {
     setDueCards(cards)
     setStats({ again: 0, hard: 0, good: 0, easy: 0 })
     setFlipped(false)
+    completedRef.current = false
 
     return () => {
-      // Save session if review was in progress (not completed)
-      if (cards.length > 0) {
+      if (!completedRef.current && cards.length > 0) {
         saveReviewSession({ deckId: id, deckName: deck?.name || '', dueCount: cards.length })
       }
     }
@@ -92,6 +93,7 @@ export default function Review() {
     if (currentIndex + 1 < dueCards.length) {
       setCurrentIndex(currentIndex + 1)
     } else {
+      completedRef.current = true
       setDueCards([])
     }
   }, [dueCards, currentIndex, id, showToast])
@@ -150,7 +152,10 @@ export default function Review() {
 
   // Clear saved session when review completes
   useEffect(() => {
-    if (dueCards.length === 0) clearReviewSession()
+    if (dueCards.length === 0) {
+      completedRef.current = true
+      clearReviewSession()
+    }
   }, [dueCards.length])
 
   // Done screen
