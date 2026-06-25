@@ -1,14 +1,9 @@
-import { useEffect } from 'react'
 import { useRenderedMarkdown } from '../lib/useRenderedMarkdown'
 import '../styles/markdown.css'
 
 export default function ReviewCard({ card, index, total, flipped, onFlip }) {
   const frontHtml = useRenderedMarkdown(card.front)
   const backHtml = useRenderedMarkdown(card.back)
-
-  useEffect(() => {
-    onFlip?.(false)
-  }, [card.id])
 
   const pos = String(index + 1).padStart(2, '0')
 

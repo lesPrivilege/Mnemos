@@ -30,6 +30,7 @@ export default function Review() {
   const [flipped, setFlipped] = useState(false)
   const [toast, setToast] = useState(null)
   const lastRef = useRef(null)
+  const completedRef = useRef(false)
   const toastTimer = useRef(null)
 
   useEffect(() => {
@@ -44,10 +45,10 @@ export default function Review() {
     setDueCards(cards)
     setStats({ again: 0, hard: 0, good: 0, easy: 0 })
     setFlipped(false)
+    completedRef.current = false
 
     return () => {
-      // Save session if review was in progress (not completed)
-      if (cards.length > 0) {
+      if (!completedRef.current && cards.length > 0) {
         saveReviewSession({ deckId: id, deckName: deck?.name || '', dueCount: cards.length })
       }
     }
@@ -92,6 +93,7 @@ export default function Review() {
     if (currentIndex + 1 < dueCards.length) {
       setCurrentIndex(currentIndex + 1)
     } else {
+      completedRef.current = true
       setDueCards([])
     }
   }, [dueCards, currentIndex, id, showToast])
@@ -112,8 +114,13 @@ export default function Review() {
       return next
     })
 
-    // 如果已推進到下一張，回退
-    if (currentIndex > 0) {
+    if (dueCards.length === 0 && last.removedCard) {
+      // Last card was rated — rebuild one-card queue
+      setDueCards([last.removedCard])
+      setCurrentIndex(0)
+      setFlipped(true)
+      completedRef.current = false
+    } else if (currentIndex > 0) {
       setCurrentIndex(currentIndex - 1)
       setFlipped(true)
     }
@@ -121,7 +128,7 @@ export default function Review() {
     setToast('已撤銷')
     clearTimeout(toastTimer.current)
     toastTimer.current = setTimeout(() => setToast(null), 2000)
-  }, [currentIndex])
+  }, [currentIndex, dueCards.length])
 
   const handleKeyDown = useCallback((e) => {
     // Undo: Ctrl+Z / Cmd+Z
@@ -150,7 +157,10 @@ export default function Review() {
 
   // Clear saved session when review completes
   useEffect(() => {
-    if (dueCards.length === 0) clearReviewSession()
+    if (dueCards.length === 0) {
+      completedRef.current = true
+      clearReviewSession()
+    }
   }, [dueCards.length])
 
   // Done screen
@@ -187,6 +197,9 @@ export default function Review() {
             )}
 
             <div className="flex gap-2 w-full mt-2">
+              {lastRef.current && (
+                <button className="btn btn-ghost btn-block" onClick={handleUndo}>撤销上一张</button>
+              )}
               <button className="btn btn-ghost btn-block" onClick={goBack}>返回卡组</button>
               <Link to={`/browse/${id}`} className="btn btn-accent btn-block">浏览卡片</Link>
             </div>
