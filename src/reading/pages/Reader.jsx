@@ -1,6 +1,6 @@
 // Reader — immersive reading with auto-hide chrome
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { getDocument, getDocumentContent, updateReadingProgress, getReadingSettings, updateReadingSettings } from '../lib/storage'
 import { useBackButton } from '../../lib/useBackButton'
 import { renderDoc, extractToc } from '../lib/renderDoc'
@@ -23,6 +23,7 @@ const BOTTOM_BTNS = [
 
 export default function Reader() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const { goBack } = useBackButton()
   const [doc, setDoc] = useState(null)
   const [html, setHtml] = useState('')
@@ -220,6 +221,23 @@ export default function Reader() {
     showToast('已导出高亮')
   }
 
+  const handleGenerateFlashcards = () => {
+    if (!doc || !highlights.length) return
+    const cards = highlights.map(h => {
+      let front, back
+      if (h.note) {
+        front = h.note
+        back = h.selectedText
+      } else {
+        front = h.selectedText
+        back = h.contextSnippet || ''
+      }
+      back += `\n\n——《${doc.title}》`
+      return { front, back, type: 'recall', chapter: doc.title || '', section: '' }
+    })
+    navigate('/import', { state: { prefillCards: cards, prefillDeckName: `阅读 · ${doc.title}` } })
+  }
+
   if (!doc) return null
 
   const barHidden = !showBars
@@ -247,6 +265,7 @@ export default function Reader() {
           onDelete={handleDeleteBookmark}
           onAddBookmark={handleAddBookmark}
           onExportHighlights={highlights.length > 0 ? handleExportHighlights : null}
+          onGenerateFlashcards={highlights.length > 0 ? handleGenerateFlashcards : null}
         />
       </div>
 

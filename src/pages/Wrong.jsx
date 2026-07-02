@@ -9,6 +9,22 @@ import { BackIcon, TrashIcon } from '../components/Icons'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 import '../styles/markdown.css'
 
+function questionsToCards(questions) {
+  return questions.map(q => {
+    let front, back
+    if (q.type === 'choice') {
+      front = q.question || q.id
+      if (q.options?.length) front += '\n\n' + q.options.join('\n')
+      back = `正确答案：${q.answer || ''}`
+      if (q.explanation) back += '\n\n' + q.explanation
+    } else {
+      front = q.question || q.id
+      back = q.answer || q.explanation || ''
+    }
+    return { front, back, type: 'recall', chapter: q.chapter || '', section: q.section || '' }
+  })
+}
+
 export default function Wrong() {
   const navigate = useNavigate()
   const { goBack } = useBackButton()
@@ -39,6 +55,19 @@ export default function Wrong() {
       <div className="topbar">
         <button className="tb-btn" onClick={() => goBack()} aria-label="Back"><BackIcon /></button>
         <h1 className="zh" style={{ flex: 1, paddingLeft: 4 }}>错题本</h1>
+        {wrongQuestions.length > 0 && (
+          <button className="tb-btn font-zh text-[13px]"
+            style={{ color: 'var(--accent)' }}
+            onClick={() => {
+              const cards = questionsToCards(wrongQuestions)
+              const name = selectedSubject
+                ? `错题 · ${getSubjectDisplayName(selectedSubject)}`
+                : '错题本'
+              navigate('/import', { state: { prefillCards: cards, prefillDeckName: name } })
+            }}>
+            生成闪卡
+          </button>
+        )}
       </div>
 
       <div className="scr" style={{ paddingBottom: 0, gap: 10 }}>
