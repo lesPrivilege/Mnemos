@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom'
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { getCards, toggleStar } from '../lib/storage'
+import { getCards, toggleStar, toggleSuspended } from '../lib/storage'
 import { useRenderedMarkdown } from '../lib/useRenderedMarkdown'
 import { BackIcon, ArrowLIcon, ArrowRIcon } from '../components/Icons'
 import { useBackButton } from '../lib/useBackButton'
@@ -154,13 +154,23 @@ export default function Browse() {
             <path d="M12 3l2.7 5.9 6.3.6-4.8 4.5 1.5 6.5L12 17l-5.7 3.5 1.5-6.5L3 9.5l6.3-.6z"/>
           </svg>
         </button>
+        <button onClick={() => {
+          const suspended = toggleSuspended(card.id)
+          setCards(prev => prev.map((c, i) => i === currentIndex ? { ...c, suspended } : c))
+        }}
+          className="tb-btn font-mono text-[9px] tracking-wider"
+          style={{ color: card.suspended ? 'var(--warn)' : 'var(--ink-3)' }}>
+          {card.suspended ? '恢复' : '暂停'}
+        </button>
       </header>
 
       {/* Breadcrumb */}
-      {(card.chapter || card.section) && (
+      {(card.chapter || card.section || card.suspended || card.leech) && (
         <div className="px-[18px] pt-3 flex items-center justify-between font-mono text-[11px] text-ink-3">
-          <span className="font-zh text-ink-2 text-xs">
+          <span className="font-zh text-ink-2 text-xs flex items-center gap-1.5">
             {card.chapter}{card.section && <><span className="text-ink-4 mx-1">›</span>{card.section}</>}
+            {card.suspended && <span className="px-1.5 py-0.5 rounded text-[9px] font-medium" style={{ background: 'var(--warn-soft, #fef3c7)', color: 'var(--warn, #d97706)' }}>已暂停</span>}
+            {card.leech && <span className="px-1.5 py-0.5 rounded text-[9px] font-medium" style={{ background: 'var(--danger-soft)', color: 'var(--danger)' }}>LEECH</span>}
           </span>
           <span className="tracking-wider">BROWSE</span>
         </div>
@@ -177,6 +187,7 @@ export default function Browse() {
             border: '1px solid var(--border-soft)',
             borderRadius: 'var(--r-lg)',
             boxShadow: 'var(--shadow-md)',
+            opacity: card.suspended ? 0.5 : 1,
           }}>
           <div style={{ perspective: 1400 }} className="w-full h-full">
             <div className="w-full h-full relative transition-transform duration-[480ms]"

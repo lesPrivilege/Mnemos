@@ -134,10 +134,12 @@ export default function DeckDetail() {
   }
 
   const recallCards = cards.filter(c => isRecall(c))
+  const activeCards = recallCards.filter(c => !c.suspended)
+  const suspendedCount = recallCards.filter(c => c.suspended).length
   const t = localToday()
-  const dueCount = recallCards.filter(c => c.dueDate <= t).length
+  const dueCount = activeCards.filter(c => c.dueDate <= t).length
   const total = recallCards.length
-  const learned = total - dueCount
+  const learned = activeCards.length - dueCount
 
   if (!deck) {
     return (
@@ -231,6 +233,7 @@ export default function DeckDetail() {
               <span>{total} 张</span><span className="sep">·</span>
               <span style={{ color: 'var(--accent)' }}>{dueCount} 待复习</span><span className="sep">·</span>
               <span>{learned} 已学</span>
+              {suspendedCount > 0 && <><span className="sep">·</span><span style={{ color: 'var(--warn, #d97706)' }}>暂停 {suspendedCount}</span></>}
             </div>
             <div className="dd-progress">
               <div className="bar" style={{ width: `${total > 0 ? (learned / total) * 100 : 0}%` }} />

@@ -32,11 +32,11 @@ export function isDue(card) {
 }
 
 // 获取某个牌组中所有到期卡片，按 dueDate 升序
-// 只返回 recall 类型（reference 卡片不参与复习调度）
+// 只返回 recall 类型（reference 卡片不参与复习调度），排除暂停卡片
 export function getDueCards(deckId) {
   const data = loadData()
   const cards = data.cards
-    .filter((c) => c.deckId === deckId && isRecall(c) && isDue(c))
+    .filter((c) => c.deckId === deckId && isRecall(c) && isDue(c) && !c.suspended)
     .sort((a, b) => a.dueDate.localeCompare(b.dueDate))
   const dailyLimit = getDailyLimit()
   return dailyLimit ? cards.slice(0, dailyLimit) : cards
@@ -47,18 +47,21 @@ export function getDeckStats(deckId) {
   const data = loadData()
   const cards = data.cards.filter((c) => c.deckId === deckId)
   const recallCards = cards.filter((c) => isRecall(c))
+  const activeCards = recallCards.filter((c) => !c.suspended)
   const t = localToday()
 
-  const dueCount = recallCards.filter((c) => c.dueDate <= t).length
+  const dueCount = activeCards.filter((c) => c.dueDate <= t).length
   const reviewedToday = recallCards.filter(
     (c) => c.updatedAt && isoToLocalDate(c.updatedAt) === t && c.repetitions > 0
   ).length
+  const suspendedCount = recallCards.filter((c) => c.suspended).length
 
   return {
     total: cards.length,
     dueCount,
     reviewedToday,
-    futureDistribution: getFutureDistribution(recallCards),
+    suspendedCount,
+    futureDistribution: getFutureDistribution(activeCards),
   }
 }
 
@@ -70,7 +73,8 @@ export function getAllDeckStats() {
   return data.decks.map((deck) => {
     const cards = data.cards.filter((c) => c.deckId === deck.id)
     const recallCards = cards.filter((c) => isRecall(c))
-    const dueCount = recallCards.filter((c) => c.dueDate <= t).length
+    const activeCards = recallCards.filter((c) => !c.suspended)
+    const dueCount = activeCards.filter((c) => c.dueDate <= t).length
     const reviewedToday = recallCards.filter(
       (c) => c.updatedAt && isoToLocalDate(c.updatedAt) === t && c.repetitions > 0
     ).length
@@ -79,7 +83,7 @@ export function getAllDeckStats() {
       totalCards: cards.length,
       dueCount,
       reviewedToday,
-      futureDistribution: getFutureDistribution(recallCards),
+      futureDistribution: getFutureDistribution(activeCards),
     }
   })
 }

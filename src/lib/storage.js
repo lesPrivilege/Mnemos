@@ -284,6 +284,15 @@ export function toggleStar(id) {
   return card?.starred ?? false
 }
 
+export function toggleSuspended(id) {
+  const d = loadData()
+  const card = d.cards.find(x => x.id === id)
+  if (!card) return false
+  card.suspended = !card.suspended
+  saveData(d)
+  return card.suspended
+}
+
 export function resetDeckProgress(deckId) {
   const data = loadData()
   const today = localToday()
