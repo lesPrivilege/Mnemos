@@ -103,7 +103,18 @@ export default function Review() {
     } else {
       // Mature card or non-learning: standard SM-2
       const result = sm2(card, quality)
-      updateCardSM2(card.id, result)
+      const extras = {}
+      // Lapse counting: quality === 1 on a card that had repetitions > 0
+      if (quality === 1 && card.repetitions > 0) {
+        const newLapses = (card.lapses ?? 0) + 1
+        extras.lapses = newLapses
+        if (newLapses >= 8 && !(card.leech)) {
+          extras.leech = true
+          extras.suspended = true
+          showToast('卡片已标记为顽固卡并暂停 · LEECH')
+        }
+      }
+      updateCardSM2(card.id, { ...result, ...extras })
       if (quality === 1) reinserted = true // Again requeue
     }
 
