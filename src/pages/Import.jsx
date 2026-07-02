@@ -781,14 +781,20 @@ export default function Import() {
               </div>
             </div>
             <div className="settings-card">
-              <div className="lbl">粘贴 Markdown</div>
+              <div className="lbl">粘贴内容</div>
               <textarea className="textarea" value={pasteMd} onChange={(e) => setPasteMd(e.target.value)}
-                placeholder="# 章节&#10;## 小节&#10;* 正面&#10;  * 背面要点" />
+                placeholder="# 章节&#10;## 小节&#10;* 正面&#10;  * 背面要点&#10;&#10;也支持 Anki 导出的 txt/csv 格式" />
               <button onClick={handlePasteSubmit} disabled={!pasteMd.trim()}
                 className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-md font-body text-sm font-medium active:scale-[0.97] transition-transform disabled:opacity-40"
                 style={{ background: 'var(--accent-soft)', color: 'var(--accent)', border: '1px solid var(--accent-line)' }}>
                 <PasteIcon size={16} /> 解析并预览
               </button>
+            </div>
+            <div className="settings-card">
+              <div className="lbl">支持格式 · FORMAT</div>
+              <div className="kv-row"><span className="k">Markdown</span><span className="v">.md 列表</span></div>
+              <div className="kv-row"><span className="k">Anki 导出</span><span className="v">txt / csv，含 cloze</span></div>
+              <div className="kv-row"><span className="k">纯文本</span><span className="v">正面换行背面</span></div>
             </div>
             <input ref={fileInputRef} type="file" accept=".md,.txt,.csv,.tsv" onChange={handleMdFile} className="hidden" />
           </>
