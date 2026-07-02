@@ -15,6 +15,7 @@ import {
 } from '../lib/storage'
 import { getAllDeckStats } from '../lib/scheduler'
 import { localToday } from '../lib/dateUtils'
+import { buildFullBackup } from '../lib/fullBackup'
 import { exportReadingData, clearReadingStats, clearAllReadingData } from '../reading/lib/backup'
 import { getCollections, getDocuments } from '../reading/lib/storage'
 import { getAllHighlights } from '../reading/lib/highlights'
@@ -137,16 +138,7 @@ export default function Settings() {
   }
 
   const handleExportAll = async () => {
-    const flashcardJson = exportFlashcardData()
-    const quizJson = exportQuizData()
-    const reading = await exportReadingData()
-    const merged = {
-      version: 1,
-      exportedAt: new Date().toISOString(),
-      flashcard: JSON.parse(flashcardJson),
-      quiz: JSON.parse(quizJson),
-      reading,
-    }
+    const merged = await buildFullBackup()
     const blob = new Blob([JSON.stringify(merged, null, 2)], { type: 'application/json' })
     downloadBlob(blob, `mnemos-full-backup-${localToday()}.json`)
   }
