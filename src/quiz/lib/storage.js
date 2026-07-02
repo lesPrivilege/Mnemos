@@ -20,12 +20,13 @@ export function loadQuestions() {
 export function saveQuestions(questions) {
   try {
     localStorage.setItem(STORAGE_KEYS.QUESTIONS, JSON.stringify(questions))
+    return { ok: true }
   } catch (e) {
     if (e.name === 'QuotaExceededError' || e.code === 22) {
       console.warn('Quiz: storage full — questions not saved')
-    } else {
-      throw e
+      return { ok: false, error: '储存空间已满，题目未保存' }
     }
+    throw e
   }
 }
 
@@ -37,8 +38,8 @@ export function addQuestions(newQuestions) {
     if (ids.has(q.id)) duplicates.push(q.id)
     else { existing.push(q); added.push(q) }
   }
-  saveQuestions(existing)
-  return { added: added.length, duplicates: duplicates.length }
+  const result = saveQuestions(existing)
+  return { added: added.length, duplicates: duplicates.length, saveError: result.ok ? null : result.error }
 }
 
 export function clearQuestions() {
@@ -70,12 +71,13 @@ export function loadProgress() {
 export function saveProgress(progress) {
   try {
     localStorage.setItem(STORAGE_KEYS.PROGRESS, JSON.stringify(progress))
+    return { ok: true }
   } catch (e) {
     if (e.name === 'QuotaExceededError' || e.code === 22) {
       console.warn('Quiz: storage full — progress not saved')
-    } else {
-      throw e
+      return { ok: false, error: '储存空间已满，进度未保存' }
     }
+    throw e
   }
 }
 
@@ -117,7 +119,16 @@ export function loadStarred() {
 }
 
 export function saveStarred(ids) {
-  localStorage.setItem(STORAGE_KEYS.STARRED, JSON.stringify(ids))
+  try {
+    localStorage.setItem(STORAGE_KEYS.STARRED, JSON.stringify(ids))
+    return { ok: true }
+  } catch (e) {
+    if (e.name === 'QuotaExceededError' || e.code === 22) {
+      console.warn('Quiz: storage full — starred not saved')
+      return { ok: false, error: '储存空间已满，收藏未保存' }
+    }
+    throw e
+  }
 }
 
 export function toggleStar(questionId) {
