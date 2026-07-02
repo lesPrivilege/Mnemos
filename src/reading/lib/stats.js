@@ -33,8 +33,19 @@ export function startSession(docId) {
 
   const session = {
     startedAt: Date.now(),
+    lastActiveAt: Date.now(),
     docId,
   }
+  save(SESSION_KEY, session)
+}
+
+/**
+ * Update session heartbeat (call from scroll handler, throttled)
+ */
+export function touchSession() {
+  const session = load(SESSION_KEY, null)
+  if (!session) return
+  session.lastActiveAt = Date.now()
   save(SESSION_KEY, session)
 }
 
@@ -49,7 +60,10 @@ export function endSession() {
 }
 
 function finalizeSession(session) {
-  const minutesRead = Math.max(1, Math.round((Date.now() - session.startedAt) / 60000))
+  // Cap recovered sessions: use lastActiveAt + 5min as effective end time
+  const lastActive = session.lastActiveAt || session.startedAt
+  const effectiveEnd = Math.min(Date.now(), lastActive + 5 * 60 * 1000)
+  const minutesRead = Math.min(180, Math.max(1, Math.round((effectiveEnd - session.startedAt) / 60000)))
   const stats = load(KEY, getDefaultStats())
 
   stats.sessions.push({
