@@ -7,7 +7,7 @@ import { renderDoc, extractToc } from '../lib/renderDoc'
 import { getHighlightsByDoc, addHighlight, deleteHighlight } from '../lib/highlights'
 import { repaintHighlights } from '../lib/highlightAnchor'
 import { getBookmarksByDoc, addBookmark, deleteBookmark } from '../lib/bookmarks'
-import { startSession, endSession, markDocCompleted } from '../lib/stats'
+import { startSession, endSession, markDocCompleted, touchSession } from '../lib/stats'
 import { exportHighlightsMd } from '../lib/exportHighlights'
 import { downloadBlob } from '../../lib/utils'
 import ReaderToolbar from '../components/ReaderToolbar'
@@ -38,6 +38,9 @@ export default function Reader() {
   const [toast, setToast] = useState(null)
   const scrollRef = useRef(null)
   const toastTimer = useRef(null)
+  const persistTimer = useRef(null)
+  const pendingPct = useRef(null)
+  const completedRef = useRef(false)
 
   // ── Load document + session ─────────────────────────
 
@@ -51,7 +54,15 @@ export default function Reader() {
     setHighlights(getHighlightsByDoc(id))
     setBookmarks(getBookmarksByDoc(id))
     startSession(id)
-    return () => endSession()
+    return () => {
+      // Flush pending progress write
+      if (persistTimer.current) { clearTimeout(persistTimer.current); persistTimer.current = null }
+      if (pendingPct.current !== null) {
+        updateReadingProgress(id, pendingPct.current)
+        pendingPct.current = null
+      }
+      endSession()
+    }
   }, [id, goBack])
 
   // ── Restore scroll ──────────────────────────────────
@@ -73,7 +84,7 @@ export default function Reader() {
     if (container) repaintHighlights(container, highlights)
   }, [html, highlights])
 
-  // ── Scroll + completion ─────────────────────────────
+  // ── Scroll + completion (throttled persistence) ─────
 
   const handleScroll = useCallback(() => {
     if (!scrollRef.current || !doc) return
@@ -82,8 +93,21 @@ export default function Reader() {
       ? Math.round((el.scrollTop / (el.scrollHeight - el.clientHeight)) * 100)
       : 0
     setScrollPct(pct)
-    updateReadingProgress(doc.id, pct)
-    if (pct >= 100) markDocCompleted()
+    pendingPct.current = pct
+    if (!persistTimer.current) {
+      persistTimer.current = setTimeout(() => {
+        persistTimer.current = null
+        if (pendingPct.current !== null && doc) {
+          updateReadingProgress(doc.id, pendingPct.current)
+          touchSession()
+          pendingPct.current = null
+        }
+      }, 1000)
+    }
+    if (pct >= 100 && !completedRef.current) {
+      completedRef.current = true
+      markDocCompleted()
+    }
   }, [doc])
 
   // ── Panel management ────────────────────────────────
