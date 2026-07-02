@@ -15,6 +15,7 @@ import {
 } from '../lib/storage'
 import { getAllDeckStats } from '../lib/scheduler'
 import { localToday } from '../lib/dateUtils'
+import { buildFullBackup } from '../lib/fullBackup'
 import { exportReadingData, clearReadingStats, clearAllReadingData } from '../reading/lib/backup'
 import { getCollections, getDocuments } from '../reading/lib/storage'
 import { getAllHighlights } from '../reading/lib/highlights'
@@ -23,6 +24,9 @@ import { getReadingStats } from '../reading/lib/stats'
 import { BackIcon, SunIcon, MoonIcon, DownloadIcon, MnemosMark } from '../components/Icons'
 import { useBackButton } from '../lib/useBackButton'
 import { downloadBlob } from '../lib/utils'
+import { isNative } from '../lib/platform'
+import { getAutoBackupConfig, setEnabled, runBackupNow } from '../lib/autoBackup'
+import { useToast, Toast } from '../components/Toast'
 import pkg from '../../package.json'
 
 function formatBytes(bytes) {
@@ -69,6 +73,8 @@ export default function Settings() {
   const [subjectConfirm, setSubjectConfirm] = useState(null)
   const [storageStats, setStorageStats] = useState(null)
   const [subjects, setSubjects] = useState([])
+  const { toast, showToast } = useToast()
+  const [autoBackup, setAutoBackup] = useState(() => isNative() ? getAutoBackupConfig() : null)
 
   const [dark, setDark] = useState(() => {
     const legacy = localStorage.getItem('mini-srs-theme')
@@ -102,6 +108,7 @@ export default function Settings() {
     setStorageStats(getStorageStats())
     setSubjects(getSubjectList())
     setFlashcardStats(getAllDeckStats())
+    if (isNative()) setAutoBackup(getAutoBackupConfig())
     const rStats = getReadingStats()
     setReadingInfo({
       collections: getCollections().length,
@@ -137,16 +144,7 @@ export default function Settings() {
   }
 
   const handleExportAll = async () => {
-    const flashcardJson = exportFlashcardData()
-    const quizJson = exportQuizData()
-    const reading = await exportReadingData()
-    const merged = {
-      version: 1,
-      exportedAt: new Date().toISOString(),
-      flashcard: JSON.parse(flashcardJson),
-      quiz: JSON.parse(quizJson),
-      reading,
-    }
+    const merged = await buildFullBackup()
     const blob = new Blob([JSON.stringify(merged, null, 2)], { type: 'application/json' })
     downloadBlob(blob, `mnemos-full-backup-${localToday()}.json`)
   }
@@ -435,6 +433,56 @@ export default function Settings() {
             <BackupButton onClick={handleExportQuiz}>仅导出练习</BackupButton>
             <BackupButton onClick={handleExportReading}>仅导出阅读</BackupButton>
           </div>
+          {autoBackup && (
+            <div className="settings-action-group" style={{ marginTop: 12 }}>
+              <div className="settings-action-group-title">自动备份</div>
+              <div className="settings-action">
+                <div className="settings-action-copy">
+                  <span className="settings-action-title">每日自动备份</span>
+                  <span className="settings-action-detail">自动保存完整备份到设备存储</span>
+                </div>
+                <button type="button" onClick={() => {
+                  setEnabled(!autoBackup.enabled)
+                  setAutoBackup(prev => ({ ...prev, enabled: !prev.enabled }))
+                }}
+                  className={`settings-action-btn ${autoBackup.enabled ? 'confirm' : ''}`}
+                  style={autoBackup.enabled ? { background: 'var(--accent)', color: '#fff', border: 'none' } : {}}>
+                  {autoBackup.enabled ? '开启' : '关闭'}
+                </button>
+              </div>
+              {autoBackup.status && (
+                <div className="kv-row">
+                  <span className="k">上次备份</span>
+                  <span className="v" style={{ color: autoBackup.status.ok ? 'var(--good)' : 'var(--danger)' }}>
+                    {new Date(autoBackup.status.at).toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' })}{' '}
+                    {new Date(autoBackup.status.at).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
+                    {' · '}{autoBackup.status.ok ? '成功' : '失败'}
+                  </span>
+                </div>
+              )}
+              {autoBackup.status?.ok && (
+                <div className="kv-row">
+                  <span className="k">位置</span>
+                  <span className="v font-mono text-[11px]">{autoBackup.status.dir}/Mnemos/</span>
+                </div>
+              )}
+              {autoBackup.status && !autoBackup.status.ok && (
+                <div className="font-zh text-xs" style={{ color: 'var(--danger)' }}>{autoBackup.status.error}</div>
+              )}
+              <ActionRow
+                title="立即备份"
+                detail="跳过 20 小时间隔，马上备份"
+                action="备份"
+                tone="warn"
+                onClick={async () => {
+                  const result = await runBackupNow()
+                  setAutoBackup(getAutoBackupConfig())
+                  if (!result.ok) showToast(`备份失败: ${result.error}`)
+                  else showToast('备份成功')
+                }}
+              />
+            </div>
+          )}
         </section>
 
         {/* About */}
@@ -455,6 +503,7 @@ export default function Settings() {
           </div>
         </div>
       </main>
+      <Toast message={toast} />
     </div>
   )
 }
