@@ -11,6 +11,7 @@ import { importReadingData, mergeReadingData } from '../reading/lib/backup'
 import { readFileAsDocument, ACCEPT as READING_ACCEPT } from '../reading/lib/importer'
 import { BackIcon, UploadIcon, PasteIcon } from '../components/Icons'
 import { useBackButton } from '../lib/useBackButton'
+import { isNative } from '../lib/platform'
 import { useToast, Toast } from '../components/Toast'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 
@@ -27,6 +28,7 @@ export default function Import() {
     const tab = searchParams.get('tab')
     if (tab === 'md') return 'md'
     if (tab === 'reading') return 'reading'
+    if (tab === 'restore') return 'restore'
     return 'json'
   })
   const [dragging, setDragging] = useState(false)
@@ -176,26 +178,33 @@ export default function Import() {
     e.target.value = ''
   }
 
-  const handleConfirmJson = () => {
+  const handleConfirmJson = async () => {
     if (!previewData || previewData.length === 0) return
     if (quizBackupData) {
-      // Quiz backup: import questions, merge progress and starred
-      const result = addQuestions(previewData)
-      if (quizBackupData.starred) {
-        const existing = loadStarred()
-        const newStarred = quizBackupData.starred.filter(id => !existing.includes(id))
-        saveStarred([...existing, ...newStarred])
-      }
-      if (quizBackupData.progress) {
-        const progress = loadProgress()
-        let merged = 0
-        for (const [id, prog] of Object.entries(quizBackupData.progress)) {
-          if (!progress[id]) { progress[id] = prog; merged++ }
-        }
-        saveProgress(progress)
-        showToast(`导入完成！新增: ${result.added}，重复跳过: ${result.duplicates}，合并进度: ${merged}`)
+      if (jsonMode === 'replace') {
+        const ok = await confirm({ title: '替换全部', message: '替换全部会覆盖当前所有练习数据，此操作不可撤销。', confirmLabel: '确认替换' })
+        if (!ok) return
+        importQuizData(JSON.stringify(quizBackupData))
+        showToast(`导入完成！题目: ${previewData.length}`)
       } else {
-        showToast(`导入完成！新增: ${result.added}，重复跳过: ${result.duplicates}`)
+        // Quiz backup: import questions, merge progress and starred
+        const result = addQuestions(previewData)
+        if (quizBackupData.starred) {
+          const existing = loadStarred()
+          const newStarred = quizBackupData.starred.filter(id => !existing.includes(id))
+          saveStarred([...existing, ...newStarred])
+        }
+        if (quizBackupData.progress) {
+          const progress = loadProgress()
+          let merged = 0
+          for (const [id, prog] of Object.entries(quizBackupData.progress)) {
+            if (!progress[id]) { progress[id] = prog; merged++ }
+          }
+          saveProgress(progress)
+          showToast(`导入完成！新增: ${result.added}，重复跳过: ${result.duplicates}，合并进度: ${merged}`)
+        } else {
+          showToast(`导入完成！新增: ${result.added}，重复跳过: ${result.duplicates}`)
+        }
       }
     } else {
       const result = addQuestions(previewData)
@@ -330,9 +339,24 @@ export default function Import() {
           <button onClick={reset} className="tb-btn">
             <BackIcon />
           </button>
-          <h1 className="flex-1 font-zh text-[17px] font-medium text-ink pl-1">JSON 导入预览</h1>
+          <h1 className="flex-1 font-zh text-[17px] font-medium text-ink pl-1">{quizBackupData ? '练习备份预览' : 'JSON 导入预览'}</h1>
         </header>
         <main className="flex-1 overflow-y-auto p-[18px] flex flex-col gap-4">
+          {quizBackupData && (
+            <div className="settings-card">
+              <div className="lbl">导入方式</div>
+              <div className="seg">
+                <button onClick={() => setJsonMode('merge')} className={jsonMode === 'merge' ? 'on' : ''}>合并数据</button>
+                <button onClick={() => setJsonMode('replace')} className={jsonMode === 'replace' ? 'on' : ''}>替换全部</button>
+              </div>
+              {jsonMode === 'replace' && (
+                <div className="rounded-md p-3 font-zh text-xs leading-relaxed"
+                  style={{ background: 'var(--danger-soft)', color: 'var(--danger)', border: '1px solid color-mix(in oklch, var(--danger) 25%, transparent)' }}>
+                  替换全部会覆盖当前所有练习数据。确认导入前还会再次询问。
+                </div>
+              )}
+            </div>
+          )}
           <div className="settings-card">
             <div className="lbl">题库统计</div>
             <div className="kv-row"><span className="k">总题数</span><span className="v">{stats.total}</span></div>
@@ -634,6 +658,9 @@ export default function Import() {
           <button onClick={() => setImportTab('reading')} className={importTab === 'reading' ? 'on' : ''}>
             阅读 · DOC
           </button>
+          <button onClick={() => setImportTab('restore')} className={importTab === 'restore' ? 'on' : ''}>
+            恢复 · RESTORE
+          </button>
         </div>
 
         {importTab === 'json' ? (
@@ -703,6 +730,37 @@ export default function Import() {
               <div className="kv-row"><span className="k">纯文本</span><span className="v">.txt</span></div>
             </div>
             <input ref={fileInputRef} type="file" accept={READING_ACCEPT} onChange={handleReadingFile} className="hidden" />
+          </>
+        ) : importTab === 'restore' ? (
+          <>
+            <div className="settings-card">
+              <div className="lbl">恢复备份 · RESTORE</div>
+              <div className="kv-row"><span className="k">目标</span><span className="v">恢复完整备份 / 仅记忆 / 仅练习</span></div>
+              <div className="kv-row"><span className="k">来源</span><span className="v">Settings 导出的备份文件</span></div>
+              <div className="kv-row"><span className="k">模式</span><span className="v">合并数据 或 替换全部</span></div>
+            </div>
+            <div className="settings-card">
+              <div className="lbl">文件导入 · FILE</div>
+              <div onClick={() => fileInputRef.current?.click()}
+                onDragOver={handleDropzoneDragOver} onDragLeave={handleDropzoneDragLeave} onDrop={handleDropzoneDrop}
+                className={`dropzone ${dragging ? 'dragging' : ''}`}>
+                <div className="icon"><UploadIcon size={18} /></div>
+                <div className="label">点击选择 · 或拖入备份文件</div>
+                <div className="ext">.JSON</div>
+              </div>
+            </div>
+            <div className="settings-card">
+              <div className="lbl">支持格式 · FORMAT</div>
+              <div className="kv-row"><span className="k">完整备份</span><span className="v">记忆 + 练习 + 阅读</span></div>
+              <div className="kv-row"><span className="k">仅记忆</span><span className="v">卡组和卡片</span></div>
+              <div className="kv-row"><span className="k">仅练习</span><span className="v">题目、进度和收藏</span></div>
+            </div>
+            {isNative() && (
+              <div className="text-[13px] text-ink-3 leading-relaxed font-zh text-center py-2 tracking-[0.04em]">
+                自动备份文件位于 Documents/Mnemos/
+              </div>
+            )}
+            <input ref={fileInputRef} type="file" accept=".json" onChange={handleJsonFile} className="hidden" />
           </>
         ) : (
           <>
