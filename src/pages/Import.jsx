@@ -1,5 +1,5 @@
 import { useState, useRef, useMemo, useEffect } from 'react'
-import { useNavigate, useSearchParams, Link } from 'react-router-dom'
+import { useNavigate, useSearchParams, useLocation, Link } from 'react-router-dom'
 import { addQuestions, importData as importQuizData, mergeImportData as mergeQuizData, loadStarred, saveStarred, loadProgress, saveProgress } from '../quiz/lib/storage'
 import { parseQuestionsJson, getQuestionsStats } from '../quiz/lib/questionParser'
 import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
@@ -29,6 +29,19 @@ export default function Import() {
     return 'json'
   })
   const [dragging, setDragging] = useState(false)
+  const location = useLocation()
+
+  // Consume prefilled cards from router state (e.g. from wrong book or highlights)
+  useEffect(() => {
+    const prefill = location.state?.prefillCards
+    if (Array.isArray(prefill) && prefill.length > 0) {
+      const deckName = location.state?.prefillDeckName || ''
+      setMdPreview({ cards: prefill, defaultName: deckName })
+      setMdDeckName(deckName)
+      // Clear router state so back/refresh doesn't re-trigger
+      navigate(location.pathname + location.search, { replace: true, state: {} })
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Reset scroll when tab changes (#root is the scroll container)
   useEffect(() => {
