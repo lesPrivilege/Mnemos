@@ -483,6 +483,15 @@ export default function Settings() {
               />
             </div>
           )}
+          <div className="settings-action-group" style={{ marginTop: 12 }}>
+            <ActionRow
+              title="恢复备份"
+              detail="从备份文件恢复数据"
+              action="恢复"
+              tone="warn"
+              onClick={() => navigate('/import?tab=restore')}
+            />
+          </div>
         </section>
 
         {/* About */}

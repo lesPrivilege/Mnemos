@@ -48,6 +48,14 @@ export default function PromptGuide() {
           复制下方 prompt 给任意 AI（Claude · GPT · DeepSeek · Kimi），附上学习材料，即可得到可导入的 .md。
         </p>
 
+        <div className="settings-card">
+          <div className="lbl">也可以直接导入 Anki 导出</div>
+          <div className="text-[13px] text-ink-2 leading-[1.7] font-zh">
+            闪卡 tab 支持 Anki 导出的 .txt / .csv 文件，自动识别 header 指令、HTML 字段和 cloze 挖空。
+            无需转换为 Markdown。
+          </div>
+        </div>
+
         <div className="seg">
           {Object.entries(TEMPLATES).map(([key, t]) => (
             <button key={key} onClick={() => setTab(key)} className={tab === key ? 'on' : ''}>
