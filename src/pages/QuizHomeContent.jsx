@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { getSubjectStats, getSubjectList, getChapterList, loadLastSession, loadQuestions, loadProgress, deleteSubject, addQuestions, clearLastSession } from '../quiz/lib/storage'
+import { isInWrongBook } from '../quiz/lib/quizEngine'
 import { parseQuestionsJson } from '../quiz/lib/questionParser'
 import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
 import { SUBJECT_HUE, SUBJECT_GLYPH } from '../quiz/lib/subjectMeta'
@@ -169,7 +170,7 @@ export function QuizHomeContent() {
     setSubjects(getSubjectList())
     const progress = loadProgress()
     const questions = loadQuestions()
-    setWrongCount(questions.filter(q => progress[q.id]?.status === 'wrong' && (progress[q.id]?.wrongStreak || 0) > 0).length)
+    setWrongCount(questions.filter(q => isInWrongBook(progress[q.id])).length)
     setTotalQs(questions.length)
     setWeekStats(getWeekStats())
   }
