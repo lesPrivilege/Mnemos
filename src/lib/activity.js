@@ -22,6 +22,16 @@ function monthDays(today = new Date()) {
   return days
 }
 
+function trailingDays(windowDays = 90, today = new Date()) {
+  const days = []
+  for (let i = windowDays - 1; i >= 0; i--) {
+    const d = new Date(today)
+    d.setDate(today.getDate() - i)
+    days.push(formatLocalDate(d))
+  }
+  return days
+}
+
 const TARGETS = {
   recall: 20,
   practice: 20,
@@ -109,6 +119,18 @@ export function getActivityDashboard() {
   if (!addPracticeFromLog(daysByDate)) addPracticeFromProgress(daysByDate)
   addReading(daysByDate)
 
+  // Build 90-day window for streak calculation
+  const streakDates = trailingDays(90)
+  const streakByDate = new Map(streakDates.map((date) => [date, emptyDay(date)]))
+  addRecall(streakByDate)
+  if (!addPracticeFromLog(streakByDate)) addPracticeFromProgress(streakByDate)
+  addReading(streakByDate)
+  const activeDates = new Set(
+    [...streakByDate.values()]
+      .filter(d => d.recall + d.practice + d.reading > 0)
+      .map(d => d.date)
+  )
+
   const days = dates.map((date) => {
     const day = daysByDate.get(date)
     return {
@@ -118,7 +140,6 @@ export function getActivityDashboard() {
     }
   })
 
-  const activeDates = new Set(days.filter((d) => d.active).map((d) => d.date))
   const thisWeek = days.slice(-7)
   const today = days.at(-1) || emptyDay(dayKeyFromMs(Date.now()))
   const totals = days.reduce((sum, d) => ({
