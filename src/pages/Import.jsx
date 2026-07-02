@@ -5,6 +5,7 @@ import { parseQuestionsJson, getQuestionsStats } from '../quiz/lib/questionParse
 import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
 import { addDeck, addCard, getDeck, getCards, getDecks, importData, mergeData, loadData } from '../lib/storage'
 import { parseMdToCards } from '../lib/mdParser'
+import { parseAnkiToCards } from '../lib/ankiParser'
 import { getCollections, addCollection, addDocument } from '../reading/lib/storage'
 import { importReadingData, mergeReadingData } from '../reading/lib/backup'
 import { readFileAsDocument, ACCEPT as READING_ACCEPT } from '../reading/lib/importer'
@@ -133,8 +134,8 @@ export default function Import() {
     reader.onload = (ev) => {
       if (ext === 'json') {
         routeJsonImport(ev.target.result)
-      } else if (ext === 'md') {
-        processMd(ev.target.result, file.name.replace(/\.md$/i, ''))
+      } else if (['md', 'txt', 'csv', 'tsv'].includes(ext)) {
+        processMd(ev.target.result, file.name.replace(/\.\w+$/i, ''))
       }
     }
     reader.readAsText(file)
@@ -210,7 +211,7 @@ export default function Import() {
     if (!file) return
     const reader = new FileReader()
     reader.onload = (ev) => {
-      processMd(ev.target.result, file.name.replace(/\.md$/i, ''))
+      processMd(ev.target.result, file.name.replace(/\.\w+$/i, ''))
     }
     reader.readAsText(file)
     e.target.value = ''
@@ -222,9 +223,13 @@ export default function Import() {
   }
 
   const processMd = (content, defaultName) => {
-    const { cards, deckName } = parseMdToCards(content, defaultName)
+    // Content sniffing: Anki directives or tab-delimited → parseAnkiToCards, else MD
+    const isAnki = /^#(separator|html|tags column|deck column|notetype column|columns)\s*:/mi.test(content) ||
+      (content.split('\n').find(l => l.trim() !== '') || '').split('\t').length >= 2
+    const parser = isAnki ? parseAnkiToCards : parseMdToCards
+    const { cards, deckName } = parser(content, defaultName)
     if (cards.length === 0) {
-      showToast('未识别到卡片。可以粘贴 MD 列表，或用纯文本按「正面换行背面」成组输入。')
+      showToast('未识别到卡片。支持 MD 列表、Anki 导出的 txt/csv，或纯文本按「正面换行背面」成组输入。')
       return
     }
     setMdPreview({ cards, defaultName: deckName || defaultName })
@@ -714,7 +719,7 @@ export default function Import() {
                 className={`dropzone ${dragging ? 'dragging' : ''}`}>
                 <div className="icon"><UploadIcon size={18} /></div>
                 <div className="label">点击选择 · 或拖入文件</div>
-                <div className="ext">.MD</div>
+                <div className="ext">.MD · .TXT · .CSV</div>
               </div>
             </div>
             <div className="settings-card">
@@ -727,7 +732,7 @@ export default function Import() {
                 <PasteIcon size={16} /> 解析并预览
               </button>
             </div>
-            <input ref={fileInputRef} type="file" accept=".md" onChange={handleMdFile} className="hidden" />
+            <input ref={fileInputRef} type="file" accept=".md,.txt,.csv,.tsv" onChange={handleMdFile} className="hidden" />
           </>
         )}
 
