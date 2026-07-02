@@ -1,7 +1,7 @@
 // Automatic local backup — daily snapshot to device filesystem.
 // Native-only: every entry point early-returns when !isNative().
 // Integration point: uses buildFullBackup (same cross-module permission as Settings.jsx).
-import { Filesystem, Directory } from '@capacitor/filesystem'
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem'
 import { isNative } from './platform'
 import { buildFullBackup } from './fullBackup'
 import { localToday } from './dateUtils'
@@ -85,11 +85,11 @@ async function runBackup(immediate) {
     const json = JSON.stringify(backup, null, 2)
 
     try {
-      await Filesystem.writeFile({ path: filePath, data: json, directory: dir, recursive: true })
+      await Filesystem.writeFile({ path: filePath, data: json, directory: dir, recursive: true, encoding: Encoding.UTF8 })
     } catch {
       // Fallback to Directory.Data if Documents fails (scoped-storage differences)
       dir = Directory.Data
-      await Filesystem.writeFile({ path: filePath, data: json, directory: dir, recursive: true })
+      await Filesystem.writeFile({ path: filePath, data: json, directory: dir, recursive: true, encoding: Encoding.UTF8 })
     }
 
     const result = { at: Date.now(), ok: true, dir: dir === Directory.Documents ? 'Documents' : 'Data', path: filePath }
