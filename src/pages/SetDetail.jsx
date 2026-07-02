@@ -6,26 +6,30 @@ import { getSubjectStats, getChapterList, loadStarred, loadQuestions, deleteSubj
 import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
 import { SUBJECT_HUE, SUBJECT_GLYPH } from '../quiz/lib/subjectMeta'
 import { useBackButton } from '../lib/useBackButton'
+import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 
 export default function SetDetail() {
   const { subject } = useParams()
   const navigate = useNavigate()
   const { goBack } = useBackButton()
+  const { confirmState, confirm } = useConfirm()
   const [filter, setFilter] = useState('all')
   const [expandedChapter, setExpandedChapter] = useState(null)
   const [showMenu, setShowMenu] = useState(false)
 
-  const handleDeleteSubject = () => {
+  const handleDeleteSubject = async () => {
     setShowMenu(false)
-    if (confirm(`删除科目「${getSubjectDisplayName(subject)}」及其全部题目与进度？此操作不可撤销。`)) {
+    const ok = await confirm({ title: '删除科目', message: `删除科目「${getSubjectDisplayName(subject)}」及其全部题目与进度？此操作不可撤销。`, confirmLabel: '确认删除' })
+    if (ok) {
       deleteSubject(subject)
       navigate('/')
     }
   }
 
-  const handleResetProgress = () => {
+  const handleResetProgress = async () => {
     setShowMenu(false)
-    if (confirm(`重置「${getSubjectDisplayName(subject)}」的练习进度？已收藏的题目会保留。`)) {
+    const ok = await confirm({ title: '重置进度', message: `重置「${getSubjectDisplayName(subject)}」的练习进度？已收藏的题目会保留。`, confirmLabel: '确认重置', destructive: false })
+    if (ok) {
       clearSubjectProgress(subject)
     }
   }
@@ -237,6 +241,7 @@ export default function SetDetail() {
           <Link to="/import?tab=json" className="dd-action"><UploadIcon size={18} /><span className="lab">导入</span></Link>
         </div>
       </div>
+      <ConfirmSheet state={confirmState} />
     </div>
   )
 }

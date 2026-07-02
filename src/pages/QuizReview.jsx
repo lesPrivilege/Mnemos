@@ -7,6 +7,7 @@ import RenderMarkdown from '../quiz/components/RenderMarkdown'
 import { BackIcon, CheckIcon, MoreIcon, TrashIcon } from '../components/Icons'
 import { addReviewEntry } from '../lib/reviewLog'
 import { useBackButton } from '../lib/useBackButton'
+import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 import '../styles/markdown.css'
 
 const MODES = [
@@ -22,6 +23,7 @@ export default function ReviewQuestion() {
   const chapter = searchParams.get('chapter')
   const navigate = useNavigate()
   const { goBack } = useBackButton()
+  const { confirmState, confirm } = useConfirm()
 
   const [mode, setMode] = useState('random')
   const [questions, setQuestions] = useState([])
@@ -77,10 +79,11 @@ export default function ReviewQuestion() {
     setStarred(toggleStar(currentQuestion.id))
   }
 
-  const handleDeleteQuestion = () => {
+  const handleDeleteQuestion = async () => {
     if (!currentQuestion) return
     setShowMenu(false)
-    if (!confirm('删除这道题目？此操作不可撤销。')) return
+    const ok = await confirm({ title: '删除题目', message: '删除这道题目？此操作不可撤销。', confirmLabel: '确认删除' })
+    if (!ok) return
     const idToDelete = currentQuestion.id
     deleteQuestion(idToDelete)
     const remaining = questions.filter(q => q.id !== idToDelete)
@@ -287,6 +290,7 @@ export default function ReviewQuestion() {
           <span>已掌握</span><span className="iv">GOT IT</span>
         </button>
       </div>
+      <ConfirmSheet state={confirmState} />
     </div>
   )
 }

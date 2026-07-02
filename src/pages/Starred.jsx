@@ -5,11 +5,13 @@ import { loadStarred, loadQuestions, toggleStar, deleteQuestion } from '../quiz/
 import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
 import RenderMarkdown from '../quiz/components/RenderMarkdown'
 import { BackIcon, StarIcon, TrashIcon } from '../components/Icons'
+import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 import '../styles/markdown.css'
 
 export default function Starred() {
   const navigate = useNavigate()
   const { goBack } = useBackButton()
+  const { confirmState, confirm } = useConfirm()
   const [searchParams] = useSearchParams()
   const subject = searchParams.get('subject')
   const [items, setItems] = useState([])
@@ -27,8 +29,9 @@ export default function Starred() {
     setItems(prev => prev.filter(q => q.id !== id))
   }
 
-  const handleDelete = (id) => {
-    if (!confirm('删除这道题目？此操作不可撤销。')) return
+  const handleDelete = async (id) => {
+    const ok = await confirm({ title: '删除题目', message: '删除这道题目？此操作不可撤销。', confirmLabel: '确认删除' })
+    if (!ok) return
     deleteQuestion(id)
     setItems(prev => prev.filter(q => q.id !== id))
   }
@@ -70,6 +73,7 @@ export default function Starred() {
           ))
         )}
       </main>
+      <ConfirmSheet state={confirmState} />
     </div>
   )
 }

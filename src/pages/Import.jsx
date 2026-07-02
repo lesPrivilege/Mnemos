@@ -10,10 +10,14 @@ import { importReadingData, mergeReadingData } from '../reading/lib/backup'
 import { readFileAsDocument, ACCEPT as READING_ACCEPT } from '../reading/lib/importer'
 import { BackIcon, UploadIcon, PasteIcon } from '../components/Icons'
 import { useBackButton } from '../lib/useBackButton'
+import { useToast, Toast } from '../components/Toast'
+import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 
 export default function Import() {
   const navigate = useNavigate()
   const { goBack } = useBackButton()
+  const { toast, showToast } = useToast()
+  const { confirmState, confirm } = useConfirm()
   const [searchParams] = useSearchParams()
   const fileInputRef = useRef(null)
   const mdTargetDeckId = searchParams.get('deckId')
@@ -83,7 +87,7 @@ export default function Import() {
 
   function routeJsonImport(jsonString) {
     let parsed
-    try { parsed = JSON.parse(jsonString) } catch { alert('导入失败: JSON 格式错误'); return }
+    try { parsed = JSON.parse(jsonString) } catch { showToast('导入失败: JSON 格式错误'); return }
     const { kind, data } = detectImportKind(parsed)
     switch (kind) {
       case 'questions': {
@@ -114,7 +118,7 @@ export default function Import() {
         break
       }
       default:
-        alert('导入失败: 无法识别的 JSON 格式')
+        showToast('导入失败: 无法识别的 JSON 格式')
     }
   }
 
@@ -188,13 +192,13 @@ export default function Import() {
           if (!progress[id]) { progress[id] = prog; merged++ }
         }
         saveProgress(progress)
-        alert(`导入完成！\n新增: ${result.added}\n重复跳过: ${result.duplicates}\n合并进度: ${merged}`)
+        showToast(`导入完成！新增: ${result.added}，重复跳过: ${result.duplicates}，合并进度: ${merged}`)
       } else {
-        alert(`导入完成！\n新增: ${result.added}\n重复跳过: ${result.duplicates}`)
+        showToast(`导入完成！新增: ${result.added}，重复跳过: ${result.duplicates}`)
       }
     } else {
       const result = addQuestions(previewData)
-      alert(`导入完成！\n新增: ${result.added}\n重复跳过: ${result.duplicates}`)
+      showToast(`导入完成！新增: ${result.added}，重复跳过: ${result.duplicates}`)
     }
     reset()
     navigate('/')
@@ -220,7 +224,7 @@ export default function Import() {
   const processMd = (content, defaultName) => {
     const { cards, deckName } = parseMdToCards(content, defaultName)
     if (cards.length === 0) {
-      alert('未识别到卡片。可以粘贴 MD 列表，或用纯文本按「正面换行背面」成组输入。')
+      showToast('未识别到卡片。可以粘贴 MD 列表，或用纯文本按「正面换行背面」成组输入。')
       return
     }
     setMdPreview({ cards, defaultName: deckName || defaultName })
@@ -235,7 +239,7 @@ export default function Import() {
     for (const card of cardsToImport) {
       addCard(deck.id, card.front, card.back, card.type, card.chapter, card.section)
     }
-    alert(`导入完成！\n卡组: ${deck.name}\n卡片: ${cardsToImport.length}${skipDup && dedup.count > 0 ? `\n跳过重复: ${dedup.count}` : ''}`)
+    showToast(`导入完成！卡组: ${deck.name}，卡片: ${cardsToImport.length}${skipDup && dedup.count > 0 ? `，跳过重复: ${dedup.count}` : ''}`)
     reset()
     navigate(mdTargetDeck ? `/deck/${mdTargetDeck.id}` : '/')
   }
@@ -245,7 +249,8 @@ export default function Import() {
     const data = isFull ? fullBackupPreview : jsonPreviewData
     if (!data) return
     if (jsonMode === 'replace') {
-      if (!confirm('替换全部会覆盖当前所有数据，此操作不可撤销。')) return
+      const ok = await confirm({ title: '替换全部', message: '替换全部会覆盖当前所有数据，此操作不可撤销。', confirmLabel: '确认替换' })
+      if (!ok) return
       if (isFull) {
         importData(data.flashcard)
         if (data.quiz) importQuizData(JSON.stringify(data.quiz))
@@ -273,7 +278,7 @@ export default function Import() {
       setReadingPreview(doc)
       setReadingCollections(getCollections())
     } catch {
-      alert('导入失败')
+      showToast('导入失败')
     }
   }
 
@@ -300,13 +305,13 @@ export default function Import() {
         const col = addCollection(readingNewColName.trim())
         colId = col.id
       } else {
-        alert('请选择或创建一个集合')
+        showToast('请选择或创建一个集合')
         return
       }
     }
 
     addDocument(colId, readingPreview.title, readingPreview.content, readingPreview.format)
-    alert(`导入完成！\n文档: ${readingPreview.title}\n格式: ${readingPreview.format.toUpperCase()}`)
+    showToast(`导入完成！文档: ${readingPreview.title}，格式: ${readingPreview.format.toUpperCase()}`)
     reset()
     navigate('/reading')
   }
@@ -361,6 +366,8 @@ export default function Import() {
             </button>
           </div>
         </main>
+        <Toast message={toast} />
+        <ConfirmSheet state={confirmState} />
       </div>
     )
   }
@@ -426,6 +433,8 @@ export default function Import() {
             </button>
           </div>
         </main>
+        <Toast message={toast} />
+        <ConfirmSheet state={confirmState} />
       </div>
     )
   }
@@ -546,6 +555,8 @@ export default function Import() {
             </button>
           </div>
         </main>
+        <Toast message={toast} />
+        <ConfirmSheet state={confirmState} />
       </div>
     )
   }
@@ -590,6 +601,8 @@ export default function Import() {
             <button onClick={handleConfirmReading} className="btn btn-primary btn-block">确认导入</button>
           </div>
         </main>
+        <Toast message={toast} />
+        <ConfirmSheet state={confirmState} />
       </div>
     )
   }
@@ -729,6 +742,8 @@ export default function Import() {
           </div>
         )}
       </main>
+      <Toast message={toast} />
+      <ConfirmSheet state={confirmState} />
     </div>
   )
 }

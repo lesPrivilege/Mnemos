@@ -8,6 +8,8 @@ import { getDeck, getCards, addCard, updateCard, updateDeck, deleteCard, deleteC
 import { useBackButton } from '../lib/useBackButton'
 import { useRenderedMarkdown } from '../lib/useRenderedMarkdown'
 import { downloadBlob } from '../lib/utils'
+import { useToast, Toast } from '../components/Toast'
+import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 import '../styles/markdown.css'
 
 function buildOutline(cards) {
@@ -27,6 +29,8 @@ export default function DeckDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { goBack } = useBackButton()
+  const { toast, showToast } = useToast()
+  const { confirmState, confirm } = useConfirm()
   const [deck, setDeck] = useState(null)
   const [cards, setCards] = useState([])
   const [showEditor, setShowEditor] = useState(false)
@@ -91,18 +95,18 @@ export default function DeckDetail() {
     refresh()
   }
 
-  const handleResetProgress = () => {
-    if (confirm(`重置「${deck.name}」的学习进度？已收藏的卡片会保留。`)) {
-      resetDeckProgress(id)
-      refresh()
-    }
+  const handleResetProgress = async () => {
+    const ok = await confirm({ title: '重置进度', message: `重置「${deck.name}」的学习进度？已收藏的卡片会保留。`, confirmLabel: '确认重置', destructive: false })
+    if (!ok) return
+    resetDeckProgress(id)
+    refresh()
   }
 
-  const handleDeleteDeck = () => {
-    if (confirm('删除此卡组及其所有卡片？此操作不可撤销。')) {
-      deleteDeck(id)
-      navigate('/')
-    }
+  const handleDeleteDeck = async () => {
+    const ok = await confirm({ title: '删除卡组', message: '删除此卡组及其所有卡片？此操作不可撤销。', confirmLabel: '确认删除' })
+    if (!ok) return
+    deleteDeck(id)
+    navigate('/')
   }
 
   const toggleSelect = (cardId) => {
@@ -114,9 +118,10 @@ export default function DeckDetail() {
     })
   }
 
-  const handleBatchDelete = () => {
+  const handleBatchDelete = async () => {
     if (selected.size === 0) return
-    if (!confirm(`删除 ${selected.size} 张卡片？此操作不可撤销。`)) return
+    const ok = await confirm({ title: '批量删除', message: `删除 ${selected.size} 张卡片？此操作不可撤销。`, confirmLabel: '确认删除' })
+    if (!ok) return
     deleteCards([...selected])
     setSelected(new Set())
     setEditing(false)
@@ -312,7 +317,7 @@ export default function DeckDetail() {
                                     onToggleSelect={() => toggleSelect(card.id)}
                                     onEdit={() => setEditingCard(card)} onDelete={() => handleDelete(card.id)}
                                     isEditingThis={editingCard?.id === card.id} onSave={handleEdit} onCancel={() => setEditingCard(null)}
-                                    onPreview={setPreviewCard} />
+                                    onPreview={setPreviewCard} confirm={confirm} />
                                 ))}
                               </div>
                             )
@@ -332,7 +337,7 @@ export default function DeckDetail() {
                                       onToggleSelect={() => toggleSelect(card.id)}
                                       onEdit={() => setEditingCard(card)} onDelete={() => handleDelete(card.id)}
                                       isEditingThis={editingCard?.id === card.id} onSave={handleEdit} onCancel={() => setEditingCard(null)}
-                                      onPreview={setPreviewCard} />
+                                      onPreview={setPreviewCard} confirm={confirm} />
                                   ))}
                                 </div>
                               )}
@@ -358,8 +363,9 @@ export default function DeckDetail() {
                 删除 ({selected.size})
               </button>
             )}
-            <button onClick={() => {
-              if (!confirm(`删除卡组内全部 ${cards.length} 张卡片？此操作不可撤销。`)) return
+            <button onClick={async () => {
+              const ok = await confirm({ title: '全部删除', message: `删除卡组内全部 ${cards.length} 张卡片？此操作不可撤销。`, confirmLabel: '确认删除' })
+              if (!ok) return
               deleteCards(cards.map((c) => c.id))
               setSelected(new Set())
               setEditing(false)
@@ -413,6 +419,8 @@ export default function DeckDetail() {
           </div>
         </div>
       )}
+      <Toast message={toast} />
+      <ConfirmSheet state={confirmState} />
     </div>
   )
 }
@@ -422,7 +430,7 @@ function PreviewContent({ text }) {
   return <div className="card-content" dangerouslySetInnerHTML={{ __html: html }} />
 }
 
-function CardRow({ card, editing, selected, onToggleSelect, onEdit, onDelete, isEditingThis, onSave, onCancel, onPreview }) {
+function CardRow({ card, editing, selected, onToggleSelect, onEdit, onDelete, isEditingThis, onSave, onCancel, onPreview, confirm }) {
   const longPressTimer = useRef(null)
 
   const handleTouchStart = () => {
@@ -474,7 +482,7 @@ function CardRow({ card, editing, selected, onToggleSelect, onEdit, onDelete, is
         <div className="hidden group-hover:flex gap-1 shrink-0 ml-1">
           <button onClick={(e) => { e.stopPropagation(); onEdit() }}
             className="text-[11px] px-1.5 py-0.5 rounded border text-ink-2" style={{ borderColor: 'var(--border)' }}>编辑</button>
-          <button onClick={(e) => { e.stopPropagation(); if (confirm('删除这张卡片？此操作不可撤销。')) onDelete() }}
+          <button onClick={async (e) => { e.stopPropagation(); const ok = await confirm({ title: '删除卡片', message: '删除这张卡片？此操作不可撤销。', confirmLabel: '确认删除' }); if (ok) onDelete() }}
             className="text-[11px] px-1.5 py-0.5 rounded border text-danger" style={{ borderColor: 'color-mix(in oklch, var(--danger) 30%, transparent)' }}>删除</button>
         </div>
       </div>

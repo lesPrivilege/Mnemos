@@ -3,9 +3,11 @@ import { useReadingHome } from '../hooks/useReadingHome'
 import ReadingHomeBody from './ReadingHomeBody'
 import { SearchIcon } from '../../components/Icons'
 import { getDocumentsByCollection } from '../lib/storage'
+import { useConfirm, ConfirmSheet } from '../../components/ConfirmSheet'
 
 export default function ReadingHomeContent() {
-  const h = useReadingHome()
+  const { confirmState, confirm } = useConfirm()
+  const h = useReadingHome({ confirmFn: confirm })
   const hasDocs = h.collections.some(col => getDocumentsByCollection(col.id).length > 0)
   const showSearch = hasDocs || h.query.trim()
 
@@ -21,6 +23,7 @@ export default function ReadingHomeContent() {
       )}
 
       <ReadingHomeBody h={h} />
+      <ConfirmSheet state={confirmState} />
     </div>
   )
 }
