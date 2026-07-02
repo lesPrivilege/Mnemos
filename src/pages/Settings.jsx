@@ -26,6 +26,7 @@ import { useBackButton } from '../lib/useBackButton'
 import { downloadBlob } from '../lib/utils'
 import { isNative } from '../lib/platform'
 import { getAutoBackupConfig, setEnabled, runBackupNow } from '../lib/autoBackup'
+import { isEnabled, getReminderTime, setReminderTime, enableReminders, disableReminders, resyncReminders } from '../lib/reminders'
 import { useToast, Toast } from '../components/Toast'
 import pkg from '../../package.json'
 
@@ -75,6 +76,10 @@ export default function Settings() {
   const [subjects, setSubjects] = useState([])
   const { toast, showToast } = useToast()
   const [autoBackup, setAutoBackup] = useState(() => isNative() ? getAutoBackupConfig() : null)
+  const [reminderOn, setReminderOn] = useState(() => isNative() && isEnabled())
+  const [reminderTime, setReminderTimeState] = useState(() => isNative() ? getReminderTime() : '20:00')
+  const [reminderError, setReminderError] = useState(null)
+  const [nextReminder, setNextReminder] = useState(null)
 
   const [dark, setDark] = useState(() => {
     const legacy = localStorage.getItem('mini-srs-theme')
@@ -104,6 +109,23 @@ export default function Settings() {
     }
   }, [dailyLimit])
 
+  const refreshReminderStatus = async () => {
+    if (!isNative()) return
+    try {
+      const { LocalNotifications } = await import('@capacitor/local-notifications')
+      const pending = await LocalNotifications.getPending()
+      const notifs = pending.notifications || []
+      if (notifs.length > 0) {
+        const next = notifs.sort((a, b) => a.id - b.id)[0]
+        const at = new Date(next.schedule?.at)
+        const bodyMatch = next.body?.match(/(\d+)\s*张/)
+        setNextReminder({ at, count: bodyMatch ? parseInt(bodyMatch[1]) : 0 })
+      } else {
+        setNextReminder(null)
+      }
+    } catch { setNextReminder(null) }
+  }
+
   const refresh = () => {
     setStorageStats(getStorageStats())
     setSubjects(getSubjectList())
@@ -118,6 +140,7 @@ export default function Settings() {
       totalMinutes: rStats.totalMinutes,
       docsCompleted: rStats.docsCompleted,
     })
+    refreshReminderStatus()
   }
 
   useEffect(() => { refresh() }, [])
@@ -280,6 +303,75 @@ export default function Settings() {
             </div>
           )}
         </section>
+
+        {/* Reminder */}
+        {isNative() && (
+          <section className="settings-card settings-module">
+            <div className="lbl">提醒 · REMINDER</div>
+            <div className="settings-action">
+              <div className="settings-action-copy">
+                <span className="settings-action-title">每日复习提醒</span>
+                <span className="settings-action-detail">有到期卡片时按时提醒</span>
+              </div>
+              <button type="button" onClick={async () => {
+                if (reminderOn) {
+                  await disableReminders()
+                  setReminderOn(false)
+                  setNextReminder(null)
+                  setReminderError(null)
+                } else {
+                  setReminderError(null)
+                  const ok = await enableReminders()
+                  if (ok) {
+                    setReminderOn(true)
+                    refreshReminderStatus()
+                  } else {
+                    setReminderError('通知权限被拒绝，请在系统设置中开启')
+                  }
+                }
+              }}
+                className={`settings-action-btn ${reminderOn ? 'confirm' : ''}`}
+                style={reminderOn ? { background: 'var(--accent)', color: '#fff', border: 'none' } : {}}>
+                {reminderOn ? '开启' : '关闭'}
+              </button>
+            </div>
+            {reminderOn && (
+              <div className="settings-field">
+                <div>
+                  <span className="settings-field-title">提醒时间</span>
+                </div>
+                <input type="time" value={reminderTime}
+                  onChange={async (e) => {
+                    const t = e.target.value
+                    setReminderTimeState(t)
+                    setReminderTime(t)
+                    await resyncReminders()
+                    refreshReminderStatus()
+                  }}
+                  className="settings-field-input" />
+              </div>
+            )}
+            {reminderError && (
+              <div className="font-zh text-xs" style={{ color: 'var(--danger)' }}>{reminderError}</div>
+            )}
+            {reminderOn && nextReminder && (
+              <div className="kv-row">
+                <span className="k">下次提醒</span>
+                <span className="v">
+                  {nextReminder.at.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' })}{' '}
+                  {nextReminder.at.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
+                  {nextReminder.count > 0 && ` · ${nextReminder.count} 张`}
+                </span>
+              </div>
+            )}
+            {reminderOn && !nextReminder && (
+              <div className="kv-row">
+                <span className="k">状态</span>
+                <span className="v" style={{ color: 'var(--ink-3)' }}>暂无待复习卡片，未安排提醒</span>
+              </div>
+            )}
+          </section>
+        )}
 
         {/* Practice module */}
         {storageStats && (

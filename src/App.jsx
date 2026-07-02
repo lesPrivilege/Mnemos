@@ -2,6 +2,7 @@ import { HashRouter, Routes, Route } from 'react-router-dom'
 import { useEffect } from 'react'
 import ErrorBoundary from './components/ErrorBoundary'
 import { maybeRunAutoBackup } from './lib/autoBackup'
+import { initReminders } from './lib/reminders'
 import Home from './pages/Home'
 import ImportPage from './pages/Import'
 import DeckDetail from './pages/DeckDetail'
@@ -21,7 +22,11 @@ import Reader from './reading/pages/Reader'
 import CollectionDetail from './reading/pages/CollectionDetail'
 
 export default function App() {
-  useEffect(() => { maybeRunAutoBackup() }, [])
+  useEffect(() => {
+    maybeRunAutoBackup()
+    const cleanup = initReminders()
+    return cleanup
+  }, [])
 
   return (
     <HashRouter>
