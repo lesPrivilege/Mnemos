@@ -6,11 +6,13 @@ import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
 import { getSubjectList, deleteQuestion } from '../quiz/lib/storage'
 import RenderMarkdown from '../quiz/components/RenderMarkdown'
 import { BackIcon, TrashIcon } from '../components/Icons'
+import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 import '../styles/markdown.css'
 
 export default function Wrong() {
   const navigate = useNavigate()
   const { goBack } = useBackButton()
+  const { confirmState, confirm } = useConfirm()
   const [searchParams] = useSearchParams()
   const subject = searchParams.get('subject')
   const [wrongQuestions, setWrongQuestions] = useState([])
@@ -25,8 +27,9 @@ export default function Wrong() {
   useEffect(() => { refresh() }, [selectedSubject])
   useEffect(() => { setSelectedSubject(subject) }, [subject])
 
-  const handleDelete = (id) => {
-    if (!confirm('删除这道题目？此操作不可撤销。')) return
+  const handleDelete = async (id) => {
+    const ok = await confirm({ title: '删除题目', message: '删除这道题目？此操作不可撤销。', confirmLabel: '确认删除' })
+    if (!ok) return
     deleteQuestion(id)
     refresh()
   }
@@ -84,6 +87,7 @@ export default function Wrong() {
           ))
         )}
       </main>
+      <ConfirmSheet state={confirmState} />
     </div>
   )
 }
