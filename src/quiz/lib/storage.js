@@ -244,6 +244,7 @@ export function importData(jsonString) {
 export function mergeImportData(jsonString) {
   const data = JSON.parse(jsonString)
   let starredMerged = 0
+  let progressMerged = 0
   if (data.questions) {
     const r = addQuestions(data.questions)
     if (data.starred) {
@@ -252,9 +253,16 @@ export function mergeImportData(jsonString) {
       saveStarred([...existing, ...newStarred])
       starredMerged = newStarred.length
     }
-    return { questions: r.added, duplicates: r.duplicates, starred: starredMerged }
+    if (data.progress) {
+      const progress = loadProgress()
+      for (const [id, prog] of Object.entries(data.progress)) {
+        if (!progress[id]) { progress[id] = prog; progressMerged++ }
+      }
+      saveProgress(progress)
+    }
+    return { questions: r.added, duplicates: r.duplicates, starred: starredMerged, progress: progressMerged }
   }
-  return { questions: 0, duplicates: 0, starred: 0 }
+  return { questions: 0, duplicates: 0, starred: 0, progress: 0 }
 }
 
 // ── Subject management ──────────────────────────────────────────────
