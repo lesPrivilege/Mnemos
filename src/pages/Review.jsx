@@ -11,7 +11,9 @@ import { useBackButton } from '../lib/useBackButton'
 import { addReviewEntry } from '../lib/reviewLog'
 import { saveReviewSession, clearReviewSession } from '../lib/reviewSession'
 
-function predictInterval(card, quality) {
+function predictInterval(card, quality, passCount) {
+  // Learning card first pass Good: reinserts, doesn't schedule
+  if (card.repetitions === 0 && quality === 4 && passCount === 0) return '稍后'
   const result = sm2(card, quality)
   return result.interval
 }
@@ -302,6 +304,8 @@ export default function Review() {
   }
 
   const card = dueCards[currentIndex]
+  const isLearning = card.repetitions === 0
+  const passCount = passesRef.current.get(card.id) || 0
 
   return (
     <div className="page-fixed" style={{ background: 'var(--bg)' }}>
@@ -336,6 +340,7 @@ export default function Review() {
       <div className="rv-meta">
         <span className="crumb">
           {card.chapter && <>{card.chapter}{card.section && <span className="div">/</span>}{card.section}</>}
+          {isLearning && <span style={{ marginLeft: 8, fontSize: 10, color: 'var(--accent)', fontWeight: 500 }}>学习中 · {passCount + 1}/2</span>}
         </span>
         <span className="pos">
           <span className="now">{String(currentIndex + 1).padStart(2, '0')}</span> / {String(dueCards.length).padStart(2, '0')}
@@ -356,16 +361,16 @@ export default function Review() {
       {/* Fixed bottom rating buttons */}
       <div className="rate shrink-0" style={{ paddingBottom: 'max(18px, env(safe-area-inset-bottom))' }}>
         <button onClick={() => handleRate(1)} className="rate-btn rate-again">
-          <span>重来</span><span className="iv">{predictInterval(card, 1)}d</span>
+          <span>重来</span><span className="iv">{predictInterval(card, 1, passCount)}d</span>
         </button>
         <button onClick={() => handleRate(2)} className="rate-btn rate-hard">
-          <span>困难</span><span className="iv">{predictInterval(card, 2)}d</span>
+          <span>困难</span><span className="iv">{predictInterval(card, 2, passCount)}d</span>
         </button>
         <button onClick={() => handleRate(4)} className="rate-btn rate-good">
-          <span>记住</span><span className="iv">{predictInterval(card, 4)}d</span>
+          <span>记住</span><span className="iv">{predictInterval(card, 4, passCount) === '稍后' ? '稍后' : `${predictInterval(card, 4, passCount)}d`}</span>
         </button>
         <button onClick={() => handleRate(5)} className="rate-btn rate-easy">
-          <span>容易</span><span className="iv">{predictInterval(card, 5)}d</span>
+          <span>容易</span><span className="iv">{predictInterval(card, 5, passCount)}d</span>
         </button>
       </div>
 
