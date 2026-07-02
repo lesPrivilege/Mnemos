@@ -101,7 +101,7 @@ export function getCards(deckId) {
 
 export function getCard(id) {
   const card = loadData().cards.find((c) => c.id === id)
-  return card ? { ...card, starred: card.starred ?? false } : card
+  return card ? { ...card, starred: card.starred ?? false, lapses: card.lapses ?? 0, suspended: card.suspended ?? false, leech: card.leech ?? false } : card
 }
 
 export function addCard(deckId, front, back, type = 'recall', chapter = '', section = '') {
@@ -119,6 +119,9 @@ export function addCard(deckId, front, back, type = 'recall', chapter = '', sect
     interval: 0,
     repetitions: 0,
     starred: false,
+    lapses: 0,
+    suspended: false,
+    leech: false,
     dueDate: today,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -143,7 +146,10 @@ export function updateCardSM2(id, sm2Result) {
 export function getCardSM2(id) {
   const card = getCard(id)
   if (!card) return null
-  return { easiness: card.easiness, interval: card.interval, repetitions: card.repetitions, dueDate: card.dueDate }
+  return {
+    easiness: card.easiness, interval: card.interval, repetitions: card.repetitions, dueDate: card.dueDate,
+    lapses: card.lapses ?? 0, leech: card.leech ?? false, suspended: card.suspended ?? false,
+  }
 }
 
 export function restoreCardSM2(id, sm2State) {
@@ -250,6 +256,9 @@ export function mergeData(importedData) {
       interval: card.interval ?? 0,
       repetitions: card.repetitions ?? 0,
       starred: card.starred ?? false,
+      lapses: card.lapses ?? 0,
+      suspended: card.suspended ?? false,
+      leech: card.leech ?? false,
       dueDate: card.dueDate || localToday(),
       createdAt: card.createdAt || now,
       updatedAt: card.updatedAt || now,
@@ -273,6 +282,15 @@ export function toggleStar(id) {
   if (card) card.starred = !card.starred
   saveData(d)
   return card?.starred ?? false
+}
+
+export function toggleSuspended(id) {
+  const d = loadData()
+  const card = d.cards.find(x => x.id === id)
+  if (!card) return false
+  card.suspended = !card.suspended
+  saveData(d)
+  return card.suspended
 }
 
 export function resetDeckProgress(deckId) {
