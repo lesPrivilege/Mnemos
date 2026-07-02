@@ -8,6 +8,11 @@ export function hasValidAnswer(q) {
   return true // review 总是有有效内容
 }
 
+/** 错题本判定：做过错且未连续做对2次 */
+export function isInWrongBook(prog) {
+  return prog?.wrong_count > 0 && (prog?.rightStreak || 0) < 2
+}
+
 function isDueForReview(qid, progress) {
   const prog = progress[qid]
   if (!prog || prog.status !== 'wrong') return false
@@ -44,7 +49,7 @@ export function getQuizQuestions(opts) {
       filtered = shuffle(filtered)
       break
     case 'wrong':
-      filtered = filtered.filter(q => progress[q.id]?.status === 'wrong')
+      filtered = filtered.filter(q => isInWrongBook(progress[q.id]))
       filtered = shuffle(filtered)
       break
     case 'new':
@@ -96,11 +101,7 @@ export function getWrongQuestions(subject, limit = 50) {
   const questions = loadQuestions()
   const progress = loadProgress()
   return questions
-    .filter(q => {
-      const p = progress[q.id]
-      // 条件：曾经做错过，且当前不是连续做对2次以上
-      return p?.wrong_count > 0 && (p.rightStreak || 0) < 2
-    })
+    .filter(q => isInWrongBook(progress[q.id]))
     .filter(q => !subject || q.subject === subject)
     .map(q => ({ ...q, ...progress[q.id] }))
     .sort((a, b) => (b.last_attempt || 0) - (a.last_attempt || 0))
