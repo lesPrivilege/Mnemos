@@ -21,12 +21,12 @@ export function loadData() {
 export function saveData(data) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+    return { ok: true }
   } catch (e) {
     if (e.name === 'QuotaExceededError' || e.code === 22) {
-      alert('储存空间已满，请导出备份后清理数据')
-    } else {
-      throw e
+      return { ok: false, error: '储存空间已满，请导出备份后清理数据' }
     }
+    throw e
   }
 }
 

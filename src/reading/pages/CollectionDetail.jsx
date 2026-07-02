@@ -4,11 +4,15 @@ import { getCollection, getDocumentsByCollection, addDocument, deleteDocument, d
 import { readFileAsDocument } from '../lib/importer'
 import { BackIcon, UploadIcon, PlusIcon, TrashIcon, MoreIcon, PinIcon, LayersIcon } from '../../components/Icons'
 import { useBackButton } from '../../lib/useBackButton'
+import { useToast, Toast } from '../../components/Toast'
+import { useConfirm, ConfirmSheet } from '../../components/ConfirmSheet'
 
 export default function CollectionDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { goBack } = useBackButton()
+  const { toast, showToast } = useToast()
+  const { confirmState, confirm } = useConfirm()
   const fileInputRef = useRef(null)
 
   const [col, setCol] = useState(null)
@@ -57,7 +61,7 @@ export default function CollectionDetail() {
       const { title, content, format } = await readFileAsDocument(file)
       addDocument(id, title, content, format)
       refresh()
-    } catch { alert('文件导入失败，请检查文件格式') }
+    } catch { showToast('文件导入失败，请检查文件格式') }
     e.target.value = ''
   }
 
@@ -71,8 +75,9 @@ export default function CollectionDetail() {
     refresh()
   }
 
-  const handleDeleteDocument = (docId) => {
-    if (!confirm('删除这篇文档？此操作不可撤销。')) return
+  const handleDeleteDocument = async (docId) => {
+    const ok = await confirm({ title: '删除文档', message: '删除这篇文档？此操作不可撤销。', confirmLabel: '确认删除' })
+    if (!ok) return
     deleteDocument(docId)
     refresh()
   }
@@ -83,9 +88,10 @@ export default function CollectionDetail() {
     refresh()
   }
 
-  const handleDeleteCollection = () => {
+  const handleDeleteCollection = async () => {
     setShowMenu(false)
-    if (!confirm(`删除集合「${col?.name}」及其所有文档？此操作不可撤销。`)) return
+    const ok = await confirm({ title: '删除集合', message: `删除集合「${col?.name}」及其所有文档？此操作不可撤销。`, confirmLabel: '确认删除' })
+    if (!ok) return
     deleteCollection(id)
     navigate('/')
   }
@@ -231,6 +237,8 @@ export default function CollectionDetail() {
       </div>
 
       <input ref={fileInputRef} type="file" accept=".md,.tex,.txt" onChange={handleFileImport} className="hidden" />
+      <Toast message={toast} />
+      <ConfirmSheet state={confirmState} />
     </div>
   )
 }

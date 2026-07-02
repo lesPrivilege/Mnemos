@@ -3,10 +3,12 @@ import { useBackButton } from '../../lib/useBackButton'
 import { useReadingHome } from '../hooks/useReadingHome'
 import ReadingHomeBody from './ReadingHomeBody'
 import { BackIcon, SearchIcon } from '../../components/Icons'
+import { useConfirm, ConfirmSheet } from '../../components/ConfirmSheet'
 
 export default function ReadingHome() {
   const { goBack } = useBackButton()
-  const h = useReadingHome()
+  const { confirmState, confirm } = useConfirm()
+  const h = useReadingHome({ confirmFn: confirm })
 
   return (
     <div className="page-fill">
@@ -30,6 +32,7 @@ export default function ReadingHome() {
       <main className="flex-1 overflow-y-auto p-[18px] flex flex-col gap-4">
         <ReadingHomeBody h={h} />
       </main>
+      <ConfirmSheet state={confirmState} />
     </div>
   )
 }

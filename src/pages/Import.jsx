@@ -1,19 +1,23 @@
 import { useState, useRef, useMemo, useEffect } from 'react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
-import { addQuestions, importData as importQuizData, mergeImportData as mergeQuizData } from '../quiz/lib/storage'
+import { addQuestions, importData as importQuizData, mergeImportData as mergeQuizData, loadStarred, saveStarred, loadProgress, saveProgress } from '../quiz/lib/storage'
 import { parseQuestionsJson, getQuestionsStats } from '../quiz/lib/questionParser'
 import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
-import { addDeck, addCard, getDeck, getCards, getDecks, importData, mergeData, parseImportData, loadData } from '../lib/storage'
+import { addDeck, addCard, getDeck, getCards, getDecks, importData, mergeData, loadData } from '../lib/storage'
 import { parseMdToCards } from '../lib/mdParser'
 import { getCollections, addCollection, addDocument } from '../reading/lib/storage'
 import { importReadingData, mergeReadingData } from '../reading/lib/backup'
 import { readFileAsDocument, ACCEPT as READING_ACCEPT } from '../reading/lib/importer'
 import { BackIcon, UploadIcon, PasteIcon } from '../components/Icons'
 import { useBackButton } from '../lib/useBackButton'
+import { useToast, Toast } from '../components/Toast'
+import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 
 export default function Import() {
   const navigate = useNavigate()
   const { goBack } = useBackButton()
+  const { toast, showToast } = useToast()
+  const { confirmState, confirm } = useConfirm()
   const [searchParams] = useSearchParams()
   const fileInputRef = useRef(null)
   const mdTargetDeckId = searchParams.get('deckId')
@@ -46,6 +50,8 @@ export default function Import() {
   const [mdPreview, setMdPreview] = useState(null)
   const [mdDeckName, setMdDeckName] = useState('')
   const [jsonPreviewData, setJsonPreviewData] = useState(null)
+  const [fullBackupPreview, setFullBackupPreview] = useState(null)
+  const [quizBackupData, setQuizBackupData] = useState(null)
   const [jsonMode, setJsonMode] = useState('merge')
   const [skipDup, setSkipDup] = useState(false)
 
@@ -64,6 +70,58 @@ export default function Import() {
     }
   }, [mdPreview, mdDeckName])
 
+  // ---- Import shape detection ----
+  function detectImportKind(parsed) {
+    if (Array.isArray(parsed)) return { kind: 'questions', data: parsed }
+    if (!parsed || typeof parsed !== 'object') return { kind: 'unknown' }
+    // Full backup: { version, flashcard, quiz, reading }
+    if (parsed.version && parsed.flashcard) return { kind: 'full-backup', data: parsed }
+    // Quiz backup: { questions, progress, starred }
+    if (Array.isArray(parsed.questions)) return { kind: 'quiz-backup', data: parsed }
+    // Flashcard backup: { decks, cards }
+    if (Array.isArray(parsed.decks) && Array.isArray(parsed.cards)) return { kind: 'flashcard-backup', data: parsed }
+    // Single question object
+    if (parsed.question || parsed.type) return { kind: 'questions', data: [parsed] }
+    return { kind: 'unknown' }
+  }
+
+  function routeJsonImport(jsonString) {
+    let parsed
+    try { parsed = JSON.parse(jsonString) } catch { showToast('导入失败: JSON 格式错误'); return }
+    const { kind, data } = detectImportKind(parsed)
+    switch (kind) {
+      case 'questions': {
+        try {
+          const result = parseQuestionsJson(jsonString)
+          setPreviewData(result.questions)
+          setErrors(result.errors)
+        } catch {
+          setPreviewData(Array.isArray(data) ? data : [data])
+          setErrors([])
+        }
+        break
+      }
+      case 'quiz-backup': {
+        setPreviewData(data.questions)
+        setQuizBackupData(data)
+        setErrors([])
+        break
+      }
+      case 'flashcard-backup': {
+        setJsonPreviewData(data)
+        setJsonMode('merge')
+        break
+      }
+      case 'full-backup': {
+        setFullBackupPreview(data)
+        setJsonMode('merge')
+        break
+      }
+      default:
+        showToast('导入失败: 无法识别的 JSON 格式')
+    }
+  }
+
   const handleFileDrop = (file) => {
     const ext = file.name.split('.').pop().toLowerCase()
     // reading-compatible formats (including .md when on reading tab)
@@ -74,18 +132,7 @@ export default function Import() {
     const reader = new FileReader()
     reader.onload = (ev) => {
       if (ext === 'json') {
-        try {
-          const result = parseQuestionsJson(ev.target.result)
-          setPreviewData(result.questions)
-          setErrors(result.errors)
-        } catch {
-          try {
-            setJsonPreviewData(parseImportData(ev.target.result))
-            setJsonMode('merge')
-          } catch {
-            alert('导入失败: JSON 格式错误')
-          }
-        }
+        routeJsonImport(ev.target.result)
       } else if (ext === 'md') {
         processMd(ev.target.result, file.name.replace(/\.md$/i, ''))
       }
@@ -109,6 +156,8 @@ export default function Import() {
     setMdDeckName('')
     setPasteMd('')
     setJsonPreviewData(null)
+    setFullBackupPreview(null)
+    setQuizBackupData(null)
     setJsonMode('merge')
     setSkipDup(false)
     setReadingPreview(null)
@@ -116,28 +165,41 @@ export default function Import() {
     setReadingNewColName('')
   }
 
-  // ---- JSON handlers (quiz) ----
+  // ---- JSON handlers ----
   const handleJsonFile = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
     const reader = new FileReader()
-    reader.onload = (ev) => {
-      try {
-        const result = parseQuestionsJson(ev.target.result)
-        setPreviewData(result.questions)
-        setErrors(result.errors)
-      } catch {
-        alert('导入失败: JSON 格式错误')
-      }
-    }
+    reader.onload = (ev) => routeJsonImport(ev.target.result)
     reader.readAsText(file)
     e.target.value = ''
   }
 
   const handleConfirmJson = () => {
     if (!previewData || previewData.length === 0) return
-    const result = addQuestions(previewData)
-    alert(`导入完成！\n新增: ${result.added}\n重复跳过: ${result.duplicates}`)
+    if (quizBackupData) {
+      // Quiz backup: import questions, merge progress and starred
+      const result = addQuestions(previewData)
+      if (quizBackupData.starred) {
+        const existing = loadStarred()
+        const newStarred = quizBackupData.starred.filter(id => !existing.includes(id))
+        saveStarred([...existing, ...newStarred])
+      }
+      if (quizBackupData.progress) {
+        const progress = loadProgress()
+        let merged = 0
+        for (const [id, prog] of Object.entries(quizBackupData.progress)) {
+          if (!progress[id]) { progress[id] = prog; merged++ }
+        }
+        saveProgress(progress)
+        showToast(`导入完成！新增: ${result.added}，重复跳过: ${result.duplicates}，合并进度: ${merged}`)
+      } else {
+        showToast(`导入完成！新增: ${result.added}，重复跳过: ${result.duplicates}`)
+      }
+    } else {
+      const result = addQuestions(previewData)
+      showToast(`导入完成！新增: ${result.added}，重复跳过: ${result.duplicates}`)
+    }
     reset()
     navigate('/')
   }
@@ -162,7 +224,7 @@ export default function Import() {
   const processMd = (content, defaultName) => {
     const { cards, deckName } = parseMdToCards(content, defaultName)
     if (cards.length === 0) {
-      alert('未识别到卡片。可以粘贴 MD 列表，或用纯文本按「正面换行背面」成组输入。')
+      showToast('未识别到卡片。可以粘贴 MD 列表，或用纯文本按「正面换行背面」成组输入。')
       return
     }
     setMdPreview({ cards, defaultName: deckName || defaultName })
@@ -177,39 +239,33 @@ export default function Import() {
     for (const card of cardsToImport) {
       addCard(deck.id, card.front, card.back, card.type, card.chapter, card.section)
     }
-    alert(`导入完成！\n卡组: ${deck.name}\n卡片: ${cardsToImport.length}${skipDup && dedup.count > 0 ? `\n跳过重复: ${dedup.count}` : ''}`)
+    showToast(`导入完成！卡组: ${deck.name}，卡片: ${cardsToImport.length}${skipDup && dedup.count > 0 ? `，跳过重复: ${dedup.count}` : ''}`)
     reset()
     navigate(mdTargetDeck ? `/deck/${mdTargetDeck.id}` : '/')
   }
 
-  // ---- JSON backup handlers (flashcard) ----
-  const handleJsonBackupFile = (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.onload = (ev) => {
-      try {
-        setJsonPreviewData(parseImportData(ev.target.result))
-        setJsonMode('merge')
-      } catch {
-        alert('导入失败: JSON 格式错误')
-      }
-    }
-    reader.readAsText(file)
-    e.target.value = ''
-  }
-
-  const handleConfirmJsonBackup = () => {
-    if (!jsonPreviewData) return
+  const handleConfirmJsonBackup = async () => {
+    const isFull = !!fullBackupPreview
+    const data = isFull ? fullBackupPreview : jsonPreviewData
+    if (!data) return
     if (jsonMode === 'replace') {
-      if (!confirm('替换全部会覆盖当前所有数据，此操作不可撤销。')) return
-      importData(jsonPreviewData)
-      if (jsonPreviewData.quiz) importQuizData(JSON.stringify(jsonPreviewData.quiz))
-      if (jsonPreviewData.reading) importReadingData(jsonPreviewData.reading)
+      const ok = await confirm({ title: '替换全部', message: '替换全部会覆盖当前所有数据，此操作不可撤销。', confirmLabel: '确认替换' })
+      if (!ok) return
+      if (isFull) {
+        importData(data.flashcard)
+        if (data.quiz) importQuizData(JSON.stringify(data.quiz))
+        if (data.reading) await importReadingData(data.reading)
+      } else {
+        importData(data)
+      }
     } else {
-      mergeData(jsonPreviewData)
-      if (jsonPreviewData.quiz) mergeQuizData(JSON.stringify(jsonPreviewData.quiz))
-      if (jsonPreviewData.reading) mergeReadingData(jsonPreviewData.reading)
+      if (isFull) {
+        mergeData(data.flashcard)
+        if (data.quiz) mergeQuizData(JSON.stringify(data.quiz))
+        if (data.reading) await mergeReadingData(data.reading)
+      } else {
+        mergeData(data)
+      }
     }
     reset()
     navigate('/')
@@ -222,7 +278,7 @@ export default function Import() {
       setReadingPreview(doc)
       setReadingCollections(getCollections())
     } catch {
-      alert('导入失败')
+      showToast('导入失败')
     }
   }
 
@@ -249,13 +305,13 @@ export default function Import() {
         const col = addCollection(readingNewColName.trim())
         colId = col.id
       } else {
-        alert('请选择或创建一个集合')
+        showToast('请选择或创建一个集合')
         return
       }
     }
 
     addDocument(colId, readingPreview.title, readingPreview.content, readingPreview.format)
-    alert(`导入完成！\n文档: ${readingPreview.title}\n格式: ${readingPreview.format.toUpperCase()}`)
+    showToast(`导入完成！文档: ${readingPreview.title}，格式: ${readingPreview.format.toUpperCase()}`)
     reset()
     navigate('/reading')
   }
@@ -310,6 +366,8 @@ export default function Import() {
             </button>
           </div>
         </main>
+        <Toast message={toast} />
+        <ConfirmSheet state={confirmState} />
       </div>
     )
   }
@@ -375,6 +433,68 @@ export default function Import() {
             </button>
           </div>
         </main>
+        <Toast message={toast} />
+        <ConfirmSheet state={confirmState} />
+      </div>
+    )
+  }
+
+  // ---- Preview mode: Full backup ----
+  if (fullBackupPreview) {
+    const data = fullBackupPreview
+    const fcDecks = data.flashcard?.decks?.length || 0
+    const fcCards = data.flashcard?.cards?.length || 0
+    const qCount = data.quiz?.questions?.length || 0
+    const qProgress = data.quiz?.progress ? Object.keys(data.quiz.progress).length : 0
+    const rDocs = data.reading?.['reading-documents']?.length || 0
+    const rCols = data.reading?.['reading-collections']?.length || 0
+
+    return (
+      <div className="page-fill">
+        <header className="topbar">
+          <button onClick={reset} className="tb-btn"><BackIcon /></button>
+          <h1 className="flex-1 font-zh text-[17px] font-medium text-ink pl-1">完整备份预览</h1>
+        </header>
+        <main className="flex-1 overflow-y-auto p-[18px] flex flex-col gap-4">
+          <div className="settings-card">
+            <div className="lbl">导入方式</div>
+            <div className="seg">
+              <button onClick={() => setJsonMode('merge')} className={jsonMode === 'merge' ? 'on' : ''}>合并数据</button>
+              <button onClick={() => setJsonMode('replace')} className={jsonMode === 'replace' ? 'on' : ''}>替换全部</button>
+            </div>
+            {jsonMode === 'replace' && (
+              <div className="rounded-md p-3 font-zh text-xs leading-relaxed"
+                style={{ background: 'var(--danger-soft)', color: 'var(--danger)', border: '1px solid color-mix(in oklch, var(--danger) 25%, transparent)' }}>
+                替换全部会覆盖当前所有数据。确认导入前还会再次询问。
+              </div>
+            )}
+          </div>
+          {fcDecks > 0 && (
+            <div className="settings-card">
+              <div className="lbl">记忆 · RECALL</div>
+              <div className="kv-row"><span className="k">卡组</span><span className="v" style={{ color: 'var(--accent)' }}>{fcDecks}</span></div>
+              <div className="kv-row"><span className="k">卡片</span><span className="v" style={{ color: 'var(--accent)' }}>{fcCards}</span></div>
+            </div>
+          )}
+          {qCount > 0 && (
+            <div className="settings-card">
+              <div className="lbl">练习 · PRACTICE</div>
+              <div className="kv-row"><span className="k">题目</span><span className="v" style={{ color: 'var(--accent)' }}>{qCount}</span></div>
+              {qProgress > 0 && <div className="kv-row"><span className="k">进度</span><span className="v" style={{ color: 'var(--accent)' }}>{qProgress}</span></div>}
+            </div>
+          )}
+          {rCols > 0 && (
+            <div className="settings-card">
+              <div className="lbl">阅读 · READING</div>
+              <div className="kv-row"><span className="k">文集</span><span className="v" style={{ color: 'var(--accent)' }}>{rCols}</span></div>
+              <div className="kv-row"><span className="k">文档</span><span className="v" style={{ color: 'var(--accent)' }}>{rDocs}</span></div>
+            </div>
+          )}
+          <div className="grid grid-cols-2 gap-2">
+            <button onClick={reset} className="btn btn-ghost btn-block">取消</button>
+            <button onClick={handleConfirmJsonBackup} className="btn btn-primary btn-block">确认导入</button>
+          </div>
+        </main>
       </div>
     )
   }
@@ -435,6 +555,8 @@ export default function Import() {
             </button>
           </div>
         </main>
+        <Toast message={toast} />
+        <ConfirmSheet state={confirmState} />
       </div>
     )
   }
@@ -479,6 +601,8 @@ export default function Import() {
             <button onClick={handleConfirmReading} className="btn btn-primary btn-block">确认导入</button>
           </div>
         </main>
+        <Toast message={toast} />
+        <ConfirmSheet state={confirmState} />
       </div>
     )
   }
@@ -618,6 +742,8 @@ export default function Import() {
           </div>
         )}
       </main>
+      <Toast message={toast} />
+      <ConfirmSheet state={confirmState} />
     </div>
   )
 }

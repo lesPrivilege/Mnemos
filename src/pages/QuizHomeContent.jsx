@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { getSubjectStats, getSubjectList, getChapterList, loadLastSession, loadQuestions, loadProgress, deleteSubject, addQuestions, clearLastSession } from '../quiz/lib/storage'
+import { isInWrongBook } from '../quiz/lib/quizEngine'
 import { parseQuestionsJson } from '../quiz/lib/questionParser'
 import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
 import { SUBJECT_HUE, SUBJECT_GLYPH } from '../quiz/lib/subjectMeta'
 import { UploadIcon, SparkIcon, PlusIcon, PasteIcon } from '../components/Icons'
 import { HeroSection } from '../components/HeroSection'
 import EmptyState from '../components/EmptyState'
+import { useToast, Toast } from '../components/Toast'
+import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 
 function getTimeAgo(ts) {
   const mins = Math.floor((Date.now() - ts) / 60000)
@@ -52,7 +55,7 @@ function ContinueCard({ subjects, onDismiss }) {
   )
 }
 
-function SubjectCard({ subject, onChange }) {
+function SubjectCard({ subject, onChange, confirm }) {
   const navigate = useNavigate()
   const stats = getSubjectStats(subject)
   const hue = SUBJECT_HUE[subject] || 0
@@ -96,9 +99,10 @@ function SubjectCard({ subject, onChange }) {
       <div className="deck-cta" style={{ gap: 6 }}>
         <button
           className="inline-flex items-center justify-center w-7 h-7 rounded-md text-ink-3 opacity-40 hover:opacity-100 hover:text-danger hover:bg-danger-soft transition-colors flex-shrink-0"
-          onClick={(e) => {
+          onClick={async (e) => {
             e.stopPropagation()
-            if (confirm(`删除科目「${getSubjectDisplayName(subject)}」及其全部题目与进度？此操作不可撤销。`)) {
+            const ok = await confirm({ title: '删除科目', message: `删除科目「${getSubjectDisplayName(subject)}」及其全部题目与进度？此操作不可撤销。`, confirmLabel: '确认删除' })
+            if (ok) {
               deleteSubject(subject)
               onChange?.()
             }
@@ -164,12 +168,14 @@ export function QuizHomeContent() {
   const [showNewSubject, setShowNewSubject] = useState(false)
   const [newSubjectJson, setNewSubjectJson] = useState('')
   const isEmptyLibrary = subjects.length === 0
+  const { toast, showToast } = useToast()
+  const { confirmState, confirm } = useConfirm()
 
   const refresh = () => {
     setSubjects(getSubjectList())
     const progress = loadProgress()
     const questions = loadQuestions()
-    setWrongCount(questions.filter(q => progress[q.id]?.status === 'wrong' && (progress[q.id]?.wrongStreak || 0) > 0).length)
+    setWrongCount(questions.filter(q => isInWrongBook(progress[q.id])).length)
     setTotalQs(questions.length)
     setWeekStats(getWeekStats())
   }
@@ -182,16 +188,16 @@ export function QuizHomeContent() {
     try {
       const result = parseQuestionsJson(newSubjectJson)
       if (result.questions.length === 0) {
-        alert('未识别到题目。请确认 JSON 格式是否正确。')
+        showToast('未识别到题目。请确认 JSON 格式是否正确。')
         return
       }
       const r = addQuestions(result.questions)
-      alert(`导入完成！新增: ${r.added}，重复跳过: ${r.duplicates}`)
+      showToast(`导入完成！新增: ${r.added}，重复跳过: ${r.duplicates}`)
       setNewSubjectJson('')
       setShowNewSubject(false)
       refresh()
     } catch {
-      alert('导入失败: JSON 格式错误')
+      showToast('导入失败: JSON 格式错误')
     }
   }
 
@@ -238,7 +244,7 @@ export function QuizHomeContent() {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {subjects.map(s => (
-            <SubjectCard key={s} subject={s} onChange={refresh} />
+            <SubjectCard key={s} subject={s} onChange={refresh} confirm={confirm} />
           ))}
         </div>
       )}
@@ -272,6 +278,8 @@ export function QuizHomeContent() {
           </>
         )}
       </div>
+      <Toast message={toast} />
+      <ConfirmSheet state={confirmState} />
     </div>
   )
 }

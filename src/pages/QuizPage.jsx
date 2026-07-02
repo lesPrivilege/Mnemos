@@ -7,6 +7,7 @@ import RenderMarkdown from '../quiz/components/RenderMarkdown'
 import { BackIcon, CheckIcon, XIcon, StarIcon, MoreIcon, TrashIcon } from '../components/Icons'
 import { addReviewEntry } from '../lib/reviewLog'
 import { useBackButton } from '../lib/useBackButton'
+import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 import '../styles/markdown.css'
 
 const MODES = [
@@ -22,11 +23,15 @@ export default function Quiz() {
   const chapter = searchParams.get('chapter')
   const navigate = useNavigate()
   const { goBack } = useBackButton()
+  const { confirmState, confirm } = useConfirm()
+
+  const isMultiAnswer = (q) => (q?.answer || '').replace(/[^A-Za-z]/g, '').length > 1
+  const answerLetterSet = (q) => new Set((q?.answer || '').replace(/[^A-Za-z]/g, '').toUpperCase().split(''))
 
   const [mode, setMode] = useState('random')
   const [questions, setQuestions] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [selectedAnswer, setSelectedAnswer] = useState(null)
+  const [selectedAnswer, setSelectedAnswer] = useState(null) // string (single) or Set (multi)
   const [submitted, setSubmitted] = useState(false)
   const [result, setResult] = useState(null)
   const [results, setResults] = useState([])
@@ -58,8 +63,16 @@ export default function Quiz() {
   }, [currentQuestion?.id])
 
   const handleSubmit = () => {
-    if (!selectedAnswer || !currentQuestion) return
-    const res = submitAnswer(currentQuestion.id, selectedAnswer)
+    if (!currentQuestion) return
+    let answerStr
+    if (isMultiAnswer(currentQuestion)) {
+      if (!selectedAnswer || selectedAnswer.size === 0) return
+      answerStr = [...selectedAnswer].sort().join('')
+    } else {
+      if (!selectedAnswer) return
+      answerStr = selectedAnswer
+    }
+    const res = submitAnswer(currentQuestion.id, answerStr)
     setResult(res)
     setSubmitted(true)
     setExplainOpen(true)
@@ -84,10 +97,11 @@ export default function Quiz() {
     setStarred(toggleStar(currentQuestion.id))
   }
 
-  const handleDeleteQuestion = () => {
+  const handleDeleteQuestion = async () => {
     if (!currentQuestion) return
     setShowMenu(false)
-    if (!confirm('删除这道题目？此操作不可撤销。')) return
+    const ok = await confirm({ title: '删除题目', message: '删除这道题目？此操作不可撤销。', confirmLabel: '确认删除' })
+    if (!ok) return
     const idToDelete = currentQuestion.id
     deleteQuestion(idToDelete)
     const remaining = questions.filter(q => q.id !== idToDelete)
@@ -210,7 +224,7 @@ export default function Quiz() {
       {/* Meta */}
       <div className="rv-meta">
         <span className="crumb">
-          <span className="q-tag choice">选择</span>
+          <span className="q-tag choice">选择{isMultiAnswer(currentQuestion) && ' · 多选'}</span>
           {currentQuestion.chapter}
         </span>
         <span className="pos">
@@ -224,7 +238,7 @@ export default function Quiz() {
         <div className="qa-card">
           <span className="corner">
             <span className="num">{String(currentIndex + 1).padStart(2, '0')}</span>
-            <span>选择 · CHOICE</span>
+            <span>选择 · CHOICE{isMultiAnswer(currentQuestion) && <span style={{ marginLeft: 6, fontSize: 10, background: 'var(--accent-soft)', color: 'var(--accent)', padding: '1px 5px', borderRadius: 4 }}>多选</span>}</span>
           </span>
           <div className="qa-stem" style={{ maxHeight: '22dvh', overflowY: 'auto' }}>
             <RenderMarkdown content={currentQuestion.question} />
@@ -232,9 +246,14 @@ export default function Quiz() {
           <div className="qa-options">
             {currentQuestion.options.map((opt, i) => {
               const letter = opt.charAt(0)
-              const isSelected = selectedAnswer === letter
-              const isCorrect = submitted && letter === currentQuestion.answer
-              const isWrong = submitted && isSelected && letter !== currentQuestion.answer
+              const multi = isMultiAnswer(currentQuestion)
+              const isSelected = multi
+                ? (selectedAnswer instanceof Set && selectedAnswer.has(letter))
+                : selectedAnswer === letter
+              const correctSet = answerLetterSet(currentQuestion)
+              const isCorrectMember = correctSet.has(letter)
+              const isCorrect = submitted && isCorrectMember
+              const isWrong = submitted && isSelected && !isCorrectMember
               let cls = 'qa-opt'
               if (submitted) {
                 if (isCorrect) cls += ' correct'
@@ -243,7 +262,19 @@ export default function Quiz() {
               } else if (isSelected) cls += ' picked'
 
               return (
-                <button key={i} className={cls} onClick={() => !submitted && setSelectedAnswer(letter)} disabled={submitted}>
+                <button key={i} className={cls} onClick={() => {
+                  if (submitted) return
+                  if (multi) {
+                    setSelectedAnswer(prev => {
+                      const next = prev instanceof Set ? new Set(prev) : new Set()
+                      if (next.has(letter)) next.delete(letter)
+                      else next.add(letter)
+                      return next
+                    })
+                  } else {
+                    setSelectedAnswer(letter)
+                  }
+                }} disabled={submitted}>
                   <span className="qa-mark">{String.fromCharCode(65 + i)}</span>
                   <span className="qa-text line-clamp-3"><RenderMarkdown content={opt} /></span>
                   {submitted && isCorrect && <span className="qa-icon"><CheckIcon size={16} /></span>}
@@ -278,7 +309,8 @@ export default function Quiz() {
       {/* Fixed bottom action */}
       <div className="p-[18px] pt-0 shrink-0" style={{ paddingBottom: 'max(18px, env(safe-area-inset-bottom))' }}>
         {!submitted ? (
-          <button onClick={handleSubmit} disabled={!selectedAnswer}
+          <button onClick={handleSubmit}
+            disabled={isMultiAnswer(currentQuestion) ? !(selectedAnswer instanceof Set && selectedAnswer.size > 0) : !selectedAnswer}
             className="btn btn-primary btn-block disabled:opacity-40">
             提交
           </button>
@@ -288,6 +320,7 @@ export default function Quiz() {
           </button>
         )}
       </div>
+      <ConfirmSheet state={confirmState} />
     </div>
   )
 }

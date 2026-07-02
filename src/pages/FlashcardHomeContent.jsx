@@ -7,6 +7,8 @@ import { localToday, isoToLocalDate, localDow, formatLocalDate } from '../lib/da
 import { HeroSection } from '../components/HeroSection'
 import { loadReviewSession, clearReviewSession } from '../lib/reviewSession'
 import EmptyState from '../components/EmptyState'
+import { useToast, Toast } from '../components/Toast'
+import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 
 const DAY_LABELS = ['日', '一', '二', '三', '四', '五', '六']
 
@@ -39,6 +41,8 @@ export function FlashcardHomeContent() {
   const [newDeckName, setNewDeckName] = useState('')
   const [editing, setEditing] = useState(false)
   const [selected, setSelected] = useState(new Set())
+  const { toast, showToast } = useToast()
+  const { confirmState, confirm } = useConfirm()
 
   const refresh = () => setDecks(getAllDeckStats())
   useEffect(refresh, [])
@@ -61,9 +65,10 @@ export function FlashcardHomeContent() {
     })
   }
 
-  const handleBatchDelete = () => {
+  const handleBatchDelete = async () => {
     if (selected.size === 0) return
-    if (!confirm(`删除 ${selected.size} 个卡组及其所有卡片？此操作不可撤销。`)) return
+    const ok = await confirm({ title: '批量删除', message: `删除 ${selected.size} 个卡组及其所有卡片？此操作不可撤销。`, confirmLabel: '确认删除' })
+    if (!ok) return
     deleteDecks([...selected])
     setSelected(new Set())
     setEditing(false)
@@ -231,7 +236,7 @@ export function FlashcardHomeContent() {
                     </button>
                     <button
                       className="inline-flex items-center justify-center w-7 h-7 rounded-md text-ink-3 opacity-40 hover:opacity-100 hover:text-danger hover:bg-danger-soft transition-colors flex-shrink-0"
-                      onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (confirm(`删除卡组「${deck.name}」？此操作不可撤销。`)) { deleteDecks([deck.id]); refresh() } }}
+                      onClick={(e) => { e.stopPropagation(); e.preventDefault(); confirm({ title: '删除卡组', message: `删除卡组「${deck.name}」？此操作不可撤销。`, confirmLabel: '确认删除' }).then(ok => { if (ok) { deleteDecks([deck.id]); refresh() } }) }}
                       title="删除卡组">
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />
@@ -259,8 +264,9 @@ export function FlashcardHomeContent() {
               删除 ({selected.size})
             </button>
           )}
-          <button onClick={() => {
-            if (!confirm(`删除全部 ${decks.length} 个卡组及其所有卡片？此操作不可撤销。`)) return
+          <button onClick={async () => {
+            const ok = await confirm({ title: '全部删除', message: `删除全部 ${decks.length} 个卡组及其所有卡片？此操作不可撤销。`, confirmLabel: '确认删除' })
+            if (!ok) return
             deleteDecks(decks.map((d) => d.id))
             setSelected(new Set())
             setEditing(false)
@@ -306,6 +312,8 @@ export function FlashcardHomeContent() {
           )}
         </div>
       )}
+      <Toast message={toast} />
+      <ConfirmSheet state={confirmState} />
     </div>
   )
 }

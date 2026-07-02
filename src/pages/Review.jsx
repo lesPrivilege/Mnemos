@@ -32,6 +32,8 @@ export default function Review() {
   const lastRef = useRef(null)
   const completedRef = useRef(false)
   const toastTimer = useRef(null)
+  const initialCountRef = useRef(0)
+  const ratedCountRef = useRef(0)
 
   useEffect(() => {
     const deck = getDeck(id)
@@ -46,10 +48,13 @@ export default function Review() {
     setStats({ again: 0, hard: 0, good: 0, easy: 0 })
     setFlipped(false)
     completedRef.current = false
+    initialCountRef.current = cards.length
+    ratedCountRef.current = 0
 
     return () => {
       if (!completedRef.current && cards.length > 0) {
-        saveReviewSession({ deckId: id, deckName: deck?.name || '', dueCount: cards.length })
+        const remaining = Math.max(0, initialCountRef.current - ratedCountRef.current)
+        saveReviewSession({ deckId: id, deckName: deck?.name || '', dueCount: remaining || cards.length })
       }
     }
   }, [id, reviewAll])
@@ -66,6 +71,7 @@ export default function Review() {
 
     // 1. 存 undo 狀態
     const prevSM2 = getCardSM2(card.id)
+    ratedCountRef.current++
 
     // 2. 應用 SM-2
     const result = sm2(card, quality)
@@ -75,7 +81,8 @@ export default function Review() {
     addReviewEntry({ type: 'flashcard', quality, itemId: card.id, deckId: id })
 
     // 4. 存 undo ref — 帶上被移除的卡片
-    lastRef.current = { cardId: card.id, prevSM2, quality, removedCard: { ...card } }
+    const requeued = quality === 1
+    lastRef.current = { cardId: card.id, prevSM2, quality, removedCard: { ...card }, requeued }
     showToast(`已評分 · ${UNDO_LABELS[quality]}`)
 
     // 5. 更新 stats
@@ -90,7 +97,16 @@ export default function Review() {
 
     // 6. 推進卡片
     setFlipped(false)
-    if (currentIndex + 1 < dueCards.length) {
+    if (quality === 1) {
+      // Requeue failed card to end of session
+      setDueCards(prev => [...prev, { ...card }])
+      if (currentIndex + 1 < dueCards.length) {
+        setCurrentIndex(currentIndex + 1)
+      } else {
+        // Only card in queue — move to the requeued copy
+        setCurrentIndex(dueCards.length) // index of the newly appended card
+      }
+    } else if (currentIndex + 1 < dueCards.length) {
       setCurrentIndex(currentIndex + 1)
     } else {
       completedRef.current = true
@@ -102,6 +118,7 @@ export default function Review() {
     const last = lastRef.current
     if (!last) return
     restoreCardSM2(last.cardId, last.prevSM2)
+    ratedCountRef.current = Math.max(0, ratedCountRef.current - 1)
     lastRef.current = null
 
     // 回退 stats
@@ -114,7 +131,13 @@ export default function Review() {
       return next
     })
 
-    if (dueCards.length === 0 && last.removedCard) {
+    if (last.requeued) {
+      // Remove the requeued copy from end, then step back to the original card
+      setDueCards(prev => prev.slice(0, -1))
+      setCurrentIndex(prev => Math.max(0, prev - 1))
+      setFlipped(true)
+      completedRef.current = false
+    } else if (dueCards.length === 0 && last.removedCard) {
       // Last card was rated — rebuild one-card queue
       setDueCards([last.removedCard])
       setCurrentIndex(0)
