@@ -1,5 +1,45 @@
 # Changelog
 
+## v1.2.0 — 2026-07-02
+
+Polish round 3：數據安全修復 + 核心 SRS 行為修正 + 統一 UI 對話框。
+
+### 數據安全（P0）
+
+- 備份導出現在包含 IndexedDB 中的閱讀文檔內容（`bodies` 字段）
+- 完整備份導入：自動識別 `{version, flashcard, quiz, reading}` 格式，顯示各模塊計數預覽
+- 練習備份導入：識別 `{questions, progress, starred}` 格式，合併進度（已有進度不覆蓋）
+- 舊格式 `{decks, cards}` 閃卡備份仍然兼容
+- Import 頁 JSON 路由統一：文件選擇和拖放走同一個 `detectImportKind` 分發
+
+### SRS 核心行為
+
+- 「重來」評分後卡片重新排入本次複習末尾（relearning step），不再等到明天
+- 撤銷 Again 評分：正確移除末尾追加的副本
+- 中途退出複習：Home 繼續卡片顯示剩餘數量（非掛載時的初始數量）
+
+### 練習模塊
+
+- 多選題支持：自動檢測多字母答案（如 `ABD`），切換為多選模式，提交時排序比對
+- 錯題本判定統一：單一 `isInWrongBook()` 規則（錯過且未連續對 2 次）應用於 Home 計數、錯題練習模式、錯題本頁面
+
+### 統計修復
+
+- 活動連續天數：改用 90 天窗口計算，跨月不再斷連
+- 閱讀時長：殺死 Reader 後重開不再累積天量分鐘數（heartbeat + 180 分鐘上限）
+- 閱讀進度持久化：節流至 ~1 秒一次（trailing write），卸載時 flush；文檔完成只計數一次
+
+### UI 對話框
+
+- 提取共享 `Toast` + `ConfirmSheet` 組件（`useToast` / `useConfirm` hook）
+- 全部 `alert()` → toast 提示，全部 `confirm()` → ConfirmSheet（destructive 操作紅色語氣）
+- `saveData` / `saveQuestions` / `saveProgress` / `saveStarred` 返回 `{ok, error}`，配額滿時上報而非靜默
+
+### 修復
+
+- `mergeImportData` 現在合併練習進度（之前完全忽略 `progress`）
+- `saveStarred` 加配額保護（之前無 try/catch）
+
 ## v1.1.0 — 2026-05-04
 
 Reading 模塊合入 + 三 tab UX 統一 + 閱讀器重設計。
