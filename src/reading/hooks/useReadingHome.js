@@ -8,7 +8,7 @@ import {
 import { searchDocuments } from '../lib/search'
 import { getReadingStats } from '../lib/stats'
 
-export function useReadingHome() {
+export function useReadingHome({ confirmFn } = {}) {
   const [collections, setCollections] = useState([])
   const [showNewCol, setShowNewCol] = useState(false)
   const [newColName, setNewColName] = useState('')
@@ -54,8 +54,11 @@ export function useReadingHome() {
     refresh()
   }
 
-  const handleDeleteCollection = (id, name) => {
-    if (!confirm(`删除集合「${name}」及其所有文档？此操作不可撤销。`)) return
+  const handleDeleteCollection = async (id, name) => {
+    const ok = confirmFn
+      ? await confirmFn({ title: '删除集合', message: `删除集合「${name}」及其所有文档？此操作不可撤销。`, confirmLabel: '确认删除' })
+      : window.confirm(`删除集合「${name}」及其所有文档？此操作不可撤销。`)
+    if (!ok) return
     deleteCollection(id)
     refresh()
   }
