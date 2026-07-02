@@ -34,6 +34,7 @@ export default function Review() {
   const toastTimer = useRef(null)
   const initialCountRef = useRef(0)
   const ratedCountRef = useRef(0)
+  const passesRef = useRef(new Map()) // cardId → successful passes this session
 
   useEffect(() => {
     const deck = getDeck(id)
@@ -50,6 +51,7 @@ export default function Review() {
     completedRef.current = false
     initialCountRef.current = cards.length
     ratedCountRef.current = 0
+    passesRef.current.clear()
 
     return () => {
       if (!completedRef.current && cards.length > 0) {
@@ -73,19 +75,50 @@ export default function Review() {
     const prevSM2 = getCardSM2(card.id)
     ratedCountRef.current++
 
-    // 2. 應用 SM-2
-    const result = sm2(card, quality)
-    updateCardSM2(card.id, result)
+    const isLearning = card.repetitions === 0
+    const passCount = passesRef.current.get(card.id) || 0
+    let graduated = false
+    let reinserted = false
+    let passDelta = 0
 
-    // 3. 記錄日誌
+    if (isLearning && quality >= 4) {
+      // Learning card — success path
+      if (quality === 5 || passCount >= 1) {
+        // Easy on first pass OR second pass → graduate
+        const result = sm2(card, quality)
+        updateCardSM2(card.id, result)
+        graduated = true
+        passesRef.current.delete(card.id)
+      } else {
+        // First Good pass → reinsert ~3 ahead, don't write SM-2 yet
+        passDelta = 1
+        passesRef.current.set(card.id, passCount + 1)
+        reinserted = true
+      }
+    } else if (isLearning && quality <= 2) {
+      // Learning card — fail (Again or Hard): requeue without SM-2 write
+      reinserted = true
+      // Reset pass count on failure
+      if (passCount > 0) { passDelta = -passCount; passesRef.current.set(card.id, 0) }
+    } else {
+      // Mature card or non-learning: standard SM-2
+      const result = sm2(card, quality)
+      updateCardSM2(card.id, result)
+      if (quality === 1) reinserted = true // Again requeue
+    }
+
+    // 2. 記錄日誌
     addReviewEntry({ type: 'flashcard', quality, itemId: card.id, deckId: id })
 
-    // 4. 存 undo ref — 帶上被移除的卡片
-    const requeued = quality === 1
-    lastRef.current = { cardId: card.id, prevSM2, quality, removedCard: { ...card }, requeued }
+    // 3. 存 undo ref
+    const reinsertedAt = reinserted ? Math.min(currentIndex + 3, dueCards.length) : -1
+    lastRef.current = {
+      cardId: card.id, prevSM2, quality, removedCard: { ...card },
+      requeued: reinserted, reinsertedAt, passDelta, graduated,
+    }
     showToast(`已評分 · ${UNDO_LABELS[quality]}`)
 
-    // 5. 更新 stats
+    // 4. 更新 stats
     setStats(prev => {
       const next = { ...prev }
       if (quality === 1) next.again++
@@ -95,16 +128,19 @@ export default function Review() {
       return next
     })
 
-    // 6. 推進卡片
+    // 5. 推進卡片
     setFlipped(false)
-    if (quality === 1) {
-      // Requeue failed card to end of session
-      setDueCards(prev => [...prev, { ...card }])
+    if (reinserted) {
+      const insertAt = Math.min(currentIndex + 3, dueCards.length)
+      setDueCards(prev => {
+        const next = [...prev]
+        next.splice(insertAt, 0, { ...card })
+        return next
+      })
       if (currentIndex + 1 < dueCards.length) {
         setCurrentIndex(currentIndex + 1)
       } else {
-        // Only card in queue — move to the requeued copy
-        setCurrentIndex(dueCards.length) // index of the newly appended card
+        setCurrentIndex(dueCards.length) // index after the reinserted copy
       }
     } else if (currentIndex + 1 < dueCards.length) {
       setCurrentIndex(currentIndex + 1)
@@ -117,8 +153,25 @@ export default function Review() {
   const handleUndo = useCallback(() => {
     const last = lastRef.current
     if (!last) return
-    restoreCardSM2(last.cardId, last.prevSM2)
     ratedCountRef.current = Math.max(0, ratedCountRef.current - 1)
+
+    // Restore pass count
+    if (last.passDelta !== 0) {
+      const cur = passesRef.current.get(last.cardId) || 0
+      const restored = cur + last.passDelta
+      if (restored <= 0) passesRef.current.delete(last.cardId)
+      else passesRef.current.set(last.cardId, restored)
+    }
+
+    // Restore card state (SM-2 or just the original card for non-graduated learning)
+    if (last.graduated) {
+      restoreCardSM2(last.cardId, last.prevSM2)
+    } else if (!last.requeued) {
+      // Non-requeued non-graduated (shouldn't happen, but safe fallback)
+      restoreCardSM2(last.cardId, last.prevSM2)
+    }
+    // For requeued non-graduated: the card was never written, just remove the copy
+
     lastRef.current = null
 
     // 回退 stats
@@ -132,8 +185,13 @@ export default function Review() {
     })
 
     if (last.requeued) {
-      // Remove the requeued copy from end, then step back to the original card
-      setDueCards(prev => prev.slice(0, -1))
+      // Remove the reinserted copy and step back
+      const removeAt = last.reinsertedAt >= 0 ? last.reinsertedAt : dueCards.length - 1
+      setDueCards(prev => {
+        const next = [...prev]
+        next.splice(removeAt, 1)
+        return next
+      })
       setCurrentIndex(prev => Math.max(0, prev - 1))
       setFlipped(true)
       completedRef.current = false
