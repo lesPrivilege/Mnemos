@@ -124,8 +124,8 @@ export default function Settings() {
     downloadBlob(blob, `mnemos-backup-${localToday()}.json`)
   }
 
-  const handleExportReading = () => {
-    const data = exportReadingData()
+  const handleExportReading = async () => {
+    const data = await exportReadingData()
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
     downloadBlob(blob, `mnemos-reading-${localToday()}.json`)
   }
@@ -136,10 +136,10 @@ export default function Settings() {
     downloadBlob(blob, `mnemos-quiz-${localToday()}.json`)
   }
 
-  const handleExportAll = () => {
+  const handleExportAll = async () => {
     const flashcardJson = exportFlashcardData()
     const quizJson = exportQuizData()
-    const reading = exportReadingData()
+    const reading = await exportReadingData()
     const merged = {
       version: 1,
       exportedAt: new Date().toISOString(),

@@ -199,17 +199,17 @@ export default function Import() {
     e.target.value = ''
   }
 
-  const handleConfirmJsonBackup = () => {
+  const handleConfirmJsonBackup = async () => {
     if (!jsonPreviewData) return
     if (jsonMode === 'replace') {
       if (!confirm('替换全部会覆盖当前所有数据，此操作不可撤销。')) return
       importData(jsonPreviewData)
       if (jsonPreviewData.quiz) importQuizData(JSON.stringify(jsonPreviewData.quiz))
-      if (jsonPreviewData.reading) importReadingData(jsonPreviewData.reading)
+      if (jsonPreviewData.reading) await importReadingData(jsonPreviewData.reading)
     } else {
       mergeData(jsonPreviewData)
       if (jsonPreviewData.quiz) mergeQuizData(JSON.stringify(jsonPreviewData.quiz))
-      if (jsonPreviewData.reading) mergeReadingData(jsonPreviewData.reading)
+      if (jsonPreviewData.reading) await mergeReadingData(jsonPreviewData.reading)
     }
     reset()
     navigate('/')
