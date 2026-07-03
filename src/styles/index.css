@@ -34,6 +34,8 @@
   --danger-soft:   oklch(94% 0.030 28);
   --teal-line:     oklch(78% 0.06 195);
   --plum:          oklch(48% 0.10 320);
+  --rate-hard:     oklch(48% 0.12 100);
+  --rate-hard-soft: oklch(93% 0.035 100);
 
   --shadow-sm:     0 1px 2px oklch(22% 0.02 80 / 0.04);
   --shadow-md:     0 1px 2px oklch(22% 0.02 80 / 0.04), 0 8px 28px oklch(22% 0.02 80 / 0.045);
@@ -83,6 +85,8 @@
   --danger:        oklch(72% 0.15 28);
   --danger-soft:   oklch(26% 0.06 28);
   --plum:          oklch(72% 0.12 320);
+  --rate-hard:     oklch(66% 0.12 100);
+  --rate-hard-soft: oklch(26% 0.05 100);
   --shadow-sm:     0 1px 2px #0008;
   --shadow-md:     0 1px 3px #0008, 0 6px 24px #0006;
   --shadow-lg:     0 4px 12px #000a, 0 16px 40px #0008;
@@ -1482,7 +1486,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
 
 /* ─────── Rate additions ─────── */
 .rate-again { background: var(--danger-soft); color: var(--danger); border-color: color-mix(in oklch, var(--danger) 22%, transparent); }
-.rate-hard { background: var(--warn-soft); color: var(--warn); border-color: color-mix(in oklch, var(--warn) 22%, transparent); }
+.rate-hard { background: var(--rate-hard-soft); color: var(--rate-hard); border-color: color-mix(in oklch, var(--rate-hard) 22%, transparent); }
 .rate-good { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-line); }
 .rate-easy { background: var(--good-soft); color: var(--good); border-color: color-mix(in oklch, var(--good) 22%, transparent); }
 .rate-btn .iv {
