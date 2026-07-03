@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { getCards, toggleStar, toggleSuspended } from '../lib/storage'
 import { useRenderedMarkdown } from '../lib/useRenderedMarkdown'
@@ -58,6 +58,9 @@ function CardFace({ card }) {
 
 export default function Browse() {
   const { id } = useParams()
+  const [searchParams] = useSearchParams()
+  const chapterFilter = searchParams.get('chapter')
+  const sectionFilter = searchParams.get('section')
   const { goBack } = useBackButton()
   const [cards, setCards] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -65,9 +68,12 @@ export default function Browse() {
   const touchStartX = useRef(null)
 
   useEffect(() => {
-    setCards(getCards(id))
+    let all = getCards(id)
+    if (chapterFilter) all = all.filter(c => c.chapter === chapterFilter)
+    if (sectionFilter) all = all.filter(c => c.section === sectionFilter)
+    setCards(all)
     setCurrentIndex(0)
-  }, [id])
+  }, [id, chapterFilter, sectionFilter])
 
   useEffect(() => {
     setFlipped(false)
