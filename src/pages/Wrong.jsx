@@ -108,7 +108,7 @@ export default function Wrong() {
                     title="删除题目">
                     <TrashIcon size={14} />
                   </button>
-                  <button onClick={() => navigate(q.type === 'choice' ? `/quiz/${q.subject}?chapter=${encodeURIComponent(q.chapter)}` : `/quiz-review/${q.subject}?chapter=${encodeURIComponent(q.chapter)}`)}
+                  <button onClick={() => navigate(q.type === 'choice' ? `/quiz/${q.subject}?mode=wrong&qid=${q.id}` : `/quiz-review/${q.subject}?mode=wrong&qid=${q.id}`)}
                     className="px-3 py-1 rounded text-xs font-medium" style={{ background: 'var(--accent-soft)', color: 'var(--accent)' }}>重做</button>
                 </div>
               </div>

@@ -53,7 +53,7 @@ export default function Starred() {
         ) : (
            items.map(q => (
             <div key={q.id} className="bg-bg-card rounded-lg p-4 border cursor-pointer group" style={{ borderColor: 'var(--border-soft)' }}
-              onClick={() => navigate(q.type === 'choice' ? `/quiz/${q.subject}?chapter=${encodeURIComponent(q.chapter)}` : `/quiz-review/${q.subject}?chapter=${encodeURIComponent(q.chapter)}`)}>
+              onClick={() => navigate(q.type === 'choice' ? `/quiz/${q.subject}?mode=starred&qid=${q.id}` : `/quiz-review/${q.subject}?mode=starred&qid=${q.id}`)}>
               <div className="flex items-start justify-between gap-2 mb-2">
                 <div className="text-xs text-ink-3 font-mono">{getSubjectDisplayName(q.subject)} · {q.chapter}</div>
                 <div className="flex items-center gap-1.5">
