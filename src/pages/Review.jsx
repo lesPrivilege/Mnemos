@@ -37,6 +37,9 @@ export default function Review() {
   const initialCountRef = useRef(0)
   const ratedCountRef = useRef(0)
   const passesRef = useRef(new Map()) // cardId → successful passes this session
+  // Swipe gesture state
+  const swipeRef = useRef({ startX: 0, startY: 0, locked: false, committed: false })
+  const [swipeOffset, setSwipeOffset] = useState(0)
 
   useEffect(() => {
     const deck = getDeck(id)
@@ -249,6 +252,48 @@ export default function Review() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [handleKeyDown])
 
+  // Swipe gesture handlers (active only when flipped)
+  const handleTouchStart = useCallback((e) => {
+    if (!flipped) return
+    const t = e.touches[0]
+    swipeRef.current = { startX: t.clientX, startY: t.clientY, locked: false, committed: false }
+  }, [flipped])
+
+  const handleTouchMove = useCallback((e) => {
+    if (!flipped) return
+    const t = e.touches[0]
+    const dx = t.clientX - swipeRef.current.startX
+    const dy = t.clientY - swipeRef.current.startY
+    if (!swipeRef.current.locked) {
+      if (Math.abs(dx) > 24 && Math.abs(dx) > 2 * Math.abs(dy)) {
+        swipeRef.current.locked = true
+      } else {
+        return
+      }
+    }
+    e.preventDefault()
+    setSwipeOffset(dx)
+  }, [flipped])
+
+  const handleTouchEnd = useCallback(() => {
+    if (!flipped || !swipeRef.current.locked) { setSwipeOffset(0); return }
+    const dx = swipeRef.current.startX // reuse ref; offset is in state
+    const cardWidth = 320 // approximate; threshold = min(96, 30% of card width)
+    const threshold = Math.min(96, cardWidth * 0.3)
+    if (Math.abs(swipeOffset) >= threshold) {
+      swipeRef.current.committed = true
+      // Animate off-screen then rate
+      const target = swipeOffset > 0 ? 400 : -400
+      setSwipeOffset(target)
+      setTimeout(() => {
+        setSwipeOffset(0)
+        handleRate(swipeOffset > 0 ? 4 : 1)
+      }, 180)
+    } else {
+      setSwipeOffset(0)
+    }
+  }, [flipped, swipeOffset, handleRate])
+
   // Clear saved session when review completes
   useEffect(() => {
     if (dueCards.length === 0) {
@@ -348,13 +393,21 @@ export default function Review() {
       </div>
 
       {/* Card — scrollable internally */}
-      <div className="rv-card-wrap page-scroll">
+      <div className="rv-card-wrap page-scroll"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        style={swipeOffset ? {
+          transform: `translateX(${swipeOffset}px) rotate(${swipeOffset / 40}deg)`,
+          transition: swipeRef.current.committed ? 'transform 180ms ease-out' : (Math.abs(swipeOffset) < 5 ? 'transform 150ms ease-out' : 'none'),
+        } : undefined}>
         <ReviewCard
           card={card}
           index={currentIndex}
           total={dueCards.length}
           flipped={flipped}
           onFlip={setFlipped}
+          swipeOffset={swipeOffset}
         />
       </div>
 
