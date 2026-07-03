@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { getQuizQuestions, submitAnswer } from '../quiz/lib/quizEngine'
-import { saveLastSession, toggleStar, isStarred, deleteQuestion } from '../quiz/lib/storage'
+import { saveLastSession, toggleStar, isStarred, deleteQuestion, loadStarred, loadQuestions } from '../quiz/lib/storage'
 import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
 import RenderMarkdown from '../quiz/components/RenderMarkdown'
 import { BackIcon, CheckIcon, XIcon, StarIcon, MoreIcon, TrashIcon } from '../components/Icons'
@@ -15,12 +15,15 @@ const MODES = [
   { key: 'sequential', label: '顺序' },
   { key: 'new', label: '未做' },
   { key: 'wrong', label: '错题' },
+  { key: 'starred', label: '收藏' },
 ]
 
 export default function Quiz() {
   const { subject } = useParams()
   const [searchParams] = useSearchParams()
   const chapter = searchParams.get('chapter')
+  const initialQid = searchParams.get('qid')
+  const initialMode = searchParams.get('mode')
   const navigate = useNavigate()
   const { goBack } = useBackButton()
   const { confirmState, confirm } = useConfirm()
@@ -28,7 +31,7 @@ export default function Quiz() {
   const isMultiAnswer = (q) => (q?.answer || '').replace(/[^A-Za-z]/g, '').length > 1
   const answerLetterSet = (q) => new Set((q?.answer || '').replace(/[^A-Za-z]/g, '').toUpperCase().split(''))
 
-  const [mode, setMode] = useState('random')
+  const [mode, setMode] = useState(initialMode && MODES.some(m => m.key === initialMode) ? initialMode : 'random')
   const [questions, setQuestions] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState(null) // string (single) or Set (multi)
@@ -39,9 +42,28 @@ export default function Quiz() {
   const [starred, setStarred] = useState(false)
   const [explainOpen, setExplainOpen] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
+  const pendingQid = useRef(initialQid)
 
   const load = useCallback((m) => {
-    const loaded = getQuizQuestions({ subject, chapter, type: 'choice', mode: m, limit: 10 })
+    const qid = pendingQid.current
+    pendingQid.current = null // consume after first load
+    const opts = { subject, chapter, type: 'choice', mode: m }
+    if (qid) opts.starredIds = loadStarred()
+    else opts.limit = 10
+    let loaded = getQuizQuestions(opts)
+    // If qid specified, ensure it's at the front
+    if (qid && loaded.length > 0) {
+      const idx = loaded.findIndex(q => q.id === qid)
+      if (idx > 0) {
+        const [target] = loaded.splice(idx, 1)
+        loaded.unshift(target)
+      } else if (idx === -1) {
+        // Not in result set — fetch by id and prepend
+        const all = loadQuestions()
+        const direct = all.find(q => q.id === qid)
+        if (direct) loaded.unshift(direct)
+      }
+    }
     setQuestions(loaded)
     setCurrentIndex(0)
     setSelectedAnswer(null)
