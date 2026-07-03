@@ -169,3 +169,23 @@ export function getActivityDashboard() {
     maxDayTotal: Math.max(1, ...days.map((d) => d.total)),
   }
 }
+
+/**
+ * 90-day heatmap data: one entry per day with per-module totals.
+ * Reuses the same source-reading helpers as getActivityDashboard.
+ */
+export function getHeatmapData() {
+  const dates = trailingDays(90)
+  const byDate = new Map(dates.map((date) => [date, emptyDay(date)]))
+  addRecall(byDate)
+  if (!addPracticeFromLog(byDate)) addPracticeFromProgress(byDate)
+  addReading(byDate)
+
+  const days = dates.map(date => {
+    const d = byDate.get(date)
+    const total = d.recall + d.practice + d.reading
+    return { date, recall: d.recall, practice: d.practice, reading: d.reading, total }
+  })
+  const maxTotal = Math.max(1, ...days.map(d => d.total))
+  return { days, maxTotal }
+}
