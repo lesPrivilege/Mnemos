@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import CardEditor from '../components/CardEditor'
 import { BackIcon, PinIcon, MoreIcon, LayersIcon, SparkIcon, UploadIcon, PlusIcon, SearchIcon, EditIcon, TrashIcon, DownloadIcon, RefreshIcon } from '../components/Icons'
 import { isRecall } from '../lib/cardUtils'
+import { mastery, masteryTier, tierCounts } from '../lib/cardStats'
 import { localToday } from '../lib/dateUtils'
 import { getDeck, getCards, addCard, updateCard, updateDeck, deleteCard, deleteCards, deleteDeck, togglePin, toggleStar, exportDeck, resetDeckProgress } from '../lib/storage'
 import { useBackButton } from '../lib/useBackButton'
@@ -136,6 +137,7 @@ export default function DeckDetail() {
   const recallCards = cards.filter(c => isRecall(c))
   const activeCards = recallCards.filter(c => !c.suspended)
   const suspendedCount = recallCards.filter(c => c.suspended).length
+  const tiers = tierCounts(cards)
   const t = localToday()
   const dueCount = activeCards.filter(c => c.dueDate <= t).length
   const total = recallCards.length
@@ -234,6 +236,14 @@ export default function DeckDetail() {
               <span style={{ color: 'var(--accent)' }}>{dueCount} 待复习</span><span className="sep">·</span>
               <span>{learned} 已学</span>
               {suspendedCount > 0 && <><span className="sep">·</span><span style={{ color: 'var(--warn, #d97706)' }}>暂停 {suspendedCount}</span></>}
+            </div>
+            <div className="dd-meta" style={{ marginTop: 4 }}>
+              <span className="font-mono text-[10px]" style={{ color: 'var(--danger)' }}>弱 {tiers.weak}</span>
+              <span className="sep">·</span>
+              <span className="font-mono text-[10px]" style={{ color: 'var(--accent)' }}>中 {tiers.mid}</span>
+              <span className="sep">·</span>
+              <span className="font-mono text-[10px]" style={{ color: 'var(--good)' }}>稳 {tiers.solid}</span>
+              {tiers.new > 0 && <><span className="sep">·</span><span className="font-mono text-[10px]" style={{ color: 'var(--ink-3)' }}>新 {tiers.new}</span></>}
             </div>
             <div className="dd-progress">
               <div className="bar" style={{ width: `${total > 0 ? (learned / total) * 100 : 0}%` }} />
@@ -435,6 +445,8 @@ function PreviewContent({ text }) {
 
 function CardRow({ card, editing, selected, onToggleSelect, onEdit, onDelete, isEditingThis, onSave, onCancel, onPreview, confirm }) {
   const longPressTimer = useRef(null)
+  const tier = isRecall(card) ? masteryTier(mastery(card)) : null
+  const tierColor = card.repetitions === 0 ? 'var(--ink-3)' : tier === 'weak' ? 'var(--danger)' : tier === 'mid' ? 'var(--accent)' : 'var(--good)'
 
   const handleTouchStart = () => {
     longPressTimer.current = setTimeout(() => onPreview?.(card), 500)
@@ -477,7 +489,10 @@ function CardRow({ card, editing, selected, onToggleSelect, onEdit, onDelete, is
       <div className="card-row group" style={{ paddingRight: 12 }}
         onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd} onTouchCancel={handleTouchEnd}>
         <span className="dot-bullet" style={{ left: 8 }} />
-        <span className="front" style={{ fontSize: 13, paddingLeft: 6 }}>{card.front}</span>
+        {isRecall(card) && (
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: tierColor, flexShrink: 0, marginLeft: 2 }} />
+        )}
+        <span className="front" style={{ fontSize: 13, paddingLeft: isRecall(card) ? 4 : 6 }}>{card.front}</span>
         {card.starred && <span className="star">★</span>}
         {!isRecall(card) && (
           <span className="q-tag-mini">REF</span>
