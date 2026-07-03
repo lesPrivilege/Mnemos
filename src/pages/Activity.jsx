@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import { ArrowLIcon, FlameIcon, SparkIcon } from '../components/Icons'
-import { getActivityDashboard } from '../lib/activity'
+import { getActivityDashboard, getHeatmapData } from '../lib/activity'
 import { useBackButton } from '../lib/useBackButton'
 
 function percent(done, total) {
@@ -80,6 +81,114 @@ function ModuleRow({ name, meta, value, max, tone }) {
   )
 }
 
+const HEATMAP_LEVELS = [
+  'var(--bg-raised)',
+  'color-mix(in oklch, var(--accent) 25%, var(--bg-raised))',
+  'color-mix(in oklch, var(--accent) 50%, var(--bg-raised))',
+  'color-mix(in oklch, var(--accent) 75%, var(--bg-raised))',
+  'var(--accent)',
+]
+const DAY_LABELS_SHORT = ['日', '一', '二', '三', '四', '五', '六']
+
+function HeatmapGrid() {
+  const { days } = getHeatmapData()
+  const [selected, setSelected] = useState(null)
+
+  // Build weeks (columns of 7, Sun→Sat)
+  const weeks = []
+  for (let i = 0; i < days.length; i += 7) {
+    weeks.push(days.slice(i, i + 7))
+  }
+
+  // Intensity levels based on fixed thresholds against daily targets (20 recall + 20 practice + 30 reading = 70)
+  const level = (total) => {
+    if (total === 0) return 0
+    if (total < 15) return 1
+    if (total < 35) return 2
+    if (total < 55) return 3
+    return 4
+  }
+
+  // Month labels above the first week of each month
+  const monthLabels = weeks.map((week, wi) => {
+    if (!week.length) return null
+    const firstDay = week[0].date
+    const dayNum = Number(firstDay.slice(-2))
+    // Show month name if this week starts on the 1st or is the first week
+    if (dayNum <= 7 || wi === 0) {
+      const month = Number(firstDay.slice(5, 7))
+      return ['', '1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'][month]
+    }
+    return null
+  })
+
+  return (
+    <section className="activity-section" style={{ background: 'var(--bg-card)', borderRadius: 'var(--r-lg)', border: '1px solid var(--border-soft)', padding: '14px' }}>
+      <div className="activity-section-head" style={{ marginBottom: 10 }}>
+        <div className="section-title">热力 · HEATMAP</div>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--ink-3)' }}>90 天</span>
+      </div>
+      <div style={{ overflowX: 'auto', paddingBottom: 4 }}>
+        <div style={{ display: 'inline-flex', flexDirection: 'column', gap: 2, minWidth: weeks.length * 14 + 20 }}>
+          {/* Month labels */}
+          <div style={{ display: 'flex', gap: 2, paddingLeft: 18 }}>
+            {monthLabels.map((label, i) => (
+              <div key={i} style={{ width: 14, fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-3)', textAlign: 'center' }}>
+                {label || ''}
+              </div>
+            ))}
+          </div>
+          {/* Grid rows */}
+          <div style={{ display: 'flex', gap: 2 }}>
+            {/* Day labels */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 2, width: 16, flexShrink: 0 }}>
+              {DAY_LABELS_SHORT.map((label, i) => (
+                <div key={i} style={{ height: 14, fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-3)', display: 'flex', alignItems: 'center', justifyContent: i % 2 === 1 ? 'center' : 'flex-end' }}>
+                  {i % 2 === 1 ? label : ''}
+                </div>
+              ))}
+            </div>
+            {/* Cells */}
+            {weeks.map((week, wi) => (
+              <div key={wi} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {Array.from({ length: 7 }, (_, di) => {
+                  const day = week[di]
+                  if (!day) return <div key={di} style={{ width: 14, height: 14 }} />
+                  const lv = level(day.total)
+                  return (
+                    <div key={di}
+                      onClick={() => setSelected(selected?.date === day.date ? null : day)}
+                      style={{
+                        width: 14, height: 14, borderRadius: 3,
+                        background: HEATMAP_LEVELS[lv],
+                        cursor: 'pointer',
+                        border: selected?.date === day.date ? '1.5px solid var(--ink)' : '1px solid var(--border-soft)',
+                      }}
+                      title={`${day.date}: ${day.total}`}
+                    />
+                  )
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      {/* Detail line */}
+      {selected && (
+        <div style={{ marginTop: 8, fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-2)', display: 'flex', gap: 8, alignItems: 'center' }}>
+          <span>{selected.date}</span>
+          <span style={{ color: 'var(--ink-4)' }}>·</span>
+          <span>记忆 {selected.recall}</span>
+          <span style={{ color: 'var(--ink-4)' }}>·</span>
+          <span>练习 {selected.practice}</span>
+          <span style={{ color: 'var(--ink-4)' }}>·</span>
+          <span>阅读 {selected.reading} min</span>
+        </div>
+      )}
+    </section>
+  )
+}
+
 export default function Activity() {
   const { goBack } = useBackButton()
   const data = getActivityDashboard()
@@ -136,6 +245,8 @@ export default function Activity() {
             ))}
           </div>
         </section>
+
+        <HeatmapGrid />
 
         <section className="activity-section activity-modules-card">
           <div className="activity-section-head">
