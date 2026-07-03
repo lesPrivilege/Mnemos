@@ -27,19 +27,21 @@ function isDueForReview(qid, progress) {
  * @param {object} opts
  * @param {string}  opts.subject
  * @param {string}  opts.chapter
+ * @param {string}  opts.section
  * @param {string}  opts.type       - 'choice'|'review' 留空=全部
  * @param {string}  opts.mode       - 'sequential'|'random'|'wrong'|'new'|'due'|'starred'
  * @param {number}  opts.limit
  * @param {string[]} opts.starredIds - 收藏题目 id 列表（mode=starred 时使用）
  */
 export function getQuizQuestions(opts) {
-  const { subject, chapter, type, mode = 'random', limit = 10, starredIds = [] } = opts
+  const { subject, chapter, section, type, mode = 'random', limit = 10, starredIds = [] } = opts
   const questions = loadQuestions()
   const progress = loadProgress()
 
   let filtered = questions
   if (subject) filtered = filtered.filter(q => q.subject === subject)
   if (chapter) filtered = filtered.filter(q => q.chapter === chapter)
+  if (section) filtered = filtered.filter(q => q.section === section)
   if (type) filtered = filtered.filter(q => q.type === type)
 
   switch (mode) {

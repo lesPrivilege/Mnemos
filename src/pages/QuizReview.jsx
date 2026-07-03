@@ -22,6 +22,7 @@ export default function ReviewQuestion() {
   const { subject } = useParams()
   const [searchParams] = useSearchParams()
   const chapter = searchParams.get('chapter')
+  const section = searchParams.get('section')
   const initialQid = searchParams.get('qid')
   const initialMode = searchParams.get('mode')
   const navigate = useNavigate()
@@ -43,7 +44,7 @@ export default function ReviewQuestion() {
   const load = useCallback((m) => {
     const qid = pendingQid.current
     pendingQid.current = null
-    const opts = { subject, chapter, type: 'review', mode: m }
+    const opts = { subject, chapter, section, type: 'review', mode: m }
     if (qid) opts.starredIds = loadStarred()
     else opts.limit = 20
     let loaded = getQuizQuestions(opts)
@@ -67,7 +68,7 @@ export default function ReviewQuestion() {
     if (loaded.length > 0) {
       saveLastSession({ subject, chapter, route: `/quiz-review/${subject}${chapter ? `?chapter=${encodeURIComponent(chapter)}` : ''}` })
     }
-  }, [subject, chapter])
+  }, [subject, chapter, section])
 
   useEffect(() => { load(mode) }, [subject, chapter, mode, load])
 

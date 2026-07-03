@@ -4,6 +4,7 @@ import CardEditor from '../components/CardEditor'
 import { BackIcon, PinIcon, MoreIcon, LayersIcon, SparkIcon, UploadIcon, PlusIcon, SearchIcon, EditIcon, TrashIcon, DownloadIcon, RefreshIcon } from '../components/Icons'
 import { isRecall } from '../lib/cardUtils'
 import { mastery, masteryTier, tierCounts } from '../lib/cardStats'
+import StructureTree from '../components/StructureTree'
 import { localToday } from '../lib/dateUtils'
 import { getDeck, getCards, addCard, updateCard, updateDeck, deleteCard, deleteCards, deleteDeck, togglePin, toggleStar, exportDeck, resetDeckProgress } from '../lib/storage'
 import { useBackButton } from '../lib/useBackButton'
@@ -46,6 +47,7 @@ export default function DeckDetail() {
   const [nameInput, setNameInput] = useState('')
   const [showDeckMenu, setShowDeckMenu] = useState(false)
   const [previewCard, setPreviewCard] = useState(null)
+  const [viewMode, setViewMode] = useState('list') // 'list' | 'tree'
 
   const refresh = () => {
     setDeck(getDeck(id))
@@ -142,6 +144,43 @@ export default function DeckDetail() {
   const dueCount = activeCards.filter(c => c.dueDate <= t).length
   const total = recallCards.length
   const learned = activeCards.length - dueCount
+
+  // Build tree nodes for structure view
+  const treeNodes = (() => {
+    const chapterMap = new Map()
+    for (const card of filteredCards) {
+      const ch = card.chapter || '未分类'
+      if (!chapterMap.has(ch)) chapterMap.set(ch, new Map())
+      const secMap = chapterMap.get(ch)
+      const sec = card.section || ''
+      if (!secMap.has(sec)) secMap.set(sec, [])
+      secMap.get(sec).push(card)
+    }
+    return [...chapterMap.entries()].map(([ch, secMap]) => {
+      const chCards = [...secMap.values()].flat()
+      const chTiers = tierCounts(chCards)
+      const children = [...secMap.entries()]
+        .filter(([sec]) => sec !== '')
+        .map(([sec, secCards]) => ({
+          id: `${ch}::${sec}`,
+          label: sec,
+          count: secCards.length,
+          tiers: tierCounts(secCards),
+          chapter: ch,
+          section: sec,
+        }))
+      // Cards with empty section hang directly under chapter
+      const noSecCards = secMap.get('') || []
+      if (noSecCards.length > 0 && children.length === 0) {
+        // Chapter has only unsectioned cards — it IS the leaf
+        return { id: ch, label: ch, count: chCards.length, tiers: chTiers, chapter: ch, section: '' }
+      }
+      if (noSecCards.length > 0) {
+        children.unshift({ id: `${ch}::`, label: '未分类', count: noSecCards.length, tiers: tierCounts(noSecCards), chapter: ch, section: '' })
+      }
+      return { id: ch, label: ch, count: chCards.length, tiers: chTiers, children }
+    })
+  })()
 
   if (!deck) {
     return (
@@ -275,6 +314,14 @@ export default function DeckDetail() {
           </div>
         </div>
 
+        {/* View toggle */}
+        <div style={{ padding: '6px 18px' }}>
+          <div className="seg" style={{ maxWidth: 160 }}>
+            <button onClick={() => setViewMode('list')} className={viewMode === 'list' ? 'on' : ''}>列表</button>
+            <button onClick={() => setViewMode('tree')} className={viewMode === 'tree' ? 'on' : ''}>结构</button>
+          </div>
+        </div>
+
         {/* Search */}
         <div style={{ padding: '8px 0 0' }}>
           <div className="search" style={{ margin: '0 18px' }}>
@@ -286,7 +333,14 @@ export default function DeckDetail() {
 
         {/* Card list / outline */}
         <div style={{ padding: '8px 0 24px' }}>
-          {searchQuery.trim() ? (
+          {viewMode === 'tree' ? (
+            <div className="mx-[18px]">
+              <StructureTree
+                nodes={treeNodes}
+                onLeafTap={(node) => navigate(`/browse/${id}?chapter=${encodeURIComponent(node.chapter)}${node.section ? `&section=${encodeURIComponent(node.section)}` : ''}`)}
+              />
+            </div>
+          ) : searchQuery.trim() ? (
             <div className="card-list">
               {filteredCards
                 .filter(c => {
