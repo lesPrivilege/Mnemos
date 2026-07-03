@@ -45,8 +45,8 @@ export default function ReviewQuestion() {
     const qid = pendingQid.current
     pendingQid.current = null
     const opts = { subject, chapter, section, type: 'review', mode: m }
-    if (qid) opts.starredIds = loadStarred()
-    else opts.limit = 20
+    if (m === 'starred' || qid) opts.starredIds = loadStarred()
+    if (!qid) opts.limit = 20
     let loaded = getQuizQuestions(opts)
     if (qid && loaded.length > 0) {
       const idx = loaded.findIndex(q => q.id === qid)

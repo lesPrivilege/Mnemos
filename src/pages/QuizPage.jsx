@@ -50,8 +50,8 @@ export default function Quiz() {
     const qid = pendingQid.current
     pendingQid.current = null // consume after first load
     const opts = { subject, chapter, section, type: 'choice', mode: m }
-    if (qid) opts.starredIds = loadStarred()
-    else opts.limit = 10
+    if (m === 'starred' || qid) opts.starredIds = loadStarred()
+    if (!qid) opts.limit = 10
     let loaded = getQuizQuestions(opts)
     // If qid specified, ensure it's at the front
     if (qid && loaded.length > 0) {
