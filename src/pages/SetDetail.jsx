@@ -2,9 +2,11 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { BackIcon, RefreshIcon, UploadIcon, ArrowRIcon, MoreIcon, TrashIcon, StarIcon } from '../components/Icons'
-import { getSubjectStats, getChapterList, loadStarred, loadQuestions, deleteSubject, clearSubjectProgress } from '../quiz/lib/storage'
+import { getSubjectStats, getChapterList, loadStarred, loadQuestions, loadProgress, deleteSubject, clearSubjectProgress } from '../quiz/lib/storage'
 import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
 import { SUBJECT_HUE, SUBJECT_GLYPH } from '../quiz/lib/subjectMeta'
+import { tierCountsForQuestions } from '../quiz/lib/questionStats'
+import StructureTree from '../components/StructureTree'
 import { useBackButton } from '../lib/useBackButton'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 
@@ -16,6 +18,7 @@ export default function SetDetail() {
   const [filter, setFilter] = useState('all')
   const [expandedChapter, setExpandedChapter] = useState(null)
   const [showMenu, setShowMenu] = useState(false)
+  const [viewMode, setViewMode] = useState('list')
 
   const handleDeleteSubject = async () => {
     setShowMenu(false)
@@ -57,6 +60,42 @@ export default function SetDetail() {
     if (starredIds.has(q.id)) map[q.chapter || '未分类'] = (map[q.chapter || '未分类'] || 0) + 1
     return map
   }, {})
+
+  // Build tree nodes for structure view
+  const progress = loadProgress()
+  const treeNodes = (() => {
+    const chapterMap = new Map()
+    for (const q of questions) {
+      const ch = q.chapter || '未分类'
+      if (!chapterMap.has(ch)) chapterMap.set(ch, new Map())
+      const secMap = chapterMap.get(ch)
+      const sec = q.section || ''
+      if (!secMap.has(sec)) secMap.set(sec, [])
+      secMap.get(sec).push(q)
+    }
+    return [...chapterMap.entries()].map(([ch, secMap]) => {
+      const chQs = [...secMap.values()].flat()
+      const chTiers = tierCountsForQuestions(chQs, progress)
+      const children = [...secMap.entries()]
+        .filter(([sec]) => sec !== '')
+        .map(([sec, secQs]) => ({
+          id: `${ch}::${sec}`,
+          label: sec,
+          count: secQs.length,
+          tiers: tierCountsForQuestions(secQs, progress),
+          chapter: ch,
+          section: sec,
+        }))
+      const noSecQs = secMap.get('') || []
+      if (noSecQs.length > 0 && children.length === 0) {
+        return { id: ch, label: ch, count: chQs.length, tiers: chTiers, chapter: ch, section: '' }
+      }
+      if (noSecQs.length > 0) {
+        children.unshift({ id: `${ch}::`, label: '未分类', count: noSecQs.length, tiers: tierCountsForQuestions(noSecQs, progress), chapter: ch, section: '' })
+      }
+      return { id: ch, label: ch, count: chQs.length, tiers: chTiers, children }
+    })
+  })()
 
   const filteredChapters = chapters.filter(ch => {
     if (filter === 'choice') return ch.choice > 0
@@ -151,8 +190,31 @@ export default function SetDetail() {
           </div>
         </div>
 
+        {/* View toggle */}
+        <div style={{ padding: '6px 18px' }}>
+          <div className="seg" style={{ maxWidth: 160 }}>
+            <button onClick={() => setViewMode('list')} className={viewMode === 'list' ? 'on' : ''}>列表</button>
+            <button onClick={() => setViewMode('tree')} className={viewMode === 'tree' ? 'on' : ''}>结构</button>
+          </div>
+        </div>
+
         {/* Chapter list with questions */}
         <div style={{ padding: '8px 0 24px' }}>
+          {viewMode === 'tree' ? (
+            <div className="mx-[18px]">
+              <StructureTree
+                nodes={treeNodes}
+                onLeafTap={(node) => {
+                  const params = new URLSearchParams()
+                  if (node.chapter) params.set('chapter', node.chapter)
+                  if (node.section) params.set('section', node.section)
+                  const qs = params.toString()
+                  const base = typeCounts.choice > 0 ? `/quiz/${subject}` : `/quiz-review/${subject}`
+                  navigate(`${base}?${qs}`)
+                }}
+              />
+            </div>
+          ) : (
           <div className="card-list">
             {filteredChapters.map(ch => {
               const isOpen = expandedChapter === ch.name
@@ -200,6 +262,7 @@ export default function SetDetail() {
               </div>
             )}
           </div>
+          )}
         </div>
       </main>
 

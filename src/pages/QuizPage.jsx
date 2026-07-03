@@ -21,6 +21,7 @@ export default function Quiz() {
   const { subject } = useParams()
   const [searchParams] = useSearchParams()
   const chapter = searchParams.get('chapter')
+  const section = searchParams.get('section')
   const navigate = useNavigate()
   const { goBack } = useBackButton()
   const { confirmState, confirm } = useConfirm()
@@ -41,7 +42,7 @@ export default function Quiz() {
   const [showMenu, setShowMenu] = useState(false)
 
   const load = useCallback((m) => {
-    const loaded = getQuizQuestions({ subject, chapter, type: 'choice', mode: m, limit: 10 })
+    const loaded = getQuizQuestions({ subject, chapter, section, type: 'choice', mode: m, limit: 10 })
     setQuestions(loaded)
     setCurrentIndex(0)
     setSelectedAnswer(null)
@@ -53,7 +54,7 @@ export default function Quiz() {
     if (loaded.length > 0) {
       saveLastSession({ subject, chapter, route: `/quiz/${subject}${chapter ? `?chapter=${encodeURIComponent(chapter)}` : ''}` })
     }
-  }, [subject, chapter])
+  }, [subject, chapter, section])
 
   useEffect(() => { load(mode) }, [subject, chapter, mode, load])
 

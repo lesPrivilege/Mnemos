@@ -21,6 +21,7 @@ export default function ReviewQuestion() {
   const { subject } = useParams()
   const [searchParams] = useSearchParams()
   const chapter = searchParams.get('chapter')
+  const section = searchParams.get('section')
   const navigate = useNavigate()
   const { goBack } = useBackButton()
   const { confirmState, confirm } = useConfirm()
@@ -37,7 +38,7 @@ export default function ReviewQuestion() {
   const touchStartX = useRef(null)
 
   const load = useCallback((m) => {
-    const loaded = getQuizQuestions({ subject, chapter, type: 'review', mode: m, limit: 20 })
+    const loaded = getQuizQuestions({ subject, chapter, section, type: 'review', mode: m, limit: 20 })
     setQuestions(loaded)
     setCurrentIndex(0)
     setFlipped(false)
@@ -47,7 +48,7 @@ export default function ReviewQuestion() {
     if (loaded.length > 0) {
       saveLastSession({ subject, chapter, route: `/quiz-review/${subject}${chapter ? `?chapter=${encodeURIComponent(chapter)}` : ''}` })
     }
-  }, [subject, chapter])
+  }, [subject, chapter, section])
 
   useEffect(() => { load(mode) }, [subject, chapter, mode, load])
 
