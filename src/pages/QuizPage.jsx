@@ -8,6 +8,7 @@ import { BackIcon, CheckIcon, XIcon, StarIcon, MoreIcon, TrashIcon } from '../co
 import { addReviewEntry } from '../lib/reviewLog'
 import { useBackButton } from '../lib/useBackButton'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
+import { hapticLight, hapticWarning, hapticSuccess } from '../lib/haptics'
 import '../styles/markdown.css'
 
 const MODES = [
@@ -57,6 +58,11 @@ export default function Quiz() {
 
   useEffect(() => { load(mode) }, [subject, chapter, mode, load])
 
+  // Haptic on quiz set complete
+  useEffect(() => {
+    if (finished) hapticSuccess()
+  }, [finished])
+
   const currentQuestion = questions[currentIndex]
   useEffect(() => {
     if (currentQuestion) setStarred(isStarred(currentQuestion.id))
@@ -78,6 +84,8 @@ export default function Quiz() {
     setExplainOpen(true)
     setResults(prev => [...prev, { id: currentQuestion.id, correct: res.correct, wrongStreak: res.wrongStreak }])
     addReviewEntry({ type: 'quiz', correct: res.correct, itemId: currentQuestion.id, subject })
+    hapticLight()
+    if (res.correct === false) hapticWarning()
   }
 
   const handleNext = () => {
