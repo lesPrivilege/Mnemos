@@ -671,9 +671,6 @@ export default function Import() {
           <button onClick={() => setImportTab('reading')} className={importTab === 'reading' ? 'on' : ''}>
             阅读 · DOC
           </button>
-          <button onClick={() => setImportTab('restore')} className={importTab === 'restore' ? 'on' : ''}>
-            恢复 · RESTORE
-          </button>
         </div>
 
         {importTab === 'json' ? (
@@ -823,6 +820,17 @@ export default function Import() {
             导入后可在「阅读」模块管理
           </div>
         )}
+
+        {/* Restore entry — persistent at bottom */}
+        <div onClick={() => setImportTab('restore')}
+          className="flex items-center justify-between p-3.5 rounded-md border cursor-pointer hover:bg-bg-raised transition-colors mt-auto"
+          style={{ borderColor: 'var(--border-soft)', background: 'var(--bg-card)' }}>
+          <div>
+            <span className="font-zh text-[13px] text-ink-2">恢复备份 · RESTORE</span>
+            <span className="font-zh text-[11px] text-ink-3 ml-2">完整 / 仅记忆 / 仅练习</span>
+          </div>
+          <span className="text-ink-3 text-sm">›</span>
+        </div>
       </main>
       <Toast message={toast} />
       <ConfirmSheet state={confirmState} />
