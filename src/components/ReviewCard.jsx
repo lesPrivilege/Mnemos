@@ -1,15 +1,18 @@
 import { useRenderedMarkdown } from '../lib/useRenderedMarkdown'
 import '../styles/markdown.css'
 
-export default function ReviewCard({ card, index, total, flipped, onFlip }) {
+export default function ReviewCard({ card, index, total, flipped, onFlip, swipeOffset }) {
   const frontHtml = useRenderedMarkdown(card.front)
   const backHtml = useRenderedMarkdown(card.back)
 
   const pos = String(index + 1).padStart(2, '0')
+  const absDx = Math.abs(swipeOffset || 0)
+  const showLabel = flipped && absDx > 24
+  const labelOpacity = Math.min(1, (absDx - 24) / 72)
 
   return (
     <div className="rv-card-wrap">
-      <div className="rv-card flip-card" onClick={() => onFlip?.(!flipped)}>
+      <div className="rv-card flip-card" onClick={() => { if (!swipeOffset) onFlip?.(!flipped) }}>
         <div className={`flip-inner ${flipped ? 'flipped' : ''}`}>
           {/* FRONT */}
           <div className="flip-face">
@@ -42,6 +45,28 @@ export default function ReviewCard({ card, index, total, flipped, onFlip }) {
             <div className="ornament" />
           </div>
         </div>
+
+        {/* Swipe overlay labels */}
+        {showLabel && swipeOffset < 0 && (
+          <div style={{
+            position: 'absolute', inset: 0, display: 'flex', alignItems: 'center',
+            justifyContent: 'flex-start', paddingLeft: 24, borderRadius: 'var(--r-lg)',
+            background: `color-mix(in oklch, var(--danger) ${Math.round(labelOpacity * 15)}%, transparent)`,
+            pointerEvents: 'none', zIndex: 10,
+          }}>
+            <span style={{ color: 'var(--danger)', fontWeight: 600, fontSize: 18, opacity: labelOpacity }}>重来</span>
+          </div>
+        )}
+        {showLabel && swipeOffset > 0 && (
+          <div style={{
+            position: 'absolute', inset: 0, display: 'flex', alignItems: 'center',
+            justifyContent: 'flex-end', paddingRight: 24, borderRadius: 'var(--r-lg)',
+            background: `color-mix(in oklch, var(--accent) ${Math.round(labelOpacity * 15)}%, transparent)`,
+            pointerEvents: 'none', zIndex: 10,
+          }}>
+            <span style={{ color: 'var(--accent)', fontWeight: 600, fontSize: 18, opacity: labelOpacity }}>记住</span>
+          </div>
+        )}
       </div>
 
       {!flipped && (

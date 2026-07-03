@@ -10,6 +10,7 @@ import { isRecall } from '../lib/cardUtils'
 import { useBackButton } from '../lib/useBackButton'
 import { addReviewEntry } from '../lib/reviewLog'
 import { saveReviewSession, clearReviewSession } from '../lib/reviewSession'
+import { hapticLight, hapticSuccess, hapticWarning } from '../lib/haptics'
 
 function predictInterval(card, quality, passCount) {
   // Learning card first pass Good: reinserts, doesn't schedule
@@ -37,6 +38,14 @@ export default function Review() {
   const initialCountRef = useRef(0)
   const ratedCountRef = useRef(0)
   const passesRef = useRef(new Map()) // cardId → successful passes this session
+  // Swipe gesture state
+  const swipeRef = useRef({ startX: 0, startY: 0, locked: false, committed: false })
+  const [swipeOffset, setSwipeOffset] = useState(0)
+
+  const handleFlip = useCallback((val) => {
+    setFlipped(val)
+    if (val) hapticLight()
+  }, [])
 
   useEffect(() => {
     const deck = getDeck(id)
@@ -114,6 +123,7 @@ export default function Review() {
           extras.leech = true
           extras.suspended = true
           showToast('卡片已标记为顽固卡并暂停 · LEECH')
+          hapticWarning()
         }
       }
       updateCardSM2(card.id, { ...result, ...extras })
@@ -130,6 +140,7 @@ export default function Review() {
       requeued: reinserted, reinsertedAt, passDelta, graduated,
     }
     showToast(`已評分 · ${UNDO_LABELS[quality]}`)
+    hapticLight()
 
     // 4. 更新 stats
     setStats(prev => {
@@ -234,7 +245,7 @@ export default function Review() {
     if (dueCards.length === 0) return
     if (e.key === ' ' || e.key === 'Enter') {
       e.preventDefault()
-      setFlipped(f => !f)
+      handleFlip(!flipped)
     } else if (e.key === 'ArrowRight' && flipped) {
       e.preventDefault()
       handleRate(4)
@@ -249,11 +260,55 @@ export default function Review() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [handleKeyDown])
 
+  // Swipe gesture handlers (active only when flipped)
+  const handleTouchStart = useCallback((e) => {
+    if (!flipped) return
+    const t = e.touches[0]
+    swipeRef.current = { startX: t.clientX, startY: t.clientY, locked: false, committed: false }
+  }, [flipped])
+
+  const handleTouchMove = useCallback((e) => {
+    if (!flipped) return
+    const t = e.touches[0]
+    const dx = t.clientX - swipeRef.current.startX
+    const dy = t.clientY - swipeRef.current.startY
+    if (!swipeRef.current.locked) {
+      if (Math.abs(dx) > 24 && Math.abs(dx) > 2 * Math.abs(dy)) {
+        swipeRef.current.locked = true
+      } else {
+        return
+      }
+    }
+    e.preventDefault()
+    setSwipeOffset(dx)
+  }, [flipped])
+
+  const handleTouchEnd = useCallback(() => {
+    if (!flipped || !swipeRef.current.locked) { setSwipeOffset(0); return }
+    const dx = swipeRef.current.startX // reuse ref; offset is in state
+    const cardWidth = 320 // approximate; threshold = min(96, 30% of card width)
+    const threshold = Math.min(96, cardWidth * 0.3)
+    if (Math.abs(swipeOffset) >= threshold) {
+      swipeRef.current.committed = true
+      hapticLight()
+      // Animate off-screen then rate
+      const target = swipeOffset > 0 ? 400 : -400
+      setSwipeOffset(target)
+      setTimeout(() => {
+        setSwipeOffset(0)
+        handleRate(swipeOffset > 0 ? 4 : 1)
+      }, 180)
+    } else {
+      setSwipeOffset(0)
+    }
+  }, [flipped, swipeOffset, handleRate])
+
   // Clear saved session when review completes
   useEffect(() => {
     if (dueCards.length === 0) {
       completedRef.current = true
       clearReviewSession()
+      hapticSuccess()
     }
   }, [dueCards.length])
 
@@ -348,13 +403,21 @@ export default function Review() {
       </div>
 
       {/* Card — scrollable internally */}
-      <div className="rv-card-wrap page-scroll">
+      <div className="rv-card-wrap page-scroll"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        style={swipeOffset ? {
+          transform: `translateX(${swipeOffset}px) rotate(${swipeOffset / 40}deg)`,
+          transition: swipeRef.current.committed ? 'transform 180ms ease-out' : (Math.abs(swipeOffset) < 5 ? 'transform 150ms ease-out' : 'none'),
+        } : undefined}>
         <ReviewCard
           card={card}
           index={currentIndex}
           total={dueCards.length}
           flipped={flipped}
-          onFlip={setFlipped}
+          onFlip={handleFlip}
+          swipeOffset={swipeOffset}
         />
       </div>
 
