@@ -2,6 +2,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useState, useEffect, useMemo, useRef } from 'react'
 import CardEditor from '../components/CardEditor'
 import { BackIcon, PinIcon, MoreIcon, LayersIcon, SparkIcon, UploadIcon, PlusIcon, SearchIcon, EditIcon, TrashIcon, DownloadIcon, RefreshIcon } from '../components/Icons'
+import FloatingBar from '../components/FloatingBar'
 import { isRecall } from '../lib/cardUtils'
 import { mastery, masteryTier, tierCounts } from '../lib/cardStats'
 import StructureTree from '../components/StructureTree'
@@ -266,7 +267,7 @@ export default function DeckDetail() {
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto" style={{ paddingBottom: 140 }}>
         {/* Progress section */}
         <div style={{ padding: '14px 0 0' }}>
           <div className="dd-head">
@@ -446,10 +447,10 @@ export default function DeckDetail() {
         )}
       </main>
 
-      {/* Fixed bottom bar */}
-      <div className="flex-shrink-0 px-[18px] pb-[14px] flex flex-col gap-2" style={{ background: 'var(--bg)' }}>
+      {/* Floating action bar */}
+      <FloatingBar>
         {/* Primary CTA */}
-        <div className="dd-cta">
+        <div className="dd-cta" style={{ margin: 0 }}>
           <Link to={`/review/${id}`} className="dd-cta-main">
             <div className="left">
               <span className="lead"><span className="num">{dueCount}</span>张 待复习</span>
@@ -460,7 +461,7 @@ export default function DeckDetail() {
         </div>
 
         {/* Secondary actions */}
-        <div className="dd-secondary">
+        <div className="dd-secondary" style={{ margin: 0 }}>
           <Link to={`/browse/${id}`} className="dd-action">
             <LayersIcon size={18} /><span className="lab">浏览</span>
           </Link>
@@ -474,7 +475,7 @@ export default function DeckDetail() {
             <PlusIcon size={18} /><span className="lab">新卡片</span>
           </button>
         </div>
-      </div>
+      </FloatingBar>
       {previewCard && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6" style={{ background: 'rgba(0,0,0,0.5)' }} onClick={() => setPreviewCard(null)}>
           <div className="bg-bg-card rounded-lg p-5 max-w-sm w-full shadow-lg" style={{ border: '1px solid var(--border-soft)' }} onClick={e => e.stopPropagation()}>
