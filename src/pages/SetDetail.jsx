@@ -2,6 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { BackIcon, RefreshIcon, UploadIcon, ArrowRIcon, MoreIcon, TrashIcon, StarIcon } from '../components/Icons'
+import FloatingBar from '../components/FloatingBar'
 import { getSubjectStats, getChapterList, loadStarred, loadQuestions, deleteSubject, clearSubjectProgress } from '../quiz/lib/storage'
 import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
 import { SUBJECT_HUE, SUBJECT_GLYPH } from '../quiz/lib/subjectMeta'
@@ -108,7 +109,7 @@ export default function SetDetail() {
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto" style={{ paddingBottom: 140 }}>
         {/* Stats section */}
         <div style={{ padding: '14px 0 0' }}>
           <div className="dd-head">
@@ -203,8 +204,8 @@ export default function SetDetail() {
         </div>
       </main>
 
-      {/* Fixed bottom bar */}
-      <div className="flex-shrink-0 px-[18px] pb-[14px] flex flex-col gap-2" style={{ background: 'var(--bg)' }}>
+      {/* Floating action bar */}
+      <FloatingBar>
         <div className="dd-cta" style={{ margin: 0 }}>
           {typeCounts.choice > 0 ? (
             <button className="dd-cta-main teal" onClick={() => navigate(`/quiz/${subject}`)}>
@@ -240,7 +241,7 @@ export default function SetDetail() {
           </Link>
           <Link to="/import?tab=json" className="dd-action"><UploadIcon size={18} /><span className="lab">导入</span></Link>
         </div>
-      </div>
+      </FloatingBar>
       <ConfirmSheet state={confirmState} />
     </div>
   )
