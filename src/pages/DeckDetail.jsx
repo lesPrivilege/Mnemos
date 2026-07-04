@@ -290,7 +290,7 @@ export default function DeckDetail() {
               <div className="bar" style={{ width: `${total > 0 ? (learned / total) * 100 : 0}%` }} />
             </div>
             <div className="dd-progress-row">
-              <span>PROGRESS</span>
+              <span style={{ fontFamily: 'var(--font-ui)' }}>PROGRESS</span>
               <span>{total > 0 ? Math.round((learned / total) * 100) : 0}%</span>
             </div>
           </div>
@@ -480,9 +480,9 @@ export default function DeckDetail() {
       {previewCard && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6" style={{ background: 'rgba(0,0,0,0.5)' }} onClick={() => setPreviewCard(null)}>
           <div className="bg-bg-card rounded-lg p-5 max-w-sm w-full shadow-lg" style={{ border: '1px solid var(--border-soft)' }} onClick={e => e.stopPropagation()}>
-            <div className="font-mono text-[10px] text-ink-3 mb-2 tracking-wider">FRONT</div>
+            <div className="font-body text-[10px] text-ink-3 mb-2 tracking-wider">FRONT</div>
             <div className="font-zh text-[15px] text-ink mb-3 max-h-40 overflow-y-auto"><PreviewContent text={previewCard.front} /></div>
-            <div className="font-mono text-[10px] text-ink-3 mb-2 tracking-wider">BACK</div>
+            <div className="font-body text-[10px] text-ink-3 mb-2 tracking-wider">BACK</div>
             <div className="font-zh text-[14px] card-content max-h-48 overflow-y-auto" style={{ color: 'var(--teal)' }}><PreviewContent text={previewCard.back} /></div>
             <button onClick={() => setPreviewCard(null)} className="mt-4 w-full py-2 rounded-md text-sm font-body text-ink-2 border" style={{ borderColor: 'var(--border)' }}>{S.deckDetail.close}</button>
           </div>
@@ -535,7 +535,7 @@ function CardRow({ card, editing, selected, onToggleSelect, onEdit, onDelete, is
         <span className="text-sm text-ink truncate flex-1">{card.front}</span>
         {card.starred && <span className="text-xs shrink-0 text-accent">★</span>}
         {!isRecall(card) && (
-          <span className="font-mono text-[9px] px-1.5 py-0.5 rounded border text-ink-3 shrink-0" style={{ borderColor: 'var(--border)' }}>REF</span>
+          <span className="font-body text-[9px] px-1.5 py-0.5 rounded border text-ink-3 shrink-0" style={{ borderColor: 'var(--border)' }}>REF</span>
         )}
       </div>
     )

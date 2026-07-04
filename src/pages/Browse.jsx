@@ -17,8 +17,8 @@ function CardFace({ card }) {
       <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden' }}>
         <div className="h-full relative flex flex-col"
           style={{ padding: '22px 20px 20px' }}>
-          <div className="absolute top-[14px] left-4 font-mono text-[9px] tracking-[0.18em] text-ink-3 uppercase flex gap-1.5 items-center">
-            <span style={{ color: 'var(--accent)', fontWeight: 600, letterSpacing: '0.02em' }}>Q</span><span>FRONT</span>
+          <div className="absolute top-[14px] left-4 font-body text-[9px] tracking-[0.18em] text-ink-3 uppercase flex gap-1.5 items-center">
+            <span style={{ color: 'var(--accent)', fontWeight: 600, letterSpacing: '0.02em', fontFamily: 'var(--font-mono)' }}>Q</span><span>FRONT</span>
           </div>
           <div className="flex-1 flex flex-col items-stretch justify-start text-left gap-3.5 p-2 pt-8 pb-6">
             <div className="card-content font-zh text-[18px] font-medium leading-relaxed tracking-wide"
@@ -33,14 +33,14 @@ function CardFace({ card }) {
       <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
         <div className="h-full relative flex flex-col"
           style={{ padding: '22px 20px 20px' }}>
-          <div className="absolute top-[14px] left-4 font-mono text-[9px] tracking-[0.18em] text-ink-3 uppercase flex gap-1.5 items-center">
-            <span style={{ color: 'var(--accent)', fontWeight: 600, letterSpacing: '0.02em' }}>A</span><span>BACK</span>
+          <div className="absolute top-[14px] left-4 font-body text-[9px] tracking-[0.18em] text-ink-3 uppercase flex gap-1.5 items-center">
+            <span style={{ color: 'var(--accent)', fontWeight: 600, letterSpacing: '0.02em', fontFamily: 'var(--font-mono)' }}>A</span><span>BACK</span>
           </div>
               <div className="flex-1 flex flex-col items-stretch justify-start text-left gap-3.5 p-2 pt-8 pb-6">
             <div className="card-content font-zh text-[16px] text-ink-2"
               style={{ maxHeight: '20vh', overflowY: 'auto' }}
               dangerouslySetInnerHTML={{ __html: frontHtml }} />
-            <div className="w-full px-2 flex items-center gap-2.5 font-mono text-[9px] text-ink-3 tracking-[0.18em] uppercase">
+            <div className="w-full px-2 flex items-center gap-2.5 font-body text-[9px] text-ink-3 tracking-[0.18em] uppercase">
               <span className="flex-1 h-px" style={{ background: 'var(--border-soft)' }} />
               REVERSO
               <span className="flex-1 h-px" style={{ background: 'var(--border-soft)' }} />
@@ -165,7 +165,7 @@ export default function Browse() {
           const suspended = toggleSuspended(card.id)
           setCards(prev => prev.map((c, i) => i === currentIndex ? { ...c, suspended } : c))
         }}
-          className="tb-btn font-mono text-[9px] tracking-wider"
+          className="tb-btn font-zh text-[9px] tracking-wider"
           style={{ color: card.suspended ? 'var(--warn)' : 'var(--ink-3)' }}>
           {card.suspended ? S.browse.restore : S.browse.pause}
         </button>
@@ -173,11 +173,11 @@ export default function Browse() {
 
       {/* Breadcrumb */}
       {(card.chapter || card.section || card.suspended || card.leech) && (
-        <div className="px-[18px] pt-3 flex items-center justify-between font-mono text-[11px] text-ink-3">
+        <div className="px-[18px] pt-3 flex items-center justify-between font-body text-[11px] text-ink-3">
           <span className="font-zh text-ink-2 text-xs flex items-center gap-1.5">
             {card.chapter}{card.section && <><span className="text-ink-4 mx-1">›</span>{card.section}</>}
             {card.suspended && <span className="px-1.5 py-0.5 rounded text-[9px] font-medium" style={{ background: 'var(--warn-soft, #fef3c7)', color: 'var(--warn, #d97706)' }}>{S.browse.paused}</span>}
-            {card.leech && <span className="px-1.5 py-0.5 rounded text-[9px] font-medium" style={{ background: 'var(--danger-soft)', color: 'var(--danger)' }}>LEECH</span>}
+            {card.leech && <span className="px-1.5 py-0.5 rounded text-[9px] font-medium font-body" style={{ background: 'var(--danger-soft)', color: 'var(--danger)' }}>LEECH</span>}
           </span>
           <span className="tracking-wider">BROWSE</span>
         </div>

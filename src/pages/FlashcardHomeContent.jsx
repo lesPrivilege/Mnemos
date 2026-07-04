@@ -153,7 +153,7 @@ export function FlashcardHomeContent() {
           <div className="deck-meta">
             <div className="deck-name">{reviewSession.deckName}</div>
             <div className="deck-stats">
-              <span className="due">{S.flashcardHome.continueReview}</span>
+              <span className="due" style={{ fontFamily: 'var(--font-zh)' }}>{S.flashcardHome.continueReview}</span>
               <span className="dot">·</span>
               <span>{reviewSession.dueCount}{S.flashcardHome.dueCountSuffix}</span>
             </div>
@@ -222,7 +222,7 @@ export function FlashcardHomeContent() {
                     <div className="deck-stats">
                       {deck.dueCount > 0
                         ? <><span className="due">{deck.dueCount}</span><span>{S.flashcardHome.due}</span></>
-                        : <span style={{ color: 'var(--good)' }}>{S.flashcardHome.done}</span>}
+                        : <span style={{ color: 'var(--good)', fontFamily: 'var(--font-zh)' }}>{S.flashcardHome.done}</span>}
                       <span className="dot">·</span>
                       <span>{deck.totalCards}{S.flashcardHome.cardsSuffix}</span>
                     </div>

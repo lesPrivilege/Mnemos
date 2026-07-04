@@ -269,7 +269,7 @@ export default function Quiz() {
         <div className="qa-card">
           <span className="corner">
             <span className="num">{String(currentIndex + 1).padStart(2, '0')}</span>
-            <span>{S.quizPage.choiceLabel} · {S.quizPage.choiceKeyLabel}{isMultiAnswer(currentQuestion) && <span style={{ marginLeft: 6, fontSize: 10, background: 'var(--accent-soft)', color: 'var(--accent)', padding: '1px 5px', borderRadius: 4 }}>{S.quizPage.multiAnswerBadge}</span>}</span>
+            <span><span className="font-zh">{S.quizPage.choiceLabel}</span> · {S.quizPage.choiceKeyLabel}{isMultiAnswer(currentQuestion) && <span style={{ marginLeft: 6, fontSize: 10, background: 'var(--accent-soft)', color: 'var(--accent)', padding: '1px 5px', borderRadius: 4 }}>{S.quizPage.multiAnswerBadge}</span>}</span>
           </span>
           <div className="qa-stem" style={{ maxHeight: '22dvh', overflowY: 'auto' }}>
             <RenderMarkdown content={currentQuestion.question} />

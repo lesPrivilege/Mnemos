@@ -45,7 +45,7 @@ function TreeNode({ node, depth, onLeafTap }) {
         {hasChildren ? (
           <span style={{
             display: 'inline-flex', width: 16, justifyContent: 'center',
-            fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--ink-3)',
+            fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--ink-3)',
             transform: open ? 'rotate(90deg)' : 'rotate(0deg)',
             transition: 'transform var(--motion-quick)',
           }}>›</span>

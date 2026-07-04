@@ -581,7 +581,7 @@ export default function Import() {
                 </div>
               ))}
               {mdPreview.cards.length > 10 && (
-                <div className="it" style={{ borderColor: 'var(--border)', color: 'var(--ink-3)', fontFamily: 'var(--font-mono)', fontSize: 11 }}>
+                <div className="it" style={{ borderColor: 'var(--border)', color: 'var(--ink-3)', fontSize: 11 }}>
                   <span className="n">{S.import.ellipsis}</span>{S.import.andMoreCardsSuffix(mdPreview.cards.length - 10)}
                 </div>
               )}

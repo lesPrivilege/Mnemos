@@ -73,7 +73,7 @@ export default function ReadingHomeBody({ h }) {
               <div className="deck-meta">
                 <div className="deck-name">{h.continueDoc.title}</div>
                 <div className="deck-stats">
-                  <span className="due">{S.readingHomeBody.continueReading}</span>
+                  <span className="due" style={{ fontFamily: 'var(--font-zh)' }}>{S.readingHomeBody.continueReading}</span>
                   <span className="dot">·</span>
                   <span>{h.continueDoc.scrollPct}%</span>
                 </div>
@@ -164,7 +164,7 @@ export default function ReadingHomeBody({ h }) {
           {h.showNewDoc && (
             <form onSubmit={h.handleAddDocument} className="bg-bg-card rounded-lg p-4 border flex flex-col gap-3"
               style={{ borderColor: 'var(--border-soft)' }}>
-              <div className="font-mono text-[10px] text-ink-3 tracking-wider uppercase">{S.readingHomeBody.newDocHeading}</div>
+              <div className="font-zh text-[10px] text-ink-3 tracking-wider">{S.readingHomeBody.newDocHeading}</div>
               <input value={h.newDocTitle} onChange={e => h.setNewDocTitle(e.target.value)}
                 placeholder={S.readingHomeBody.docTitlePlaceholder} autoFocus
                 className="w-full py-[9px] px-3 rounded-md border bg-bg text-ink font-zh text-sm outline-none focus:border-accent"

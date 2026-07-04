@@ -93,7 +93,7 @@ export default function Wrong() {
           wrongQuestions.map(q => (
             <div key={q.id} className="bg-bg-card rounded-lg p-4 border group" style={{ borderColor: 'var(--border-soft)' }}>
               <div className="flex items-start justify-between gap-2 mb-2">
-                <div className="text-xs text-ink-3 font-mono">{getSubjectDisplayName(q.subject)} · {q.chapter}</div>
+                <div className="text-xs text-ink-3 font-zh">{getSubjectDisplayName(q.subject)} · {q.chapter}</div>
                 <span className="px-2 py-0.5 rounded text-xs" style={{ background: 'var(--danger-soft)', color: 'var(--danger)' }}>{q.type}</span>
               </div>
               <div className="text-sm text-ink mb-2 card-content"><RenderMarkdown content={q.question || q.id} /></div>

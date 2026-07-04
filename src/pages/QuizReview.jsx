@@ -270,7 +270,7 @@ export default function ReviewQuestion() {
             <div className="flip-face">
               <span className="corner">
                 <span className="num">{String(currentIndex + 1).padStart(2, '0')}</span>
-                <span>{S.quizReview.reviewTagLabel} · {S.quizReview.essayKeyLabel}</span>
+                <span><span className="font-zh">{S.quizReview.reviewTagLabel}</span> · {S.quizReview.essayKeyLabel}</span>
               </span>
               <div className="body">
                 <div className="front-q">
@@ -284,7 +284,7 @@ export default function ReviewQuestion() {
             <div className="flip-face flip-back-face">
               <span className="corner">
                 <span className="num">{String(currentIndex + 1).padStart(2, '0')}</span>
-                <span>{S.quizReview.referenceKeyLabel}</span>
+                <span className="font-zh">{S.quizReview.referenceKeyLabel}</span>
               </span>
               <div className="body back">
                 <div className="back-a">
@@ -303,12 +303,12 @@ export default function ReviewQuestion() {
         <button className="rate-btn rate-again"
           onClick={() => flipped && handleRate(false)}
           style={{ visibility: flipped ? 'visible' : 'hidden', cursor: flipped ? 'pointer' : 'default' }}>
-          <span>{S.quizReview.missedLabel}</span><span className="iv">MISSED</span>
+          <span>{S.quizReview.missedLabel}</span><span className="iv" style={{ fontFamily: 'var(--font-ui)' }}>MISSED</span>
         </button>
         <button className="rate-btn rate-easy"
           onClick={() => flipped && handleRate(true)}
           style={{ visibility: flipped ? 'visible' : 'hidden', cursor: flipped ? 'pointer' : 'default' }}>
-          <span>{S.quizReview.gotItLabel}</span><span className="iv">GOT IT</span>
+          <span>{S.quizReview.gotItLabel}</span><span className="iv" style={{ fontFamily: 'var(--font-ui)' }}>GOT IT</span>
         </button>
       </div>
       <ConfirmSheet state={confirmState} />

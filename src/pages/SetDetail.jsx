@@ -159,7 +159,7 @@ export default function SetDetail() {
               <div className="bar teal" style={{ width: `${accuracy}%` }} />
             </div>
             <div className="dd-progress-row">
-              <span>ACCURACY</span>
+              <span style={{ fontFamily: 'var(--font-ui)' }}>ACCURACY</span>
               <span>{accuracy}%</span>
             </div>
           </div>

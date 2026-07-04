@@ -174,7 +174,7 @@ export default function CollectionDetail() {
                   onClick={() => navigate(`/reading/doc/${doc.id}?col=${id}`)}>
                   <span className="dot-bullet" />
                   <span className="front">{doc.title}</span>
-                  <span className="font-mono text-[10px] text-ink-3 shrink-0">{doc.format.toUpperCase()}</span>
+                  <span className="font-body text-[10px] text-ink-3 shrink-0">{doc.format.toUpperCase()}</span>
                   <button onClick={(e) => { e.stopPropagation(); handleDeleteDocument(doc.id) }}
                     className="hidden group-hover:inline-flex items-center justify-center w-6 h-6 rounded text-ink-3 hover:text-danger transition-colors">
                     <TrashIcon size={14} />
@@ -189,7 +189,7 @@ export default function CollectionDetail() {
         {showNewDoc && (
           <div className="mx-[18px] mb-4 p-4 rounded-md border bg-bg-card flex flex-col gap-3"
             style={{ borderColor: 'var(--border-soft)' }}>
-            <div className="font-mono text-[10px] text-ink-3 tracking-wider uppercase">{S.collectionDetail.newDocHeading}</div>
+            <div className="font-zh text-[10px] text-ink-3 tracking-wider">{S.collectionDetail.newDocHeading}</div>
             <input value={newDocTitle} onChange={e => setNewDocTitle(e.target.value)}
               placeholder={S.collectionDetail.docTitlePlaceholder} autoFocus
               className="w-full py-[9px] px-3 rounded-md border bg-bg text-ink font-zh text-sm outline-none focus:border-accent"
