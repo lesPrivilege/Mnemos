@@ -290,7 +290,7 @@ export default function DeckDetail() {
               <div className="bar" style={{ width: `${total > 0 ? (learned / total) * 100 : 0}%` }} />
             </div>
             <div className="dd-progress-row">
-              <span style={{ fontFamily: 'var(--font-ui)' }}>PROGRESS</span>
+              <span>PROGRESS</span>
               <span>{total > 0 ? Math.round((learned / total) * 100) : 0}%</span>
             </div>
           </div>

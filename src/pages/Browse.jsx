@@ -177,6 +177,9 @@ export default function Browse() {
           <span className="font-zh text-ink-2 text-xs flex items-center gap-1.5">
             {card.chapter}{card.section && <><span className="text-ink-4 mx-1">›</span>{card.section}</>}
             {card.suspended && <span className="px-1.5 py-0.5 rounded text-[9px] font-medium" style={{ background: 'var(--warn-soft, #fef3c7)', color: 'var(--warn, #d97706)' }}>{S.browse.paused}</span>}
+            {/* font-body here fixes a pre-existing mismatch: this literal was inheriting
+                --font-zh from the wrapper span below, caught as a byproduct of this
+                commit's font-family audit rather than something newly introduced. */}
             {card.leech && <span className="px-1.5 py-0.5 rounded text-[9px] font-medium font-body" style={{ background: 'var(--danger-soft)', color: 'var(--danger)' }}>LEECH</span>}
           </span>
           <span className="tracking-wider">BROWSE</span>

@@ -1251,6 +1251,9 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   color: var(--ink-3);
   letter-spacing: 0.1em;
 }
+/* Bare label span (PROGRESS/ACCURACY) is chrome, not data — discriminate by
+   position so a future call site doesn't need its own per-element override. */
+.dd-progress-row > span:first-child { font-family: var(--font-ui); }
 .dd-cta { margin: 0 18px; }
 .dd-cta-main {
   width: 100%; padding: 14px 16px;
@@ -1449,6 +1452,9 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
 .rate-hard { background: var(--rate-hard-soft); color: var(--rate-hard); border-color: color-mix(in oklch, var(--rate-hard) 22%, transparent); }
 .rate-good { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-line); }
 .rate-easy { background: var(--good-soft); color: var(--good); border-color: color-mix(in oklch, var(--good) 22%, transparent); }
+/* Review.jsx's real SM-2 interval-day prediction keeps this mono; QuizReview.jsx
+   overrides its two literal-English usages (MISSED/GOT IT) to --font-ui inline —
+   same class, different content per site, not solvable with a selector alone. */
 .rate-btn .iv {
   font-family: var(--font-mono); font-size: 10px;
   opacity: 0.65; letter-spacing: 0.06em;
