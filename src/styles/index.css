@@ -1,3 +1,4 @@
+@import './tokens.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,100 +8,6 @@
    ═══════════════════════════════════════════════════ */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  /* Light · warm parchment */
-  --bg:            oklch(96.5% 0.012 80);
-  --bg-card:       oklch(99% 0.006 80);
-  --bg-raised:     oklch(94% 0.016 80);
-  --bg-sunken:     oklch(92.5% 0.018 80);
-  --border:        oklch(86% 0.018 80);
-  --border-soft:   oklch(91% 0.015 80);
-  --border-strong: oklch(72% 0.025 80);
-  --ink:           oklch(22% 0.022 80);
-  --ink-2:         oklch(48% 0.020 80);
-  --ink-3:         oklch(66% 0.014 80);
-  --ink-4:         oklch(78% 0.012 80);
-  --accent:        oklch(56% 0.13 60);          /* ochre */
-  --accent-soft:   oklch(94% 0.038 60);
-  --accent-line:   oklch(78% 0.07 60);
-  --teal:          oklch(50% 0.09 195);          /* answer / reading */
-  --teal-soft:     oklch(94% 0.025 195);
-  --good:          oklch(54% 0.11 155);
-  --good-soft:     oklch(94% 0.030 155);
-  --warn:          oklch(58% 0.13 70);
-  --warn-soft:     oklch(94% 0.035 70);
-  --danger:        oklch(54% 0.16 28);
-  --danger-soft:   oklch(94% 0.030 28);
-  --teal-line:     oklch(78% 0.06 195);
-  --plum:          oklch(48% 0.10 320);
-  --rate-hard:     oklch(48% 0.12 100);
-  --rate-hard-soft: oklch(93% 0.035 100);
-
-  --shadow-sm:     0 1px 2px oklch(22% 0.02 80 / 0.04);
-  --shadow-md:     0 1px 2px oklch(22% 0.02 80 / 0.04), 0 8px 28px oklch(22% 0.02 80 / 0.045);
-  --shadow-lg:     0 2px 6px oklch(22% 0.02 80 / 0.06), 0 20px 48px oklch(22% 0.02 80 / 0.07);
-
-  /* Code syntax — light */
-  --code-bg:       oklch(95% 0.012 80);
-  --code-border:   oklch(89% 0.014 80);
-  --tk-key:        oklch(48% 0.14 320);
-  --tk-str:        oklch(48% 0.11 155);
-  --tk-num:        oklch(48% 0.08 65);
-  --tk-com:        oklch(58% 0.04 80);
-  --tk-fn:         oklch(48% 0.13 195);
-  --tk-op:         oklch(48% 0.06 80);
-
-  --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 22px;
-
-  --font-zh:    'Noto Serif SC', 'Songti SC', Georgia, serif;
-  --font-disp:  'Instrument Serif', 'Noto Serif SC', Georgia, serif;
-  --font-ui:    'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono:  'JetBrains Mono', ui-monospace, monospace;
-}
-
-:root.dark {
-  /* Dark · neutral graphite (hue 250) */
-  --bg:            oklch(16% 0.014 250);
-  --bg-card:       oklch(20% 0.016 250);
-  --bg-raised:     oklch(24% 0.018 250);
-  --bg-sunken:     oklch(13% 0.012 250);
-  --border:        oklch(30% 0.018 250);
-  --border-soft:   oklch(26% 0.014 250);
-  --border-strong: oklch(42% 0.022 250);
-  --ink:           oklch(95% 0.008 250);
-  --ink-2:         oklch(76% 0.012 250);
-  --ink-3:         oklch(58% 0.014 250);
-  --ink-4:         oklch(42% 0.016 250);
-  --accent:        oklch(74% 0.13 65);
-  --accent-soft:   oklch(28% 0.06 50);
-  --accent-line:   oklch(44% 0.10 60);
-  --teal:          oklch(74% 0.10 195);
-  --teal-soft:     oklch(26% 0.05 195);
-  --teal-line:     oklch(44% 0.08 195);
-  --good:          oklch(74% 0.13 155);
-  --good-soft:     oklch(24% 0.05 155);
-  --warn:          oklch(76% 0.13 75);
-  --warn-soft:     oklch(26% 0.05 75);
-  --danger:        oklch(72% 0.15 28);
-  --danger-soft:   oklch(26% 0.06 28);
-  --plum:          oklch(72% 0.12 320);
-  --rate-hard:     oklch(66% 0.12 100);
-  --rate-hard-soft: oklch(26% 0.05 100);
-  --shadow-sm:     0 1px 2px #0008;
-  --shadow-md:     0 1px 3px #0008, 0 6px 24px #0006;
-  --shadow-lg:     0 4px 12px #000a, 0 16px 40px #0008;
-
-  /* Code syntax — dark */
-  --code-bg:       oklch(13% 0.012 250);
-  --code-border:   oklch(26% 0.014 250);
-  --tk-key:        oklch(74% 0.14 320);
-  --tk-str:        oklch(74% 0.11 155);
-  --tk-num:        oklch(76% 0.13 60);
-  --tk-com:        oklch(54% 0.014 250);
-  --tk-fn:         oklch(74% 0.11 240);
-  --tk-op:         oklch(85% 0.010 250);
-}
 
 html, body { height: 100%; overflow: hidden; }
 body {
