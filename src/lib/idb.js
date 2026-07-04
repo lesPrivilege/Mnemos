@@ -45,12 +45,12 @@ export async function idbGet(store, key) {
 
 export async function idbSet(store, key, val) {
   const db = await openDB()
-  if (!db) return
+  if (!db) return false
   return new Promise((resolve) => {
     const tx = db.transaction(store, 'readwrite')
     const req = tx.objectStore(store).put(val, key)
-    req.onsuccess = () => resolve()
-    req.onerror = () => resolve()
+    req.onsuccess = () => resolve(true)
+    req.onerror = () => resolve(false)
   })
 }
 

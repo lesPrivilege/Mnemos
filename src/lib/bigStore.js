@@ -59,25 +59,16 @@ async function readIdbRaw(key) {
   }
 }
 
-// idbSet() never rejects (it resolves silently even when IndexedDB is
-// unavailable), so a resolved write alone doesn't tell us whether the value
-// actually landed in the store. Read it back and compare to know for sure —
-// callers use this to decide whether it's safe to delete the localStorage
-// copy of a big record.
-async function writeAndConfirm(key, serialized) {
-  try {
-    await idbSet(KV_STORE, key, serialized)
-    return (await idbGet(KV_STORE, key)) === serialized
-  } catch {
-    return false
-  }
-}
-
+// idbSet() resolves true/false based on the write request's own outcome, so
+// that result is what tells us whether it's safe to delete the localStorage
+// copy of a big record — no separate read-back needed.
 function scheduleIdbSet(key, value) {
-  const write = writeAndConfirm(key, JSON.stringify(value)).then((confirmed) => {
-    if (confirmed) removeKey(key)
-    return confirmed
-  })
+  const write = idbSet(KV_STORE, key, JSON.stringify(value))
+    .then((confirmed) => {
+      if (confirmed) removeKey(key)
+      return confirmed
+    })
+    .catch(() => false)
   pendingWrites.add(write)
   write.finally(() => {
     pendingWrites.delete(write)

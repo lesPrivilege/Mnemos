@@ -132,4 +132,30 @@ describe('bigStore hydrate-cache primitive', () => {
 
     expect(localStorage.setItem).not.toHaveBeenCalled()
   })
+
+  it('keeps the localStorage copy when a mid-session IDB write fails', async () => {
+    const records = [{ id: 'local' }]
+    localStorage.setItem(KEY, JSON.stringify(records))
+    const bigStore = await loadBigStore()
+    await bigStore.hydrate()
+    // hydrate's own migration write succeeds here, so the pre-existing
+    // localStorage copy is already gone before we simulate the failure below.
+    expect(localStorage.getItem(KEY)).toBeNull()
+
+    // Put the "stale" copy back to represent a save that's about to fail.
+    localStorage.setItem(KEY, JSON.stringify(records))
+
+    const idb = await import('./idb')
+    const idbSetSpy = vi.spyOn(idb, 'idbSet').mockResolvedValueOnce(false)
+
+    expect(bigStore.setCached(KEY, [{ id: 'saved' }])).toEqual({ ok: true })
+    await bigStore.flushBigStoreWritesForTests()
+
+    expect(idbSetSpy).toHaveBeenCalled()
+    // Write reported failure, so the stale localStorage copy must be left
+    // in place rather than deleted out from under the only durable copy.
+    expect(localStorage.getItem(KEY)).toBe(JSON.stringify(records))
+
+    idbSetSpy.mockRestore()
+  })
 })

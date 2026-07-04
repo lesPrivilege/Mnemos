@@ -1,4 +1,6 @@
 import { IDBFactory } from 'fake-indexeddb'
+import FDBObjectStore from 'fake-indexeddb/lib/FDBObjectStore'
+import FDBRequest from 'fake-indexeddb/lib/FDBRequest'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 function requestToPromise(req) {
@@ -28,6 +30,25 @@ async function createV1ReadingDb() {
   db.close()
 }
 
+// Forces the next FDBObjectStore.put() to fail with a request-level error,
+// the same way a real IndexedDB write can fail (quota, constraint, etc.) —
+// so idbSet() can be exercised down its genuine onerror path rather than a
+// synchronous throw.
+function forcePutErrorOnce() {
+  const spy = vi.spyOn(FDBObjectStore.prototype, 'put').mockImplementationOnce(function mockPut() {
+    const request = new FDBRequest()
+    request.source = this
+    request.transaction = this.transaction
+    request.error = new DOMException('forced failure', 'UnknownError')
+    queueMicrotask(() => {
+      request.readyState = 'done'
+      if (typeof request.onerror === 'function') request.onerror(new Event('error'))
+    })
+    return request
+  })
+  return spy
+}
+
 describe('idb.js IndexedDB helper', () => {
   beforeEach(() => {
     vi.resetModules()
@@ -35,6 +56,7 @@ describe('idb.js IndexedDB helper', () => {
   })
 
   afterEach(() => {
+    vi.restoreAllMocks()
     vi.unstubAllGlobals()
   })
 
@@ -49,5 +71,28 @@ describe('idb.js IndexedDB helper', () => {
 
     expect(await idbGet('kv', 'examprep-questions')).toBe('[]')
     expect(await idbGet('reading-doc-bodies', 'doc-1')).toBe('legacy body')
+  })
+
+  it('idbSet resolves true on a successful write', async () => {
+    const { idbSet } = await import('./idb')
+
+    expect(await idbSet('kv', 'some-key', 'some-value')).toBe(true)
+  })
+
+  it('idbSet resolves false when the underlying write request errors', async () => {
+    const { idbSet } = await import('./idb')
+    const spy = forcePutErrorOnce()
+
+    expect(await idbSet('kv', 'some-key', 'some-value')).toBe(false)
+    expect(spy).toHaveBeenCalled()
+  })
+
+  it('idbSet resolves false when IndexedDB is unavailable', async () => {
+    vi.unstubAllGlobals()
+    vi.stubGlobal('indexedDB', undefined)
+    vi.resetModules()
+    const { idbSet } = await import('./idb')
+
+    expect(await idbSet('kv', 'some-key', 'some-value')).toBe(false)
   })
 })
