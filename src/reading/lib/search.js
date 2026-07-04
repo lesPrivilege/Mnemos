@@ -17,15 +17,12 @@ export async function searchDocuments(query, limit = 20) {
 
   for (const doc of docs) {
     const titleMatch = (doc.title || '').toLowerCase().includes(q)
-    let contentMatch = false
     let snippet = ''
 
-    if (titleMatch) {
-      // Title match — no need to load content
-    } else {
+    if (!titleMatch) {
       // Need to check content (from IDB)
       const content = await getDocumentContent(doc.id)
-      contentMatch = (content || '').toLowerCase().includes(q)
+      const contentMatch = (content || '').toLowerCase().includes(q)
       if (!contentMatch) continue
       snippet = extractSnippet(content, q, 80)
     }

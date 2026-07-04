@@ -5,7 +5,6 @@ import { BackIcon, RefreshIcon, UploadIcon, ArrowRIcon, MoreIcon, TrashIcon, Sta
 import FloatingBar from '../components/FloatingBar'
 import { getSubjectStats, getChapterList, loadStarred, loadQuestions, loadProgress, deleteSubject, clearSubjectProgress } from '../quiz/lib/storage'
 import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
-import { SUBJECT_HUE, SUBJECT_GLYPH } from '../quiz/lib/subjectMeta'
 import { tierCountsForQuestions } from '../quiz/lib/questionStats'
 import StructureTree from '../components/StructureTree'
 import { useBackButton } from '../lib/useBackButton'
@@ -44,9 +43,6 @@ export default function SetDetail() {
   const starredIds = new Set(loadStarred())
 
   const subjectName = getSubjectDisplayName(subject)
-  const hue = SUBJECT_HUE[subject] || 0
-  const glyph = SUBJECT_GLYPH[subject] || '学'
-
   const typeCounts = { choice: 0, review: 0 }
   for (const ch of chapters) {
     typeCounts.choice += ch.choice

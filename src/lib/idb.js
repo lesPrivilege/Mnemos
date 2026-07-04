@@ -11,7 +11,7 @@ let dbPromise = null
 
 function openDB() {
   if (dbPromise) return dbPromise
-  dbPromise = new Promise((resolve, reject) => {
+  dbPromise = new Promise((resolve) => {
     if (typeof indexedDB === 'undefined') {
       resolve(null)
       return
@@ -32,7 +32,7 @@ function openDB() {
 export async function idbGet(store, key) {
   const db = await openDB()
   if (!db) return undefined
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const tx = db.transaction(store, 'readonly')
     const req = tx.objectStore(store).get(key)
     req.onsuccess = () => resolve(req.result)
@@ -43,7 +43,7 @@ export async function idbGet(store, key) {
 export async function idbSet(store, key, val) {
   const db = await openDB()
   if (!db) return
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const tx = db.transaction(store, 'readwrite')
     const req = tx.objectStore(store).put(val, key)
     req.onsuccess = () => resolve()

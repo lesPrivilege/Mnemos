@@ -75,14 +75,13 @@ export function submitAnswer(questionId, userAnswer) {
   const q = questions.find(x => x.id === questionId)
   if (!q) return { correct: null, explanation: '题目不存在', status: 'error' }
 
-  let correct = null
   let explanation = q.explanation || ''
 
   if (q.type === 'choice') {
     const expected = q.answer?.trim().toUpperCase()
     const given = userAnswer?.trim().toUpperCase()
     const norm = s => s.replace(/[^A-Z]/g, '').split('').sort().join('')
-    correct = norm(expected) === norm(given)
+    const correct = norm(expected) === norm(given)
     if (!correct) explanation = `你的答案: ${given || '未作答'}。正确答案: ${expected}。${explanation}`
     const prog = recordAttempt(questionId, correct)
     return { correct, explanation, status: prog.status, wrongStreak: prog.wrongStreak }

@@ -30,11 +30,6 @@ import { isEnabled, getReminderTime, setReminderTime, enableReminders, disableRe
 import { useToast, Toast } from '../components/Toast'
 import pkg from '../../package.json'
 
-function formatBytes(bytes) {
-  if (bytes < 1024) return `${bytes} B`
-  return `${(bytes / 1024).toFixed(1)} KB`
-}
-
 function ActionRow({ title, detail, action, tone = 'danger', confirm, onClick, disabled }) {
   return (
     <div className="settings-action">

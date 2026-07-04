@@ -7,7 +7,7 @@ import { isRecall } from '../lib/cardUtils'
 import { mastery, masteryTier, tierCounts } from '../lib/cardStats'
 import StructureTree from '../components/StructureTree'
 import { localToday } from '../lib/dateUtils'
-import { getDeck, getCards, addCard, updateCard, updateDeck, deleteCard, deleteCards, deleteDeck, togglePin, toggleStar, exportDeck, resetDeckProgress } from '../lib/storage'
+import { getDeck, getCards, addCard, updateCard, updateDeck, deleteCard, deleteCards, deleteDeck, togglePin, exportDeck, resetDeckProgress } from '../lib/storage'
 import { useBackButton } from '../lib/useBackButton'
 import { useRenderedMarkdown } from '../lib/useRenderedMarkdown'
 import { downloadBlob } from '../lib/utils'
@@ -32,7 +32,7 @@ export default function DeckDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { goBack } = useBackButton()
-  const { toast, showToast } = useToast()
+  const { toast } = useToast()
   const { confirmState, confirm } = useConfirm()
   const [deck, setDeck] = useState(null)
   const [cards, setCards] = useState([])

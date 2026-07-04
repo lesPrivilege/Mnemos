@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { getQuizQuestions, markQuestion } from '../quiz/lib/quizEngine'
 import { saveLastSession, toggleStar, isStarred, deleteQuestion, loadStarred, loadQuestions } from '../quiz/lib/storage'
 import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
@@ -25,7 +25,6 @@ export default function ReviewQuestion() {
   const section = searchParams.get('section')
   const initialQid = searchParams.get('qid')
   const initialMode = searchParams.get('mode')
-  const navigate = useNavigate()
   const { goBack } = useBackButton()
   const { confirmState, confirm } = useConfirm()
 

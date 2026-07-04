@@ -135,7 +135,7 @@ function getWeekStats() {
   let correctThisWeek = 0
   const dayCounts = Array(7).fill(0)
 
-  for (const [qid, prog] of Object.entries(progress)) {
+  for (const prog of Object.values(progress)) {
     if (!prog.last_attempt) continue
     const ts = prog.last_attempt
     if (ts >= weekAgo) {

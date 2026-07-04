@@ -41,7 +41,7 @@ export function FlashcardHomeContent() {
   const [newDeckName, setNewDeckName] = useState('')
   const [editing, setEditing] = useState(false)
   const [selected, setSelected] = useState(new Set())
-  const { toast, showToast } = useToast()
+  const { toast } = useToast()
   const { confirmState, confirm } = useConfirm()
 
   const refresh = () => setDecks(getAllDeckStats())

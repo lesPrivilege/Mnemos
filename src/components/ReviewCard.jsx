@@ -1,7 +1,7 @@
 import { useRenderedMarkdown } from '../lib/useRenderedMarkdown'
 import '../styles/markdown.css'
 
-export default function ReviewCard({ card, index, total, flipped, onFlip, swipeOffset }) {
+export default function ReviewCard({ card, index, flipped, onFlip, swipeOffset }) {
   const frontHtml = useRenderedMarkdown(card.front)
   const backHtml = useRenderedMarkdown(card.back)
 

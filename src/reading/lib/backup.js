@@ -1,6 +1,6 @@
 // Reading module backup — export all data, import (replace or merge)
 import { load, save } from './storageUtils'
-import { idbGet, idbSet } from '../../lib/idb'
+import { idbSet } from '../../lib/idb'
 import { getDocuments, getDocumentContent } from './storage'
 
 const ALL_KEYS = [
@@ -44,7 +44,7 @@ export async function importReadingData(data) {
     // Ensure restored docs have hasBody flag and no embedded content
     const updated = docs.map(d => {
       if (data.bodies[d.id] && (d.content || !d.hasBody)) {
-        const { content, ...rest } = d
+        const { content: _content, ...rest } = d
         return { ...rest, hasBody: true }
       }
       return d
@@ -120,7 +120,7 @@ export async function mergeReadingData(data) {
     }
     const updated = docs.map(d => {
       if (data.bodies[d.id] && (d.content || !d.hasBody)) {
-        const { content, ...rest } = d
+        const { content: _content, ...rest } = d
         return { ...rest, hasBody: true }
       }
       return d

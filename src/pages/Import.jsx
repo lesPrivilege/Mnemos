@@ -44,7 +44,7 @@ export default function Import() {
       // Clear router state so back/refresh doesn't re-trigger
       navigate(location.pathname + location.search, { replace: true, state: {} })
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
   // Reset scroll when tab changes (#root is the scroll container)
   useEffect(() => {

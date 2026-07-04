@@ -285,7 +285,6 @@ export default function Review() {
 
   const handleTouchEnd = useCallback(() => {
     if (!flipped || !swipeRef.current.locked) { setSwipeOffset(0); return }
-    const dx = swipeRef.current.startX // reuse ref; offset is in state
     const cardWidth = 320 // approximate; threshold = min(96, 30% of card width)
     const threshold = Math.min(96, cardWidth * 0.3)
     if (Math.abs(swipeOffset) >= threshold) {

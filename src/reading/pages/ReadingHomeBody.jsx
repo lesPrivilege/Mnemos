@@ -3,7 +3,7 @@
 import { useNavigate, Link } from 'react-router-dom'
 import { getDocumentsByCollection, toggleCollectionPin } from '../lib/storage'
 import { getWeeklyMinutes } from '../lib/stats'
-import { PlusIcon, TrashIcon, UploadIcon, LayersIcon, SparkIcon, PinIcon } from '../../components/Icons'
+import { PlusIcon, UploadIcon, LayersIcon, SparkIcon, PinIcon } from '../../components/Icons'
 import { HeroSection } from '../../components/HeroSection'
 import EmptyState from '../../components/EmptyState'
 
