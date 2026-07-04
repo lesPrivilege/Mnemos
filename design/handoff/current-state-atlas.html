@@ -1,0 +1,2826 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mnemos — Current-State UX Atlas</title>
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   MNEMOS CURRENT-STATE UX ATLAS — design handoff document
+   ═══════════════════════════════════════════════════════════════════
+   Purpose: a static, lightweight map of every screen and key state in
+   the app TODAY, for the upcoming Claude Design re-grounding round.
+   This is NOT a pixel-perfect clone and NOT a base for the redesign.
+   The old prototypes in design/ (mnemos-v2*.html, v2-redesign/,
+   activity-dashboard-brief.md) are explicitly out of scope and were
+   not referenced while building this file.
+
+   Structure:
+     1. Inlined design tokens (verbatim copy of src/styles/tokens.css
+        :root and :root.dark — single source of truth is that file;
+        if tokens drift, resync from there, don't hand-edit here)
+     2. Atlas layout CSS (frame grid, phone-frame chrome, captions)
+     3. Approximated component styles (scoped under .frame so they
+        can't leak into the atlas chrome itself)
+     4. Module sections: 记忆 (this commit) / 练习 / 阅读 / 系统
+        (group containers for all four exist now; only 记忆 has
+        frames — commits 2 and 3 fill in the rest)
+     5. Theme toggle — the ONLY JS in this document. Adds/removes
+        .dark on <html>. No routing, no state, no interactivity
+        simulation of any kind.
+
+   Real font stacks (not embedded — system fallbacks only, per spec):
+     --font-zh:   'Noto Serif SC', 'Songti SC', Georgia, serif
+     --font-disp: 'Instrument Serif', 'Noto Serif SC', Georgia, serif
+     --font-ui:   'Inter', system-ui, -apple-system, sans-serif
+     --font-mono: 'JetBrains Mono', ui-monospace, monospace
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ───────────────────────────────────────────────────────────────────
+   1. DESIGN TOKENS — inlined verbatim from src/styles/tokens.css
+   ─────────────────────────────────────────────────────────────────── */
+:root {
+  /* Light · warm parchment */
+  --bg:            oklch(96.5% 0.012 80);
+  --bg-card:       oklch(99% 0.006 80);
+  --bg-raised:     oklch(94% 0.016 80);
+  --bg-sunken:     oklch(92.5% 0.018 80);
+  --border:        oklch(86% 0.018 80);
+  --border-soft:   oklch(91% 0.015 80);
+  --border-strong: oklch(72% 0.025 80);
+  --ink:           oklch(22% 0.022 80);
+  --ink-2:         oklch(48% 0.020 80);
+  --ink-3:         oklch(66% 0.014 80);
+  --ink-4:         oklch(78% 0.012 80);
+  --accent:        oklch(56% 0.13 60);          /* ochre */
+  --accent-soft:   oklch(94% 0.038 60);
+  --accent-line:   oklch(78% 0.07 60);
+  --teal:          oklch(50% 0.09 195);          /* answer / reading */
+  --teal-soft:     oklch(94% 0.025 195);
+  --good:          oklch(54% 0.11 155);
+  --good-soft:     oklch(94% 0.030 155);
+  --warn:          oklch(58% 0.13 70);
+  --warn-soft:     oklch(94% 0.035 70);
+  --danger:        oklch(54% 0.16 28);
+  --danger-soft:   oklch(94% 0.030 28);
+  --teal-line:     oklch(78% 0.06 195);
+  --plum:          oklch(48% 0.10 320);
+  --rate-hard:     oklch(48% 0.12 100);
+  --rate-hard-soft: oklch(93% 0.035 100);
+
+  --shadow-sm:     0 1px 2px oklch(22% 0.02 80 / 0.04);
+  --shadow-md:     0 1px 2px oklch(22% 0.02 80 / 0.04), 0 8px 28px oklch(22% 0.02 80 / 0.045);
+  --shadow-lg:     0 2px 6px oklch(22% 0.02 80 / 0.06), 0 20px 48px oklch(22% 0.02 80 / 0.07);
+
+  /* Code syntax — light */
+  --code-bg:       oklch(95% 0.012 80);
+  --code-border:   oklch(89% 0.014 80);
+  --tk-key:        oklch(48% 0.14 320);
+  --tk-str:        oklch(48% 0.11 155);
+  --tk-num:        oklch(48% 0.08 65);
+  --tk-com:        oklch(58% 0.04 80);
+  --tk-fn:         oklch(48% 0.13 195);
+  --tk-op:         oklch(48% 0.06 80);
+
+  --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 22px;
+
+  --font-zh:    'Noto Serif SC', 'Songti SC', Georgia, serif;
+  --font-disp:  'Instrument Serif', 'Noto Serif SC', Georgia, serif;
+  --font-ui:    'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono:  'JetBrains Mono', ui-monospace, monospace;
+
+  /* ─────── Type scale (Dynamic Type-ready) ───────
+     Ratio ≈1.2 (minor third) stepping from --text-base: 1rem.
+     rem units so the whole scale responds to the user's root
+     font-size / OS text-size setting. Not yet wired into any
+     component — named steps for Claude Design + later rounds. */
+  --text-xs:   0.694rem;  /* ~11.1px */
+  --text-sm:   0.833rem;  /* ~13.3px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg:   1.2rem;    /* ~19.2px */
+  --text-xl:   1.44rem;   /* ~23px */
+  --text-2xl:  1.728rem;  /* ~27.6px */
+  --text-3xl:  2.074rem;  /* ~33.2px */
+
+  --leading-tight:  1.2;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.7;
+
+  /* ─────── Spacing (4/8 grid) ───────
+     8-step scale from 4px to 64px. Mostly-4/8 multiples with a
+     12px half-step at --sp-3 for the tight in-between cases that
+     show up constantly in this codebase's existing px values. */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+  --sp-8: 64px;
+
+  /* ─────── Motion ───────
+     Two durations covering this app's existing transition range
+     (100-200ms micro-interactions -> --motion-quick; 240ms+
+     sheet/panel movements -> --motion-gentle). Shared ease matches
+     iOS/Material "standard decelerate" curves already implied by
+     the hand-picked cubic-beziers elsewhere in index.css. */
+  --motion-quick:  120ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-gentle: 240ms cubic-bezier(0.2, 0, 0, 1);
+
+  /* ─────── Surfaces — light ───────
+     Composite semantics built from the primitives above.
+     - --surface-chrome-bg / --surface-chrome-blur are calibrated to
+       FloatingBar.jsx's real, already-shipped production values
+       (recalibrated in Commit 2 — Commit 1 guessed --bg at 78% alpha
+       + blur(16px) before that call site existed to check against).
+       FloatingBar mixes --bg-card (not --bg) at 85% alpha with
+       blur(8px). color-mix() is used here rather than a hardcoded
+       oklch-alpha literal so the token stays derived from --bg-card
+       as its single source of truth instead of duplicating it.
+     - --surface-raised / --surface-overlay are plain 1:1 aliases
+       today (var(--bg-raised) / var(--bg-card)), not multi-property
+       composites like --surface-chrome. That's deliberate: the value
+       here is the semantic name, not the property count — call sites
+       say "give me the raised/overlay surface" instead of naming a
+       bg-* primitive directly, so if a surface later needs a shadow
+       or border alongside its color, that composition happens in one
+       place (here) instead of at every call site. */
+  --surface-chrome-bg:     color-mix(in oklch, var(--bg-card) 85%, transparent);
+  --surface-chrome-blur:   blur(8px);
+  --surface-chrome-border: var(--border-soft);
+  --surface-raised:        var(--bg-raised);
+  --surface-overlay:       var(--bg-card);
+}
+
+:root.dark {
+  /* Dark · neutral graphite (hue 250) */
+  --bg:            oklch(16% 0.014 250);
+  --bg-card:       oklch(20% 0.016 250);
+  --bg-raised:     oklch(24% 0.018 250);
+  --bg-sunken:     oklch(13% 0.012 250);
+  --border:        oklch(30% 0.018 250);
+  --border-soft:   oklch(26% 0.014 250);
+  --border-strong: oklch(42% 0.022 250);
+  --ink:           oklch(95% 0.008 250);
+  --ink-2:         oklch(76% 0.012 250);
+  --ink-3:         oklch(58% 0.014 250);
+  --ink-4:         oklch(42% 0.016 250);
+  --accent:        oklch(74% 0.13 65);
+  --accent-soft:   oklch(28% 0.06 50);
+  --accent-line:   oklch(44% 0.10 60);
+  --teal:          oklch(74% 0.10 195);
+  --teal-soft:     oklch(26% 0.05 195);
+  --teal-line:     oklch(44% 0.08 195);
+  --good:          oklch(74% 0.13 155);
+  --good-soft:     oklch(24% 0.05 155);
+  --warn:          oklch(76% 0.13 75);
+  --warn-soft:     oklch(26% 0.05 75);
+  --danger:        oklch(72% 0.15 28);
+  --danger-soft:   oklch(26% 0.06 28);
+  --plum:          oklch(72% 0.12 320);
+  --rate-hard:     oklch(66% 0.12 100);
+  --rate-hard-soft: oklch(26% 0.05 100);
+  --shadow-sm:     0 1px 2px #0008;
+  --shadow-md:     0 1px 3px #0008, 0 6px 24px #0006;
+  --shadow-lg:     0 4px 12px #000a, 0 16px 40px #0008;
+
+  /* Code syntax — dark */
+  --code-bg:       oklch(13% 0.012 250);
+  --code-border:   oklch(26% 0.014 250);
+  --tk-key:        oklch(74% 0.14 320);
+  --tk-str:        oklch(74% 0.11 155);
+  --tk-num:        oklch(76% 0.13 60);
+  --tk-com:        oklch(54% 0.014 250);
+  --tk-fn:         oklch(74% 0.11 240);
+  --tk-op:         oklch(85% 0.010 250);
+
+  /* ─────── Surfaces — dark ───────
+     Same rationale and values as the light-theme surfaces above —
+     color-mix(in oklch, var(--bg-card) 85%, transparent) resolves
+     against dark's own --bg-card here, so no separate alpha literal
+     is needed per theme. */
+  --surface-chrome-bg:     color-mix(in oklch, var(--bg-card) 85%, transparent);
+  --surface-chrome-blur:   blur(8px);
+  --surface-chrome-border: var(--border-soft);
+  --surface-raised:        var(--bg-raised);
+  --surface-overlay:       var(--bg-card);
+}
+
+/* ─────── Reduced motion ───────
+   Global override: zero out animation/transition durations for
+   users who have asked the OS for reduced motion. Applies to
+   every element regardless of which token or hardcoded duration
+   is in play. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────
+   2. ATLAS LAYOUT — the document chrome around each phone-frame.
+   Everything in this block is atlas scaffolding, not app UI.
+   ─────────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--bg-sunken);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+}
+
+.atlas-header {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--sp-7) var(--sp-5) var(--sp-6);
+}
+.atlas-title {
+  font-family: var(--font-disp);
+  font-size: var(--text-3xl);
+  font-weight: 400;
+  color: var(--ink);
+  margin: 0 0 var(--sp-2);
+}
+.atlas-sub {
+  font-family: var(--font-zh);
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+  margin: 0 0 var(--sp-4);
+  line-height: var(--leading-relaxed);
+}
+.atlas-meta {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--ink-3);
+  letter-spacing: 0.04em;
+}
+
+/* Theme toggle button — atlas chrome, not app UI */
+.theme-toggle {
+  position: fixed;
+  top: var(--sp-5);
+  right: var(--sp-5);
+  z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: background var(--motion-quick), transform var(--motion-quick);
+}
+.theme-toggle:hover { background: var(--bg-raised); }
+.theme-toggle:active { transform: scale(0.97); }
+
+/* Module group header — atlas chrome */
+.module-group {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 var(--sp-5) var(--sp-7);
+}
+.module-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  padding: var(--sp-5) 0 var(--sp-4);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--sp-6);
+}
+.module-head .zh {
+  font-family: var(--font-zh);
+  font-size: var(--text-2xl);
+  font-weight: 500;
+  color: var(--ink);
+}
+.module-head .en {
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.module-empty-note {
+  font-family: var(--font-zh);
+  font-size: var(--text-sm);
+  color: var(--ink-3);
+  padding: var(--sp-6) 0;
+  text-align: center;
+  border: 1px dashed var(--border);
+  border-radius: var(--r-md);
+}
+
+/* Frame grid — one <section> per screen, laid out in a wrapping row so
+   related states (e.g. Review front/back) sit side by side, but the
+   overall document is still a vertical scroll (an "atlas"), not tabs. */
+.frame-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-6) var(--sp-5);
+  align-items: flex-start;
+}
+
+.frame {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  width: 390px;
+  flex-shrink: 0;
+}
+
+.frame-caption {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 2px;
+}
+.frame-caption .name {
+  font-family: var(--font-zh);
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: var(--ink);
+}
+.frame-caption .route {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--accent);
+}
+.frame-caption .states {
+  font-family: var(--font-zh);
+  font-size: var(--text-xs);
+  color: var(--ink-3);
+  line-height: var(--leading-normal);
+}
+
+/* Phone-frame shell — 390px wide, fixed-height viewport window with its
+   own scroll so tall screens (DeckDetail, Home) don't blow up the page. */
+.phone-frame {
+  width: 390px;
+  height: 780px;
+  border-radius: var(--r-xl);
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  position: relative;
+  background: var(--bg);
+}
+.phone-screen {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* ───────────────────────────────────────────────────────────────────
+   3. APPROXIMATED COMPONENT STYLES — scoped under .phone-screen so
+   none of this leaks into the atlas chrome above. These are hand-
+   approximated from src/styles/index.css (read in full for this
+   commit) — decorative detail is simplified, but class names below
+   mirror the real ones closely enough to read as "this app's X".
+   ─────────────────────────────────────────────────────────────────── */
+.phone-screen * { box-sizing: border-box; }
+.phone-screen button, .phone-screen input { font: inherit; color: inherit; }
+
+/* Topbar */
+.phone-screen .topbar {
+  min-height: 52px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 var(--sp-4);
+  border-bottom: 1px solid var(--border-soft);
+  background: var(--bg);
+  gap: var(--sp-2);
+}
+.phone-screen .topbar h1 {
+  font-family: var(--font-disp);
+  font-weight: 400;
+  font-size: var(--text-xl);
+  color: var(--ink);
+  display: flex; align-items: center; gap: var(--sp-2);
+  margin: 0;
+}
+.phone-screen .topbar h1.zh {
+  font-family: var(--font-zh); font-weight: 500; font-size: var(--text-base);
+}
+.phone-screen .tb-actions { display: flex; gap: 4px; align-items: center; }
+.phone-screen .tb-btn {
+  width: 32px; height: 32px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: var(--r-sm);
+  color: var(--ink-2);
+  border: none; background: none; cursor: pointer;
+}
+.phone-screen .tb-text {
+  font-size: var(--text-sm); color: var(--ink-2); font-family: var(--font-zh);
+}
+/* Topbar title fill patterns — promoted after repeating 2-3x verbatim as
+   inline styles across DeckDetail/QuizPage/SetDetail/Wrong-style frames.
+   .tb-title-left mirrors the real h1.zh { flex:1; paddingLeft:4px } inline
+   style (page-name headers); .tb-title-center mirrors the real .tb-text
+   { flex:1; textAlign:'center' } inline style (Review/Reader-style headers
+   with an icon on both sides). */
+.phone-screen .tb-title-left { flex: 1; padding-left: 4px; }
+.phone-screen .tb-title-center { flex: 1; text-align: center; }
+/* Single fixed-height card screen (Review/QuizPage/QuizReview-style pages
+   that manage their own internal scroll region and must not let the outer
+   .phone-screen scroll) — promoted after the same overflow-y:hidden
+   override got copy-pasted onto 2-3 frames' .phone-screen element. */
+.phone-screen.card-screen-fixed { overflow-y: hidden; }
+
+/* Segmented tabs (Home) */
+.phone-screen .tabs-head {
+  display: flex;
+  margin: var(--sp-3) var(--sp-4) 0;
+  background: var(--surface-raised);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border-soft);
+  padding: 3px;
+}
+.phone-screen .tabs-tab {
+  flex: 1; padding: var(--sp-2) 0;
+  font-size: var(--text-sm); font-weight: 500;
+  border-radius: 6px;
+  color: var(--ink-2);
+  display: flex; flex-direction: column; align-items: center;
+  border: none; background: none; cursor: pointer;
+}
+.phone-screen .tabs-tab.on {
+  color: var(--ink);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+}
+.phone-screen .tabs-tab .zh { font-family: var(--font-zh); font-size: var(--text-sm); }
+.phone-screen .tabs-tab .en {
+  font-family: var(--font-ui); font-size: 9px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+.phone-screen .tabs-tab.on .en { color: var(--ink-2); }
+
+/* Hero section (dashboard card) */
+.phone-screen .hero {
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-md);
+  padding: var(--sp-4) var(--sp-3) var(--sp-3);
+  display: flex; flex-direction: column; gap: var(--sp-3);
+  margin: var(--sp-4) var(--sp-4) 0;
+}
+.phone-screen .hero-head { display: flex; align-items: center; justify-content: space-between; }
+.phone-screen .hero-head .lbl {
+  font-family: var(--font-zh); font-size: var(--text-xs);
+  letter-spacing: 0.16em; color: var(--ink-3); font-weight: 500;
+}
+.phone-screen .hero-head-right { display: inline-flex; align-items: center; gap: var(--sp-2); }
+.phone-screen .streak {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: var(--font-mono); font-size: var(--text-xs);
+  color: var(--accent); font-weight: 500;
+}
+.phone-screen .hero-row {
+  display: flex; align-items: flex-start; justify-content: space-around;
+  gap: 4px;
+}
+.phone-screen .hero-col {
+  display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1;
+}
+.phone-screen .hero-col .num {
+  font-family: var(--font-disp); font-size: var(--text-3xl);
+  font-weight: 400; line-height: 1; color: var(--ink);
+}
+.phone-screen .hero-col .num.accent { color: var(--accent); }
+.phone-screen .hero-col .label {
+  font-family: var(--font-ui); font-size: var(--text-xs);
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3);
+}
+.phone-screen .hero-col .zh-label {
+  font-family: var(--font-zh); font-size: var(--text-xs); color: var(--ink-2);
+}
+.phone-screen .hero-divider { width: 1px; height: 44px; background: var(--border-soft); }
+.phone-screen .hero-chart {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: 2px; min-height: 40px; padding: 0 2px;
+}
+.phone-screen .hero-bar { position: relative; }
+.phone-screen .hero-bar .b {
+  position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 16px;
+  background: var(--accent-line);
+  border-radius: 3px 3px 1px 1px;
+}
+.phone-screen .hero-bar.teal .b { background: var(--teal); }
+.phone-screen .hero-bar.today .b { background: var(--accent); }
+.phone-screen .hero-bar.empty .b { background: var(--border); }
+.phone-screen .hero-bar .day {
+  position: absolute; bottom: 0; left: 0; right: 0; text-align: center;
+  font-family: var(--font-zh); font-size: var(--text-xs); color: var(--ink-3);
+}
+.phone-screen .hero-bar.today .day { color: var(--accent); font-weight: 600; }
+
+/* List head + deck cards */
+.phone-screen .list-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 var(--sp-4);
+  margin-top: var(--sp-4);
+}
+.phone-screen .section-title {
+  font-family: var(--font-zh); font-size: var(--text-xs);
+  font-weight: 500; letter-spacing: 0.16em; color: var(--ink-3);
+  display: flex; align-items: center; gap: var(--sp-2); flex: 1;
+}
+.phone-screen .section-title::after { content: ""; flex: 1; height: 1px; background: var(--border-soft); }
+.phone-screen .list-head .count {
+  font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-3);
+}
+.phone-screen .deck-list {
+  display: flex; flex-direction: column; gap: var(--sp-2);
+  margin: var(--sp-2) var(--sp-4) 0;
+}
+.phone-screen .deck {
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-md);
+  padding: var(--sp-3) var(--sp-3) var(--sp-3) 0;
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--sp-3);
+}
+.phone-screen .deck-spine {
+  height: 56px; margin-left: var(--sp-3);
+  border-radius: 4px; position: relative; overflow: hidden;
+}
+.phone-screen .deck-spine::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--accent); border-radius: 2px;
+}
+.phone-screen .deck-spine .glyph {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-zh); font-size: 28px; color: var(--ink-2);
+  font-weight: 500; padding-left: 6px;
+}
+.phone-screen .deck-spine.teal::before { background: var(--teal); }
+.phone-screen .deck-spine.teal .glyph { color: var(--teal); }
+.phone-screen .deck-spine.good::before { background: var(--good); }
+.phone-screen .deck-spine.good .glyph { color: var(--good); }
+.phone-screen .deck-spine.plum::before { background: var(--plum); }
+.phone-screen .deck-spine.plum .glyph { color: var(--plum); }
+.phone-screen .deck-meta { min-width: 0; }
+.phone-screen .deck-name {
+  font-family: var(--font-zh); font-size: var(--text-base); font-weight: 500;
+  color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  display: flex; align-items: center; gap: 6px;
+}
+.phone-screen .deck-pin { color: var(--accent); font-size: var(--text-xs); }
+.phone-screen .deck-stats {
+  margin-top: 4px; font-family: var(--font-mono); font-size: var(--text-xs);
+  color: var(--ink-3); display: flex; align-items: center; gap: 6px;
+}
+.phone-screen .deck-stats .due { color: var(--accent); font-weight: 600; }
+.phone-screen .deck-stats .dot { color: var(--ink-4); }
+.phone-screen .deck-stats .done-zh { color: var(--good); font-family: var(--font-zh); }
+.phone-screen .deck-cta { display: flex; align-items: center; gap: 6px; }
+.phone-screen .cta-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 6px 10px; border-radius: 999px;
+  background: var(--accent-soft); color: var(--accent);
+  font-family: var(--font-ui); font-size: var(--text-xs); font-weight: 600;
+  border: none; cursor: pointer;
+}
+.phone-screen .icon-btn {
+  width: 28px; height: 28px; border-radius: var(--r-sm);
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--ink-3); opacity: 0.5; border: none; background: none;
+}
+
+/* Bottom actions (Home tab) */
+.phone-screen .bottom-actions {
+  display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-2);
+  margin: var(--sp-4) var(--sp-4) 0;
+}
+.phone-screen .btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 11px 14px; border-radius: var(--r-md);
+  font-family: var(--font-ui); font-size: var(--text-sm); font-weight: 500;
+  border: 1px solid transparent; cursor: pointer;
+}
+.phone-screen .btn-primary { background: var(--ink); color: var(--bg); }
+.phone-screen .btn-ghost { background: var(--bg-card); border-color: var(--border); color: var(--ink); }
+
+/* FloatingBar overlay */
+.phone-screen .floating-bar {
+  position: absolute; left: var(--sp-3); right: var(--sp-3); bottom: var(--sp-3);
+  z-index: 30;
+  display: flex; flex-direction: column; gap: var(--sp-2);
+  padding: var(--sp-3) 14px;
+  border-radius: var(--r-xl);
+  background: var(--surface-chrome-bg);
+  backdrop-filter: var(--surface-chrome-blur);
+  -webkit-backdrop-filter: var(--surface-chrome-blur);
+  border: 1px solid var(--surface-chrome-border);
+  box-shadow: var(--shadow-lg);
+}
+.phone-screen .dd-cta-main {
+  width: 100%; padding: 14px 16px;
+  border-radius: var(--r-md);
+  background: var(--ink); color: var(--bg);
+  display: flex; align-items: center; justify-content: space-between;
+  text-decoration: none;
+}
+.phone-screen .dd-cta-main.teal { background: var(--teal); }
+.phone-screen .dd-cta-main .left { display: flex; flex-direction: column; gap: 2px; }
+.phone-screen .dd-cta-main .lead {
+  font-family: var(--font-zh); font-size: var(--text-base); font-weight: 500;
+}
+.phone-screen .dd-cta-main .lead .num {
+  font-family: var(--font-disp); font-size: var(--text-lg); margin-right: 4px;
+}
+.phone-screen .dd-cta-main .sub {
+  font-family: var(--font-zh); font-size: var(--text-xs);
+  letter-spacing: 0.14em; opacity: 0.7;
+}
+.phone-screen .dd-cta-main .arr { font-size: var(--text-xl); }
+.phone-screen .dd-secondary {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px;
+  padding: 6px; background: var(--bg-card);
+  border: 1px solid var(--border-soft); border-radius: var(--r-md);
+}
+.phone-screen .dd-action {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 10px 4px; border-radius: var(--r-sm);
+  color: var(--ink-2); text-decoration: none;
+}
+.phone-screen .dd-action .lab {
+  font-family: var(--font-zh); font-size: var(--text-xs); font-weight: 500;
+}
+
+/* DeckDetail progress head */
+.phone-screen .dd-head {
+  margin: var(--sp-4) var(--sp-4) 0;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.phone-screen .dd-meta {
+  font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-2);
+  display: flex; align-items: center; gap: 6px;
+}
+.phone-screen .dd-meta .sep { color: var(--ink-4); }
+.phone-screen .dd-progress {
+  height: 6px; border-radius: 3px; background: var(--bg-raised); overflow: hidden;
+}
+.phone-screen .dd-progress .bar { height: 100%; border-radius: 3px; background: var(--accent); }
+.phone-screen .dd-progress .bar.teal { background: var(--teal); }
+.phone-screen .dd-progress-row {
+  display: flex; justify-content: space-between;
+  font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-3);
+}
+
+/* Filters + view toggle + search */
+.phone-screen .filters { margin: var(--sp-3) var(--sp-4) 0; display: flex; gap: 6px; }
+.phone-screen .chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 5px 10px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--bg-card);
+  font-size: var(--text-xs); color: var(--ink-2); font-family: var(--font-ui);
+}
+.phone-screen .chip.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* Question-type tags (QuizPage/SetDetail crumb + tree-row badges) */
+.phone-screen .q-tag {
+  font-family: var(--font-zh); font-size: 9px; letter-spacing: 0.1em;
+  padding: 2px 7px; border-radius: 4px; border: 1px solid var(--border); color: var(--ink-3);
+}
+.phone-screen .q-tag.choice { color: var(--accent); border-color: var(--accent-line); }
+.phone-screen .q-tag.review { color: var(--teal); border-color: color-mix(in oklch, var(--teal) 40%, transparent); }
+.phone-screen .q-tag-mini {
+  font-family: var(--font-zh); font-size: 9px;
+  padding: 1px 5px; border-radius: 3px; border: 1px solid var(--border); color: var(--ink-3); flex-shrink: 0;
+}
+.phone-screen .q-tag-mini:not(.choice):not(.review) {
+  font-family: var(--font-ui); letter-spacing: 0.06em; text-transform: uppercase;
+}
+.phone-screen .q-tag-mini.choice { color: var(--accent); border-color: var(--accent-line); }
+.phone-screen .q-tag-mini.review { color: var(--teal); border-color: color-mix(in oklch, var(--teal) 40%, transparent); }
+
+.phone-screen .seg {
+  display: flex; gap: 2px; padding: 3px;
+  background: var(--surface-raised); border-radius: var(--r-sm);
+  border: 1px solid var(--border-soft); max-width: 160px;
+  margin: var(--sp-2) var(--sp-4) 0;
+}
+.phone-screen .seg button {
+  flex: 1; padding: 6px 0; border-radius: 6px; font-size: var(--text-xs);
+  color: var(--ink-2); border: none; background: none;
+}
+.phone-screen .seg button.on { background: var(--bg-card); color: var(--ink); box-shadow: var(--shadow-sm); }
+.phone-screen .search { margin: var(--sp-2) var(--sp-4) 0; position: relative; }
+.phone-screen .search input {
+  width: 100%; padding: 9px 12px 9px 32px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--r-md); font-size: var(--text-sm);
+}
+.phone-screen .search .icn { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--ink-3); }
+
+/* Structure tree (StructureTree.jsx approximation) */
+.phone-screen .tree { margin: var(--sp-2) var(--sp-4) 0; border-top: 1px solid var(--border-soft); }
+.phone-screen .tree-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; border-bottom: 1px solid var(--border-soft);
+}
+.phone-screen .tree-row.depth-1 { padding-left: 28px; }
+.phone-screen .tree-row .chev {
+  width: 16px; font-family: var(--font-ui); font-size: var(--text-xs); color: var(--ink-3);
+  display: inline-flex; justify-content: center;
+}
+.phone-screen .tree-row .chev.open { transform: rotate(90deg); }
+.phone-screen .tree-row .label {
+  font-family: var(--font-zh); font-size: var(--text-sm); color: var(--ink); flex: 1;
+}
+.phone-screen .tree-row .count { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-3); }
+.phone-screen .tier-bar {
+  display: flex; height: 3px; border-radius: 2px; overflow: hidden;
+  width: 48px; flex-shrink: 0; background: var(--bg-raised);
+}
+.phone-screen .tier-bar span { display: block; height: 100%; }
+.phone-screen .tier-bar .weak { background: var(--danger); }
+.phone-screen .tier-bar .mid { background: var(--accent); }
+.phone-screen .tier-bar .solid { background: var(--good); }
+
+/* Review card (ReviewCard.jsx approximation) */
+.phone-screen .rv-progress { height: 4px; background: var(--bg-raised); flex-shrink: 0; }
+.phone-screen .rv-progress .bar { height: 100%; background: var(--accent); }
+.phone-screen .rv-meta {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--sp-2) var(--sp-4) 0;
+  font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-3);
+  flex-shrink: 0;
+}
+.phone-screen .rv-meta .crumb {
+  font-family: var(--font-zh); color: var(--ink-2); font-size: var(--text-sm);
+  display: flex; align-items: center; gap: 6px;
+}
+.phone-screen .rv-meta .learning-badge {
+  margin-left: 8px; font-size: var(--text-xs); color: var(--accent); font-weight: 500;
+}
+.phone-screen .rv-meta .pos .now { color: var(--ink); font-weight: 600; }
+/* Shared card-shell base — .rv-card/.qa-card/.browse-card (and their wrap
+   divs .rv-card-wrap/.browse-card-wrap) previously repeated this same
+   background/border/radius/padding/flex shape 3(-4) times with only
+   shadow/opacity/gap differing. Consolidated per states-pass review: each
+   specific class now only declares what's actually different from this
+   shared shape. Markup is unchanged — elements carry both classes, e.g.
+   class="rv-card card-shell". */
+.phone-screen .card-shell {
+  background: var(--bg-card); border: 1px solid var(--border-soft);
+  border-radius: var(--r-lg); padding: 22px 20px 20px;
+  position: relative; display: flex; flex-direction: column;
+}
+.phone-screen .card-shell-wrap { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: var(--sp-4); gap: var(--sp-3); }
+.phone-screen .rv-card-wrap { flex: 1; min-height: 0; }
+.phone-screen .rv-card {
+  flex: 1; min-height: 0;
+  box-shadow: var(--shadow-sm);
+}
+.phone-screen .rv-card .corner {
+  position: absolute; top: 14px; left: 16px; font-size: 9px;
+  letter-spacing: 0.18em; color: var(--ink-3); text-transform: uppercase;
+  display: flex; gap: 6px; align-items: center;
+}
+.phone-screen .rv-card .corner .num { font-family: var(--font-mono); color: var(--accent); font-weight: 600; }
+.phone-screen .rv-card .body {
+  flex: 1; min-height: 0; display: flex; flex-direction: column;
+  gap: var(--sp-3); padding: 28px 8px 24px; overflow-y: auto;
+}
+.phone-screen .rv-card .front-q {
+  font-family: var(--font-zh); font-size: var(--text-lg); font-weight: 500;
+  color: var(--ink); line-height: var(--leading-relaxed);
+}
+.phone-screen .rv-card .echo-q {
+  font-family: var(--font-zh); font-size: var(--text-base); color: var(--ink-2);
+}
+.phone-screen .rv-card .divider-srs {
+  width: 100%; display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-ui); font-size: 9px; color: var(--ink-3);
+  letter-spacing: 0.18em; text-transform: uppercase;
+}
+.phone-screen .rv-card .divider-srs::before, .phone-screen .rv-card .divider-srs::after {
+  content: ""; flex: 1; height: 1px; background: var(--border-soft);
+}
+.phone-screen .rv-card .back-a {
+  font-family: var(--font-zh); font-size: var(--text-base); line-height: var(--leading-relaxed);
+  color: var(--teal);
+}
+.phone-screen .rv-card .latex-placeholder {
+  font-family: var(--font-mono); font-size: var(--text-sm); color: var(--ink-2);
+  background: var(--code-bg); border: 1px solid var(--code-border);
+  border-radius: 6px; padding: 8px 10px; display: inline-block; margin-top: 6px;
+}
+.phone-screen .rv-card .ornament {
+  position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+  width: 32px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--ink-4), transparent);
+}
+.phone-screen .rv-flip-hint {
+  text-align: center; font-family: var(--font-zh); font-size: var(--text-xs);
+  color: var(--ink-3); letter-spacing: 0.14em; font-weight: 500; flex-shrink: 0;
+}
+.phone-screen .rate {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-2);
+  padding: 0 var(--sp-4) var(--sp-4); flex-shrink: 0;
+}
+.phone-screen .rate-btn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 14px 12px; border-radius: var(--r-md); border: 1px solid;
+  font-family: var(--font-ui); font-weight: 500; font-size: var(--text-lg);
+}
+.phone-screen .rate-btn .iv { font-family: var(--font-mono); font-size: var(--text-xs); opacity: 0.65; }
+.phone-screen .rate-again { background: var(--danger-soft); color: var(--danger); border-color: color-mix(in oklch, var(--danger) 22%, transparent); }
+.phone-screen .rate-hard { background: var(--rate-hard-soft); color: var(--rate-hard); border-color: color-mix(in oklch, var(--rate-hard) 22%, transparent); }
+.phone-screen .rate-good { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-line); }
+.phone-screen .rate-easy { background: var(--good-soft); color: var(--good); border-color: color-mix(in oklch, var(--good) 22%, transparent); }
+
+/* Browse (single-card swipe view) */
+.phone-screen .browse-meta {
+  padding: 10px var(--sp-4) 0;
+  display: flex; align-items: center; justify-content: space-between;
+  font-family: var(--font-ui); font-size: var(--text-xs); color: var(--ink-3);
+  flex-shrink: 0;
+}
+.phone-screen .browse-meta .crumb {
+  font-family: var(--font-zh); color: var(--ink-2); font-size: var(--text-xs);
+  display: flex; align-items: center; gap: 6px;
+}
+.phone-screen .leech-tag, .phone-screen .paused-tag {
+  padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 500;
+}
+.phone-screen .paused-tag { background: var(--warn-soft); color: var(--warn); }
+.phone-screen .leech-tag { background: var(--danger-soft); color: var(--danger); font-family: var(--font-ui); }
+.phone-screen .browse-card-wrap { flex: 1; min-height: 0; }
+.phone-screen .browse-card {
+  flex: 1; min-height: 0;
+  box-shadow: var(--shadow-md); opacity: 0.5;
+}
+.phone-screen .browse-card .tag-row {
+  font-family: var(--font-ui); font-size: 9px; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--ink-3); display: flex; gap: 6px; align-items: center;
+}
+.phone-screen .browse-card .q-label { color: var(--accent); font-weight: 600; font-family: var(--font-mono); }
+.phone-screen .browse-card .front-content {
+  font-family: var(--font-zh); font-size: var(--text-lg); font-weight: 500;
+  color: var(--ink); margin-top: 24px; line-height: var(--leading-relaxed);
+}
+.phone-screen .browse-nav {
+  display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-2);
+  padding: 0 var(--sp-4) var(--sp-4); flex-shrink: 0;
+}
+.phone-screen .browse-nav button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 12px; border-radius: var(--r-md); font-weight: 500;
+  font-size: var(--text-sm); font-family: var(--font-ui);
+  border: 1px solid var(--border); color: var(--ink-2); background: none;
+}
+
+/* Empty state */
+.phone-screen .empty {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--sp-3); padding: 56px 24px; text-align: center; color: var(--ink-3);
+}
+.phone-screen .empty .empty-icon { width: 56px; height: 56px; color: var(--ink-4); }
+.phone-screen .empty .msg { font-family: var(--font-zh); font-size: var(--text-sm); }
+.phone-screen .empty .motto-zh { font-family: var(--font-zh); font-size: var(--text-xs); color: var(--ink-3); }
+
+/* Done-screen grid (QuizPage/QuizReview done screen — 2-column variant) */
+.phone-screen .done-wrap {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--sp-4); padding: var(--sp-6) var(--sp-5); text-align: center;
+}
+.phone-screen .done-mark {
+  width: 68px; height: 68px; border-radius: 50%;
+  background: var(--good-soft); border: 1px solid color-mix(in oklch, var(--good) 30%, transparent);
+  display: flex; align-items: center; justify-content: center; color: var(--good);
+}
+.phone-screen .done-title { font-family: var(--font-disp); font-size: var(--text-2xl); color: var(--ink); }
+.phone-screen .done-stats {
+  display: flex; gap: var(--sp-4); font-family: var(--font-zh); font-size: var(--text-sm); color: var(--ink-2);
+}
+.phone-screen .done-stats .v { font-family: var(--font-mono); color: var(--ink); font-weight: 600; }
+.phone-screen .done-grid { display: grid; gap: 6px; width: 100%; }
+.phone-screen .done-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.phone-screen .done-grid .cell {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: var(--sp-3) var(--sp-2); border-radius: var(--r-sm);
+  font-family: var(--font-zh); font-size: var(--text-xs);
+}
+.phone-screen .done-grid .cell .num { font-family: var(--font-disp); font-size: var(--text-xl); }
+.phone-screen .done-grid .cell.again { background: var(--danger-soft); color: var(--danger); }
+.phone-screen .done-grid .cell.good { background: var(--accent-soft); color: var(--accent); }
+.phone-screen .done-grid .cell.easy { background: var(--good-soft); color: var(--good); }
+
+/* Quiz answer card (QuizPage.jsx approximation — choice questions) */
+.phone-screen .qa-card {
+  flex: 1; gap: var(--sp-4); box-shadow: var(--shadow-sm);
+}
+.phone-screen .qa-card .corner {
+  font-size: 9px; letter-spacing: 0.18em; color: var(--ink-3); text-transform: uppercase;
+  display: flex; gap: 6px; align-items: center;
+}
+.phone-screen .qa-card .corner .num { font-family: var(--font-mono); color: var(--accent); font-weight: 600; }
+.phone-screen .qa-stem {
+  font-family: var(--font-zh); font-size: var(--text-lg); font-weight: 500;
+  color: var(--ink); line-height: var(--leading-relaxed);
+}
+.phone-screen .qa-options { display: flex; flex-direction: column; gap: var(--sp-2); }
+.phone-screen .qa-opt {
+  display: flex; align-items: center; gap: var(--sp-3);
+  padding: 13px 14px; border-radius: var(--r-md); border: 1px solid var(--border-soft);
+  background: var(--bg); font-family: var(--font-zh); font-size: var(--text-base); color: var(--ink);
+}
+.phone-screen .qa-opt.picked { border-color: var(--accent); background: var(--accent-soft); }
+.phone-screen .qa-opt.correct { border-color: var(--good); background: var(--good-soft); }
+.phone-screen .qa-opt.wrong { border-color: var(--danger); background: var(--danger-soft); }
+.phone-screen .qa-opt.faded { opacity: 0.5; }
+.phone-screen .qa-mark {
+  width: 26px; height: 26px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); font-family: var(--font-mono); font-size: var(--text-xs);
+  font-weight: 600; color: var(--ink-2); flex-shrink: 0;
+}
+.phone-screen .qa-opt.picked .qa-mark { border-color: var(--accent); color: var(--accent); background: var(--bg-card); }
+.phone-screen .qa-opt.correct .qa-mark { border-color: var(--good); color: var(--good); background: var(--bg-card); }
+.phone-screen .qa-opt.wrong .qa-mark { border-color: var(--danger); color: var(--danger); background: var(--bg-card); }
+.phone-screen .qa-text { flex: 1; }
+.phone-screen .qa-icon { flex-shrink: 0; }
+.phone-screen .qa-explain {
+  padding: var(--sp-3); border-radius: var(--r-sm); background: var(--bg-raised); border: 1px solid var(--border-soft);
+}
+.phone-screen .qa-explain-h {
+  font-family: var(--font-zh); font-size: var(--text-xs); letter-spacing: 0.14em; color: var(--ink-3);
+  margin-bottom: var(--sp-2);
+}
+.phone-screen .qa-explain p { font-family: var(--font-zh); font-size: var(--text-sm); line-height: var(--leading-relaxed); color: var(--ink-2); }
+.phone-screen .mode-chips { padding: var(--sp-2) var(--sp-4) 4px; display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* Reader panels (ReaderPanels.jsx approximation — slide-in shell) */
+.phone-screen .reader-panel-shell {
+  position: absolute; top: 0; left: 0; bottom: 0; width: 240px; z-index: 15;
+  background: var(--bg-card); border-right: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-lg); overflow-y: auto;
+}
+.phone-screen .panel-header {
+  padding: var(--sp-2) var(--sp-3); font-family: var(--font-mono); font-size: var(--text-xs);
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); border-bottom: 1px solid var(--border-soft);
+}
+.phone-screen .panel-hl-row { padding: var(--sp-3); border-bottom: 1px solid var(--border-soft); }
+.phone-screen .panel-hl-text {
+  font-family: var(--font-zh); font-size: var(--text-sm); color: var(--ink); line-height: var(--leading-relaxed);
+  border-left: 3px solid var(--accent); padding-left: var(--sp-2);
+}
+.phone-screen .panel-hl-meta {
+  display: flex; align-items: center; justify-content: space-between; margin-top: var(--sp-2);
+  font-family: var(--font-mono); font-size: 9px; color: var(--ink-4);
+}
+.phone-screen .panel-hl-meta .del { font-family: var(--font-ui); color: var(--ink-3); }
+.phone-screen .panel-footer-action {
+  display: flex; align-items: center; gap: var(--sp-2); padding: 10px var(--sp-3);
+  font-family: var(--font-ui); font-size: var(--text-sm); color: var(--ink-2);
+  border-top: 1px solid var(--border-soft);
+}
+
+/* Reader bottom function bar */
+.phone-screen .reader-bottom-bar {
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  padding: 10px var(--sp-4); background: var(--bg); border-top: 1px solid var(--border-soft);
+}
+.phone-screen .reader-bottom-bar .fn-btn {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: var(--sp-2) 0; font-family: var(--font-zh); font-size: var(--text-sm); color: var(--ink-3);
+}
+.phone-screen .reader-bottom-bar .fn-btn.on { color: var(--accent); }
+.phone-screen .reader-bottom-bar .fn-sep { width: 1px; height: 24px; background: var(--border-soft); }
+.phone-screen .reader-settings-row {
+  display: flex; align-items: center; justify-content: center; gap: var(--sp-4);
+  padding: var(--sp-2) var(--sp-4); background: var(--bg); border-top: 1px solid var(--border-soft);
+}
+.phone-screen .reader-settings-group { display: flex; align-items: center; gap: 4px; }
+.phone-screen .reader-settings-group .val { font-family: var(--font-mono); font-size: 9px; color: var(--ink-3); width: 20px; text-align: right; }
+.phone-screen .reader-settings-group button {
+  width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center;
+  color: var(--ink-3); font-size: var(--text-xs); border: 1px solid var(--border); background: none;
+}
+.phone-screen .reader-settings-sep { width: 1px; height: 20px; background: var(--border-soft); }
+.phone-screen .reader-progress-top { position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--bg-raised); z-index: 10; }
+.phone-screen .reader-progress-top .bar { height: 100%; background: var(--accent); }
+.phone-screen .reader-progress-bottom { flex-shrink: 0; height: 3px; background: var(--bg-raised); }
+.phone-screen .reader-progress-bottom .bar { height: 100%; background: var(--accent); }
+.phone-screen .reader-content {
+  flex: 1; min-height: 0; overflow-y: auto; padding: var(--sp-5) var(--sp-4);
+}
+.phone-screen .reader-content .latex-placeholder {
+  font-family: var(--font-mono); font-size: var(--text-sm); color: var(--ink-2);
+  background: var(--code-bg); border: 1px solid var(--code-border);
+  border-radius: 6px; padding: 8px 10px; display: block; margin: var(--sp-2) 0;
+}
+.phone-screen .reader-content p { font-family: var(--font-zh); font-size: var(--text-base); line-height: var(--leading-relaxed); color: var(--ink); margin-bottom: var(--sp-4); }
+.phone-screen .reader-content h2 { font-family: var(--font-disp); font-size: var(--text-xl); color: var(--ink); margin-bottom: var(--sp-3); }
+.phone-screen .reader-content mark { background: color-mix(in oklch, var(--accent) 25%, transparent); border-radius: 2px; }
+.phone-screen .reader-float-save {
+  position: absolute; z-index: 40; padding: 7px 14px; border-radius: var(--r-md);
+  background: var(--ink); color: var(--bg); font-family: var(--font-zh); font-size: var(--text-sm);
+  font-weight: 500; box-shadow: var(--shadow-lg);
+}
+
+/* Activity page (Activity.jsx approximation — rings + calendar + modules) */
+.phone-screen .activity-content { padding-bottom: var(--sp-5); }
+.phone-screen .activity-hero, .phone-screen .activity-section {
+  margin: var(--sp-4); background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: var(--r-md);
+}
+.phone-screen .activity-hero { padding: var(--sp-4) var(--sp-3) var(--sp-3); display: flex; flex-direction: column; gap: var(--sp-4); }
+.phone-screen .activity-hero-head, .phone-screen .activity-section-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.phone-screen .activity-hero-head .lbl { font-family: var(--font-zh); font-size: var(--text-xs); letter-spacing: 0.16em; color: var(--ink-3); font-weight: 500; }
+.phone-screen .activity-hero-head .streak {
+  display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: var(--text-xs);
+  color: var(--accent); font-weight: 500;
+}
+.phone-screen .activity-section-head .lab { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-3); }
+.phone-screen .activity-hero-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-2); }
+.phone-screen .activity-hero-grid > div { min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.phone-screen .activity-hero .num { font-family: var(--font-disp); font-size: var(--text-3xl); line-height: 1; color: var(--ink); }
+.phone-screen .activity-hero .num.accent { color: var(--accent); }
+.phone-screen .activity-hero .label { font-family: var(--font-ui); font-size: 9px; letter-spacing: 0.12em; color: var(--ink-3); }
+.phone-screen .activity-hero .zh-label { font-family: var(--font-zh); font-size: var(--text-xs); color: var(--ink-2); }
+.phone-screen .activity-section { padding: var(--sp-4); display: flex; flex-direction: column; gap: var(--sp-3); }
+.phone-screen .activity-rings { display: flex; align-items: center; justify-content: center; padding: var(--sp-2) 0 2px; }
+.phone-screen .activity-ring-svg { width: 190px; height: 190px; }
+.phone-screen .activity-ring-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding: 0 4px 2px; }
+.phone-screen .activity-ring-stats .col { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 2px; }
+.phone-screen .activity-ring-stats .dot { width: 8px; height: 8px; border-radius: 50%; }
+.phone-screen .activity-ring-stats .dot.recall { background: var(--accent); }
+.phone-screen .activity-ring-stats .dot.practice { background: var(--teal); }
+.phone-screen .activity-ring-stats .dot.read { background: var(--good); }
+.phone-screen .activity-ring-stats .num { font-family: var(--font-disp); font-size: var(--text-xl); color: var(--ink); line-height: 1; }
+.phone-screen .activity-ring-stats .lab { font-family: var(--font-ui); font-size: 9px; letter-spacing: 0.14em; color: var(--ink-3); }
+.phone-screen .activity-ring-stats .zh { font-family: var(--font-zh); font-size: var(--text-xs); color: var(--ink-2); }
+.phone-screen .activity-calendar { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.phone-screen .activity-day {
+  aspect-ratio: 1; border-radius: 6px; background: var(--bg-raised); color: var(--ink-3);
+  display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 10px;
+  border: 1px solid var(--border-soft);
+}
+.phone-screen .activity-day.l1 { background: color-mix(in oklch, var(--accent-soft) 70%, var(--bg-card)); color: var(--ink-2); border-color: var(--accent-soft); }
+.phone-screen .activity-day.l2 { background: color-mix(in oklch, var(--accent-line) 36%, var(--bg-card)); color: var(--ink); border-color: var(--accent-line); }
+.phone-screen .activity-day.l3 { background: color-mix(in oklch, var(--accent) 58%, var(--bg-card)); color: white; border-color: transparent; }
+.phone-screen .activity-day.l4 { background: var(--accent); color: white; border-color: transparent; }
+.phone-screen .activity-modules { display: flex; flex-direction: column; gap: var(--sp-3); }
+.phone-screen .activity-module { display: grid; grid-template-columns: minmax(58px, 0.8fr) minmax(70px, 1fr) auto; align-items: center; gap: var(--sp-3); }
+.phone-screen .activity-module-name { font-family: var(--font-zh); font-size: var(--text-sm); color: var(--ink); }
+.phone-screen .activity-module-meta { font-family: var(--font-mono); font-size: 10px; color: var(--ink-3); }
+.phone-screen .activity-module-value { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-2); min-width: 28px; text-align: right; }
+.phone-screen .activity-module-meter { position: relative; height: 8px; border-radius: 999px; overflow: hidden; background: var(--bg-raised); }
+.phone-screen .activity-module-fill { position: absolute; inset: 0 auto 0 0; border-radius: inherit; }
+.phone-screen .activity-module-fill.recall { background: var(--accent); }
+.phone-screen .activity-module-fill.practice { background: var(--teal); }
+.phone-screen .activity-module-fill.reading { background: var(--good); }
+.phone-screen .activity-heatmap-scroller { overflow-x: auto; padding-bottom: 4px; }
+.phone-screen .activity-heatmap-cell { width: 14px; height: 14px; border-radius: 3px; border: 1px solid var(--border-soft); }
+.phone-screen .activity-heatmap-daylabel { width: 16px; font-family: var(--font-mono); font-size: 9px; color: var(--ink-3); }
+
+/* Import page (Import.jsx approximation — settings-card-based tabs) */
+.phone-screen .settings-card {
+  background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: var(--r-md);
+  padding: var(--sp-4); display: flex; flex-direction: column; gap: var(--sp-2);
+}
+.phone-screen .settings-card .lbl {
+  font-family: var(--font-zh); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); font-weight: 500;
+}
+.phone-screen .kv-row {
+  display: flex; justify-content: space-between; align-items: baseline; padding: 6px 0;
+  border-bottom: 1px dashed var(--border-soft); font-size: var(--text-sm);
+}
+.phone-screen .kv-row:last-child { border-bottom: 0; }
+.phone-screen .kv-row .k { color: var(--ink-2); font-family: var(--font-zh); font-size: var(--text-xs); }
+.phone-screen .kv-row .v { color: var(--ink); font-family: var(--font-mono); font-size: var(--text-xs); }
+.phone-screen .dropzone {
+  border: 1.5px dashed var(--border); border-radius: var(--r-md); padding: var(--sp-5) var(--sp-4);
+  text-align: center; display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); background: var(--bg);
+}
+.phone-screen .dropzone .icon {
+  width: 36px; height: 36px; border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center; color: var(--ink-2);
+}
+.phone-screen .dropzone .label { font-family: var(--font-zh); font-size: var(--text-sm); color: var(--ink); }
+.phone-screen .dropzone .ext { font-family: var(--font-mono); font-size: 10px; color: var(--ink-3); letter-spacing: 0.08em; }
+.phone-screen .textarea {
+  width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r-sm);
+  padding: 10px 12px; font-size: var(--text-sm); font-family: var(--font-zh); min-height: 90px;
+}
+.phone-screen .import-restore-entry {
+  display: flex; align-items: center; justify-content: space-between; padding: 14px;
+  border-radius: var(--r-md); border: 1px solid var(--border-soft); background: var(--bg-card);
+}
+.phone-screen .import-restore-entry .t { font-family: var(--font-zh); font-size: var(--text-sm); color: var(--ink-2); }
+.phone-screen .import-restore-entry .d { font-family: var(--font-zh); font-size: var(--text-xs); color: var(--ink-3); margin-left: var(--sp-2); }
+
+/* Settings page — quarantine danger row (Settings.jsx + quarantine.js) */
+.phone-screen .settings-backup-list { display: grid; grid-template-columns: 1fr; gap: var(--sp-2); }
+.phone-screen .settings-backup-btn {
+  min-height: 42px; border-radius: var(--r-sm); border: 1px solid var(--border); background: var(--bg); color: var(--ink-2);
+  display: flex; align-items: center; justify-content: center; gap: var(--sp-2);
+  font-family: var(--font-zh); font-size: var(--text-sm); font-weight: 600;
+}
+.phone-screen .settings-backup-btn.primary { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.phone-screen .settings-action-group { display: flex; flex-direction: column; gap: var(--sp-2); padding-top: 2px; }
+.phone-screen .settings-action-group + .settings-action-group { padding-top: var(--sp-3); border-top: 1px dashed var(--border-soft); }
+.phone-screen .settings-action {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); min-height: 44px;
+}
+.phone-screen .settings-action-copy { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.phone-screen .settings-action-title { font-family: var(--font-zh); font-size: var(--text-sm); color: var(--ink); }
+.phone-screen .settings-action-detail { font-family: var(--font-zh); font-size: var(--text-xs); line-height: var(--leading-normal); color: var(--ink-3); }
+.phone-screen .settings-action-btn {
+  flex: 0 0 auto; min-width: 68px; padding: 6px 10px; border-radius: 999px; font-size: var(--text-xs); font-weight: 600;
+}
+.phone-screen .settings-action-btn.warn { background: var(--warn-soft); color: var(--warn); }
+.phone-screen .settings-action-btn.danger { background: var(--danger-soft); color: var(--danger); }
+.phone-screen .settings-quarantine {
+  padding: var(--sp-3); border: 1px solid color-mix(in oklch, var(--danger) 24%, transparent);
+  border-radius: var(--r-sm); background: var(--danger-soft);
+}
+.phone-screen .settings-quarantine-title { font-family: var(--font-zh); font-size: var(--text-sm); font-weight: 600; color: var(--danger); }
+.phone-screen .settings-quarantine-detail {
+  margin-top: 3px; font-family: var(--font-zh); font-size: var(--text-xs); line-height: var(--leading-normal);
+  color: color-mix(in oklch, var(--danger) 72%, var(--ink-2));
+}
+.phone-screen .settings-quarantine-entry {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2); padding-top: var(--sp-2);
+  border-top: 1px dashed color-mix(in oklch, var(--danger) 24%, transparent);
+}
+.phone-screen .settings-quarantine-copy { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.phone-screen .settings-quarantine-copy span { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink); overflow-wrap: anywhere; }
+.phone-screen .settings-quarantine-copy em { font-family: var(--font-zh); font-size: var(--text-xs); font-style: normal; color: var(--ink-3); }
+.phone-screen .settings-quarantine-actions { flex: 0 0 auto; display: flex; gap: 6px; }
+
+/* PromptGuide — code preview block */
+.phone-screen .pg-code {
+  border-radius: var(--r-sm); padding: var(--sp-3); font-family: var(--font-mono); font-size: var(--text-xs);
+  line-height: var(--leading-relaxed); color: var(--ink-2); white-space: pre-wrap;
+  background: var(--bg-sunken); border: 1px solid var(--border-soft);
+}
+.phone-screen .pg-code .ln { color: var(--ink-4); margin-right: 10px; }
+.phone-screen .pg-code .h { color: var(--accent); }
+
+/* Generic mono chip used for badges on captions */
+.state-tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle dark theme">
+  <span id="theme-toggle-label">☾ Dark</span>
+</button>
+
+<header class="atlas-header">
+  <h1 class="atlas-title">Mnemos — Current-State UX Atlas</h1>
+  <p class="atlas-sub">
+    现状地图 — 供 Claude Design 重新校准之用。每一屏 = 390px 手机帧 + 说明行
+    （屏名 / 路由 / 展示状态）。按模组分组：记忆 / 练习 / 阅读 / 系统。
+    这不是像素级复制，也不是重新设计的底稿——仅呈现目前的 UX 结构。
+  </p>
+  <div class="atlas-meta">COMPLETE · 记忆 + 练习 + 阅读 + 系统 modules · 24 frames · tokens inlined from src/styles/tokens.css</div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODULE: 记忆 (Recall / Flashcards)
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="module-group" id="module-jiyi">
+  <div class="module-head">
+    <span class="zh">记忆</span>
+    <span class="en">RECALL / FLASHCARDS</span>
+  </div>
+
+  <div class="frame-grid">
+
+    <!-- FRAME 1 — Home · 记忆 tab -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <header class="topbar">
+            <h1><span style="color:var(--accent); font-size: 20px;">卌</span>Mnemos</h1>
+            <div class="tb-actions">
+              <button class="tb-btn">⌕</button>
+              <button class="tb-btn">⚙</button>
+            </div>
+          </header>
+
+          <div class="tabs-head">
+            <button class="tabs-tab"><span class="zh">练习</span><span class="en">PRACTICE</span></button>
+            <button class="tabs-tab on"><span class="zh">记忆</span><span class="en">RECALL</span></button>
+            <button class="tabs-tab"><span class="zh">阅读</span><span class="en">READING</span></button>
+          </div>
+
+          <div class="hero">
+            <div class="hero-head">
+              <span class="lbl">今日</span>
+              <div class="hero-head-right">
+                <span class="streak">🔥 12天</span>
+                <span class="streak">★ 34</span>
+              </div>
+            </div>
+            <div class="hero-row">
+              <div class="hero-col"><span class="num accent">28</span><span class="label">DUE</span><span class="zh-label">待复习</span></div>
+              <div class="hero-divider"></div>
+              <div class="hero-col"><span class="num">15</span><span class="label">DONE</span><span class="zh-label">今日</span></div>
+              <div class="hero-divider"></div>
+              <div class="hero-col"><span class="num">412</span><span class="label">TOTAL</span><span class="zh-label">总数</span></div>
+            </div>
+            <div class="hero-chart">
+              <div class="hero-bar"><div class="b" style="height:10px"></div><span class="day">日</span></div>
+              <div class="hero-bar"><div class="b" style="height:18px"></div><span class="day">一</span></div>
+              <div class="hero-bar"><div class="b" style="height:6px"></div><span class="day">二</span></div>
+              <div class="hero-bar today"><div class="b" style="height:24px"></div><span class="day">三</span></div>
+              <div class="hero-bar empty"><div class="b" style="height:2px"></div><span class="day">四</span></div>
+              <div class="hero-bar empty"><div class="b" style="height:2px"></div><span class="day">五</span></div>
+              <div class="hero-bar empty"><div class="b" style="height:2px"></div><span class="day">六</span></div>
+            </div>
+          </div>
+
+          <div class="list-head">
+            <span class="section-title">卡组</span>
+            <span class="count">6</span>
+          </div>
+
+          <div class="deck-list">
+            <a class="deck" href="#" onclick="return false">
+              <div class="deck-spine"><span class="glyph">有</span></div>
+              <div class="deck-meta">
+                <div class="deck-name">有机化学反应机理<span class="deck-pin">◆</span></div>
+                <div class="deck-stats"><span class="due">14</span><span>待复习</span><span class="dot">·</span><span>86 张</span></div>
+              </div>
+              <div class="deck-cta">
+                <button class="icon-btn">📌</button>
+                <button class="cta-pill">复习<span>→</span></button>
+              </div>
+            </a>
+            <a class="deck" href="#" onclick="return false">
+              <div class="deck-spine teal"><span class="glyph">日</span></div>
+              <div class="deck-meta">
+                <div class="deck-name">日本語N2文法</div>
+                <div class="deck-stats"><span class="due">9</span><span>待复习</span><span class="dot">·</span><span>203 张</span></div>
+              </div>
+              <div class="deck-cta">
+                <button class="icon-btn">📌</button>
+                <button class="cta-pill">复习<span>→</span></button>
+              </div>
+            </a>
+            <a class="deck" href="#" onclick="return false">
+              <div class="deck-spine good"><span class="glyph">线</span></div>
+              <div class="deck-meta">
+                <div class="deck-name">线性代数期末</div>
+                <div class="deck-stats"><span class="due">5</span><span>待复习</span><span class="dot">·</span><span>77 张</span></div>
+              </div>
+              <div class="deck-cta">
+                <button class="icon-btn">📌</button>
+                <button class="cta-pill">复习<span>→</span></button>
+              </div>
+            </a>
+            <a class="deck" href="#" onclick="return false">
+              <div class="deck-spine plum"><span class="glyph">世</span></div>
+              <div class="deck-meta">
+                <div class="deck-name">世界史·近代条约体系</div>
+                <div class="deck-stats"><span class="done-zh">已完成</span><span class="dot">·</span><span>46 张</span></div>
+              </div>
+              <div class="deck-cta">
+                <button class="icon-btn">📌</button>
+              </div>
+            </a>
+          </div>
+
+          <div class="bottom-actions">
+            <button class="btn btn-ghost">⇧ 导入</button>
+            <button class="btn btn-primary">+ 新建卡组</button>
+          </div>
+
+          <!-- FloatingBar is only shown on detail screens (DeckDetail/Review) in
+               the real app, not on the Home tab itself — omitted here to avoid
+               misrepresenting where it actually appears; see DeckDetail frame. -->
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">Home — 记忆 tab</span>
+        <span class="route">/ (tab=flashcard, sessionStorage-persisted)</span>
+        <span class="states">Hero stats + week chart, pinned deck (◆), due-count CTA pill, completed deck (no pill), bottom new-deck/import actions.</span>
+      </div>
+    </div>
+
+    <!-- FRAME 2 — DeckDetail with structure-tree expanded -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <header class="topbar">
+            <button class="tb-btn">←</button>
+            <h1 class="zh tb-title-left">有机化学反应机理</h1>
+            <div class="tb-actions"><button class="tb-btn">⋯</button></div>
+          </header>
+
+          <div class="dd-head">
+            <div class="dd-meta">
+              <span>86 张</span><span class="sep">·</span>
+              <span style="color:var(--accent)">14 待复习</span><span class="sep">·</span>
+              <span>58 已学</span><span class="sep">·</span>
+              <span style="color:var(--warn)">暂停 3</span>
+            </div>
+            <div class="dd-meta">
+              <span style="font-family:var(--font-mono); font-size:10px; color:var(--danger)">弱 9</span><span class="sep">·</span>
+              <span style="font-family:var(--font-mono); font-size:10px; color:var(--accent)">中 22</span><span class="sep">·</span>
+              <span style="font-family:var(--font-mono); font-size:10px; color:var(--good)">稳 27</span>
+            </div>
+            <div class="dd-progress"><div class="bar" style="width:67%"></div></div>
+            <div class="dd-progress-row"><span>PROGRESS</span><span>67%</span></div>
+          </div>
+
+          <div class="filters">
+            <span class="chip on">全部 86</span>
+            <span class="chip">★ 收藏</span>
+          </div>
+
+          <div class="seg">
+            <button>列表</button>
+            <button class="on">结构视图</button>
+          </div>
+
+          <div class="search"><input placeholder="搜索卡片…" disabled><span class="icn">⌕</span></div>
+
+          <div class="tree">
+            <div class="tree-row">
+              <span class="chev open">›</span>
+              <span class="label">第三章 · 亲核取代反应</span>
+              <span class="count">34</span>
+              <div class="tier-bar"><span class="weak" style="width:20%"></span><span class="mid" style="width:35%"></span><span class="solid" style="width:45%"></span></div>
+            </div>
+            <div class="tree-row depth-1">
+              <span class="chev open">›</span>
+              <span class="label">SN1 vs SN2 机理对比</span>
+              <span class="count">18</span>
+              <div class="tier-bar"><span class="weak" style="width:15%"></span><span class="mid" style="width:30%"></span><span class="solid" style="width:55%"></span></div>
+            </div>
+            <div class="tree-row depth-1">
+              <span class="chev">›</span>
+              <span class="label">离去基团活性排序</span>
+              <span class="count">16</span>
+              <div class="tier-bar"><span class="weak" style="width:25%"></span><span class="mid" style="width:40%"></span><span class="solid" style="width:35%"></span></div>
+            </div>
+            <div class="tree-row">
+              <span class="chev">›</span>
+              <span class="label">第四章 · 消除反应</span>
+              <span class="count">28</span>
+              <div class="tier-bar"><span class="weak" style="width:10%"></span><span class="mid" style="width:25%"></span><span class="solid" style="width:65%"></span></div>
+            </div>
+            <div class="tree-row">
+              <span class="chev">›</span>
+              <span class="label">第五章 · 频哪醇重排</span>
+              <span class="count">24</span>
+              <div class="tier-bar"><span class="weak" style="width:30%"></span><span class="mid" style="width:30%"></span><span class="solid" style="width:40%"></span></div>
+            </div>
+          </div>
+
+          <div style="height:160px; flex-shrink:0;"></div>
+
+          <div class="floating-bar">
+            <a class="dd-cta-main" href="#" onclick="return false">
+              <div class="left">
+                <span class="lead"><span class="num">14</span> 待复习</span>
+                <span class="sub">开始</span>
+              </div>
+              <span class="arr">→</span>
+            </a>
+            <div class="dd-secondary">
+              <a class="dd-action" href="#" onclick="return false">≡<span class="lab">浏览</span></a>
+              <a class="dd-action" href="#" onclick="return false">✦<span class="lab">全部复习</span></a>
+              <a class="dd-action" href="#" onclick="return false">⇧<span class="lab">导入</span></a>
+              <button class="dd-action">+<span class="lab">新卡片</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">DeckDetail <span class="state-tag">结构视图展开态</span></span>
+        <span class="route">/deck/:id</span>
+        <span class="states">Progress head (弱/中/稳 tier counts + 暂停 count), filter chips, list/结构视图 seg toggle, StructureTree with one chapter expanded showing tier bars, FloatingBar overlay with primary CTA + 4 secondary actions.</span>
+      </div>
+    </div>
+
+    <!-- FRAME 3 — Review · card front -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen card-screen-fixed">
+          <header class="topbar">
+            <button class="tb-btn">←</button>
+            <span class="tb-text tb-title-center">日本語N2文法</span>
+            <button class="tb-btn">☆</button>
+          </header>
+
+          <div class="rv-progress"><div class="bar" style="width:32%"></div></div>
+
+          <div class="rv-meta">
+            <span class="crumb">第七課 / 使役受身形</span>
+            <span class="pos"><span class="now">05</span> / 16</span>
+          </div>
+
+          <div class="rv-card-wrap card-shell-wrap">
+            <div class="rv-card card-shell">
+              <span class="corner"><span class="num">05</span>QUESTION</span>
+              <div class="body">
+                <div class="front-q">「先生に　　（　　）　　、レポートを　書き直した。」空欄に入る最も適切な表現を答えなさい。</div>
+              </div>
+              <div class="ornament"></div>
+            </div>
+            <div class="rv-flip-hint">轻点翻面</div>
+          </div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">Review <span class="state-tag">正面</span></span>
+        <span class="route">/review/:id</span>
+        <span class="states">Progress bar, chapter/section crumb, position counter, flip-card front face (QUESTION corner label), flip hint below card.</span>
+      </div>
+    </div>
+
+    <!-- FRAME 4 — Review · card back + rating + learning badge -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen card-screen-fixed">
+          <header class="topbar">
+            <button class="tb-btn">←</button>
+            <span class="tb-text tb-title-center">日本語N2文法</span>
+            <button class="tb-btn" style="color:var(--accent)">★</button>
+          </header>
+
+          <div class="rv-progress"><div class="bar" style="width:6%"></div></div>
+
+          <div class="rv-meta">
+            <span class="crumb">第七課 / 使役受身形<span class="learning-badge">学习中 · 1/2</span></span>
+            <span class="pos"><span class="now">01</span> / 16</span>
+          </div>
+
+          <div class="rv-card-wrap card-shell-wrap">
+            <div class="rv-card card-shell">
+              <span class="corner"><span class="num">01</span>ANSWER</span>
+              <div class="body">
+                <div class="echo-q">「先生に　　（　　）　　、レポートを　書き直した。」空欄に入る最も適切な表現を答えなさい。</div>
+                <div class="divider-srs">REVERSO</div>
+                <div class="back-a">言われた通りに（使役受身形：言わせられて → 言われて の応用）<br>正解：「言われた通りに」</div>
+              </div>
+              <div class="ornament"></div>
+            </div>
+          </div>
+
+          <div class="rate">
+            <button class="rate-btn rate-again"><span>重来</span><span class="iv">1d</span></button>
+            <button class="rate-btn rate-hard"><span>困难</span><span class="iv">3d</span></button>
+            <button class="rate-btn rate-good"><span>记住</span><span class="iv">学习中</span></button>
+            <button class="rate-btn rate-easy"><span>容易</span><span class="iv">7d</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">Review <span class="state-tag">背面 + 评分条 + 学习中 1/2</span></span>
+        <span class="route">/review/:id</span>
+        <span class="states">Learning-step badge in the crumb row (「学习中 · 1/2」), back face (ANSWER corner, REVERSO divider echoing the front question), 4-button rating row (重来/困难/记住/容易) with predicted interval per button.</span>
+      </div>
+    </div>
+
+    <!-- FRAME 5 — Browse with leech-paused row -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen card-screen-fixed">
+          <header class="topbar">
+            <button class="tb-btn">←</button>
+            <span style="font-family:var(--font-mono); font-size:11px;"><strong style="color:var(--ink)">12</strong><span style="color:var(--ink-3)"> / 86</span></span>
+            <button class="tb-btn" style="color:var(--warn); font-family:var(--font-zh); font-size:var(--text-xs); letter-spacing:0.05em; white-space:nowrap;">恢复</button>
+          </header>
+
+          <div class="browse-meta">
+            <span class="crumb">
+              第三章 <span style="color:var(--ink-4)">›</span> SN1 vs SN2 机理对比
+              <span class="paused-tag">已暂停</span>
+              <span class="leech-tag">LEECH</span>
+            </span>
+            <span style="letter-spacing:0.1em;">BROWSE</span>
+          </div>
+
+          <div class="browse-card-wrap card-shell-wrap">
+            <div class="browse-card card-shell">
+              <div class="tag-row"><span class="q-label">Q</span>FRONT</div>
+              <div class="front-content">为什么叔碳亲核取代反应倾向于 SN1 而非 SN2？请说明立体位阻与碳正离子稳定性的关系。</div>
+            </div>
+          </div>
+
+          <div class="browse-nav">
+            <button>← 上一张</button>
+            <button>下一张 →</button>
+          </div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">Browse <span class="state-tag">leech 暂停行</span></span>
+        <span class="route">/browse/:id?chapter=...&section=...</span>
+        <span class="states">Single-card swipe/flip view; breadcrumb row showing both 已暂停 (paused, warn color) and LEECH (danger color) tags on a leech-flagged card; card body dimmed (opacity 0.5) to reflect suspended state; prev/next nav.</span>
+      </div>
+    </div>
+
+    <!-- FRAME 6 — Empty deck state -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <header class="topbar">
+            <button class="tb-btn">←</button>
+            <h1 class="zh tb-title-left">世界史·近代条约体系（新建）</h1>
+          </header>
+          <div class="empty">
+            <div class="empty-icon" style="font-family:var(--font-disp); font-size:52px; color:var(--ink-4); line-height:1;">∅</div>
+            <div class="msg">还没有卡片</div>
+            <div class="motto-zh">从导入开始，或手动新增第一张卡片</div>
+          </div>
+          <div class="bottom-actions" style="margin-bottom:16px;">
+            <button class="btn btn-ghost">⇧ 导入</button>
+            <button class="btn btn-primary">+ 新卡片</button>
+          </div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">DeckDetail / Browse <span class="state-tag">卡片空态</span></span>
+        <span class="route">/deck/:id (0 cards) · /browse/:id (0 cards)</span>
+        <span class="states">∅ glyph + 还没有卡片 message + hint line, in place of the card list / structure tree / browse card, with import/new-card actions still available.</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODULE: 练习 (Practice / Quiz)
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="module-group" id="module-lianxi">
+  <div class="module-head">
+    <span class="zh">练习</span>
+    <span class="en">PRACTICE / QUIZ</span>
+  </div>
+
+  <div class="frame-grid">
+
+    <!-- FRAME 7 — Home · 练习 tab -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <header class="topbar">
+            <h1><span style="color:var(--accent); font-size: 20px;">卌</span>Mnemos</h1>
+            <div class="tb-actions">
+              <button class="tb-btn">⌕</button>
+              <button class="tb-btn">⚙</button>
+            </div>
+          </header>
+
+          <div class="tabs-head">
+            <button class="tabs-tab on"><span class="zh">练习</span><span class="en">PRACTICE</span></button>
+            <button class="tabs-tab"><span class="zh">记忆</span><span class="en">RECALL</span></button>
+            <button class="tabs-tab"><span class="zh">阅读</span><span class="en">READING</span></button>
+          </div>
+
+          <div class="hero">
+            <div class="hero-head">
+              <span class="lbl">本周</span>
+              <div class="hero-head-right"><span class="streak" style="color:var(--warn)">✦ 正确率 78%</span></div>
+            </div>
+            <div class="hero-row">
+              <div class="hero-col"><span class="num accent">23</span><span class="label">WRONG</span><span class="zh-label">错题</span></div>
+              <div class="hero-divider"></div>
+              <div class="hero-col"><span class="num">64</span><span class="label">DONE</span><span class="zh-label">本周已练</span></div>
+              <div class="hero-divider"></div>
+              <div class="hero-col"><span class="num">890</span><span class="label">TOTAL</span><span class="zh-label">总题量</span></div>
+            </div>
+            <div class="hero-chart">
+              <div class="hero-bar teal"><div class="b" style="height:12px"></div><span class="day">日</span></div>
+              <div class="hero-bar teal"><div class="b" style="height:20px"></div><span class="day">一</span></div>
+              <div class="hero-bar teal today"><div class="b" style="height:26px"></div><span class="day">二</span></div>
+              <div class="hero-bar teal"><div class="b" style="height:8px"></div><span class="day">三</span></div>
+              <div class="hero-bar empty"><div class="b" style="height:2px"></div><span class="day">四</span></div>
+              <div class="hero-bar empty"><div class="b" style="height:2px"></div><span class="day">五</span></div>
+              <div class="hero-bar empty"><div class="b" style="height:2px"></div><span class="day">六</span></div>
+            </div>
+          </div>
+
+          <div class="list-head">
+            <span class="section-title">题库</span>
+            <span class="count">4</span>
+          </div>
+
+          <div class="deck-list">
+            <a class="deck" href="#" onclick="return false">
+              <div class="deck-spine"><span class="glyph">数</span></div>
+              <div class="deck-meta">
+                <div class="deck-name">数据结构与算法</div>
+                <div class="deck-stats"><span class="due">12</span><span>错题</span><span class="dot">·</span><span>320 题</span><span class="dot">·</span><span>73%</span></div>
+                <div style="display:flex; gap:4px; margin-top:4px;">
+                  <span class="chip" style="font-size:10px; padding:2px 7px;">选择 210</span>
+                  <span class="chip" style="font-size:10px; padding:2px 7px;">解答 110</span>
+                </div>
+              </div>
+              <div class="deck-cta"><button class="cta-pill">开始<span>→</span></button></div>
+            </a>
+            <a class="deck" href="#" onclick="return false">
+              <div class="deck-spine teal"><span class="glyph">概</span></div>
+              <div class="deck-meta">
+                <div class="deck-name">概率论与数理统计</div>
+                <div class="deck-stats"><span class="due">7</span><span>错题</span><span class="dot">·</span><span>156 题</span><span class="dot">·</span><span style="color:var(--accent)">刚刚</span></div>
+                <div style="display:flex; gap:4px; margin-top:4px;">
+                  <span class="chip" style="font-size:10px; padding:2px 7px;">选择 156</span>
+                </div>
+              </div>
+              <div class="deck-cta"><button class="cta-pill">开始<span>→</span></button></div>
+            </a>
+            <a class="deck" href="#" onclick="return false">
+              <div class="deck-spine good"><span class="glyph">法</span></div>
+              <div class="deck-meta">
+                <div class="deck-name">法律基础知识</div>
+                <div class="deck-stats"><span>414 题</span><span class="dot">·</span><span>91%</span></div>
+                <div style="display:flex; gap:4px; margin-top:4px;">
+                  <span class="chip" style="font-size:10px; padding:2px 7px;">解答 414</span>
+                </div>
+              </div>
+              <div class="deck-cta"><button class="cta-pill">开始<span>→</span></button></div>
+            </a>
+          </div>
+
+          <div class="bottom-actions">
+            <button class="btn btn-ghost">⇧ 导入</button>
+            <button class="btn btn-primary">+ 新建题库</button>
+          </div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">Home — 练习 tab</span>
+        <span class="route">/ (tab=quiz)</span>
+        <span class="states">Teal hero chart (chartColor="teal"), subject cards with 错题/正确率/时间 stats and choice/review type-count chips, bottom new-subject/import actions.</span>
+      </div>
+    </div>
+
+    <!-- FRAME 8 — SetDetail -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <header class="topbar">
+            <button class="tb-btn">←</button>
+            <h1 class="zh tb-title-left">数据结构与算法</h1>
+            <div class="tb-actions"><button class="tb-btn">⋯</button></div>
+          </header>
+
+          <div class="dd-head">
+            <div class="dd-meta">
+              <span>320 题</span><span class="sep">/</span>
+              <span>选择 210</span><span class="sep">/</span>
+              <span>解答 110</span><span class="sep">/</span>
+              <span style="color:var(--good)">73%</span>
+            </div>
+            <div class="dd-progress"><div class="bar teal" style="width:73%"></div></div>
+            <div class="dd-progress-row"><span>ACCURACY</span><span>73%</span></div>
+          </div>
+
+          <div class="filters">
+            <span class="chip on">全部 320</span>
+            <span class="chip">选择 210</span>
+            <span class="chip">解答 110</span>
+            <span class="chip">★ 收藏 18</span>
+          </div>
+
+          <div class="seg">
+            <button class="on">列表</button>
+            <button>结构视图</button>
+          </div>
+
+          <div class="tree" style="border-top:1px solid var(--border-soft); margin:6px var(--sp-4) 0;">
+            <div class="tree-row" style="padding:8px 12px 8px 4px;">
+              <span class="chev" style="width:auto; margin-right:4px;">›</span>
+              <span class="label" style="font-weight:500;">第二章 · 树与二叉树</span>
+              <span class="count" style="font-family:var(--font-mono); font-size:10px; color:var(--ink-3);">86 题 · 选择 12 · 解答 8 · <span style="color:var(--danger)">6 错</span></span>
+            </div>
+            <div style="padding-left:16px;">
+              <div class="tree-row depth-1" style="padding:6px 8px 6px 22px;">
+                <span class="q-tag-mini choice" style="margin-right:4px;">选</span>
+                <span class="label" style="font-size:13px; font-weight:400;">选择题 · 12 题</span>
+              </div>
+              <div class="tree-row depth-1" style="padding:6px 8px 6px 22px;">
+                <span class="q-tag-mini review" style="margin-right:4px;">解</span>
+                <span class="label" style="font-size:13px; font-weight:400;">解答题 · 8 题</span>
+              </div>
+            </div>
+            <div class="tree-row" style="padding:8px 12px 8px 4px;">
+              <span class="chev" style="width:auto; margin-right:4px;">›</span>
+              <span class="label" style="font-weight:500;">第三章 · 图论基础</span>
+              <span class="count" style="font-family:var(--font-mono); font-size:10px; color:var(--ink-3);">64 题</span>
+            </div>
+          </div>
+
+          <div style="height:160px; flex-shrink:0;"></div>
+
+          <div class="floating-bar">
+            <button class="dd-cta-main teal" style="width:100%; border:none; cursor:pointer;">
+              <div class="left">
+                <span class="lead"><span class="num">320</span>题</span>
+                <span class="sub">开始练习</span>
+              </div>
+              <span class="arr">→</span>
+            </button>
+            <div class="dd-secondary">
+              <a class="dd-action" href="#" onclick="return false">↻<span class="lab">错题本</span></a>
+              <a class="dd-action" href="#" onclick="return false">★<span class="lab">收藏</span></a>
+              <a class="dd-action" href="#" onclick="return false">⇧<span class="lab">导入</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">SetDetail</span>
+        <span class="route">/set/:subject</span>
+        <span class="states">ACCURACY progress head (teal bar), 4 filter chips (全部/选择/解答/收藏), list/结构视图 seg toggle, chapter list with choice/review sub-rows, FloatingBar with teal primary CTA + 错题本/收藏/导入 secondary actions.</span>
+      </div>
+    </div>
+
+    <!-- FRAME 9 — QuizPage · 选择题作答前 -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen card-screen-fixed">
+          <header class="topbar">
+            <button class="tb-btn">←</button>
+            <h1 class="zh tb-title-left">树与二叉树</h1>
+            <span style="font-family:var(--font-mono); font-size:11px;"><strong style="color:var(--ink)">3</strong><span style="color:var(--ink-3)"> / 10</span></span>
+            <div class="tb-actions"><button class="tb-btn">☆</button></div>
+          </header>
+
+          <div class="mode-chips">
+            <span class="chip on">随机</span>
+            <span class="chip">顺序</span>
+            <span class="chip">仅未做</span>
+            <span class="chip">错题</span>
+            <span class="chip">收藏</span>
+          </div>
+
+          <div class="rv-progress"><div class="bar" style="width:20%"></div></div>
+
+          <div class="rv-meta">
+            <span class="crumb"><span class="q-tag choice">选择</span>第二章 · 树与二叉树</span>
+            <span class="pos"><span class="now">03</span> / 10</span>
+          </div>
+
+          <div style="flex:1; min-height:0; padding:var(--sp-4); display:flex; flex-direction:column;">
+            <div class="qa-card card-shell">
+              <span class="corner"><span class="num">03</span><span class="zh" style="font-family:var(--font-zh)">选择</span> · 单选</span>
+              <div class="qa-stem">在一棵完全二叉树中，若某节点的编号为 i（从 1 开始），则其左孩子的编号为多少？</div>
+              <div class="qa-options">
+                <button class="qa-opt"><span class="qa-mark">A</span><span class="qa-text">i / 2</span></button>
+                <button class="qa-opt"><span class="qa-mark">B</span><span class="qa-text">2i</span></button>
+                <button class="qa-opt picked"><span class="qa-mark">C</span><span class="qa-text">2i + 1</span></button>
+                <button class="qa-opt"><span class="qa-mark">D</span><span class="qa-text">i + 1</span></button>
+              </div>
+              <div class="ornament"></div>
+            </div>
+          </div>
+
+          <div style="padding:0 var(--sp-4) var(--sp-4); flex-shrink:0;">
+            <button class="btn btn-primary" style="width:100%;">提交答案</button>
+          </div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">QuizPage <span class="state-tag">选择题作答前</span></span>
+        <span class="route">/quiz/:subject</span>
+        <span class="states">Mode-filter chips (随机/顺序/仅未做/错题/收藏), progress bar, choice-tag crumb, qa-card with one option picked (not yet submitted), disabled 提交答案 CTA becomes active once an option is picked.</span>
+      </div>
+    </div>
+
+    <!-- FRAME 10 — QuizPage · 答错解析 -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen card-screen-fixed">
+          <header class="topbar">
+            <button class="tb-btn">←</button>
+            <h1 class="zh tb-title-left">树与二叉树</h1>
+            <span style="font-family:var(--font-mono); font-size:11px;"><strong style="color:var(--ink)">3</strong><span style="color:var(--ink-3)"> / 10</span></span>
+            <div class="tb-actions"><button class="tb-btn">☆</button></div>
+          </header>
+
+          <div class="mode-chips">
+            <span class="chip on">随机</span>
+            <span class="chip">顺序</span>
+            <span class="chip">仅未做</span>
+            <span class="chip">错题</span>
+            <span class="chip">收藏</span>
+          </div>
+
+          <div class="rv-progress"><div class="bar" style="width:20%"></div></div>
+
+          <div class="rv-meta">
+            <span class="crumb"><span class="q-tag choice">选择</span>第二章 · 树与二叉树</span>
+            <span class="pos"><span class="now">03</span> / 10</span>
+          </div>
+
+          <div style="flex:1; min-height:0; overflow-y:auto; padding:var(--sp-4); display:flex; flex-direction:column; gap:12px;">
+            <div class="qa-card card-shell" style="flex:none;">
+              <span class="corner"><span class="num">03</span><span class="zh" style="font-family:var(--font-zh)">选择</span> · 单选</span>
+              <div class="qa-stem">在一棵完全二叉树中，若某节点的编号为 i（从 1 开始），则其左孩子的编号为多少？</div>
+              <div class="qa-options">
+                <button class="qa-opt wrong" disabled><span class="qa-mark">A</span><span class="qa-text">i / 2</span><span class="qa-icon">✕</span></button>
+                <button class="qa-opt correct" disabled><span class="qa-mark">B</span><span class="qa-text">2i</span><span class="qa-icon">✓</span></button>
+                <button class="qa-opt faded" disabled><span class="qa-mark">C</span><span class="qa-text">2i + 1</span></button>
+                <button class="qa-opt faded" disabled><span class="qa-mark">D</span><span class="qa-text">i + 1</span></button>
+              </div>
+              <div class="qa-explain">
+                <div class="qa-explain-h">解析</div>
+                <p>完全二叉树按层序编号时，编号为 i 的节点左孩子编号为 2i，右孩子编号为 2i + 1（i 从 1 开始）。本题误选 i/2 —— 这是「求父节点编号」的公式，与「求左孩子编号」相反，注意区分方向。</p>
+              </div>
+              <div class="ornament"></div>
+            </div>
+          </div>
+
+          <div style="padding:0 var(--sp-4) var(--sp-4); flex-shrink:0;">
+            <button class="btn btn-primary" style="width:100%;">下一题</button>
+          </div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">QuizPage <span class="state-tag">答错解析</span></span>
+        <span class="route">/quiz/:subject</span>
+        <span class="states">Submitted + wrong state: picked option marked .wrong (✕), correct option marked .correct (✓), remaining options .faded, 解析 explanation panel auto-expanded, CTA becomes 下一题.</span>
+      </div>
+    </div>
+
+    <!-- FRAME 11 — QuizPage (QuizReview.jsx) · 解答题自评 -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen card-screen-fixed">
+          <header class="topbar">
+            <button class="tb-btn">←</button>
+            <span style="font-family:var(--font-mono); font-size:11px;"><strong style="color:var(--ink)">05</strong><span style="color:var(--ink-3)"> / 20</span></span>
+            <div class="tb-actions"><button class="tb-btn" style="color:var(--accent)">★</button></div>
+          </header>
+
+          <div class="mode-chips">
+            <span class="chip on">随机</span>
+            <span class="chip">顺序</span>
+            <span class="chip">仅未做</span>
+            <span class="chip">错题</span>
+            <span class="chip">收藏</span>
+          </div>
+
+          <div class="rv-progress"><div class="bar" style="width:24%"></div></div>
+
+          <div class="rv-meta">
+            <span class="crumb"><span class="q-tag review">解答</span>第五章 · 图的最短路径</span>
+            <span class="pos"><span class="now">05</span> / 20</span>
+          </div>
+
+          <div class="rv-card-wrap card-shell-wrap">
+            <div class="rv-card card-shell">
+              <span class="corner"><span class="num">05</span>REFERENCE</span>
+              <div class="body">
+                <div class="echo-q">简述 Dijkstra 算法的核心思想，并说明其为何不能正确处理带负权边的图。</div>
+                <div class="divider-srs">REVERSO</div>
+                <div class="back-a">Dijkstra 算法采用贪心策略，每次从未确定最短路径的顶点中选取当前距离源点最近的顶点，将其标记为已确定，并用其松弛邻接边。<br><br>参考路径：<br><code style="font-family:var(--font-mono); font-size:12px; background:var(--code-bg); padding:1px 4px; border-radius:3px;">图论 › 单源最短路径 › Dijkstra</code><br><br>因为算法假设一旦某顶点被标记为「已确定」，其最短距离不会再变小；但负权边可能让后续松弛产生更短路径，破坏这一假设，故不能处理负权边（需改用 Bellman-Ford）。</div>
+              </div>
+              <div class="ornament"></div>
+            </div>
+          </div>
+
+          <div class="rate">
+            <button class="rate-btn rate-again"><span>未答出</span><span class="iv" style="font-family:var(--font-ui)">MISSED</span></button>
+            <button class="rate-btn rate-easy"><span>已掌握</span><span class="iv" style="font-family:var(--font-ui)">GOT IT</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">QuizPage <span class="state-tag">解答题自评（QuizReview.jsx）</span></span>
+        <span class="route">/quiz-review/:subject</span>
+        <span class="states">Flip-card back face already shown (REFERENCE/REVERSO, echoing the question then the reference answer with a solution-path breadcrumb), 2-button self-rating row (未答出 MISSED / 已掌握 GOT IT) replacing the 4-way SM2 rating used in Review.</span>
+      </div>
+    </div>
+
+    <!-- FRAME 12 — Wrong 错题本（含「生成闪卡」入口） -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <header class="topbar">
+            <button class="tb-btn">←</button>
+            <h1 class="zh tb-title-left">错题本</h1>
+            <button class="tb-btn" style="width:auto; padding:0 8px; color:var(--accent); font-family:var(--font-zh); font-size:13px;">生成闪卡</button>
+          </header>
+
+          <div style="padding:12px var(--sp-4) 0; display:flex; gap:6px; overflow-x:auto;">
+            <span class="chip on">全部</span>
+            <span class="chip">数据结构与算法</span>
+            <span class="chip">概率论与数理统计</span>
+          </div>
+
+          <div style="flex:1; padding:var(--sp-4); display:flex; flex-direction:column; gap:12px;">
+            <div style="background:var(--bg-card); border-radius:var(--r-lg); padding:var(--sp-3); border:1px solid var(--border-soft);">
+              <div style="display:flex; align-items:start; justify-content:space-between; gap:8px; margin-bottom:8px;">
+                <span style="font-size:11px; color:var(--ink-3); font-family:var(--font-zh);">数据结构与算法 · 第二章</span>
+                <span style="padding:2px 8px; border-radius:4px; font-size:11px; background:var(--danger-soft); color:var(--danger);">choice</span>
+              </div>
+              <div style="font-size:14px; color:var(--ink); font-family:var(--font-zh); margin-bottom:8px;">红黑树在插入新节点后，为恢复平衡最多需要几次旋转？</div>
+              <div style="display:flex; align-items:center; justify-content:space-between;">
+                <div style="display:flex; gap:12px; font-size:11px; color:var(--ink-3);">
+                  <span>错 3 次</span><span>连续错 2 次</span>
+                </div>
+                <button style="padding:4px 12px; border-radius:6px; font-size:11px; font-weight:500; background:var(--accent-soft); color:var(--accent); border:none;">重做</button>
+              </div>
+            </div>
+            <div style="background:var(--bg-card); border-radius:var(--r-lg); padding:var(--sp-3); border:1px solid var(--border-soft);">
+              <div style="display:flex; align-items:start; justify-content:space-between; gap:8px; margin-bottom:8px;">
+                <span style="font-size:11px; color:var(--ink-3); font-family:var(--font-zh);">概率论与数理统计 · 第一章</span>
+                <span style="padding:2px 8px; border-radius:4px; font-size:11px; background:var(--danger-soft); color:var(--danger);">choice</span>
+              </div>
+              <div style="font-size:14px; color:var(--ink); font-family:var(--font-zh); margin-bottom:8px;">设随机变量 X ~ N(0,1)，求 P(X &gt; 1.96) 的近似值。</div>
+              <div style="display:flex; align-items:center; justify-content:space-between;">
+                <div style="display:flex; gap:12px; font-size:11px; color:var(--ink-3);">
+                  <span>错 1 次</span><span>连续错 1 次</span>
+                </div>
+                <button style="padding:4px 12px; border-radius:6px; font-size:11px; font-weight:500; background:var(--accent-soft); color:var(--accent); border:none;">重做</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">Wrong 错题本 <span class="state-tag">含「生成闪卡」入口</span></span>
+        <span class="route">/wrong?subject=...</span>
+        <span class="states">Subject filter chips, per-question wrong_count/wrongStreak stats + 重做 (redo) action, 生成闪卡 button in the topbar (navigates to Import with prefilled cards built from the wrong-question set — only shown when the list is non-empty).</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODULE: 阅读 (Reading)
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="module-group" id="module-yuedu">
+  <div class="module-head">
+    <span class="zh">阅读</span>
+    <span class="en">READING</span>
+  </div>
+
+  <div class="frame-grid">
+
+    <!-- FRAME 13 — Home · 阅读 tab -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <header class="topbar">
+            <h1><span style="color:var(--accent); font-size: 20px;">卌</span>Mnemos</h1>
+            <div class="tb-actions">
+              <button class="tb-btn">⌕</button>
+              <button class="tb-btn">⚙</button>
+            </div>
+          </header>
+
+          <div class="tabs-head">
+            <button class="tabs-tab"><span class="zh">练习</span><span class="en">PRACTICE</span></button>
+            <button class="tabs-tab"><span class="zh">记忆</span><span class="en">RECALL</span></button>
+            <button class="tabs-tab on"><span class="zh">阅读</span><span class="en">READING</span></button>
+          </div>
+
+          <div class="search" style="margin: 12px var(--sp-4) 0;"><input placeholder="搜索文档…" disabled><span class="icn">⌕</span></div>
+
+          <div class="hero">
+            <div class="hero-head">
+              <span class="lbl">本周</span>
+              <div class="hero-head-right"><span class="streak" style="color:var(--warn)">✦ 126 分钟</span></div>
+            </div>
+            <div class="hero-row">
+              <div class="hero-col"><span class="num accent">126</span><span class="label">MIN</span><span class="zh-label">本周阅读</span></div>
+              <div class="hero-divider"></div>
+              <div class="hero-col"><span class="num">4</span><span class="label">DONE</span><span class="zh-label">已读完</span></div>
+              <div class="hero-divider"></div>
+              <div class="hero-col"><span class="num">31</span><span class="label">DOCS</span><span class="zh-label">总文档</span></div>
+            </div>
+            <div class="hero-chart">
+              <div class="hero-bar teal"><div class="b" style="height:14px"></div><span class="day">日</span></div>
+              <div class="hero-bar teal today"><div class="b" style="height:22px"></div><span class="day">一</span></div>
+              <div class="hero-bar teal"><div class="b" style="height:18px"></div><span class="day">二</span></div>
+              <div class="hero-bar empty"><div class="b" style="height:2px"></div><span class="day">三</span></div>
+              <div class="hero-bar empty"><div class="b" style="height:2px"></div><span class="day">四</span></div>
+              <div class="hero-bar empty"><div class="b" style="height:2px"></div><span class="day">五</span></div>
+              <div class="hero-bar empty"><div class="b" style="height:2px"></div><span class="day">六</span></div>
+            </div>
+          </div>
+
+          <div class="deck-list" style="margin-top: var(--sp-3);">
+            <a class="deck" href="#" onclick="return false">
+              <div class="deck-spine"><span class="glyph">文</span></div>
+              <div class="deck-meta">
+                <div class="deck-name">《文明的滴定》读书笔记</div>
+                <div class="deck-stats"><span class="due" style="font-family:var(--font-zh)">继续阅读</span><span class="dot">·</span><span>62%</span></div>
+              </div>
+            </a>
+          </div>
+
+          <div class="list-head" style="margin-top: var(--sp-2);">
+            <span class="section-title">收藏夹</span>
+            <span class="count">3</span>
+          </div>
+
+          <div class="deck-list">
+            <a class="deck" href="#" onclick="return false">
+              <div class="deck-spine teal"><span class="glyph">论</span></div>
+              <div class="deck-meta">
+                <div class="deck-name">论文精读<span class="deck-pin">◆</span></div>
+                <div class="deck-stats"><span>12 篇</span></div>
+              </div>
+              <div class="deck-cta"><button class="cta-pill">阅读<span>→</span></button></div>
+            </a>
+            <a class="deck" href="#" onclick="return false">
+              <div class="deck-spine good"><span class="glyph">历</span></div>
+              <div class="deck-meta">
+                <div class="deck-name">历史读物</div>
+                <div class="deck-stats"><span>8 篇</span></div>
+              </div>
+              <div class="deck-cta"><button class="cta-pill">阅读<span>→</span></button></div>
+            </a>
+            <a class="deck" href="#" onclick="return false">
+              <div class="deck-spine plum"><span class="glyph">杂</span></div>
+              <div class="deck-meta">
+                <div class="deck-name">杂志剪存</div>
+                <div class="deck-stats"><span>11 篇</span></div>
+              </div>
+              <div class="deck-cta"><button class="cta-pill">阅读<span>→</span></button></div>
+            </a>
+          </div>
+
+          <div class="bottom-actions">
+            <button class="btn btn-ghost">⇧ 导入</button>
+            <button class="btn btn-primary">+ 新收藏夹</button>
+          </div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">Home — 阅读 tab</span>
+        <span class="route">/ (tab=reading)</span>
+        <span class="states">Search bar (shown once a collection has documents), teal hero chart, continue-reading card with scroll %, pinned collection (◆), collection list with document counts, bottom new-collection/import actions.</span>
+      </div>
+    </div>
+
+    <!-- FRAME 14 — Reader 沉浸态（chrome 隐藏） -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen" style="position:relative;">
+          <div class="reader-progress-top"><div class="bar" style="width:62%"></div></div>
+          <div class="reader-content">
+            <h2>第三章 · 磺胺药与青霉素的发现</h2>
+            <p>1932 年，多马克在研究染料化合物的抗菌性质时，意外发现百浪多息（Prontosil）对链球菌感染有显著疗效。这一发现开启了磺胺类药物的黄金时代，也为后续抗生素的系统性筛选提供了方法论基础。</p>
+            <p>与此同时，弗莱明在圣玛丽医院的实验室里，注意到一块被青霉菌污染的葡萄球菌培养皿中出现了明显的抑菌圈。这一观察后来被弗洛里与钱恩等人系统化验证，最终促成青霉素的工业化量产。</p>
+            <p>若以抑菌圈半径 <span class="latex-placeholder">$r$</span> 与药物浓度 <span class="latex-placeholder">$C$</span> 的关系建模，早期文献常用如下近似：<span class="latex-placeholder">$r \propto \log(C / C_0)$</span>，其中 <span class="latex-placeholder">$C_0$</span> 为最低有效浓度阈值。</p>
+            <p>这段历史提示我们：许多重大发现最初都源于「反常现象」而非预设假说 —— 培养皿污染本是实验失败的标志，却在弗莱明手中转化为关键证据。</p>
+          </div>
+          <!-- Bottom progress bar has no opacity binding to barHidden removed here —
+               matches the real Reader.jsx: only the TOP bar (no opacity binding, always
+               visible) survives in the immersive state; the bottom bar's opacity is
+               `barHidden ? 0 : 1` and is genuinely gone when chrome is hidden. -->
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">Reader <span class="state-tag">沉浸态（chrome 隐藏）</span></span>
+        <span class="route">/reading/doc/:id</span>
+        <span class="states">Topbar, bottom function bar, AND the bottom accent progress bar are all hidden (opacity 0 / translateY off-screen, toggled by tapping content) — only the 2px TOP accent progress bar has no such binding and remains visible in every state. LaTeX shown as raw placeholder text, not rendered — e.g. <code style="font-family:var(--font-mono)">$r \propto \log(C/C_0)$</code>.</span>
+      </div>
+    </div>
+
+    <!-- FRAME 15 — Reader chrome 显示态（底部工具栏 + 设置面板展开） -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen" style="position:relative;">
+          <div class="reader-progress-top"><div class="bar" style="width:62%"></div></div>
+          <header class="topbar">
+            <button class="tb-btn">←</button>
+            <span class="tb-text tb-title-center">文明的滴定</span>
+            <div style="width:32px;"></div>
+          </header>
+          <div class="reader-content" style="padding-bottom: 8px;">
+            <h2>第三章 · 磺胺药与青霉素的发现</h2>
+            <p>1932 年，多马克在研究染料化合物的抗菌性质时，意外发现百浪多息（Prontosil）对链球菌感染有显著疗效。这一发现开启了磺胺类药物的黄金时代<mark>，也为后续抗生素的系统性筛选提供了方法论基础</mark>。</p>
+            <p>与此同时，弗莱明在圣玛丽医院的实验室里，注意到一块被青霉菌污染的葡萄球菌培养皿中出现了明显的抑菌圈。</p>
+          </div>
+          <div class="reader-settings-row">
+            <div class="reader-settings-group"><span class="val">17</span><button>A-</button><button>A+</button></div>
+            <div class="reader-settings-sep"></div>
+            <div class="reader-settings-group"><span class="val">1.8</span><button>-</button><button>+</button></div>
+            <div class="reader-settings-sep"></div>
+            <div class="reader-settings-group"><span class="val">24</span><button>-</button><button>+</button></div>
+          </div>
+          <div class="reader-bottom-bar">
+            <span class="fn-btn">TOC</span>
+            <span class="fn-btn">高亮</span>
+            <span class="fn-btn">书签</span>
+            <div class="fn-sep"></div>
+            <span class="fn-btn on">设置</span>
+          </div>
+          <div class="reader-progress-bottom"><div class="bar" style="width:62%"></div></div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">Reader <span class="state-tag">chrome 显示态（底部工具栏 + 设置面板展开）</span></span>
+        <span class="route">/reading/doc/:id</span>
+        <span class="states">Topbar + bottom function bar visible (TOC/高亮/书签/设置 tabs), settings-expansion row above the function bar with font-size/line-height/margins A-/A+ steppers, one highlighted span (&lt;mark&gt;) visible in the content.</span>
+      </div>
+    </div>
+
+    <!-- FRAME 16 — 高亮面板 -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen" style="position:relative;">
+          <div class="reader-progress-top"><div class="bar" style="width:62%"></div></div>
+          <div class="reader-panel-shell">
+            <div class="panel-header">高亮 (3)</div>
+            <div class="panel-hl-row">
+              <div class="panel-hl-text">磺胺类药物的黄金时代，也为后续抗生素的系统性筛选提供了方法论基础</div>
+              <div class="panel-hl-meta"><span>2026/6/28</span><span class="del">删除</span></div>
+            </div>
+            <div class="panel-hl-row">
+              <div class="panel-hl-text">培养皿污染本是实验失败的标志，却在弗莱明手中转化为关键证据</div>
+              <div class="panel-hl-meta"><span>2026/6/29</span><span class="del">删除</span></div>
+            </div>
+            <div class="panel-hl-row">
+              <div class="panel-hl-text">弗洛里与钱恩等人系统化验证，最终促成青霉素的工业化量产</div>
+              <div class="panel-hl-meta"><span>2026/7/1</span><span class="del">删除</span></div>
+            </div>
+            <!-- HighlightsPanel (ReaderPanels.jsx lines 28-59) has ONLY a header +
+                 per-highlight rows — no footer actions. 生成闪卡/导出高亮 belong to
+                 BookmarksPanel instead (see the dedicated Bookmarks frame after this
+                 one) — do not fold them back in here. -->
+          </div>
+          <div class="reader-content" style="opacity:0.35;">
+            <h2>第三章 · 磺胺药与青霉素的发现</h2>
+            <p>1932 年，多马克在研究染料化合物的抗菌性质时，意外发现百浪多息对链球菌感染有显著疗效。</p>
+          </div>
+          <div class="reader-progress-bottom"><div class="bar" style="width:62%"></div></div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">高亮面板 (HighlightsPanel)</span>
+        <span class="route">/reading/doc/:id (activePanel='highlights')</span>
+        <span class="states">Slide-in panel (280px, left-anchored) listing saved highlights with date + 删除 action per row; header-only otherwise — no footer actions in this panel (生成闪卡/导出高亮 live in Bookmarks instead, see next frame). Content dimmed behind the backdrop.</span>
+      </div>
+    </div>
+
+    <!-- FRAME 17 — 书签面板 (BookmarksPanel) -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen" style="position:relative;">
+          <div class="reader-progress-top"><div class="bar" style="width:62%"></div></div>
+          <div class="reader-panel-shell">
+            <div class="panel-header">书签 (2)</div>
+            <div class="panel-footer-action">+ 添加书签</div>
+            <div class="panel-hl-row" style="cursor:pointer;">
+              <div style="display:flex; align-items:center; justify-content:space-between;">
+                <div>
+                  <div style="font-family:var(--font-zh); font-size:13px; color:var(--ink);">第二章 · 磺胺药的早期争议</div>
+                  <div style="font-family:var(--font-mono); font-size:10px; color:var(--ink-3);">34%</div>
+                </div>
+                <span style="font-family:var(--font-ui); font-size:11px; color:var(--ink-3); flex-shrink:0;">删除</span>
+              </div>
+            </div>
+            <div class="panel-hl-row" style="cursor:pointer;">
+              <div style="display:flex; align-items:center; justify-content:space-between;">
+                <div>
+                  <div style="font-family:var(--font-zh); font-size:13px; color:var(--ink);">第三章 · 磺胺药与青霉素的发现</div>
+                  <div style="font-family:var(--font-mono); font-size:10px; color:var(--ink-3);">62%</div>
+                </div>
+                <span style="font-family:var(--font-ui); font-size:11px; color:var(--ink-3); flex-shrink:0;">删除</span>
+              </div>
+            </div>
+            <div style="margin-top:auto; border-top:1px solid var(--border-soft);">
+              <div class="panel-footer-action">+ 生成闪卡</div>
+              <div class="panel-footer-action">↓ 导出高亮</div>
+            </div>
+          </div>
+          <div class="reader-content" style="opacity:0.35;">
+            <h2>第三章 · 磺胺药与青霉素的发现</h2>
+            <p>1932 年，多马克在研究染料化合物的抗菌性质时，意外发现百浪多息对链球菌感染有显著疗效。</p>
+          </div>
+          <div class="reader-progress-bottom"><div class="bar" style="width:62%"></div></div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">书签面板 (BookmarksPanel)</span>
+        <span class="route">/reading/doc/:id (activePanel='bookmarks')</span>
+        <span class="states">+ 添加书签 row at the top (saves current scroll position), bookmark rows with title + scroll % + 删除, and — this is where 生成闪卡/导出高亮 actually live (gated on highlights.length &gt; 0), not in the Highlights panel.</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODULE: 系统 (System)
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="module-group" id="module-xitong">
+  <div class="module-head">
+    <span class="zh">系统</span>
+    <span class="en">SYSTEM</span>
+  </div>
+
+  <div class="frame-grid">
+
+    <!-- FRAME 18 — Activity · rings + monthly calendar -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <header class="topbar">
+            <button class="tb-btn">←</button>
+            <h1 class="zh tb-title-left">活动</h1>
+            <div class="tb-actions"><span class="tb-text">本月</span></div>
+          </header>
+
+          <div class="activity-content">
+            <div class="activity-hero">
+              <div class="activity-hero-head">
+                <span class="lbl">本月</span>
+                <span class="streak">🔥 12天</span>
+              </div>
+              <div class="activity-hero-grid">
+                <div><span class="num accent">18</span><span class="label">ACTIVE DAYS</span><span class="zh-label">活跃天数</span></div>
+                <div><span class="num">64</span><span class="label">THIS WEEK</span><span class="zh-label">本周活动</span></div>
+                <div><span class="num">312</span><span class="label">TOTAL</span><span class="zh-label">总活动量</span></div>
+              </div>
+            </div>
+
+            <section class="activity-section">
+              <div class="activity-section-head">
+                <div class="section-title">今日</div>
+                <span class="lab">78%</span>
+              </div>
+              <div class="activity-rings">
+                <svg class="activity-ring-svg" viewBox="0 0 200 200">
+                  <circle cx="100" cy="100" r="86" fill="none" stroke="var(--bg-raised)" stroke-width="14" />
+                  <circle cx="100" cy="100" r="86" fill="none" stroke="var(--accent)" stroke-width="14" stroke-dasharray="405 540" stroke-linecap="round" transform="rotate(-90 100 100)" />
+                  <circle cx="100" cy="100" r="66" fill="none" stroke="var(--bg-raised)" stroke-width="14" />
+                  <circle cx="100" cy="100" r="66" fill="none" stroke="var(--teal)" stroke-width="14" stroke-dasharray="330 415" stroke-linecap="round" transform="rotate(-90 100 100)" />
+                  <circle cx="100" cy="100" r="46" fill="none" stroke="var(--bg-raised)" stroke-width="14" />
+                  <circle cx="100" cy="100" r="46" fill="none" stroke="var(--good)" stroke-width="14" stroke-dasharray="217 289" stroke-linecap="round" transform="rotate(-90 100 100)" />
+                  <text x="100" y="96" text-anchor="middle" font-family="var(--font-disp)" font-size="38" fill="var(--ink)">78</text>
+                  <text x="100" y="116" text-anchor="middle" font-family="var(--font-ui)" font-size="9" fill="var(--ink-3)" letter-spacing="2">PERCENT</text>
+                </svg>
+              </div>
+              <div class="activity-ring-stats">
+                <div class="col"><span class="dot recall"></span><span class="num">28</span><span class="lab">RECALL</span><span class="zh">记忆 / 目标 30</span></div>
+                <div class="col"><span class="dot practice"></span><span class="num">14</span><span class="lab">PRACTICE</span><span class="zh">练习 / 目标 20</span></div>
+                <div class="col"><span class="dot read"></span><span class="num">32<span style="font-family:var(--font-mono); font-size:11px; color:var(--ink-3); margin-left:2px;">m</span></span><span class="lab">READING</span><span class="zh">阅读 / 目标 30</span></div>
+              </div>
+            </section>
+
+            <section class="activity-section">
+              <div class="activity-section-head">
+                <div class="section-title">月历</div>
+                <span class="lab">30 天</span>
+              </div>
+              <div class="activity-calendar">
+                <div class="activity-day"><span>05</span></div>
+                <div class="activity-day l1"><span>06</span></div>
+                <div class="activity-day l2"><span>07</span></div>
+                <div class="activity-day l3"><span>08</span></div>
+                <div class="activity-day"><span>09</span></div>
+                <div class="activity-day l1"><span>10</span></div>
+                <div class="activity-day l4"><span>11</span></div>
+                <div class="activity-day l2"><span>12</span></div>
+                <div class="activity-day l3"><span>13</span></div>
+                <div class="activity-day l1"><span>14</span></div>
+                <div class="activity-day"><span>15</span></div>
+                <div class="activity-day l2"><span>16</span></div>
+                <div class="activity-day l4"><span>17</span></div>
+                <div class="activity-day l3"><span>18</span></div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">Activity <span class="state-tag">环 + 月历</span></span>
+        <span class="route">/activity</span>
+        <span class="states">Month-summary hero, 3-ring today-progress dashboard (记忆/练习/阅读, radii 86/66/46, center % + PERCENT label), per-ring stat columns, and a 30-day intensity calendar (l0-l4 shading). Continues on the next frame (heatmap + module meters + recent-7-days bars).</span>
+      </div>
+    </div>
+
+    <!-- FRAME 19 — Activity · heatmap + module meters + recent bars -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="activity-content" style="padding-top: var(--sp-4);">
+            <section class="activity-section">
+              <div class="activity-section-head">
+                <div class="section-title">热力</div>
+                <span class="lab">90 天</span>
+              </div>
+              <div class="activity-heatmap-scroller">
+                <div style="display:inline-flex; flex-direction:column; gap:2px; min-width:280px;">
+                  <div style="display:flex; gap:2px; padding-left:18px;">
+                    <div style="width:14px; font-family:var(--font-mono); font-size:9px; color:var(--ink-3); text-align:center;">6月</div>
+                    <div style="width:14px;"></div><div style="width:14px;"></div><div style="width:14px;"></div>
+                    <div style="width:14px; font-family:var(--font-mono); font-size:9px; color:var(--ink-3); text-align:center;">7月</div>
+                    <div style="width:14px;"></div><div style="width:14px;"></div><div style="width:14px;"></div>
+                  </div>
+                  <div style="display:flex; gap:2px;">
+                    <div style="display:flex; flex-direction:column; gap:2px; width:16px; flex-shrink:0;">
+                      <div class="activity-heatmap-daylabel" style="height:14px;"></div>
+                      <div class="activity-heatmap-daylabel" style="height:14px; display:flex; align-items:center; justify-content:center;">一</div>
+                      <div class="activity-heatmap-daylabel" style="height:14px;"></div>
+                      <div class="activity-heatmap-daylabel" style="height:14px; display:flex; align-items:center; justify-content:center;">三</div>
+                      <div class="activity-heatmap-daylabel" style="height:14px;"></div>
+                      <div class="activity-heatmap-daylabel" style="height:14px; display:flex; align-items:center; justify-content:center;">五</div>
+                      <div class="activity-heatmap-daylabel" style="height:14px;"></div>
+                    </div>
+                    <div style="display:flex; gap:2px;">
+                      <div style="display:flex; flex-direction:column; gap:2px;">
+                        <div class="activity-heatmap-cell" style="background:var(--bg-raised);"></div>
+                        <div class="activity-heatmap-cell" style="background:color-mix(in oklch, var(--accent) 25%, var(--bg-raised));"></div>
+                        <div class="activity-heatmap-cell" style="background:color-mix(in oklch, var(--accent) 50%, var(--bg-raised));"></div>
+                        <div class="activity-heatmap-cell" style="background:var(--accent);"></div>
+                        <div class="activity-heatmap-cell" style="background:var(--bg-raised);"></div>
+                        <div class="activity-heatmap-cell" style="background:color-mix(in oklch, var(--accent) 75%, var(--bg-raised));"></div>
+                        <div class="activity-heatmap-cell" style="background:color-mix(in oklch, var(--accent) 50%, var(--bg-raised));"></div>
+                      </div>
+                      <div style="display:flex; flex-direction:column; gap:2px;">
+                        <div class="activity-heatmap-cell" style="background:color-mix(in oklch, var(--accent) 25%, var(--bg-raised));"></div>
+                        <div class="activity-heatmap-cell" style="background:var(--accent);"></div>
+                        <div class="activity-heatmap-cell" style="background:var(--bg-raised);"></div>
+                        <div class="activity-heatmap-cell" style="background:color-mix(in oklch, var(--accent) 50%, var(--bg-raised));"></div>
+                        <div class="activity-heatmap-cell" style="background:color-mix(in oklch, var(--accent) 75%, var(--bg-raised));"></div>
+                        <div class="activity-heatmap-cell" style="background:var(--bg-raised);"></div>
+                        <div class="activity-heatmap-cell" style="background:color-mix(in oklch, var(--accent) 25%, var(--bg-raised));"></div>
+                      </div>
+                      <div style="display:flex; flex-direction:column; gap:2px;">
+                        <div class="activity-heatmap-cell" style="border:1.5px solid var(--ink); background:var(--accent);"></div>
+                        <div class="activity-heatmap-cell" style="background:color-mix(in oklch, var(--accent) 50%, var(--bg-raised));"></div>
+                        <div class="activity-heatmap-cell" style="background:color-mix(in oklch, var(--accent) 75%, var(--bg-raised));"></div>
+                        <div class="activity-heatmap-cell" style="background:var(--bg-raised);"></div>
+                        <div class="activity-heatmap-cell" style="background:color-mix(in oklch, var(--accent) 25%, var(--bg-raised));"></div>
+                        <div class="activity-heatmap-cell" style="background:var(--accent);"></div>
+                        <div class="activity-heatmap-cell" style="background:color-mix(in oklch, var(--accent) 50%, var(--bg-raised));"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:8px; font-family:var(--font-mono); font-size:11px; color:var(--ink-2); display:flex; gap:8px; align-items:center;">
+                <span>2026-07-02</span><span style="color:var(--ink-4)">·</span><span>记忆 24</span><span style="color:var(--ink-4)">·</span><span>练习 12</span><span style="color:var(--ink-4)">·</span><span>阅读 18 min</span>
+              </div>
+            </section>
+
+            <section class="activity-section">
+              <div class="activity-section-head">
+                <div class="section-title">模块</div>
+                <span class="lab">✦ 只读聚合</span>
+              </div>
+              <div class="activity-modules">
+                <div class="activity-module">
+                  <div>
+                    <div class="activity-module-name">记忆</div>
+                    <div class="activity-module-meta">正确率 82%</div>
+                  </div>
+                  <div class="activity-module-meter"><span class="activity-module-fill recall" style="width:70%"></span></div>
+                  <span class="activity-module-value">210</span>
+                </div>
+                <div class="activity-module">
+                  <div>
+                    <div class="activity-module-name">练习</div>
+                    <div class="activity-module-meta">正确率 74%</div>
+                  </div>
+                  <div class="activity-module-meter"><span class="activity-module-fill practice" style="width:45%"></span></div>
+                  <span class="activity-module-value">134</span>
+                </div>
+                <div class="activity-module">
+                  <div>
+                    <div class="activity-module-name">阅读</div>
+                    <div class="activity-module-meta">分钟数</div>
+                  </div>
+                  <div class="activity-module-meter"><span class="activity-module-fill reading" style="width:30%"></span></div>
+                  <span class="activity-module-value">96</span>
+                </div>
+              </div>
+            </section>
+
+            <section class="activity-section">
+              <div class="activity-section-head">
+                <div class="section-title">最近</div>
+                <span>7 天</span>
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(7, minmax(0,1fr)); gap:6px;">
+                <div style="display:flex; flex-direction:column; align-items:center; gap:7px;">
+                  <div style="font-family:var(--font-mono); font-size:10px; color:var(--ink-3);">12</div>
+                  <div style="width:100%; height:42px; display:flex; align-items:end; justify-content:center; gap:2px; background:var(--bg-raised); border-radius:6px; padding:5px 3px;">
+                    <span style="width:7px; height:20px; border-radius:3px 3px 1px 1px; background:var(--accent);"></span>
+                    <span style="width:7px; height:12px; border-radius:3px 3px 1px 1px; background:var(--teal);"></span>
+                    <span style="width:7px; height:16px; border-radius:3px 3px 1px 1px; background:var(--good);"></span>
+                  </div>
+                </div>
+                <div style="display:flex; flex-direction:column; align-items:center; gap:7px;">
+                  <div style="font-family:var(--font-mono); font-size:10px; color:var(--ink-3);">13</div>
+                  <div style="width:100%; height:42px; display:flex; align-items:end; justify-content:center; gap:2px; background:var(--bg-raised); border-radius:6px; padding:5px 3px;">
+                    <span style="width:7px; height:28px; border-radius:3px 3px 1px 1px; background:var(--accent);"></span>
+                    <span style="width:7px; height:8px; border-radius:3px 3px 1px 1px; background:var(--teal);"></span>
+                    <span style="width:7px; height:0px; border-radius:3px 3px 1px 1px; background:var(--good);"></span>
+                  </div>
+                </div>
+                <div style="display:flex; flex-direction:column; align-items:center; gap:7px;">
+                  <div style="font-family:var(--font-mono); font-size:10px; color:var(--ink-3);">14</div>
+                  <div style="width:100%; height:42px; display:flex; align-items:end; justify-content:center; gap:2px; background:var(--bg-raised); border-radius:6px; padding:5px 3px;">
+                    <span style="width:7px; height:10px; border-radius:3px 3px 1px 1px; background:var(--accent);"></span>
+                    <span style="width:7px; height:22px; border-radius:3px 3px 1px 1px; background:var(--teal);"></span>
+                    <span style="width:7px; height:14px; border-radius:3px 3px 1px 1px; background:var(--good);"></span>
+                  </div>
+                </div>
+                <div style="display:flex; flex-direction:column; align-items:center; gap:7px;">
+                  <div style="font-family:var(--font-mono); font-size:10px; color:var(--ink-3);">15</div>
+                  <div style="width:100%; height:42px; display:flex; align-items:end; justify-content:center; gap:2px; background:var(--bg-raised); border-radius:6px; padding:5px 3px;">
+                    <span style="width:7px; height:0px; border-radius:3px 3px 1px 1px; background:var(--accent);"></span>
+                    <span style="width:7px; height:0px; border-radius:3px 3px 1px 1px; background:var(--teal);"></span>
+                    <span style="width:7px; height:0px; border-radius:3px 3px 1px 1px; background:var(--good);"></span>
+                  </div>
+                </div>
+                <div style="display:flex; flex-direction:column; align-items:center; gap:7px;">
+                  <div style="font-family:var(--font-mono); font-size:10px; color:var(--ink-3);">16</div>
+                  <div style="width:100%; height:42px; display:flex; align-items:end; justify-content:center; gap:2px; background:var(--bg-raised); border-radius:6px; padding:5px 3px;">
+                    <span style="width:7px; height:24px; border-radius:3px 3px 1px 1px; background:var(--accent);"></span>
+                    <span style="width:7px; height:18px; border-radius:3px 3px 1px 1px; background:var(--teal);"></span>
+                    <span style="width:7px; height:26px; border-radius:3px 3px 1px 1px; background:var(--good);"></span>
+                  </div>
+                </div>
+                <div style="display:flex; flex-direction:column; align-items:center; gap:7px;">
+                  <div style="font-family:var(--font-mono); font-size:10px; color:var(--ink-3);">17</div>
+                  <div style="width:100%; height:42px; display:flex; align-items:end; justify-content:center; gap:2px; background:var(--bg-raised); border-radius:6px; padding:5px 3px;">
+                    <span style="width:7px; height:32px; border-radius:3px 3px 1px 1px; background:var(--accent);"></span>
+                    <span style="width:7px; height:20px; border-radius:3px 3px 1px 1px; background:var(--teal);"></span>
+                    <span style="width:7px; height:12px; border-radius:3px 3px 1px 1px; background:var(--good);"></span>
+                  </div>
+                </div>
+                <div style="display:flex; flex-direction:column; align-items:center; gap:7px;">
+                  <div style="font-family:var(--font-mono); font-size:10px; color:var(--ink-3);">18</div>
+                  <div style="width:100%; height:42px; display:flex; align-items:end; justify-content:center; gap:2px; background:var(--bg-raised); border-radius:6px; padding:5px 3px;">
+                    <span style="width:7px; height:18px; border-radius:3px 3px 1px 1px; background:var(--accent);"></span>
+                    <span style="width:7px; height:10px; border-radius:3px 3px 1px 1px; background:var(--teal);"></span>
+                    <span style="width:7px; height:20px; border-radius:3px 3px 1px 1px; background:var(--good);"></span>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">Activity <span class="state-tag">热力图 + 模块占比 + 近7天</span></span>
+        <span class="route">/activity</span>
+        <span class="states">GitHub-style weekday-aligned heatmap (scrolled to latest week, month labels, tap-to-select day-detail row), per-module (记忆/练习/阅读) meter bars with correct-rate meta, and a 7-day 3-color stacked-bar strip. Continuation of the previous frame — same screen, same scroll.</span>
+      </div>
+    </div>
+
+    <!-- FRAME 20 — Import · 闪卡 tab (paste) -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <header class="topbar">
+            <button class="tb-btn">←</button>
+            <h1 class="zh tb-title-left">导入</h1>
+          </header>
+          <div style="flex:1; padding:var(--sp-4); display:flex; flex-direction:column; gap:var(--sp-4);">
+            <div class="seg">
+              <button>题库</button>
+              <button class="on">闪卡</button>
+              <button>阅读</button>
+            </div>
+
+            <div class="settings-card">
+              <div class="lbl">闪卡导入</div>
+              <div class="kv-row"><span class="k">目标</span><span class="v">间隔复习与主动回忆</span></div>
+              <div class="kv-row"><span class="k">内容</span><span class="v">正面 / 背面卡片</span></div>
+              <div class="kv-row"><span class="k">导入后</span><span class="v">生成卡组</span></div>
+            </div>
+
+            <div class="settings-card">
+              <div class="lbl">文件导入</div>
+              <div class="dropzone">
+                <div class="icon">⇧</div>
+                <div class="label">点击选择 · 或拖入文件</div>
+                <div class="ext">.MD · .TXT · .CSV</div>
+              </div>
+            </div>
+
+            <div class="settings-card">
+              <div class="lbl">粘贴内容</div>
+              <div class="textarea" style="color:var(--ink-3);"># 章节&#10;## 小节&#10;* 正面&#10;  * 背面要点</div>
+              <button style="display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:10px; border-radius:var(--r-sm); background:var(--accent-soft); color:var(--accent); border:1px solid var(--accent-line); font-family:var(--font-ui); font-size:var(--text-sm); font-weight:500;">
+                📋 解析并预览
+              </button>
+            </div>
+
+            <div class="settings-card">
+              <div class="lbl">支持格式</div>
+              <div class="kv-row"><span class="k">Markdown</span><span class="v">.md 列表</span></div>
+              <div class="kv-row"><span class="k">Anki 导出</span><span class="v">txt / csv，含 cloze</span></div>
+              <div class="kv-row"><span class="k">纯文本</span><span class="v">正面换行背面</span></div>
+            </div>
+
+            <div style="text-align:center; font-family:var(--font-zh); font-size:var(--text-xs); color:var(--ink-2); padding:8px 0; letter-spacing:0.04em;">
+              不知如何准备？ <span style="color:var(--accent)">查看制卡指南 →</span>
+            </div>
+
+            <div class="import-restore-entry" style="margin-top:auto;">
+              <div><span class="t">恢复备份</span><span class="d">完整 / 仅记忆 / 仅练习</span></div>
+              <span style="color:var(--ink-3)">›</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">Import <span class="state-tag">闪卡 tab</span></span>
+        <span class="route">/import?tab=md</span>
+        <span class="states">3-way tab seg (题库/闪卡/阅读), target/content/after-import summary card, file dropzone (.MD/.TXT/.CSV), paste-and-preview textarea, supported-format reference, and the persistent 从备份恢复 entry pinned at the bottom (leads to the restore tab, shown next).</span>
+      </div>
+    </div>
+
+    <!-- FRAME 21 — Import · 恢复 tab -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <header class="topbar">
+            <button class="tb-btn">←</button>
+            <h1 class="zh tb-title-left">导入</h1>
+          </header>
+          <div style="flex:1; padding:var(--sp-4); display:flex; flex-direction:column; gap:var(--sp-4);">
+            <div class="settings-card">
+              <div class="lbl">恢复备份</div>
+              <div class="kv-row"><span class="k">目标</span><span class="v">恢复完整备份 / 仅记忆 / 仅练习</span></div>
+              <div class="kv-row"><span class="k">来源</span><span class="v">Settings 导出的备份文件</span></div>
+              <div class="kv-row"><span class="k">模式</span><span class="v">合并数据 或 替换全部</span></div>
+            </div>
+
+            <div class="settings-card">
+              <div class="lbl">文件导入</div>
+              <div class="dropzone">
+                <div class="icon">⇧</div>
+                <div class="label">点击选择 · 或拖入备份文件</div>
+                <div class="ext">.JSON</div>
+              </div>
+            </div>
+
+            <div class="settings-card">
+              <div class="lbl">支持格式</div>
+              <div class="kv-row"><span class="k">完整备份</span><span class="v">记忆 + 练习 + 阅读</span></div>
+              <div class="kv-row"><span class="k">仅记忆</span><span class="v">卡组和卡片</span></div>
+              <div class="kv-row"><span class="k">仅练习</span><span class="v">题目、进度和收藏</span></div>
+            </div>
+
+            <div style="text-align:center; font-family:var(--font-zh); font-size:var(--text-xs); color:var(--ink-3); padding:8px 0; letter-spacing:0.04em;">
+              自动备份文件位于 Documents/Mnemos/
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">Import <span class="state-tag">恢复 tab</span></span>
+        <span class="route">/import?tab=restore</span>
+        <span class="states">Reached via the 从备份恢复 entry (not a seg tab itself — importTab='restore' has no visible pill in the top seg). Target/source/mode summary, .JSON-only dropzone, supported-backup-shape reference, native-only auto-backup-location note.</span>
+      </div>
+    </div>
+
+    <!-- FRAME 22 — Settings · 隔离区危险行出现态 -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <header class="topbar">
+            <button class="tb-btn">←</button>
+            <h1 class="zh tb-title-left">设置</h1>
+          </header>
+          <div style="flex:1; padding:var(--sp-4); display:flex; flex-direction:column; gap:var(--sp-4);">
+            <div class="settings-card">
+              <div class="lbl">备份</div>
+              <div class="settings-backup-list">
+                <button class="settings-backup-btn primary">⇩ 完整备份</button>
+                <button class="settings-backup-btn">⇩ 仅导出记忆</button>
+                <button class="settings-backup-btn">⇩ 仅导出练习</button>
+                <button class="settings-backup-btn">⇩ 仅导出阅读</button>
+              </div>
+
+              <div class="settings-action-group">
+                <div class="settings-action">
+                  <div class="settings-action-copy">
+                    <span class="settings-action-title">恢复备份</span>
+                    <span class="settings-action-detail">从备份文件恢复数据</span>
+                  </div>
+                  <button class="settings-action-btn warn">恢复</button>
+                </div>
+              </div>
+
+              <div class="settings-quarantine">
+                <div class="settings-quarantine-title">检测到 2 份受损数据</div>
+                <div class="settings-quarantine-detail">原始内容已保存为隔离副本，可先导出给外部工具修复，再通过恢复备份重新导入。</div>
+                <div class="settings-quarantine-entry">
+                  <div class="settings-quarantine-copy">
+                    <span>mnemos-flashcard-data</span>
+                    <em>7/2 14:30 · 12.4 KB</em>
+                  </div>
+                  <div class="settings-quarantine-actions">
+                    <button class="settings-action-btn warn">导出</button>
+                    <button class="settings-action-btn danger">丢弃</button>
+                  </div>
+                </div>
+                <div class="settings-quarantine-entry">
+                  <div class="settings-quarantine-copy">
+                    <span>mnemos-quiz-progress</span>
+                    <em>7/3 09:12 · 3.1 KB</em>
+                  </div>
+                  <div class="settings-quarantine-actions">
+                    <button class="settings-action-btn warn">导出</button>
+                    <button class="settings-action-btn danger">丢弃</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">Settings <span class="state-tag">隔离区危险行的出现态</span></span>
+        <span class="route">/settings</span>
+        <span class="states">Backup section: 4 export buttons, 恢复备份 action row, and — only when listQuarantined() returns entries — the danger-toned quarantine block (title with count, explanation, per-entry key/timestamp/size + 导出/丢弃 actions). This block is entirely absent when nothing is quarantined.</span>
+      </div>
+    </div>
+
+    <!-- FRAME 23 — 空态：题库为空 (QuizHomeContent empty-library state) -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <header class="topbar">
+            <h1><span style="color:var(--accent); font-size: 20px;">卌</span>Mnemos</h1>
+            <div class="tb-actions">
+              <button class="tb-btn">⌕</button>
+              <button class="tb-btn">⚙</button>
+            </div>
+          </header>
+
+          <div class="tabs-head">
+            <button class="tabs-tab on"><span class="zh">练习</span><span class="en">PRACTICE</span></button>
+            <button class="tabs-tab"><span class="zh">记忆</span><span class="en">RECALL</span></button>
+            <button class="tabs-tab"><span class="zh">阅读</span><span class="en">READING</span></button>
+          </div>
+
+          <div class="hero">
+            <div class="hero-head">
+              <span class="lbl">准备</span>
+              <div class="hero-head-right"><span class="streak">⇧ 待导入</span></div>
+            </div>
+            <div class="hero-row">
+              <div class="hero-col"><span class="num accent">0</span><span class="label">SETS</span><span class="zh-label">题库</span></div>
+              <div class="hero-divider"></div>
+              <div class="hero-col"><span class="num">0</span><span class="label">WRONG</span><span class="zh-label">错题</span></div>
+              <div class="hero-divider"></div>
+              <div class="hero-col"><span class="num">0</span><span class="label">QUEST</span><span class="zh-label">题目</span></div>
+            </div>
+            <div class="hero-chart">
+              <div class="hero-bar empty"><div class="b" style="height:2px"></div><span class="day">日</span></div>
+              <div class="hero-bar empty"><div class="b" style="height:2px"></div><span class="day">一</span></div>
+              <div class="hero-bar empty"><div class="b" style="height:2px"></div><span class="day">二</span></div>
+              <div class="hero-bar empty"><div class="b" style="height:2px"></div><span class="day">三</span></div>
+              <div class="hero-bar empty"><div class="b" style="height:2px"></div><span class="day">四</span></div>
+              <div class="hero-bar empty"><div class="b" style="height:2px"></div><span class="day">五</span></div>
+              <div class="hero-bar empty"><div class="b" style="height:2px"></div><span class="day">六</span></div>
+            </div>
+          </div>
+
+          <div class="list-head">
+            <span class="section-title">科目</span>
+            <span class="count">0</span>
+          </div>
+
+          <div class="empty">
+            <div class="empty-icon">📋</div>
+            <div class="msg">暂无题库</div>
+            <div class="motto-zh">导入或新建题库即可开始</div>
+          </div>
+
+          <div class="bottom-actions">
+            <button class="btn btn-ghost">⇧ 导入</button>
+            <button class="btn btn-primary">+ 新建题库</button>
+          </div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">Home <span class="state-tag">空态：题库为空</span></span>
+        <span class="route">/ (tab=quiz, subjects.length === 0)</span>
+        <span class="states">Distinct from Commit 1's empty-deck-detail state — this is QuizHomeContent's empty-LIBRARY branch: hero relabels 今日 → 准备 with a 待导入 badge replacing streak/star, all-zero metrics, empty week chart, and EmptyState (PasteIcon) in place of the subject list.</span>
+      </div>
+    </div>
+
+    <!-- FRAME 24 — PromptGuide 首屏 -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <header class="topbar">
+            <button class="tb-btn">←</button>
+            <h1 class="zh tb-title-left">制卡指南</h1>
+          </header>
+          <div style="flex:1; padding:var(--sp-4); display:flex; flex-direction:column; gap:var(--sp-4);">
+            <p style="font-family:var(--font-zh); font-size:var(--text-sm); color:var(--ink-2); line-height:var(--leading-relaxed); letter-spacing:0.02em;">
+              复制下方 prompt 给任意 AI（Claude · GPT · DeepSeek · Kimi），附上学习材料，即可得到可导入的 .md。
+            </p>
+
+            <div class="settings-card">
+              <div class="lbl">也可以直接导入 Anki 导出</div>
+              <div style="font-family:var(--font-zh); font-size:var(--text-sm); color:var(--ink-2); line-height:var(--leading-relaxed);">
+                闪卡 tab 支持 Anki 导出的 .txt / .csv 文件，自动识别 header 指令、HTML 字段和 cloze 挖空。无需转换为 Markdown。
+              </div>
+            </div>
+
+            <div class="seg">
+              <button class="on">通用知识</button>
+              <button>单词制卡</button>
+            </div>
+
+            <button style="width:100%; display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:10px; border-radius:var(--r-md); background:var(--ink); color:var(--bg); font-family:var(--font-ui); font-size:var(--text-sm); font-weight:500;">
+              ⧉ 复制 Prompt
+            </button>
+
+            <div class="pg-code">
+<span class="ln">01</span>你是一个知识结构化助手。请将我提供的笔记内容转换为以下格式：
+<span class="ln">02</span>
+<span class="ln">03</span># [科目名]
+<span class="ln">04</span><span class="h">## [大章节名]</span>
+<span class="ln">05</span><span class="h">### [小节名]</span>
+<span class="ln">06</span>* [知识点标题]
+<span class="ln">07</span>  [对该知识点的释义或解释，1-3 句话]
+<span class="ln">08</span>* [下一个知识点标题]
+<span class="ln">09</span>  [释义]
+<span class="ln">10</span>  * [补充说明或子知识点，归入父级]
+<span class="ln">11</span>
+<span class="ln">12</span><span class="h">## 规则</span>
+<span class="ln">13</span>
+<span class="ln">14</span><span class="h">### 标题层级</span>
+            </div>
+
+            <div style="text-align:center; font-family:var(--font-zh); font-size:var(--text-xs); color:var(--ink-3); letter-spacing:0.04em;">
+              导入时 · 选择文件或粘贴
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">PromptGuide <span class="state-tag">首屏</span></span>
+        <span class="route">/prompt-guide</span>
+        <span class="states">Entry screen only (this is a long-form guide — not atlased in full): intro copy, an Anki-import note card, a 通用知识/单词制卡 template-seg toggle, 复制 Prompt action, and the numbered/syntax-highlighted (## and ### headings, per line.startsWith('##')) prompt-template code block — showing the real PROMPT_TEMPLATE's opening 14 lines verbatim from src/lib/formatSpec.js (general/通用知识 tab; truncated before the 「## 规则」section's remaining sub-rules, not the full ~40-line template).</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script>
+// Theme toggle — the ONLY JavaScript in this document. Adds/removes
+// .dark on <html>. No routing, no state persistence, no interactivity
+// simulation of any kind.
+(function () {
+  var root = document.documentElement;
+  var btn = document.getElementById('theme-toggle');
+  var label = document.getElementById('theme-toggle-label');
+
+  function render() {
+    label.textContent = root.classList.contains('dark') ? '☀ Light' : '☾ Dark';
+  }
+
+  btn.addEventListener('click', function () {
+    root.classList.toggle('dark');
+    render();
+  });
+
+  render();
+})();
+</script>
+
+</body>
+</html>
