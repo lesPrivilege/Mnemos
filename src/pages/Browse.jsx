@@ -4,6 +4,7 @@ import { getCards, toggleStar, toggleSuspended } from '../lib/storage'
 import { useRenderedMarkdown } from '../lib/useRenderedMarkdown'
 import { BackIcon, ArrowLIcon, ArrowRIcon } from '../components/Icons'
 import { useBackButton } from '../lib/useBackButton'
+import { S } from '../lib/strings'
 import '../styles/markdown.css'
 
 function CardFace({ card }) {
@@ -130,8 +131,8 @@ export default function Browse() {
         </header>
         <div className="empty">
           <div className="glyph">∅</div>
-          <div className="msg">暂无卡片</div>
-          <div className="motto-zh">导入或新建卡片</div>
+          <div className="msg">{S.browse.empty}</div>
+          <div className="motto-zh">{S.browse.emptyHint}</div>
         </div>
       </div>
     )
@@ -166,7 +167,7 @@ export default function Browse() {
         }}
           className="tb-btn font-mono text-[9px] tracking-wider"
           style={{ color: card.suspended ? 'var(--warn)' : 'var(--ink-3)' }}>
-          {card.suspended ? '恢复' : '暂停'}
+          {card.suspended ? S.browse.restore : S.browse.pause}
         </button>
       </header>
 
@@ -175,7 +176,7 @@ export default function Browse() {
         <div className="px-[18px] pt-3 flex items-center justify-between font-mono text-[11px] text-ink-3">
           <span className="font-zh text-ink-2 text-xs flex items-center gap-1.5">
             {card.chapter}{card.section && <><span className="text-ink-4 mx-1">›</span>{card.section}</>}
-            {card.suspended && <span className="px-1.5 py-0.5 rounded text-[9px] font-medium" style={{ background: 'var(--warn-soft, #fef3c7)', color: 'var(--warn, #d97706)' }}>已暂停</span>}
+            {card.suspended && <span className="px-1.5 py-0.5 rounded text-[9px] font-medium" style={{ background: 'var(--warn-soft, #fef3c7)', color: 'var(--warn, #d97706)' }}>{S.browse.paused}</span>}
             {card.leech && <span className="px-1.5 py-0.5 rounded text-[9px] font-medium" style={{ background: 'var(--danger-soft)', color: 'var(--danger)' }}>LEECH</span>}
           </span>
           <span className="tracking-wider">BROWSE</span>
@@ -213,12 +214,12 @@ export default function Browse() {
         <button onClick={goPrev} disabled={currentIndex === 0}
           className="inline-flex items-center justify-center gap-1.5 py-3 rounded-md font-medium text-sm font-body border text-ink-2 active:scale-[0.97] transition-all disabled:opacity-30"
           style={{ borderColor: 'var(--border)' }}>
-          <ArrowLIcon size={16} /> 上一张
+          <ArrowLIcon size={16} /> {S.browse.prevCard}
         </button>
         <button onClick={goNext} disabled={currentIndex >= cards.length - 1}
           className="inline-flex items-center justify-center gap-1.5 py-3 rounded-md font-medium text-sm font-body border text-ink-2 active:scale-[0.97] transition-all disabled:opacity-30"
           style={{ borderColor: 'var(--border)' }}>
-          下一张 <ArrowRIcon size={16} />
+          {S.browse.nextCard} <ArrowRIcon size={16} />
         </button>
       </div>
     </div>

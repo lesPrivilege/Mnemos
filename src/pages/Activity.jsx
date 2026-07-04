@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { ArrowLIcon, FlameIcon, SparkIcon } from '../components/Icons'
 import { getActivityDashboard, getHeatmapData } from '../lib/activity'
 import { useBackButton } from '../lib/useBackButton'
+import { S } from '../lib/strings'
 
 function percent(done, total) {
   if (!total) return '0%'
@@ -45,11 +46,11 @@ function ActivityRings({ today, targets }) {
   return (
     <section className="activity-section activity-rings-card">
       <div className="activity-section-head">
-        <div className="section-title">今日 · TODAY</div>
+        <div className="section-title">{S.activity.todayTitle}</div>
         <span>{percentValue}%</span>
       </div>
       <div className="activity-rings">
-        <svg className="activity-ring-svg" viewBox="0 0 200 200" aria-label={`今日完成度 ${percentValue}%`}>
+        <svg className="activity-ring-svg" viewBox="0 0 200 200" aria-label={S.activity.todayCompletionAria(percentValue)}>
           {ringPath(recall, 86, 'var(--accent)')}
           {ringPath(practice, 66, 'var(--teal)')}
           {ringPath(reading, 46, 'var(--good)')}
@@ -58,9 +59,9 @@ function ActivityRings({ today, targets }) {
         </svg>
       </div>
       <div className="activity-ring-stats">
-        <div className="col"><span className="dot recall" /><span className="num">{today.recall}</span><span className="lab">RECALL</span><span className="zh">记忆 · {targets.recall}</span></div>
-        <div className="col"><span className="dot practice" /><span className="num">{today.practice}</span><span className="lab">PRACTICE</span><span className="zh">练习 · {targets.practice}</span></div>
-        <div className="col"><span className="dot read" /><span className="num">{today.reading}<span>m</span></span><span className="lab">READING</span><span className="zh">阅读 · {targets.reading}</span></div>
+        <div className="col"><span className="dot recall" /><span className="num">{today.recall}</span><span className="lab">RECALL</span><span className="zh">{S.activity.recallRingLabel}{targets.recall}</span></div>
+        <div className="col"><span className="dot practice" /><span className="num">{today.practice}</span><span className="lab">PRACTICE</span><span className="zh">{S.activity.practiceRingLabel}{targets.practice}</span></div>
+        <div className="col"><span className="dot read" /><span className="num">{today.reading}<span>m</span></span><span className="lab">READING</span><span className="zh">{S.activity.readingRingLabel}{targets.reading}</span></div>
       </div>
     </section>
   )
@@ -88,7 +89,7 @@ const HEATMAP_LEVELS = [
   'color-mix(in oklch, var(--accent) 75%, var(--bg-raised))',
   'var(--accent)',
 ]
-const DAY_LABELS_SHORT = ['日', '一', '二', '三', '四', '五', '六']
+const DAY_LABELS_SHORT = S.activity.dayLabelsShort
 
 // Parse 'YYYY-MM-DD' as local date (new Date(str) would parse as UTC and
 // shift the weekday in negative-offset timezones)
@@ -126,7 +127,7 @@ function HeatmapGrid() {
   }
 
   // Month label above a week iff its month differs from the previous week's
-  const MONTH_NAMES = ['', '1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+  const MONTH_NAMES = S.activity.monthNames
   const monthOf = (week) => {
     const first = week.find(Boolean)
     return first ? Number(first.date.slice(5, 7)) : null
@@ -141,8 +142,8 @@ function HeatmapGrid() {
   return (
     <section className="activity-section" style={{ background: 'var(--bg-card)', borderRadius: 'var(--r-lg)', border: '1px solid var(--border-soft)', padding: '14px' }}>
       <div className="activity-section-head" style={{ marginBottom: 10 }}>
-        <div className="section-title">热力 · HEATMAP</div>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--ink-3)' }}>90 天</span>
+        <div className="section-title">{S.activity.heatmapTitle}</div>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--ink-3)' }}>{S.activity.heatmapDays}</span>
       </div>
       <div ref={scrollerRef} style={{ overflowX: 'auto', paddingBottom: 4 }}>
         <div style={{ display: 'inline-flex', flexDirection: 'column', gap: 2, minWidth: weeks.length * 14 + 20 }}>
@@ -194,11 +195,11 @@ function HeatmapGrid() {
         <div style={{ marginTop: 8, fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-2)', display: 'flex', gap: 8, alignItems: 'center' }}>
           <span>{selected.date}</span>
           <span style={{ color: 'var(--ink-4)' }}>·</span>
-          <span>记忆 {selected.recall}</span>
+          <span>{S.activity.recallDetailPrefix}{selected.recall}</span>
           <span style={{ color: 'var(--ink-4)' }}>·</span>
-          <span>练习 {selected.practice}</span>
+          <span>{S.activity.practiceDetailPrefix}{selected.practice}</span>
           <span style={{ color: 'var(--ink-4)' }}>·</span>
-          <span>阅读 {selected.reading} min</span>
+          <span>{S.activity.readingDetailPrefix}{selected.reading} min</span>
         </div>
       )}
     </section>
@@ -213,10 +214,10 @@ export default function Activity() {
   return (
     <div className="page-fixed">
       <header className="topbar">
-        <button onClick={goBack} className="tb-btn" aria-label="返回"><ArrowLIcon size={18} /></button>
-        <h1 className="zh">活动</h1>
+        <button onClick={goBack} className="tb-btn" aria-label={S.activity.back}><ArrowLIcon size={18} /></button>
+        <h1 className="zh">{S.activity.pageTitle}</h1>
         <div className="tb-actions">
-          <span className="tb-text">本月</span>
+          <span className="tb-text">{S.activity.thisMonth}</span>
         </div>
       </header>
 
@@ -224,24 +225,24 @@ export default function Activity() {
         <div className="activity-content">
         <div className="activity-hero">
           <div className="activity-hero-head">
-            <span className="lbl">MONTH · 本月</span>
-            <span className="streak"><FlameIcon size={14} />{data.streak} 日连续</span>
+            <span className="lbl">{S.activity.monthLabel}</span>
+            <span className="streak"><FlameIcon size={14} />{data.streak}{S.activity.streakSuffix}</span>
           </div>
           <div className="activity-hero-grid">
             <div>
               <span className="num accent">{data.activeDays}</span>
               <span className="label">ACTIVE DAYS</span>
-              <span className="zh-label">活跃天数</span>
+              <span className="zh-label">{S.activity.activeDaysLabel}</span>
             </div>
             <div>
               <span className="num">{data.weekTotals.total}</span>
               <span className="label">THIS WEEK</span>
-              <span className="zh-label">本周活动</span>
+              <span className="zh-label">{S.activity.thisWeekLabel}</span>
             </div>
             <div>
               <span className="num">{data.totals.total}</span>
               <span className="label">TOTAL</span>
-              <span className="zh-label">总活动量</span>
+              <span className="zh-label">{S.activity.totalLabel}</span>
             </div>
           </div>
         </div>
@@ -250,8 +251,8 @@ export default function Activity() {
 
         <section className="activity-section activity-calendar-card">
           <div className="activity-section-head">
-            <div className="section-title">月历 · CALENDAR</div>
-            <span>{data.days.length} 天</span>
+            <div className="section-title">{S.activity.calendarTitle}</div>
+            <span>{data.days.length}{S.activity.calendarDaysSuffix}</span>
           </div>
           <div className="activity-calendar">
             {data.days.map((day) => (
@@ -266,27 +267,27 @@ export default function Activity() {
 
         <section className="activity-section activity-modules-card">
           <div className="activity-section-head">
-            <div className="section-title">模块 · MODULES</div>
-            <span><SparkIcon size={13} /> 只读聚合</span>
+            <div className="section-title">{S.activity.modulesTitle}</div>
+            <span><SparkIcon size={13} />{S.activity.readonlyAggregate}</span>
           </div>
           <div className="activity-modules">
             <ModuleRow
-              name="记忆"
-              meta={`正确率 ${percent(data.totals.recallCorrect, data.totals.recall)}`}
+              name={S.activity.recallName}
+              meta={S.activity.correctRatePrefix(percent(data.totals.recallCorrect, data.totals.recall))}
               value={data.totals.recall}
               max={maxModule}
               tone="recall"
             />
             <ModuleRow
-              name="练习"
-              meta={`正确率 ${percent(data.totals.practiceCorrect, data.totals.practice)}`}
+              name={S.activity.practiceName}
+              meta={S.activity.correctRatePrefix(percent(data.totals.practiceCorrect, data.totals.practice))}
               value={data.totals.practice}
               max={maxModule}
               tone="practice"
             />
             <ModuleRow
-              name="阅读"
-              meta="分钟"
+              name={S.activity.readingName}
+              meta={S.activity.minutesLabel}
               value={data.totals.reading}
               max={maxModule}
               tone="reading"
@@ -296,8 +297,8 @@ export default function Activity() {
 
         <section className="activity-section activity-recent-card">
           <div className="activity-section-head">
-            <div className="section-title">最近 · RECENT</div>
-            <span>7 天</span>
+            <div className="section-title">{S.activity.recentTitle}</div>
+            <span>{S.activity.recentDaysLabel}</span>
           </div>
           <div className="activity-recent">
             {data.days.slice(-7).map((day) => (

@@ -4,6 +4,7 @@ import { FlashcardHomeContent } from './FlashcardHomeContent'
 import { QuizHomeContent } from './QuizHomeContent'
 import ReadingHomeContent from '../reading/pages/ReadingHomeContent'
 import { SearchIcon, SettingsIcon, MnemosMark } from '../components/Icons'
+import { S } from '../lib/strings'
 
 export default function Home() {
   const [tab, setTab] = useState(() => {
@@ -69,8 +70,8 @@ export default function Home() {
           Mnemos
         </h1>
         <div className="tb-actions">
-          <Link to="/search" className="tb-btn" aria-label="搜索"><SearchIcon size={18} /></Link>
-          <Link to="/settings" className="tb-btn" aria-label="设置"><SettingsIcon size={18} /></Link>
+          <Link to="/search" className="tb-btn" aria-label={S.home.search}><SearchIcon size={18} /></Link>
+          <Link to="/settings" className="tb-btn" aria-label={S.home.settings}><SettingsIcon size={18} /></Link>
         </div>
       </header>
 
@@ -78,15 +79,15 @@ export default function Home() {
       <div style={{ padding: '12px 0 0' }}>
         <div className="tabs-head">
           <button className={`tabs-tab ${tab === 0 ? 'on' : ''}`} onClick={() => switchTab(0)}>
-            <span className="zh">练习</span>
+            <span className="zh">{S.home.practiceZh}</span>
             <span className="en">PRACTICE</span>
           </button>
           <button className={`tabs-tab ${tab === 1 ? 'on' : ''}`} onClick={() => switchTab(1)}>
-            <span className="zh">记忆</span>
+            <span className="zh">{S.home.recallZh}</span>
             <span className="en">RECALL</span>
           </button>
           <button className={`tabs-tab ${tab === 2 ? 'on' : ''}`} onClick={() => switchTab(2)}>
-            <span className="zh">阅读</span>
+            <span className="zh">{S.home.readingZh}</span>
             <span className="en">READING</span>
           </button>
         </div>
