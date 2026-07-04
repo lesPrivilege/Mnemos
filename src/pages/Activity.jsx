@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ArrowLIcon, FlameIcon, SparkIcon } from '../components/Icons'
 import { getActivityDashboard, getHeatmapData } from '../lib/activity'
 import { useBackButton } from '../lib/useBackButton'
@@ -90,14 +90,30 @@ const HEATMAP_LEVELS = [
 ]
 const DAY_LABELS_SHORT = ['日', '一', '二', '三', '四', '五', '六']
 
+// Parse 'YYYY-MM-DD' as local date (new Date(str) would parse as UTC and
+// shift the weekday in negative-offset timezones)
+function localWeekday(dateStr) {
+  const [y, m, d] = dateStr.split('-').map(Number)
+  return new Date(y, m - 1, d).getDay()
+}
+
 function HeatmapGrid() {
   const { days } = getHeatmapData()
   const [selected, setSelected] = useState(null)
+  const scrollerRef = useRef(null)
 
-  // Build weeks (columns of 7, Sun→Sat)
+  // Newest week visible by default
+  useEffect(() => {
+    const el = scrollerRef.current
+    if (el) el.scrollLeft = el.scrollWidth
+  }, [])
+
+  // Align columns to real weeks: pad the first column so row index === weekday (Sun→Sat)
+  const offset = days.length ? localWeekday(days[0].date) : 0
+  const padded = [...Array(offset).fill(null), ...days]
   const weeks = []
-  for (let i = 0; i < days.length; i += 7) {
-    weeks.push(days.slice(i, i + 7))
+  for (let i = 0; i < padded.length; i += 7) {
+    weeks.push(padded.slice(i, i + 7))
   }
 
   // Intensity levels based on fixed thresholds against daily targets (20 recall + 20 practice + 30 reading = 70)
@@ -109,16 +125,16 @@ function HeatmapGrid() {
     return 4
   }
 
-  // Month labels above the first week of each month
+  // Month label above a week iff its month differs from the previous week's
+  const MONTH_NAMES = ['', '1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+  const monthOf = (week) => {
+    const first = week.find(Boolean)
+    return first ? Number(first.date.slice(5, 7)) : null
+  }
   const monthLabels = weeks.map((week, wi) => {
-    if (!week.length) return null
-    const firstDay = week[0].date
-    const dayNum = Number(firstDay.slice(-2))
-    // Show month name if this week starts on the 1st or is the first week
-    if (dayNum <= 7 || wi === 0) {
-      const month = Number(firstDay.slice(5, 7))
-      return ['', '1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'][month]
-    }
+    const month = monthOf(week)
+    if (month == null) return null
+    if (wi === 0 || month !== monthOf(weeks[wi - 1])) return MONTH_NAMES[month]
     return null
   })
 
@@ -128,7 +144,7 @@ function HeatmapGrid() {
         <div className="section-title">热力 · HEATMAP</div>
         <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--ink-3)' }}>90 天</span>
       </div>
-      <div style={{ overflowX: 'auto', paddingBottom: 4 }}>
+      <div ref={scrollerRef} style={{ overflowX: 'auto', paddingBottom: 4 }}>
         <div style={{ display: 'inline-flex', flexDirection: 'column', gap: 2, minWidth: weeks.length * 14 + 20 }}>
           {/* Month labels */}
           <div style={{ display: 'flex', gap: 2, paddingLeft: 18 }}>
@@ -195,7 +211,7 @@ export default function Activity() {
   const maxModule = Math.max(1, data.totals.recall, data.totals.practice, data.totals.reading)
 
   return (
-    <div className="page-fill">
+    <div className="page-fixed">
       <header className="topbar">
         <button onClick={goBack} className="tb-btn" aria-label="返回"><ArrowLIcon size={18} /></button>
         <h1 className="zh">活动</h1>
