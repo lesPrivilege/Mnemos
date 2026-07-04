@@ -233,7 +233,7 @@ export default function Reader() {
         front = h.selectedText
         back = h.contextSnippet || ''
       }
-      back += `\n\n——《${doc.title}》`
+      back += S.reader.flashcardSourceAttribution(doc.title)
       return { front, back, type: 'recall', chapter: doc.title || '', section: '' }
     })
     navigate('/import', { state: { prefillCards: cards, prefillDeckName: `${S.reader.flashcardDeckNamePrefix}${doc.title}` } })
