@@ -1,27 +1,30 @@
 // localStorage 读写封装
 // 数据结构: { decks: Deck[], cards: Card[] }
 import { localToday } from './dateUtils'
-import { loadJson, saveJson } from './store'
+import { getCached, registerBigRecord, setCached } from './bigStore'
 
 const STORAGE_KEY = 'mnemos-data'
 const SCHEMA_VERSION = 1
 export const DAILY_LIMIT_KEY = 'mnemos-daily-limit'
+
+registerBigRecord({
+  key: STORAGE_KEY,
+  fallback: getDefaultData(),
+  normalize: normalizeData,
+  label: '请导出备份后清理数据',
+})
 
 function getDefaultData() {
   return { version: SCHEMA_VERSION, decks: [], cards: [] }
 }
 
 export function loadData() {
-  const data = loadJson(STORAGE_KEY, null, (value) => {
-    normalizeData(value)
-    return true
-  })
-  return data ? normalizeData(data) : getDefaultData()
+  return getCached(STORAGE_KEY)
 }
 
 export function saveData(data) {
   const normalized = normalizeData(data)
-  return saveJson(STORAGE_KEY, normalized, { label: '请导出备份后清理数据' })
+  return setCached(STORAGE_KEY, normalized)
 }
 
 function normalizeData(data) {

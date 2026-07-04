@@ -5,7 +5,7 @@
 // in onupgradeneeded. idbGet/idbSet will throw on a missing store otherwise.
 
 const DB_NAME = 'mnemos'
-const DB_VERSION = 1
+const DB_VERSION = 2
 
 let dbPromise = null
 
@@ -21,6 +21,9 @@ function openDB() {
       const db = req.result
       if (!db.objectStoreNames.contains('reading-doc-bodies')) {
         db.createObjectStore('reading-doc-bodies')
+      }
+      if (!db.objectStoreNames.contains('kv')) {
+        db.createObjectStore('kv')
       }
     }
     req.onsuccess = () => resolve(req.result)

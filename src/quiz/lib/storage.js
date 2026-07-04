@@ -1,5 +1,6 @@
 // localStorage 读写封装
 // namespace: examprep-*
+import { getCached, registerBigRecord, setCached } from '../../lib/bigStore'
 import { isPlainObject, loadJson, removeKey, saveJson } from '../../lib/store'
 
 const STORAGE_KEYS = {
@@ -12,6 +13,13 @@ const STORAGE_KEYS = {
 
 const SCHEMA_VERSION = 1
 
+registerBigRecord({
+  key: STORAGE_KEYS.QUESTIONS,
+  fallback: [],
+  validate: Array.isArray,
+  label: '题目未保存',
+})
+
 function writeSchemaVersion() {
   try {
     localStorage.setItem(STORAGE_KEYS.SCHEMA_VERSION, String(SCHEMA_VERSION))
@@ -23,11 +31,11 @@ function writeSchemaVersion() {
 // ── Questions ──────────────────────────────────────────────────────
 
 export function loadQuestions() {
-  return loadJson(STORAGE_KEYS.QUESTIONS, [], Array.isArray)
+  return getCached(STORAGE_KEYS.QUESTIONS)
 }
 
 export function saveQuestions(questions) {
-  const result = saveJson(STORAGE_KEYS.QUESTIONS, questions, { label: '题目未保存' })
+  const result = setCached(STORAGE_KEYS.QUESTIONS, questions)
   if (result.ok) writeSchemaVersion()
   return result
 }

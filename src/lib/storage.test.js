@@ -1,5 +1,11 @@
+import { IDBFactory } from 'fake-indexeddb'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { exportData, exportDeck, importData, loadData, saveData } from './storage'
+
+let exportData
+let exportDeck
+let importData
+let loadData
+let saveData
 
 function createLocalStorage() {
   const store = new Map()
@@ -18,9 +24,22 @@ function createLocalStorage() {
 }
 
 describe('flashcard storage schema version', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    vi.resetModules()
     vi.stubGlobal('localStorage', createLocalStorage())
     vi.stubGlobal('crypto', { randomUUID: () => 'generated-id' })
+    vi.stubGlobal('indexedDB', new IDBFactory())
+
+    const storage = await import('./storage')
+    const bigStore = await import('./bigStore')
+
+    exportData = storage.exportData
+    exportDeck = storage.exportDeck
+    importData = storage.importData
+    loadData = storage.loadData
+    saveData = storage.saveData
+
+    await bigStore.hydrate()
   })
 
   afterEach(() => {

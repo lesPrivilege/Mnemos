@@ -1,5 +1,9 @@
+import { IDBFactory } from 'fake-indexeddb'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { exportData, importData, saveQuestions } from './storage'
+
+let exportData
+let importData
+let saveQuestions
 
 function createLocalStorage() {
   const store = new Map()
@@ -18,8 +22,19 @@ function createLocalStorage() {
 }
 
 describe('quiz storage schema version', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    vi.resetModules()
     vi.stubGlobal('localStorage', createLocalStorage())
+    vi.stubGlobal('indexedDB', new IDBFactory())
+
+    const storage = await import('./storage')
+    const bigStore = await import('../../lib/bigStore')
+
+    exportData = storage.exportData
+    importData = storage.importData
+    saveQuestions = storage.saveQuestions
+
+    await bigStore.hydrate()
   })
 
   afterEach(() => {

@@ -14,6 +14,15 @@ Any backup ever produced by Mnemos must import into any future version of Mnemos
 - Unknown fields should be preserved where practical or ignored safely.
 - Importers must accept legacy payloads that predate module-level `version`.
 
+## Storage Backend Note
+
+In v1.4, the big records `mnemos-data` and `examprep-questions` are served from
+IndexedDB and dual-written to localStorage for one release. In the following
+release, those localStorage copies may be stale and exist only as transition
+copies; after that, the `saveJson` localStorage dual-write for these two keys is
+removed. Backup import/export is unaffected because it reads and writes through
+the same module loaders.
+
 ## Full Backup
 
 Settings → 完整备份 exports one JSON object:
