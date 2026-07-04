@@ -152,7 +152,7 @@ codebase's hand-picked px values.
 
 Shared ease matches the iOS/Material "standard decelerate" curve already
 implied by the hand-picked cubic-beziers elsewhere in `index.css`. See
-section 5 for the gap between these two tokens and the 16 sites still
+section 5 for the gap between these two tokens and the 17 sites still
 hardcoded outside them.
 
 ### Surfaces
@@ -307,7 +307,7 @@ duration:
 }
 ```
 
-**Known gap: 16 CSS transition sites in `src/styles/index.css` are still
+**Known gap: 17 CSS transition sites in `src/styles/index.css` are still
 hardcoded at non-canonical durations**, because only these two motion tokens
 exist today and several existing transitions don't cleanly map to either
 120ms or 240ms. These were left untouched rather than force-fit. Full current
@@ -392,10 +392,11 @@ the data itself: the label converts away from mono, the adjacent number
 stays mono.
 
 **Actual result across 96 grepped sites** (42 CSS declarations in
-`src/styles/index.css` + 54 inline JSX/JS sites): roughly 29 sites kept mono
-(genuine data — position counters, percentages, SM-2 interval predictions,
-version numbers, technical values like storage paths), roughly 67 converted
-to `--font-ui` (Latin chrome) or `--font-zh` (Chinese chrome) depending on
+`src/styles/index.css` + 54 inline JSX/JS sites): 53 sites kept mono (24 CSS
++ 29 JSX/JS — genuine data: position counters, percentages, SM-2 interval
+predictions, version numbers, technical values like storage paths), 43
+converted (18 CSS + 25 JSX/JS) to `--font-ui` (Latin chrome) or `--font-zh`
+(Chinese chrome) depending on
 the actual language of that specific piece of text. Highest-visibility
 changes: the Home tab bar's English labels (PRACTICE/RECALL/READING) and
 `HeroSection`'s English metric labels (SETS/DUE/TOTAL/etc., ~19 call sites)
@@ -461,9 +462,9 @@ don't exist.
    pattern are on screen simultaneously on every single visit to Home, which
    makes it higher-stakes than most of what Commit 3 did touch.
 3. **`src/pages/Activity.jsx`'s own separate stat-row labels** — e.g.
-   `ACTIVE DAYS`, `TOTAL`, and the ring-stat labels `RECALL`/`PRACTICE`/
-   `READING` (paired with their own `.zh` spans), roughly 4 more sites, not
-   routed through `HeroSection` either.
+   `ACTIVE DAYS`, `THIS WEEK`, `TOTAL`, and the ring-stat labels `RECALL`/
+   `PRACTICE`/`READING` (paired with their own `.zh` spans), roughly 6 more
+   sites, not routed through `HeroSection` either.
 4. **`src/reading/pages/Reader.jsx`'s TOC tab label** — the panel-tab array
    includes `{ key: 'toc', label: 'TOC' }` rendered next to Chinese panel
    chrome. Worth a specific double-check because this one may simply have
