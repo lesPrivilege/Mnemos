@@ -20,11 +20,11 @@
 
 ---
 
-## Phase 1 — 地基（優先，1-2 輪迭代）
+## Phase 1 — 地基 ✅ 完成（2026-07-04，R1+R2）
 
 長生命週期的前提是「敢改」。當前 11k 行零測試、零類型、零 lint，每次改動靠人肉回歸。
 
-### 1.1 測試基建
+### 1.1 測試基建 ✅ R1
 - 引入 vitest（與 vite 同生態，零配置），`package.json` 加 `"test": "vitest run"`
 - 現有 `ankiParser.test.js` 接入
 - **優先覆蓋純函數核心**（性價比最高、最怕回歸的部分）：
@@ -35,21 +35,21 @@
   - `dateUtils.js` — 時區 / 跨日邊界
 - UI 不寫測試；頁面回歸繼續靠人肉
 
-### 1.2 Lint + 格式化
+### 1.2 Lint + 格式化 ✅ R1
 - eslint（flat config）+ prettier，只開 error 級規則，不追求風格潔癖
 - `npm run check` = lint + test + build，作為每次提交前的門檻
 
-### 1.3 數據層加固（最重要的一項）
+### 1.3 數據層加固（最重要的一項）✅ R2（feat/data-hardening：隔離區 + Settings 恢復入口 + schema version + docs/backup-format.md）
 當前風險：localStorage 是主存儲，容量 ~5MB 且可能被系統清理；`JSON.parse` 失敗時靜默返回空數據（`loadData` 的 catch 返回 `getDefaultData()`），用戶視角等於數據全丟。
 - **損壞不靜默**：parse 失敗時保留原始字符串到備份 key，並在 UI 顯示恢復入口，而不是返回空默認值
 - **schema version 字段**：三套存儲各自的頂層數據加 `version`，為未來遷移留鉤子（現在加成本最低）
 - **導出格式凍結**：把完整備份的 JSON 結構寫成文檔（docs/backup-format.md），視為對外契約——這是十年後還能讀回數據的保證
 
-## Phase 2 — 存儲統一（1-2 輪迭代，在 1.3 之後）
+## Phase 2 — 存儲統一（共享層 ✅ R3 完成；IndexedDB 遷移 = R4 待做）
 
 三套 storage 封裝（`src/lib/storage.js` 309 行、`src/quiz/lib/storage.js` 388 行、`src/reading/lib/storage.js` + storageUtils）各自實現了 load/save/quota 處理，模式重複。
 
-- **抽出共享層** `src/lib/store.js`：統一 load/save/quota 錯誤/JSON 容錯，三個模塊的 storage 變成薄封裝（key 定義 + 領域方法），命名空間（mnemos-/examprep-/reading-）保持不變，**不做數據遷移**
+- ✅ **抽出共享層** `src/lib/store.js`（R3，refactor/storage-layer）：統一 load/save/quota/容錯，三模塊 + reviewLog/activity/autoBackup/reviewSession/reminders 全部收編，事件流數據獲得隔離保護。R4 遷移範圍已凍結在該分支末筆 commit body 的 audit 清單
 - **主數據漸進遷移到 IndexedDB**：`idb.js` 已有現成的 KV 封裝。順序：quiz questions（單 key 最大，最容易撞 quota）→ flashcard cards → 其餘小 key 留 localStorage。每步都走「雙寫一個版本 → 確認 → 切讀」的保守路徑
 - 遷移完成後，自動備份（autoBackup）改為統一從新層導出，消除 fullBackup/backup.js 裡對兩種存儲的特判
 
@@ -98,9 +98,9 @@
 
 | 輪次 | 內容 | 產出 |
 |---|---|---|
-| R1 | Phase 1.1 + 1.2 | vitest + 核心純函數測試 + lint + `npm run check` |
-| R2 | Phase 1.3 | 損壞恢復 + schema version + backup-format.md |
-| R3 | Phase 2 存儲共享層 | store.js + 三模塊薄封裝 |
+| ~~R1~~ ✅ | Phase 1.1 + 1.2 | vitest + 62 用例 + lint + `npm run check` |
+| ~~R2~~ ✅ | Phase 1.3 | 隔離區 + schema version + backup-format.md（74 用例） |
+| ~~R3~~ ✅ | Phase 2 存儲共享層 | store.js 統一六處實現（79 用例） |
 | R4 | Phase 2 IndexedDB 遷移（quiz 先行） | 雙寫 → 切讀 |
 | R5+ | Phase 3/4 穿插，跟功能走 | 每輪 1-2 條 polish |
 | 待定 | Phase 5 | 有發布意願時展開 |
