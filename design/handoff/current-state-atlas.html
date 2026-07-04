@@ -1374,7 +1374,7 @@ html, body {
           <div class="tree">
             <div class="tree-row">
               <span class="chev open">›</span>
-              <span class="label">第三章 · 亲核取代反应</span>
+              <span class="label">第三章 · 分治与递归</span>
               <span class="count">34</span>
               <div class="tier-bar"><span class="weak" style="width:20%"></span><span class="mid" style="width:35%"></span><span class="solid" style="width:45%"></span></div>
             </div>
@@ -1532,7 +1532,7 @@ html, body {
           <div class="browse-card-wrap card-shell-wrap">
             <div class="browse-card card-shell">
               <div class="tag-row"><span class="q-label">Q</span>FRONT</div>
-              <div class="front-content">为什么叔碳亲核取代反应倾向于 SN1 而非 SN2？请说明立体位阻与碳正离子稳定性的关系。</div>
+              <div class="front-content">为什么快速排序的平均时间复杂度为 O(n log n)？请说明分治策略与基准选取的关系。</div>
             </div>
           </div>
 
@@ -2036,9 +2036,9 @@ html, body {
 
           <div class="deck-list" style="margin-top: var(--sp-3);">
             <a class="deck" href="#" onclick="return false">
-              <div class="deck-spine"><span class="glyph">文</span></div>
+              <div class="deck-spine"><span class="glyph">计</span></div>
               <div class="deck-meta">
-                <div class="deck-name">《文明的滴定》读书笔记</div>
+                <div class="deck-name">《计算的极限》读书笔记</div>
                 <div class="deck-stats"><span class="due" style="font-family:var(--font-zh)">继续阅读</span><span class="dot">·</span><span>62%</span></div>
               </div>
             </a>
@@ -2095,11 +2095,11 @@ html, body {
         <div class="phone-screen" style="position:relative;">
           <div class="reader-progress-top"><div class="bar" style="width:62%"></div></div>
           <div class="reader-content">
-            <h2>第三章 · 磺胺药与青霉素的发现</h2>
-            <p>1932 年，多马克在研究染料化合物的抗菌性质时，意外发现百浪多息（Prontosil）对链球菌感染有显著疗效。这一发现开启了磺胺类药物的黄金时代，也为后续抗生素的系统性筛选提供了方法论基础。</p>
-            <p>与此同时，弗莱明在圣玛丽医院的实验室里，注意到一块被青霉菌污染的葡萄球菌培养皿中出现了明显的抑菌圈。这一观察后来被弗洛里与钱恩等人系统化验证，最终促成青霉素的工业化量产。</p>
-            <p>若以抑菌圈半径 <span class="latex-placeholder">$r$</span> 与药物浓度 <span class="latex-placeholder">$C$</span> 的关系建模，早期文献常用如下近似：<span class="latex-placeholder">$r \propto \log(C / C_0)$</span>，其中 <span class="latex-placeholder">$C_0$</span> 为最低有效浓度阈值。</p>
-            <p>这段历史提示我们：许多重大发现最初都源于「反常现象」而非预设假说 —— 培养皿污染本是实验失败的标志，却在弗莱明手中转化为关键证据。</p>
+            <h2>第三章 · 图灵机与可计算性</h2>
+            <p>1930 年代，图灵在研究可计算性问题时提出了通用机模型。这一构想将「计算」从具体装置中抽象出来，也为后续存储程序计算机的体系结构提供了理论基础。</p>
+            <p>与此同时，冯·诺依曼在普林斯顿整理 EDVAC 报告草案，把「存储程序」的思想系统化。这一设计后来被工程界反复验证，最终奠定了现代计算机的通用体系结构。</p>
+            <p>若以运行时间 <span class="latex-placeholder">$T$</span> 与输入规模 <span class="latex-placeholder">$n$</span> 的关系建模，分治算法常用如下近似：<span class="latex-placeholder">$T \propto n \log n$</span>，其中 <span class="latex-placeholder">$n_0$</span> 为切换到暴力解的阈值。</p>
+            <p>这段历史提示我们：许多重大变革最初都源于纯粹的理论构想而非工程实践的直接需求 —— 通用机模型本是数理逻辑领域的抽象产物，却在工程界手中转化为现代计算机体系结构的基石。</p>
           </div>
           <!-- Bottom progress bar has no opacity binding to barHidden removed here —
                matches the real Reader.jsx: only the TOP bar (no opacity binding, always
@@ -2110,7 +2110,7 @@ html, body {
       <div class="frame-caption">
         <span class="name">Reader <span class="state-tag">沉浸态（chrome 隐藏）</span></span>
         <span class="route">/reading/doc/:id</span>
-        <span class="states">Topbar, bottom function bar, AND the bottom accent progress bar are all hidden (opacity 0 / translateY off-screen, toggled by tapping content) — only the 2px TOP accent progress bar has no such binding and remains visible in every state. LaTeX shown as raw placeholder text, not rendered — e.g. <code style="font-family:var(--font-mono)">$r \propto \log(C/C_0)$</code>.</span>
+        <span class="states">Topbar, bottom function bar, AND the bottom accent progress bar are all hidden (opacity 0 / translateY off-screen, toggled by tapping content) — only the 2px TOP accent progress bar has no such binding and remains visible in every state. LaTeX shown as raw placeholder text, not rendered — e.g. <code style="font-family:var(--font-mono)">$T \propto n \log n$</code>.</span>
       </div>
     </div>
 
@@ -2121,13 +2121,13 @@ html, body {
           <div class="reader-progress-top"><div class="bar" style="width:62%"></div></div>
           <header class="topbar">
             <button class="tb-btn">←</button>
-            <span class="tb-text tb-title-center">文明的滴定</span>
+            <span class="tb-text tb-title-center">计算的极限</span>
             <div style="width:32px;"></div>
           </header>
           <div class="reader-content" style="padding-bottom: 8px;">
-            <h2>第三章 · 磺胺药与青霉素的发现</h2>
-            <p>1932 年，多马克在研究染料化合物的抗菌性质时，意外发现百浪多息（Prontosil）对链球菌感染有显著疗效。这一发现开启了磺胺类药物的黄金时代<mark>，也为后续抗生素的系统性筛选提供了方法论基础</mark>。</p>
-            <p>与此同时，弗莱明在圣玛丽医院的实验室里，注意到一块被青霉菌污染的葡萄球菌培养皿中出现了明显的抑菌圈。</p>
+            <h2>第三章 · 图灵机与可计算性</h2>
+            <p>1930 年代，图灵在研究可计算性问题时提出了通用机模型。这一构想将「计算」从具体装置中抽象出来<mark>，也为后续存储程序体系结构提供了理论基础</mark>。</p>
+            <p>与此同时，冯·诺依曼在普林斯顿整理 EDVAC 报告草案，把「存储程序」的思想系统化。</p>
           </div>
           <div class="reader-settings-row">
             <div class="reader-settings-group"><span class="val">17</span><button>A-</button><button>A+</button></div>
@@ -2161,15 +2161,15 @@ html, body {
           <div class="reader-panel-shell">
             <div class="panel-header">高亮 (3)</div>
             <div class="panel-hl-row">
-              <div class="panel-hl-text">磺胺类药物的黄金时代，也为后续抗生素的系统性筛选提供了方法论基础</div>
+              <div class="panel-hl-text">通用机模型的提出，也为后续存储程序体系结构的发展提供了理论基础</div>
               <div class="panel-hl-meta"><span>2026/6/28</span><span class="del">删除</span></div>
             </div>
             <div class="panel-hl-row">
-              <div class="panel-hl-text">培养皿污染本是实验失败的标志，却在弗莱明手中转化为关键证据</div>
+              <div class="panel-hl-text">通用机模型本是数理逻辑领域的抽象产物，却在工程界手中转化为现代计算机体系结构的基石</div>
               <div class="panel-hl-meta"><span>2026/6/29</span><span class="del">删除</span></div>
             </div>
             <div class="panel-hl-row">
-              <div class="panel-hl-text">弗洛里与钱恩等人系统化验证，最终促成青霉素的工业化量产</div>
+              <div class="panel-hl-text">这一设计后来被工程界反复验证，最终奠定了现代计算机的通用体系结构</div>
               <div class="panel-hl-meta"><span>2026/7/1</span><span class="del">删除</span></div>
             </div>
             <!-- HighlightsPanel (ReaderPanels.jsx lines 28-59) has ONLY a header +
@@ -2178,8 +2178,8 @@ html, body {
                  one) — do not fold them back in here. -->
           </div>
           <div class="reader-content" style="opacity:0.35;">
-            <h2>第三章 · 磺胺药与青霉素的发现</h2>
-            <p>1932 年，多马克在研究染料化合物的抗菌性质时，意外发现百浪多息对链球菌感染有显著疗效。</p>
+            <h2>第三章 · 图灵机与可计算性</h2>
+            <p>1936 年，图灵在研究可判定性问题时提出了通用机模型，将「计算」从具体装置中抽象出来。</p>
           </div>
           <div class="reader-progress-bottom"><div class="bar" style="width:62%"></div></div>
         </div>
@@ -2202,7 +2202,7 @@ html, body {
             <div class="panel-hl-row" style="cursor:pointer;">
               <div style="display:flex; align-items:center; justify-content:space-between;">
                 <div>
-                  <div style="font-family:var(--font-zh); font-size:13px; color:var(--ink);">第二章 · 磺胺药的早期争议</div>
+                  <div style="font-family:var(--font-zh); font-size:13px; color:var(--ink);">第二章 · 形式系统的边界</div>
                   <div style="font-family:var(--font-mono); font-size:10px; color:var(--ink-3);">34%</div>
                 </div>
                 <span style="font-family:var(--font-ui); font-size:11px; color:var(--ink-3); flex-shrink:0;">删除</span>
@@ -2211,7 +2211,7 @@ html, body {
             <div class="panel-hl-row" style="cursor:pointer;">
               <div style="display:flex; align-items:center; justify-content:space-between;">
                 <div>
-                  <div style="font-family:var(--font-zh); font-size:13px; color:var(--ink);">第三章 · 磺胺药与青霉素的发现</div>
+                  <div style="font-family:var(--font-zh); font-size:13px; color:var(--ink);">第三章 · 图灵机与可计算性</div>
                   <div style="font-family:var(--font-mono); font-size:10px; color:var(--ink-3);">62%</div>
                 </div>
                 <span style="font-family:var(--font-ui); font-size:11px; color:var(--ink-3); flex-shrink:0;">删除</span>
@@ -2223,8 +2223,8 @@ html, body {
             </div>
           </div>
           <div class="reader-content" style="opacity:0.35;">
-            <h2>第三章 · 磺胺药与青霉素的发现</h2>
-            <p>1932 年，多马克在研究染料化合物的抗菌性质时，意外发现百浪多息对链球菌感染有显著疗效。</p>
+            <h2>第三章 · 图灵机与可计算性</h2>
+            <p>1936 年，图灵在研究可判定性问题时提出了通用机模型，将「计算」从具体装置中抽象出来。</p>
           </div>
           <div class="reader-progress-bottom"><div class="bar" style="width:62%"></div></div>
         </div>
