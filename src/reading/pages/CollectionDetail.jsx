@@ -6,6 +6,7 @@ import { BackIcon, UploadIcon, PlusIcon, TrashIcon, MoreIcon, PinIcon, LayersIco
 import { useBackButton } from '../../lib/useBackButton'
 import { useToast, Toast } from '../../components/Toast'
 import { useConfirm, ConfirmSheet } from '../../components/ConfirmSheet'
+import { S } from '../../lib/strings'
 
 export default function CollectionDetail() {
   const { id } = useParams()
@@ -61,7 +62,7 @@ export default function CollectionDetail() {
       const { title, content, format } = await readFileAsDocument(file)
       addDocument(id, title, content, format)
       refresh()
-    } catch { showToast('文件导入失败，请检查文件格式') }
+    } catch { showToast(S.collectionDetail.importFailedToast) }
     e.target.value = ''
   }
 
@@ -76,7 +77,7 @@ export default function CollectionDetail() {
   }
 
   const handleDeleteDocument = async (docId) => {
-    const ok = await confirm({ title: '删除文档', message: '删除这篇文档？此操作不可撤销。', confirmLabel: '确认删除' })
+    const ok = await confirm({ title: S.collectionDetail.deleteDocTitle, message: S.collectionDetail.deleteDocMessage, confirmLabel: S.collectionDetail.confirmDelete })
     if (!ok) return
     deleteDocument(docId)
     refresh()
@@ -90,7 +91,7 @@ export default function CollectionDetail() {
 
   const handleDeleteCollection = async () => {
     setShowMenu(false)
-    const ok = await confirm({ title: '删除集合', message: `删除集合「${col?.name}」及其所有文档？此操作不可撤销。`, confirmLabel: '确认删除' })
+    const ok = await confirm({ title: S.collectionDetail.deleteCollectionTitle, message: S.collectionDetail.deleteCollectionMessage(col?.name), confirmLabel: S.collectionDetail.confirmDelete })
     if (!ok) return
     deleteCollection(id)
     navigate('/')
@@ -101,7 +102,7 @@ export default function CollectionDetail() {
   if (!col) {
     return (
       <div className="page-fill items-center justify-center text-ink-2">
-        集合未找到
+        {S.collectionDetail.notFound}
       </div>
     )
   }
@@ -124,11 +125,11 @@ export default function CollectionDetail() {
                   role="menu" style={{ border: '1px solid var(--border-soft)' }}>
                   <button onClick={handleTogglePin}
                     className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">
-                    <PinIcon size={15} /> {col.pinned ? '取消置顶' : '置顶集合'}
+                    <PinIcon size={15} /> {col.pinned ? S.collectionDetail.unpinCollection : S.collectionDetail.pinCollection}
                   </button>
                   <button onClick={handleDeleteCollection}
                     className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-body text-danger hover:bg-bg-raised transition-colors" role="menuitem">
-                    <TrashIcon size={15} /> 删除集合
+                    <TrashIcon size={15} /> {S.collectionDetail.deleteCollection}
                   </button>
                 </div>
               </>
@@ -142,7 +143,7 @@ export default function CollectionDetail() {
         <div style={{ padding: '14px 0 0' }}>
           <div className="dd-head">
             <div className="dd-meta">
-              <span>{docs.length} 篇文档</span>
+              <span>{docs.length}{S.collectionDetail.docsCountSuffix}</span>
             </div>
           </div>
         </div>
@@ -150,7 +151,7 @@ export default function CollectionDetail() {
         {/* Sort chips */}
         <div style={{ padding: '10px 0 0' }}>
           <div className="filters">
-            {[{ key: 'recent', label: '最近' }, { key: 'title', label: '标题' }, { key: 'created', label: '创建' }].map(s => (
+            {[{ key: 'recent', label: S.collectionDetail.recentSort }, { key: 'title', label: S.collectionDetail.titleSort }, { key: 'created', label: S.collectionDetail.createdSort }].map(s => (
               <button key={s.key} onClick={() => setSortBy(s.key)} className={`chip ${sortBy === s.key ? 'on' : ''}`}>
                 {s.label}
               </button>
@@ -163,8 +164,8 @@ export default function CollectionDetail() {
           {docs.length === 0 ? (
             <div className="empty">
               <div className="glyph"><LayersIcon size={32} style={{ color: 'var(--ink-4)' }} /></div>
-              <div className="msg">暂无文档</div>
-              <div className="motto-zh">导入或新建文档</div>
+              <div className="msg">{S.collectionDetail.emptyDocs}</div>
+              <div className="motto-zh">{S.collectionDetail.emptyDocsHint}</div>
             </div>
           ) : (
             <div className="card-list">
@@ -188,19 +189,19 @@ export default function CollectionDetail() {
         {showNewDoc && (
           <div className="mx-[18px] mb-4 p-4 rounded-md border bg-bg-card flex flex-col gap-3"
             style={{ borderColor: 'var(--border-soft)' }}>
-            <div className="font-mono text-[10px] text-ink-3 tracking-wider uppercase">新建文档</div>
+            <div className="font-mono text-[10px] text-ink-3 tracking-wider uppercase">{S.collectionDetail.newDocHeading}</div>
             <input value={newDocTitle} onChange={e => setNewDocTitle(e.target.value)}
-              placeholder="文档标题" autoFocus
+              placeholder={S.collectionDetail.docTitlePlaceholder} autoFocus
               className="w-full py-[9px] px-3 rounded-md border bg-bg text-ink font-zh text-sm outline-none focus:border-accent"
               style={{ borderColor: 'var(--border)' }} />
             <textarea value={newDocContent} onChange={e => setNewDocContent(e.target.value)}
-              placeholder="文档内容（Markdown）" rows={6}
+              placeholder={S.collectionDetail.docContentPlaceholder} rows={6}
               className="w-full p-3 rounded-md border bg-bg text-ink font-zh text-sm outline-none focus:border-accent resize-none"
               style={{ borderColor: 'var(--border)' }} />
             <div className="flex gap-2 justify-end">
-              <button type="button" onClick={() => setShowNewDoc(false)} className="btn btn-ghost">取消</button>
+              <button type="button" onClick={() => setShowNewDoc(false)} className="btn btn-ghost">{S.collectionDetail.cancel}</button>
               <button onClick={handleAddDocument} disabled={!newDocTitle.trim() || !newDocContent.trim()}
-                className="btn btn-primary disabled:opacity-40">创建</button>
+                className="btn btn-primary disabled:opacity-40">{S.collectionDetail.create}</button>
             </div>
           </div>
         )}
@@ -213,25 +214,25 @@ export default function CollectionDetail() {
             <button className="dd-cta-main" onClick={() => navigate(`/reading/doc/${continueDoc.id}?col=${id}`)}>
               <div className="left">
                 <span className="lead">{continueDoc.title}</span>
-                <span className="sub">CONTINUE · 继续阅读</span>
+                <span className="sub">{S.collectionDetail.continueReadingSuffix}</span>
               </div>
               <span className="arr">→</span>
             </button>
           ) : (
             <div className="dd-cta-main" style={{ opacity: 0.5, cursor: 'default' }}>
               <div className="left">
-                <span className="lead">暂无文档</span>
-                <span className="sub">IMPORT · 请先导入</span>
+                <span className="lead">{S.collectionDetail.emptyDocsLead}</span>
+                <span className="sub">{S.collectionDetail.importFirstSuffix}</span>
               </div>
             </div>
           )}
         </div>
         <div className="dd-secondary" style={{ margin: 0 }}>
           <button onClick={() => fileInputRef.current?.click()} className="dd-action">
-            <UploadIcon size={18} /><span className="lab">导入</span>
+            <UploadIcon size={18} /><span className="lab">{S.collectionDetail.importAction}</span>
           </button>
           <button onClick={() => setShowNewDoc(v => !v)} className="dd-action">
-            <PlusIcon size={18} /><span className="lab">新建</span>
+            <PlusIcon size={18} /><span className="lab">{S.collectionDetail.newAction}</span>
           </button>
         </div>
       </div>

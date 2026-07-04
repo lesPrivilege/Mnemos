@@ -7,6 +7,7 @@ import { getSubjectList, deleteQuestion } from '../quiz/lib/storage'
 import RenderMarkdown from '../quiz/components/RenderMarkdown'
 import { BackIcon, TrashIcon } from '../components/Icons'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
+import { S } from '../lib/strings'
 import '../styles/markdown.css'
 
 function questionsToCards(questions) {
@@ -15,7 +16,7 @@ function questionsToCards(questions) {
     if (q.type === 'choice') {
       front = q.question || q.id
       if (q.options?.length) front += '\n\n' + q.options.join('\n')
-      back = `正确答案：${q.answer || ''}`
+      back = `${S.wrong.correctAnswerPrefix}${q.answer || ''}`
       if (q.explanation) back += '\n\n' + q.explanation
     } else {
       front = q.question || q.id
@@ -44,7 +45,7 @@ export default function Wrong() {
   useEffect(() => { setSelectedSubject(subject) }, [subject])
 
   const handleDelete = async (id) => {
-    const ok = await confirm({ title: '删除题目', message: '删除这道题目？此操作不可撤销。', confirmLabel: '确认删除' })
+    const ok = await confirm({ title: S.wrong.deleteQuestionTitle, message: S.wrong.deleteQuestionMessage, confirmLabel: S.wrong.confirmDelete })
     if (!ok) return
     deleteQuestion(id)
     refresh()
@@ -54,18 +55,18 @@ export default function Wrong() {
     <div className="page-fill">
       <div className="topbar">
         <button className="tb-btn" onClick={() => goBack()} aria-label="Back"><BackIcon /></button>
-        <h1 className="zh" style={{ flex: 1, paddingLeft: 4 }}>错题本</h1>
+        <h1 className="zh" style={{ flex: 1, paddingLeft: 4 }}>{S.wrong.title}</h1>
         {wrongQuestions.length > 0 && (
           <button className="tb-btn font-zh text-[13px]"
             style={{ color: 'var(--accent)' }}
             onClick={() => {
               const cards = questionsToCards(wrongQuestions)
               const name = selectedSubject
-                ? `错题 · ${getSubjectDisplayName(selectedSubject)}`
-                : '错题本'
+                ? `${S.wrong.subjectDeckNamePrefix}${getSubjectDisplayName(selectedSubject)}`
+                : S.wrong.defaultDeckName
               navigate('/import', { state: { prefillCards: cards, prefillDeckName: name } })
             }}>
-            生成闪卡
+            {S.wrong.generateFlashcards}
           </button>
         )}
       </div>
@@ -73,7 +74,7 @@ export default function Wrong() {
       <div className="scr" style={{ paddingBottom: 0, gap: 10 }}>
         <div style={{ display: 'flex', gap: 6, overflowX: 'auto' }}>
           <button onClick={() => setSelectedSubject(null)}
-            className={`chip ${!selectedSubject ? 'on' : ''}`}>全部</button>
+            className={`chip ${!selectedSubject ? 'on' : ''}`}>{S.wrong.all}</button>
           {subjects.map(s => (
             <button key={s} onClick={() => setSelectedSubject(s)}
               className={`chip ${selectedSubject === s ? 'on' : ''}`}>{getSubjectDisplayName(s)}</button>
@@ -85,8 +86,8 @@ export default function Wrong() {
         {wrongQuestions.length === 0 ? (
           <div className="empty">
             <div className="glyph">✓</div>
-            <div className="msg">暂无错题</div>
-            <div className="motto-zh">继续保持</div>
+            <div className="msg">{S.wrong.empty}</div>
+            <div className="motto-zh">{S.wrong.emptyHint}</div>
           </div>
         ) : (
           wrongQuestions.map(q => (
@@ -98,18 +99,18 @@ export default function Wrong() {
               <div className="text-sm text-ink mb-2 card-content"><RenderMarkdown content={q.question || q.id} /></div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 text-xs text-ink-3">
-                  <span>错{q.wrong_count}次</span>
-                  <span>连续错{q.wrongStreak}次</span>
+                  <span>{S.wrong.wrongCountSuffix(q.wrong_count)}</span>
+                  <span>{S.wrong.wrongStreakSuffix(q.wrongStreak)}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <button
                     className="hidden group-hover:inline-flex items-center justify-center w-7 h-7 rounded-md text-ink-3 hover:text-danger hover:bg-danger-soft transition-colors"
                     onClick={() => handleDelete(q.id)}
-                    title="删除题目">
+                    title={S.wrong.deleteQuestion}>
                     <TrashIcon size={14} />
                   </button>
                   <button onClick={() => navigate(q.type === 'choice' ? `/quiz/${q.subject}?mode=wrong&qid=${q.id}` : `/quiz-review/${q.subject}?mode=wrong&qid=${q.id}`)}
-                    className="px-3 py-1 rounded text-xs font-medium" style={{ background: 'var(--accent-soft)', color: 'var(--accent)' }}>重做</button>
+                    className="px-3 py-1 rounded text-xs font-medium" style={{ background: 'var(--accent-soft)', color: 'var(--accent)' }}>{S.wrong.redo}</button>
                 </div>
               </div>
             </div>

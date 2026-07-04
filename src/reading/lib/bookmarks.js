@@ -1,5 +1,6 @@
 // Reading bookmarks storage
 import { load, save } from './storageUtils'
+import { S } from '../../lib/strings'
 
 const KEY = 'reading-bookmarks'
 
@@ -16,7 +17,7 @@ export function addBookmark(docId, scrollPct, title = '') {
   const bookmark = {
     id: crypto.randomUUID(),
     docId,
-    title: title || `书签 · ${scrollPct}%`,
+    title: title || S.bookmarks.defaultTitle(scrollPct),
     scrollPct,
     createdAt: new Date().toISOString(),
   }

@@ -11,15 +11,19 @@ import { useBackButton } from '../lib/useBackButton'
 import { addReviewEntry } from '../lib/reviewLog'
 import { saveReviewSession, clearReviewSession } from '../lib/reviewSession'
 import { hapticLight, hapticSuccess, hapticWarning } from '../lib/haptics'
+import { S } from '../lib/strings'
 
 function predictInterval(card, quality, passCount) {
   // Learning card first pass Good: reinserts, doesn't schedule
-  if (card.repetitions === 0 && quality === 4 && passCount === 0) return '稍后'
+  // S.review.later is a control-flow sentinel here, not decorative copy —
+  // the caller below compares against it with ===. Keep both sides pointed
+  // at this same key if it's ever touched during a wording pass.
+  if (card.repetitions === 0 && quality === 4 && passCount === 0) return S.review.later
   const result = sm2(card, quality)
   return result.interval
 }
 
-const UNDO_LABELS = { 1: '重来', 2: '困难', 4: '记住', 5: '容易' }
+const UNDO_LABELS = { 1: S.review.again, 2: S.review.hard, 4: S.review.remember, 5: S.review.easy }
 
 export default function Review() {
   const { id } = useParams()
@@ -122,7 +126,7 @@ export default function Review() {
         if (newLapses >= 8 && !(card.leech)) {
           extras.leech = true
           extras.suspended = true
-          showToast('卡片已标记为顽固卡并暂停 · LEECH')
+          showToast(S.review.leechToast)
           hapticWarning()
         }
       }
@@ -139,7 +143,7 @@ export default function Review() {
       cardId: card.id, prevSM2, quality, removedCard: { ...card },
       requeued: reinserted, reinsertedAt, passDelta, graduated,
     }
-    showToast(`已評分 · ${UNDO_LABELS[quality]}`)
+    showToast(`${S.review.ratedToastPrefix}${UNDO_LABELS[quality]}`)
     hapticLight()
 
     // 4. 更新 stats
@@ -230,7 +234,7 @@ export default function Review() {
       setFlipped(true)
     }
 
-    setToast('已撤銷')
+    setToast(S.review.undoToast)
     clearTimeout(toastTimer.current)
     toastTimer.current = setTimeout(() => setToast(null), 2000)
   }, [currentIndex, dueCards.length])
@@ -327,29 +331,29 @@ export default function Review() {
               <CheckIcon size={32} />
             </div>
             <div className="done-title">Mnēmosúnē</div>
-            <div className="done-zh">今日复习完成</div>
+            <div className="done-zh">{S.review.doneZh}</div>
 
             {total > 0 && (
               <>
                 <div className="done-stats">
-                  <span>已复习 <span className="v">{total}</span></span>
-                  <span>正确率 <span className="v">{correctRate}%</span></span>
+                  <span>{S.review.reviewedCount} <span className="v">{total}</span></span>
+                  <span>{S.review.correctRate} <span className="v">{correctRate}%</span></span>
                 </div>
                 <div className="done-grid">
-                  <div className="cell again"><span className="num">{stats.again}</span><span>重来</span></div>
-                  <div className="cell hard"><span className="num">{stats.hard}</span><span>困难</span></div>
-                  <div className="cell good"><span className="num">{stats.good}</span><span>记住</span></div>
-                  <div className="cell easy"><span className="num">{stats.easy}</span><span>容易</span></div>
+                  <div className="cell again"><span className="num">{stats.again}</span><span>{S.review.again}</span></div>
+                  <div className="cell hard"><span className="num">{stats.hard}</span><span>{S.review.hard}</span></div>
+                  <div className="cell good"><span className="num">{stats.good}</span><span>{S.review.remember}</span></div>
+                  <div className="cell easy"><span className="num">{stats.easy}</span><span>{S.review.easy}</span></div>
                 </div>
               </>
             )}
 
             <div className="flex gap-2 w-full mt-2">
               {lastRef.current && (
-                <button className="btn btn-ghost btn-block" onClick={handleUndo}>撤销上一张</button>
+                <button className="btn btn-ghost btn-block" onClick={handleUndo}>{S.review.undoLastCard}</button>
               )}
-              <button className="btn btn-ghost btn-block" onClick={goBack}>返回卡组</button>
-              <Link to={`/browse/${id}`} className="btn btn-accent btn-block">浏览卡片</Link>
+              <button className="btn btn-ghost btn-block" onClick={goBack}>{S.review.backToDeck}</button>
+              <Link to={`/browse/${id}`} className="btn btn-accent btn-block">{S.review.browseCards}</Link>
             </div>
           </div>
         </div>
@@ -369,7 +373,7 @@ export default function Review() {
           <BackIcon />
         </button>
         <span className="tb-text" style={{ flex: 1, textAlign: 'center' }}>
-          {deckName || '复习'}
+          {deckName || S.review.title}
         </span>
         <button onClick={() => {
           toggleStar(card.id)
@@ -394,7 +398,7 @@ export default function Review() {
       <div className="rv-meta">
         <span className="crumb">
           {card.chapter && <>{card.chapter}{card.section && <span className="div">/</span>}{card.section}</>}
-          {isLearning && <span style={{ marginLeft: 8, fontSize: 10, color: 'var(--accent)', fontWeight: 500 }}>学习中 · {passCount + 1}/2</span>}
+          {isLearning && <span style={{ marginLeft: 8, fontSize: 10, color: 'var(--accent)', fontWeight: 500 }}>{S.review.learningPrefix}{passCount + 1}/2</span>}
         </span>
         <span className="pos">
           <span className="now">{String(currentIndex + 1).padStart(2, '0')}</span> / {String(dueCards.length).padStart(2, '0')}
@@ -423,16 +427,17 @@ export default function Review() {
       {/* Fixed bottom rating buttons */}
       <div className="rate shrink-0" style={{ paddingBottom: 'max(18px, env(safe-area-inset-bottom))' }}>
         <button onClick={() => handleRate(1)} className="rate-btn rate-again">
-          <span>重来</span><span className="iv">{predictInterval(card, 1, passCount)}d</span>
+          <span>{S.review.again}</span><span className="iv">{predictInterval(card, 1, passCount)}d</span>
         </button>
         <button onClick={() => handleRate(2)} className="rate-btn rate-hard">
-          <span>困难</span><span className="iv">{predictInterval(card, 2, passCount)}d</span>
+          <span>{S.review.hard}</span><span className="iv">{predictInterval(card, 2, passCount)}d</span>
         </button>
         <button onClick={() => handleRate(4)} className="rate-btn rate-good">
-          <span>记住</span><span className="iv">{predictInterval(card, 4, passCount) === '稍后' ? '稍后' : `${predictInterval(card, 4, passCount)}d`}</span>
+          {/* S.review.later compared via === below is a control-flow sentinel (predictInterval's "no interval yet" case), not decorative text — see predictInterval() */}
+          <span>{S.review.remember}</span><span className="iv">{predictInterval(card, 4, passCount) === S.review.later ? S.review.later : `${predictInterval(card, 4, passCount)}d`}</span>
         </button>
         <button onClick={() => handleRate(5)} className="rate-btn rate-easy">
-          <span>容易</span><span className="iv">{predictInterval(card, 5, passCount)}d</span>
+          <span>{S.review.easy}</span><span className="iv">{predictInterval(card, 5, passCount)}d</span>
         </button>
       </div>
 
@@ -447,7 +452,7 @@ export default function Review() {
             boxShadow: 'var(--shadow-md)', zIndex: 50,
             animation: 'fadeIn 150ms ease-out',
           }}>
-          {toast} <span style={{ opacity: 0.6, marginLeft: 6 }}>撤销</span>
+          {toast} <span style={{ opacity: 0.6, marginLeft: 6 }}>{S.review.undoToastLabel}</span>
         </div>
       )}
 

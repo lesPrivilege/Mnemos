@@ -2,6 +2,7 @@
 // namespace: examprep-*
 import { getCached, registerBigRecord, setCached } from '../../lib/bigStore'
 import { isPlainObject, loadJson, removeKey, saveJson } from '../../lib/store'
+import { S } from '../../lib/strings'
 
 const STORAGE_KEYS = {
   QUESTIONS: 'examprep-questions',
@@ -17,7 +18,7 @@ registerBigRecord({
   key: STORAGE_KEYS.QUESTIONS,
   fallback: [],
   validate: Array.isArray,
-  label: '题目未保存',
+  label: S.quizStorage.questionsUnsaved,
 })
 
 function writeSchemaVersion() {
@@ -76,7 +77,7 @@ export function loadProgress() {
 }
 
 export function saveProgress(progress) {
-  const result = saveJson(STORAGE_KEYS.PROGRESS, progress, { label: '进度未保存' })
+  const result = saveJson(STORAGE_KEYS.PROGRESS, progress, { label: S.quizStorage.progressUnsaved })
   if (result.ok) writeSchemaVersion()
   return result
 }
@@ -116,7 +117,7 @@ export function loadStarred() {
 }
 
 export function saveStarred(ids) {
-  const result = saveJson(STORAGE_KEYS.STARRED, ids, { label: '收藏未保存' })
+  const result = saveJson(STORAGE_KEYS.STARRED, ids, { label: S.quizStorage.starredUnsaved })
   if (result.ok) writeSchemaVersion()
   return result
 }
@@ -140,7 +141,7 @@ export function saveLastSession(session) {
   const result = saveJson(STORAGE_KEYS.LAST_SESSION, {
     ...session,
     timestamp: Date.now(),
-  }, { label: '继续练习未保存' })
+  }, { label: S.quizStorage.lastSessionUnsaved })
   if (result.ok) writeSchemaVersion()
 }
 
@@ -186,7 +187,7 @@ export function getChapterStats(subject) {
   const chapters = {}
 
   for (const q of filtered) {
-    const ch = q.chapter || '未分类'
+    const ch = q.chapter || S.quizStorage.uncategorized
     if (!chapters[ch]) chapters[ch] = { total: 0, done: 0, correct: 0, wrong: 0, choice: 0, review: 0 }
     const s = progress[q.id]?.status || 'todo'
     chapters[ch].total++

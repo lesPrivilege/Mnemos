@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 let exportData
 let importData
 let saveQuestions
+let flushBigStoreWritesForTests
 
 function createLocalStorage() {
   const store = new Map()
@@ -33,22 +34,28 @@ describe('quiz storage schema version', () => {
     exportData = storage.exportData
     importData = storage.importData
     saveQuestions = storage.saveQuestions
+    flushBigStoreWritesForTests = bigStore.flushBigStoreWritesForTests
 
     await bigStore.hydrate()
   })
 
-  afterEach(() => {
+  afterEach(async () => {
+    // Big-record writes are async fire-and-forget; flush them before the
+    // globals they touch (localStorage, indexedDB) get torn down below.
+    await flushBigStoreWritesForTests()
     vi.unstubAllGlobals()
   })
 
-  it('writes a schema marker when quiz data is saved', () => {
+  it('writes a schema marker when quiz data is saved', async () => {
     saveQuestions([{ id: 'q1', type: 'choice' }])
+    await flushBigStoreWritesForTests()
 
     expect(localStorage.getItem('examprep-schema-version')).toBe('1')
   })
 
-  it('exports versioned quiz backups', () => {
+  it('exports versioned quiz backups', async () => {
     saveQuestions([{ id: 'q1', type: 'choice' }])
+    await flushBigStoreWritesForTests()
 
     expect(JSON.parse(exportData())).toMatchObject({
       version: 1,
@@ -58,7 +65,7 @@ describe('quiz storage schema version', () => {
     })
   })
 
-  it('imports legacy and versioned quiz payloads', () => {
+  it('imports legacy and versioned quiz payloads', async () => {
     expect(
       importData(
         JSON.stringify({
@@ -68,6 +75,7 @@ describe('quiz storage schema version', () => {
         })
       )
     ).toEqual({ questions: 1, progress: 1, starred: 1 })
+    await flushBigStoreWritesForTests()
     expect(localStorage.getItem('examprep-schema-version')).toBe('1')
 
     expect(
@@ -80,5 +88,6 @@ describe('quiz storage schema version', () => {
         })
       )
     ).toEqual({ questions: 1, progress: 0, starred: 0 })
+    await flushBigStoreWritesForTests()
   })
 })

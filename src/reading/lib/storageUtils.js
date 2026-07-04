@@ -1,6 +1,7 @@
 // Shared localStorage helpers for reading module
 // All reading storage files should import from here
 import { loadJson, saveJson } from '../../lib/store'
+import { S } from '../../lib/strings'
 
 export const READING_SCHEMA_VERSION = 1
 export const READING_SCHEMA_VERSION_KEY = 'reading-schema-version'
@@ -32,6 +33,6 @@ export function load(key, fallback) {
  * Save JSON to localStorage with error handling
  */
 export function save(key, data) {
-  const result = saveJson(key, data, { label: `${key} 未保存` })
+  const result = saveJson(key, data, { label: S.readingStorage.unsaved(key) })
   if (result.ok && key !== READING_SCHEMA_VERSION_KEY) writeSchemaVersion()
 }

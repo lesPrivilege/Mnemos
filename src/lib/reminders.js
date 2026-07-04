@@ -8,6 +8,7 @@ import { isRecall } from './cardUtils'
 import { formatLocalDate } from './dateUtils'
 import { isPlainObject, loadJson } from './store'
 import { isInWrongBook } from '../quiz/lib/quizEngine'
+import { S } from './strings'
 
 const ENABLED_KEY = 'mnemos-reminder-enabled'
 const TIME_KEY = 'mnemos-reminder-time'
@@ -98,12 +99,12 @@ export async function resyncReminders() {
       const scheduleAt = new Date(day)
       scheduleAt.setHours(hh, mm, 0, 0)
 
-      let body = `${count} 张卡片待复习`
-      if (wrongBookSize > 0) body += ` · 错题 ${wrongBookSize}`
+      let body = S.reminders.dueBody(count)
+      if (wrongBookSize > 0) body += S.reminders.wrongBookSuffix(wrongBookSize)
 
       notifications.push({
         id: NOTIF_IDS.start + i,
-        title: 'Mnemos · 今日复习',
+        title: S.reminders.title,
         body,
         schedule: { at: scheduleAt },
         channelId: CHANNEL_ID,
@@ -131,7 +132,7 @@ async function ensureChannel() {
   try {
     await LocalNotifications.createChannel({
       id: CHANNEL_ID,
-      name: '复习提醒',
+      name: S.reminders.channelName,
       importance: 3,
       visibility: 1,
       vibration: true,

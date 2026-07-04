@@ -13,6 +13,7 @@ import { useRenderedMarkdown } from '../lib/useRenderedMarkdown'
 import { downloadBlob } from '../lib/utils'
 import { useToast, Toast } from '../components/Toast'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
+import { S } from '../lib/strings'
 import '../styles/markdown.css'
 
 function buildOutline(cards) {
@@ -100,14 +101,14 @@ export default function DeckDetail() {
   }
 
   const handleResetProgress = async () => {
-    const ok = await confirm({ title: '重置进度', message: `重置「${deck.name}」的学习进度？已收藏的卡片会保留。`, confirmLabel: '确认重置', destructive: false })
+    const ok = await confirm({ title: S.deckDetail.resetProgressTitle, message: S.deckDetail.resetProgressMessage(deck.name), confirmLabel: S.deckDetail.confirmReset, destructive: false })
     if (!ok) return
     resetDeckProgress(id)
     refresh()
   }
 
   const handleDeleteDeck = async () => {
-    const ok = await confirm({ title: '删除卡组', message: '删除此卡组及其所有卡片？此操作不可撤销。', confirmLabel: '确认删除' })
+    const ok = await confirm({ title: S.deckDetail.deleteDeckTitle, message: S.deckDetail.deleteDeckMessage, confirmLabel: S.deckDetail.confirmDelete })
     if (!ok) return
     deleteDeck(id)
     navigate('/')
@@ -124,7 +125,7 @@ export default function DeckDetail() {
 
   const handleBatchDelete = async () => {
     if (selected.size === 0) return
-    const ok = await confirm({ title: '批量删除', message: `删除 ${selected.size} 张卡片？此操作不可撤销。`, confirmLabel: '确认删除' })
+    const ok = await confirm({ title: S.deckDetail.batchDeleteTitle, message: S.deckDetail.batchDeleteMessage(selected.size), confirmLabel: S.deckDetail.confirmDelete })
     if (!ok) return
     deleteCards([...selected])
     setSelected(new Set())
@@ -150,7 +151,7 @@ export default function DeckDetail() {
   const treeNodes = (() => {
     const chapterMap = new Map()
     for (const card of filteredCards) {
-      const ch = card.chapter || '未分类'
+      const ch = card.chapter || S.deckDetail.uncategorized
       if (!chapterMap.has(ch)) chapterMap.set(ch, new Map())
       const secMap = chapterMap.get(ch)
       const sec = card.section || ''
@@ -177,7 +178,7 @@ export default function DeckDetail() {
         return { id: ch, label: ch, count: chCards.length, tiers: chTiers, chapter: ch, section: '' }
       }
       if (noSecCards.length > 0) {
-        children.unshift({ id: `${ch}::`, label: '未分类', count: noSecCards.length, tiers: tierCounts(noSecCards), chapter: ch, section: '' })
+        children.unshift({ id: `${ch}::`, label: S.deckDetail.uncategorized, count: noSecCards.length, tiers: tierCounts(noSecCards), chapter: ch, section: '' })
       }
       return { id: ch, label: ch, count: chCards.length, tiers: chTiers, children }
     })
@@ -232,15 +233,15 @@ export default function DeckDetail() {
                   style={{ border: '1px solid var(--border-soft)' }}>
                   <button onClick={() => { setShowDeckMenu(false); setEditingName(true); setNameInput(deck.name) }}
                     className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">
-                    <EditIcon size={15} /> 重命名卡组
+                    <EditIcon size={15} /> {S.deckDetail.rename}
                   </button>
                   <button onClick={() => { setShowDeckMenu(false); togglePin(id); refresh() }}
                     className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">
-                    <PinIcon size={15} /> {deck.pinned ? '取消置顶' : '置顶卡组'}
+                    <PinIcon size={15} /> {deck.pinned ? S.deckDetail.unpinDeck : S.deckDetail.pinDeck}
                   </button>
                   <button onClick={() => { setShowDeckMenu(false); editing ? exitEdit() : setEditing(true) }}
                     className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">
-                    <EditIcon size={15} /> {editing ? '完成编辑' : '批量编辑卡片'}
+                    <EditIcon size={15} /> {editing ? S.deckDetail.finishEditing : S.deckDetail.batchEditCards}
                   </button>
                   <button onClick={() => {
                     setShowDeckMenu(false)
@@ -250,15 +251,15 @@ export default function DeckDetail() {
                     downloadBlob(blob, `${deck.name || 'deck'}.json`)
                   }}
                     className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">
-                    <DownloadIcon size={15} /> 导出卡组
+                    <DownloadIcon size={15} /> {S.deckDetail.exportDeck}
                   </button>
                   <button onClick={() => { setShowDeckMenu(false); handleResetProgress() }}
                     className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">
-                    <RefreshIcon size={15} /> 重置进度
+                    <RefreshIcon size={15} /> {S.deckDetail.resetProgressMenu}
                   </button>
                   <button onClick={() => { setShowDeckMenu(false); handleDeleteDeck() }}
                     className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-body text-danger hover:bg-bg-raised transition-colors" role="menuitem">
-                    <TrashIcon size={15} /> 删除卡组
+                    <TrashIcon size={15} /> {S.deckDetail.deleteDeckMenu}
                   </button>
                 </div>
               </>
@@ -272,18 +273,18 @@ export default function DeckDetail() {
         <div style={{ padding: '14px 0 0' }}>
           <div className="dd-head">
             <div className="dd-meta">
-              <span>{total} 张</span><span className="sep">·</span>
-              <span style={{ color: 'var(--accent)' }}>{dueCount} 待复习</span><span className="sep">·</span>
-              <span>{learned} 已学</span>
-              {suspendedCount > 0 && <><span className="sep">·</span><span style={{ color: 'var(--warn, #d97706)' }}>暂停 {suspendedCount}</span></>}
+              <span>{total}{S.deckDetail.countSuffix}</span><span className="sep">·</span>
+              <span style={{ color: 'var(--accent)' }}>{dueCount}{S.deckDetail.dueSuffix}</span><span className="sep">·</span>
+              <span>{learned}{S.deckDetail.learnedSuffix}</span>
+              {suspendedCount > 0 && <><span className="sep">·</span><span style={{ color: 'var(--warn, #d97706)' }}>{S.deckDetail.pausedPrefix}{suspendedCount}</span></>}
             </div>
             <div className="dd-meta" style={{ marginTop: 4 }}>
-              <span className="font-mono text-[10px]" style={{ color: 'var(--danger)' }}>弱 {tiers.weak}</span>
+              <span className="font-mono text-[10px]" style={{ color: 'var(--danger)' }}>{S.deckDetail.weakPrefix}{tiers.weak}</span>
               <span className="sep">·</span>
-              <span className="font-mono text-[10px]" style={{ color: 'var(--accent)' }}>中 {tiers.mid}</span>
+              <span className="font-mono text-[10px]" style={{ color: 'var(--accent)' }}>{S.deckDetail.midPrefix}{tiers.mid}</span>
               <span className="sep">·</span>
-              <span className="font-mono text-[10px]" style={{ color: 'var(--good)' }}>稳 {tiers.solid}</span>
-              {tiers.new > 0 && <><span className="sep">·</span><span className="font-mono text-[10px]" style={{ color: 'var(--ink-3)' }}>新 {tiers.new}</span></>}
+              <span className="font-mono text-[10px]" style={{ color: 'var(--good)' }}>{S.deckDetail.solidPrefix}{tiers.solid}</span>
+              {tiers.new > 0 && <><span className="sep">·</span><span className="font-mono text-[10px]" style={{ color: 'var(--ink-3)' }}>{S.deckDetail.newPrefix}{tiers.new}</span></>}
             </div>
             <div className="dd-progress">
               <div className="bar" style={{ width: `${total > 0 ? (learned / total) * 100 : 0}%` }} />
@@ -306,11 +307,11 @@ export default function DeckDetail() {
         <div style={{ padding: '10px 0 0' }}>
           <div className="filters">
             <button onClick={() => setFilter('all')} className={`chip ${filter === 'all' ? 'on' : ''}`}>
-              全部 · {total}
+              {S.deckDetail.allFilterPrefix}{total}
             </button>
             <button onClick={() => setFilter('starred')} className={`chip ${filter === 'starred' ? 'on' : ''}`}>
               <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l2.7 5.9 6.3.6-4.8 4.5 1.5 6.5L12 17l-5.7 3.5 1.5-6.5L3 9.5l6.3-.6z" /></svg>
-              收藏
+              {S.deckDetail.starredFilter}
             </button>
           </div>
         </div>
@@ -318,8 +319,8 @@ export default function DeckDetail() {
         {/* View toggle */}
         <div style={{ padding: '6px 18px' }}>
           <div className="seg" style={{ maxWidth: 160 }}>
-            <button onClick={() => setViewMode('list')} className={viewMode === 'list' ? 'on' : ''}>列表</button>
-            <button onClick={() => setViewMode('tree')} className={viewMode === 'tree' ? 'on' : ''}>结构</button>
+            <button onClick={() => setViewMode('list')} className={viewMode === 'list' ? 'on' : ''}>{S.deckDetail.listView}</button>
+            <button onClick={() => setViewMode('tree')} className={viewMode === 'tree' ? 'on' : ''}>{S.deckDetail.treeView}</button>
           </div>
         </div>
 
@@ -327,7 +328,7 @@ export default function DeckDetail() {
         <div style={{ padding: '8px 0 0' }}>
           <div className="search" style={{ margin: '0 18px' }}>
             <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="搜索卡片..." />
+              placeholder={S.deckDetail.searchPlaceholder} />
             <SearchIcon size={16} />
           </div>
         </div>
@@ -369,7 +370,7 @@ export default function DeckDetail() {
                     <div onClick={() => toggleChapter(chapterKey)}
                       className="ch-row">
                       <span className={`ch-caret ${isChapterOpen ? 'open' : ''}`}>›</span>
-                      <span className="ch-name">{chapter || '未分类'}</span>
+                      <span className="ch-name">{chapter || S.deckDetail.uncategorized}</span>
                       <span className="ch-count">{chapterCount}</span>
                     </div>
                     {isChapterOpen && (
@@ -428,11 +429,11 @@ export default function DeckDetail() {
               <button onClick={handleBatchDelete}
                 className="flex-1 py-2.5 rounded-md font-body text-sm text-danger border active:scale-[0.97] transition-transform"
                 style={{ borderColor: 'color-mix(in oklch, var(--danger) 30%, transparent)' }}>
-                删除 ({selected.size})
+                {S.deckDetail.batchDeleteLabel(selected.size)}
               </button>
             )}
             <button onClick={async () => {
-              const ok = await confirm({ title: '全部删除', message: `删除卡组内全部 ${cards.length} 张卡片？此操作不可撤销。`, confirmLabel: '确认删除' })
+              const ok = await confirm({ title: S.deckDetail.deleteAllTitle, message: S.deckDetail.deleteAllMessage(cards.length), confirmLabel: S.deckDetail.confirmDelete })
               if (!ok) return
               deleteCards(cards.map((c) => c.id))
               setSelected(new Set())
@@ -441,7 +442,7 @@ export default function DeckDetail() {
             }}
               className="flex-1 py-2.5 rounded-md font-body text-sm text-danger border active:scale-[0.97] transition-transform"
               style={{ borderColor: 'color-mix(in oklch, var(--danger) 30%, transparent)' }}>
-              全部删除
+              {S.deckDetail.deleteAllButton}
             </button>
           </div>
         )}
@@ -453,8 +454,8 @@ export default function DeckDetail() {
         <div className="dd-cta" style={{ margin: 0 }}>
           <Link to={`/review/${id}`} className="dd-cta-main">
             <div className="left">
-              <span className="lead"><span className="num">{dueCount}</span>张 待复习</span>
-              <span className="sub">BEGIN · 开始</span>
+              <span className="lead"><span className="num">{dueCount}</span>{S.deckDetail.dueLeadSuffix}</span>
+              <span className="sub">{S.deckDetail.beginLabel}</span>
             </div>
             <span className="arr">→</span>
           </Link>
@@ -463,16 +464,16 @@ export default function DeckDetail() {
         {/* Secondary actions */}
         <div className="dd-secondary" style={{ margin: 0 }}>
           <Link to={`/browse/${id}`} className="dd-action">
-            <LayersIcon size={18} /><span className="lab">浏览</span>
+            <LayersIcon size={18} /><span className="lab">{S.deckDetail.browseAction}</span>
           </Link>
           <Link to={`/review/${id}?all=true`} className="dd-action">
-            <SparkIcon size={18} /><span className="lab">全部复习</span>
+            <SparkIcon size={18} /><span className="lab">{S.deckDetail.reviewAllAction}</span>
           </Link>
           <Link to={`/import?tab=md&deckId=${id}`} className="dd-action">
-            <UploadIcon size={18} /><span className="lab">导入</span>
+            <UploadIcon size={18} /><span className="lab">{S.deckDetail.importAction}</span>
           </Link>
           <button onClick={() => setShowEditor(!showEditor)} className="dd-action">
-            <PlusIcon size={18} /><span className="lab">新卡片</span>
+            <PlusIcon size={18} /><span className="lab">{S.deckDetail.newCardAction}</span>
           </button>
         </div>
       </FloatingBar>
@@ -483,7 +484,7 @@ export default function DeckDetail() {
             <div className="font-zh text-[15px] text-ink mb-3 max-h-40 overflow-y-auto"><PreviewContent text={previewCard.front} /></div>
             <div className="font-mono text-[10px] text-ink-3 mb-2 tracking-wider">BACK</div>
             <div className="font-zh text-[14px] card-content max-h-48 overflow-y-auto" style={{ color: 'var(--teal)' }}><PreviewContent text={previewCard.back} /></div>
-            <button onClick={() => setPreviewCard(null)} className="mt-4 w-full py-2 rounded-md text-sm font-body text-ink-2 border" style={{ borderColor: 'var(--border)' }}>关闭</button>
+            <button onClick={() => setPreviewCard(null)} className="mt-4 w-full py-2 rounded-md text-sm font-body text-ink-2 border" style={{ borderColor: 'var(--border)' }}>{S.deckDetail.close}</button>
           </div>
         </div>
       )}
@@ -554,9 +555,9 @@ function CardRow({ card, editing, selected, onToggleSelect, onEdit, onDelete, is
         )}
         <div className="hidden group-hover:flex gap-1 shrink-0 ml-1">
           <button onClick={(e) => { e.stopPropagation(); onEdit() }}
-            className="text-[11px] px-1.5 py-0.5 rounded border text-ink-2" style={{ borderColor: 'var(--border)' }}>编辑</button>
-          <button onClick={async (e) => { e.stopPropagation(); const ok = await confirm({ title: '删除卡片', message: '删除这张卡片？此操作不可撤销。', confirmLabel: '确认删除' }); if (ok) onDelete() }}
-            className="text-[11px] px-1.5 py-0.5 rounded border text-danger" style={{ borderColor: 'color-mix(in oklch, var(--danger) 30%, transparent)' }}>删除</button>
+            className="text-[11px] px-1.5 py-0.5 rounded border text-ink-2" style={{ borderColor: 'var(--border)' }}>{S.deckDetail.editCard}</button>
+          <button onClick={async (e) => { e.stopPropagation(); const ok = await confirm({ title: S.deckDetail.deleteCardTitle, message: S.deckDetail.deleteCardMessage, confirmLabel: S.deckDetail.confirmDelete }); if (ok) onDelete() }}
+            className="text-[11px] px-1.5 py-0.5 rounded border text-danger" style={{ borderColor: 'color-mix(in oklch, var(--danger) 30%, transparent)' }}>{S.deckDetail.deleteCard}</button>
         </div>
       </div>
   )

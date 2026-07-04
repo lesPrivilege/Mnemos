@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from 'react'
 import { useRenderedMarkdown } from '../lib/useRenderedMarkdown'
+import { S } from '../lib/strings'
 
 function Preview({ text }) {
   const html = useRenderedMarkdown(text)
@@ -63,7 +64,7 @@ function Toolbar({ textareaRef, value, onChange }) {
         className="px-2 py-1 rounded text-xs bg-bg-raised text-ink-2 hover:text-ink border border-border-soft">
         -
       </button>
-      <button type="button" onClick={() => insert('| 列1 | 列2 |\n| --- | --- |\n| ', ' |  |')}
+      <button type="button" onClick={() => insert(S.cardEditor.tableTemplate, ' |  |')}
         className="px-2 py-1 rounded text-xs bg-bg-raised text-ink-2 hover:text-ink border border-border-soft">
         table
       </button>
@@ -94,7 +95,7 @@ export default function CardEditor({ initial, onSave, onCancel }) {
         <span className="text-xs font-mono text-ink-3 tracking-wider uppercase">Front</span>
         <button type="button" onClick={() => setFrontPreview(p => !p)}
           className="text-xs font-mono text-ink-3 hover:text-ink tracking-wider uppercase">
-          {frontPreview ? '编辑' : '预览'}
+          {frontPreview ? S.cardEditor.edit : S.cardEditor.preview}
         </button>
       </div>
       {frontPreview ? (
@@ -106,7 +107,7 @@ export default function CardEditor({ initial, onSave, onCancel }) {
             ref={frontRef}
             value={front}
             onChange={(e) => setFront(e.target.value)}
-            placeholder="正面 · 问题"
+            placeholder={S.cardEditor.frontPlaceholder}
             rows={3}
             className="w-full p-3 rounded-lg border border-border bg-bg-card text-ink
               font-serif text-sm placeholder:text-ink-2/50
@@ -119,7 +120,7 @@ export default function CardEditor({ initial, onSave, onCancel }) {
         <span className="text-xs font-mono text-ink-3 tracking-wider uppercase">Back</span>
         <button type="button" onClick={() => setBackPreview(p => !p)}
           className="text-xs font-mono text-ink-3 hover:text-ink tracking-wider uppercase">
-          {backPreview ? '编辑' : '预览'}
+          {backPreview ? S.cardEditor.edit : S.cardEditor.preview}
         </button>
       </div>
       {backPreview ? (
@@ -131,7 +132,7 @@ export default function CardEditor({ initial, onSave, onCancel }) {
             ref={backRef}
             value={back}
             onChange={(e) => setBack(e.target.value)}
-            placeholder="背面 · 答案"
+            placeholder={S.cardEditor.backPlaceholder}
             rows={3}
             className="w-full p-3 rounded-lg border border-border bg-bg-card text-ink
               font-serif text-sm placeholder:text-ink-2/50
@@ -148,7 +149,7 @@ export default function CardEditor({ initial, onSave, onCancel }) {
             disabled:opacity-40"
           disabled={!front.trim() || !back.trim()}
         >
-          {initial ? '保存' : '添加'}
+          {initial ? S.cardEditor.save : S.cardEditor.add}
         </button>
         {onCancel && (
           <button
@@ -158,7 +159,7 @@ export default function CardEditor({ initial, onSave, onCancel }) {
               border border-border text-ink-2
               active:scale-[0.97] transition-transform"
           >
-            取消
+            {S.cardEditor.cancel}
           </button>
         )}
       </div>

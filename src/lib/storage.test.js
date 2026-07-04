@@ -6,6 +6,7 @@ let exportDeck
 let importData
 let loadData
 let saveData
+let flushBigStoreWritesForTests
 
 function createLocalStorage() {
   const store = new Map()
@@ -38,53 +39,58 @@ describe('flashcard storage schema version', () => {
     importData = storage.importData
     loadData = storage.loadData
     saveData = storage.saveData
+    flushBigStoreWritesForTests = bigStore.flushBigStoreWritesForTests
 
     await bigStore.hydrate()
   })
 
-  afterEach(() => {
+  afterEach(async () => {
+    // Big-record writes are async fire-and-forget; flush them before the
+    // globals they touch (localStorage, indexedDB) get torn down below.
+    await flushBigStoreWritesForTests()
     vi.unstubAllGlobals()
   })
 
-  it('writes and reads the versioned mnemos-data wrapper', () => {
+  it('writes and reads the versioned mnemos-data wrapper, IDB-backed only', async () => {
     saveData({
       decks: [{ id: 'deck-1', name: 'Deck' }],
       cards: [{ id: 'card-1', deckId: 'deck-1', front: 'Q', back: 'A' }],
     })
+    await flushBigStoreWritesForTests()
 
-    expect(JSON.parse(localStorage.getItem('mnemos-data'))).toMatchObject({
-      version: 1,
-      decks: [{ id: 'deck-1' }],
-      cards: [{ id: 'card-1' }],
-    })
     expect(loadData()).toMatchObject({
       version: 1,
       decks: [{ id: 'deck-1' }],
       cards: [{ id: 'card-1' }],
     })
+    // No more localStorage dual-write for this big record (R4+1).
+    expect(localStorage.getItem('mnemos-data')).toBeNull()
   })
 
-  it('accepts legacy backups and rewrites them as versioned data on import', () => {
+  it('accepts legacy backups and rewrites them as versioned data on import', async () => {
     const result = importData(
       JSON.stringify({
         decks: [{ id: 'legacy-deck', name: 'Legacy' }],
         cards: [],
       })
     )
+    await flushBigStoreWritesForTests()
 
     expect(result).toEqual({ ok: true })
-    expect(JSON.parse(localStorage.getItem('mnemos-data'))).toEqual({
+    expect(loadData()).toEqual({
       version: 1,
       decks: [{ id: 'legacy-deck', name: 'Legacy' }],
       cards: [],
     })
+    expect(localStorage.getItem('mnemos-data')).toBeNull()
   })
 
-  it('exports full and deck-level flashcard backups with version 1', () => {
+  it('exports full and deck-level flashcard backups with version 1', async () => {
     saveData({
       decks: [{ id: 'deck-1', name: 'Deck' }],
       cards: [{ id: 'card-1', deckId: 'deck-1' }],
     })
+    await flushBigStoreWritesForTests()
 
     expect(JSON.parse(exportData())).toMatchObject({
       version: 1,

@@ -2,6 +2,7 @@
 
 import { loadQuestions, loadProgress, recordAttempt } from './storage'
 import { shuffle } from '../../lib/utils'
+import { S } from '../../lib/strings'
 
 export function hasValidAnswer(q) {
   if (q.type === 'choice') return Boolean(q.answer?.trim())
@@ -73,7 +74,7 @@ export function getQuizQuestions(opts) {
 export function submitAnswer(questionId, userAnswer) {
   const questions = loadQuestions()
   const q = questions.find(x => x.id === questionId)
-  if (!q) return { correct: null, explanation: '题目不存在', status: 'error' }
+  if (!q) return { correct: null, explanation: S.quizEngine.questionNotFound, status: 'error' }
 
   let explanation = q.explanation || ''
 
@@ -82,13 +83,13 @@ export function submitAnswer(questionId, userAnswer) {
     const given = userAnswer?.trim().toUpperCase()
     const norm = s => s.replace(/[^A-Z]/g, '').split('').sort().join('')
     const correct = norm(expected) === norm(given)
-    if (!correct) explanation = `你的答案: ${given || '未作答'}。正确答案: ${expected}。${explanation}`
+    if (!correct) explanation = `${S.quizEngine.answerFeedback(given || S.quizEngine.noAnswerGiven, expected)}${explanation}`
     const prog = recordAttempt(questionId, correct)
     return { correct, explanation, status: prog.status, wrongStreak: prog.wrongStreak }
   } else {
     // review: show reference answer, don't record — user self-rates
-    explanation = q.answer || q.explanation || '暂无解析'
-    if (q.solution_path) explanation = `参考答案路径: ${q.solution_path}\n\n${explanation}`
+    explanation = q.answer || q.explanation || S.quizEngine.noExplanation
+    if (q.solution_path) explanation = `${S.quizEngine.solutionPathPrefix(q.solution_path)}${explanation}`
     return { correct: null, explanation, selfRate: true }
   }
 }

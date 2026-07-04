@@ -8,14 +8,15 @@ import { BackIcon, CheckIcon, MoreIcon, TrashIcon } from '../components/Icons'
 import { addReviewEntry } from '../lib/reviewLog'
 import { useBackButton } from '../lib/useBackButton'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
+import { S } from '../lib/strings'
 import '../styles/markdown.css'
 
 const MODES = [
-  { key: 'random', label: '随机' },
-  { key: 'sequential', label: '顺序' },
-  { key: 'new', label: '未做' },
-  { key: 'wrong', label: '错题' },
-  { key: 'starred', label: '收藏' },
+  { key: 'random', label: S.quiz.modeRandom },
+  { key: 'sequential', label: S.quiz.modeSequential },
+  { key: 'new', label: S.quiz.modeNew },
+  { key: 'wrong', label: S.quiz.modeWrong },
+  { key: 'starred', label: S.quiz.modeStarred },
 ]
 
 export default function ReviewQuestion() {
@@ -102,7 +103,7 @@ export default function ReviewQuestion() {
   const handleDeleteQuestion = async () => {
     if (!currentQuestion) return
     setShowMenu(false)
-    const ok = await confirm({ title: '删除题目', message: '删除这道题目？此操作不可撤销。', confirmLabel: '确认删除' })
+    const ok = await confirm({ title: S.quiz.deleteQuestionTitle, message: S.quiz.deleteQuestionMessage, confirmLabel: S.quiz.confirmDelete })
     if (!ok) return
     const idToDelete = currentQuestion.id
     deleteQuestion(idToDelete)
@@ -130,26 +131,26 @@ export default function ReviewQuestion() {
         <div className="page-scroll">
           <div className="done-wrap">
             <div className="done-mark"><CheckIcon size={32} /></div>
-            <div className="done-title">一组练毕</div>
+            <div className="done-title">{S.quiz.doneTitle}</div>
             <div className="done-stats">
-              <span>已练 <span className="v">{total}</span></span>
-              <span>掌握率 <span className="v">{correctRate}%</span></span>
+              <span>{S.quizReview.practicedLabel} <span className="v">{total}</span></span>
+              <span>{S.quizReview.masteredRateLabel} <span className="v">{correctRate}%</span></span>
             </div>
             {newWrong > 0 && (
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--danger)' }}>
-                新增错题 {newWrong}
+                {S.quizReview.newWrongPrefix}{newWrong}
               </div>
             )}
             <div className="done-grid two">
-              <div className="cell good"><span className="num">{stats.correct}</span><span>正确</span></div>
-              <div className="cell again"><span className="num">{stats.wrong}</span><span>错误</span></div>
+              <div className="cell good"><span className="num">{stats.correct}</span><span>{S.quiz.correctLabel}</span></div>
+              <div className="cell again"><span className="num">{stats.wrong}</span><span>{S.quiz.wrongLabel}</span></div>
             </div>
             <div style={{ display: 'flex', gap: 8, width: '100%', marginTop: 8 }}>
-              <button className="btn btn-ghost btn-block" onClick={() => goBack()}>返回</button>
+              <button className="btn btn-ghost btn-block" onClick={() => goBack()}>{S.quiz.backAction}</button>
               {results.some(r => !r.correct) && (
-                <button className="btn btn-accent btn-block" onClick={() => { setMode('wrong'); load('wrong') }}>错题回顾</button>
+                <button className="btn btn-accent btn-block" onClick={() => { setMode('wrong'); load('wrong') }}>{S.quiz.wrongReviewAction}</button>
               )}
-              <button className="btn btn-primary btn-block" onClick={() => load(mode)}>再来一组</button>
+              <button className="btn btn-primary btn-block" onClick={() => load(mode)}>{S.quiz.anotherRoundAction}</button>
             </div>
           </div>
         </div>
@@ -168,8 +169,8 @@ export default function ReviewQuestion() {
         <div className="page-scroll">
           <div className="empty">
             <div className="glyph">?</div>
-            <div className="msg">暂无题目</div>
-            <div className="motto-zh">无匹配题目</div>
+            <div className="msg">{S.quiz.noQuestions}</div>
+            <div className="motto-zh">{S.quizReview.noMatchingQuestions}</div>
           </div>
         </div>
       </div>
@@ -178,9 +179,9 @@ export default function ReviewQuestion() {
 
   const frontContent = currentQuestion.question || currentQuestion.id
 
-  let backContent = currentQuestion.answer || currentQuestion.explanation || '暂无解析'
+  let backContent = currentQuestion.answer || currentQuestion.explanation || S.quizReview.noExplanation
   if (currentQuestion.solution_path) {
-    backContent = `**参考答案路径:**\n\`\`\`\n${currentQuestion.solution_path}\n\`\`\`\n\n${backContent}`
+    backContent = `${S.quizReview.referencePathPrefix}\n\`\`\`\n${currentQuestion.solution_path}\n\`\`\`\n\n${backContent}`
   }
 
   const handleTouchStart = (e) => { touchStartX.current = e.touches[0].clientX }
@@ -225,7 +226,7 @@ export default function ReviewQuestion() {
                   style={{ border: '1px solid var(--border-soft)' }}>
                   <button onClick={handleDeleteQuestion}
                     className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-body text-danger hover:bg-bg-raised transition-colors" role="menuitem">
-                    <TrashIcon size={15} /> 删除题目
+                    <TrashIcon size={15} /> {S.quiz.deleteQuestion}
                   </button>
                 </div>
               </>
@@ -252,7 +253,7 @@ export default function ReviewQuestion() {
       {/* Meta */}
       <div className="rv-meta">
         <span className="crumb">
-          <span className="q-tag review">解答</span>
+          <span className="q-tag review">{S.quizReview.reviewTagLabel}</span>
           {currentQuestion.chapter}
         </span>
         <span className="pos">
@@ -269,7 +270,7 @@ export default function ReviewQuestion() {
             <div className="flip-face">
               <span className="corner">
                 <span className="num">{String(currentIndex + 1).padStart(2, '0')}</span>
-                <span>解答 · ESSAY</span>
+                <span>{S.quizReview.reviewTagLabel} · {S.quizReview.essayKeyLabel}</span>
               </span>
               <div className="body">
                 <div className="front-q">
@@ -283,7 +284,7 @@ export default function ReviewQuestion() {
             <div className="flip-face flip-back-face">
               <span className="corner">
                 <span className="num">{String(currentIndex + 1).padStart(2, '0')}</span>
-                <span>参考答案 · KEY</span>
+                <span>{S.quizReview.referenceKeyLabel}</span>
               </span>
               <div className="body back">
                 <div className="back-a">
@@ -294,7 +295,7 @@ export default function ReviewQuestion() {
             </div>
           </div>
         </div>
-        {!flipped && <div className="rv-flip-hint">作答后轻点翻面 · TAP TO REVEAL</div>}
+        {!flipped && <div className="rv-flip-hint">{S.quizReview.flipHint}</div>}
       </div>
 
       {/* Rate buttons — only functional after flip, fixed height prevents card resize */}
@@ -302,12 +303,12 @@ export default function ReviewQuestion() {
         <button className="rate-btn rate-again"
           onClick={() => flipped && handleRate(false)}
           style={{ visibility: flipped ? 'visible' : 'hidden', cursor: flipped ? 'pointer' : 'default' }}>
-          <span>未答出</span><span className="iv">MISSED</span>
+          <span>{S.quizReview.missedLabel}</span><span className="iv">MISSED</span>
         </button>
         <button className="rate-btn rate-easy"
           onClick={() => flipped && handleRate(true)}
           style={{ visibility: flipped ? 'visible' : 'hidden', cursor: flipped ? 'pointer' : 'default' }}>
-          <span>已掌握</span><span className="iv">GOT IT</span>
+          <span>{S.quizReview.gotItLabel}</span><span className="iv">GOT IT</span>
         </button>
       </div>
       <ConfirmSheet state={confirmState} />

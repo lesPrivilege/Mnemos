@@ -6,6 +6,7 @@ import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
 import { getCards, getDecks } from '../lib/storage'
 import RenderMarkdown from '../quiz/components/RenderMarkdown'
 import { BackIcon, SearchIcon } from '../components/Icons'
+import { S } from '../lib/strings'
 import '../styles/markdown.css'
 
 export default function Search() {
@@ -50,8 +51,8 @@ export default function Search() {
 
   const quizGrouped = {}
   for (const q of quizResults) {
-    const key = `${q.subject}|||${q.chapter || '未分类'}`
-    if (!quizGrouped[key]) quizGrouped[key] = { subject: q.subject, chapter: q.chapter || '未分类', items: [] }
+    const key = `${q.subject}|||${q.chapter || S.search.uncategorized}`
+    if (!quizGrouped[key]) quizGrouped[key] = { subject: q.subject, chapter: q.chapter || S.search.uncategorized, items: [] }
     quizGrouped[key].items.push(q)
   }
 
@@ -64,19 +65,19 @@ export default function Search() {
         <div className="search" style={{ margin: 0, flex: 1 }}>
           <SearchIcon size={16} />
           <input value={query} onChange={e => setQuery(e.target.value)}
-            placeholder="搜索题干或卡片" autoFocus />
+            placeholder={S.search.placeholder} autoFocus />
         </div>
       </div>
 
       <main className="flex-1 overflow-y-auto p-[18px]">
         {query.trim() && !hasResults && (
-          <div className="text-center text-ink-3 py-8 font-zh tracking-[0.04em]">没有匹配的内容</div>
+          <div className="text-center text-ink-3 py-8 font-zh tracking-[0.04em]">{S.search.noResults}</div>
         )}
 
         {/* Quiz results */}
         {quizResults.length > 0 && (
           <div className="mb-4">
-            <div className="section-title" style={{ marginBottom: 10 }}>题库 · QUIZ <span className="ml-1 text-ink-2" style={{ fontSize: 11, letterSpacing: 0 }}>{quizResults.length}</span></div>
+            <div className="section-title" style={{ marginBottom: 10 }}>{S.search.quizTitle} <span className="ml-1 text-ink-2" style={{ fontSize: 11, letterSpacing: 0 }}>{quizResults.length}</span></div>
             {Object.values(quizGrouped).map(group => (
               <div key={`q-${group.subject}|||${group.chapter}`} className="mb-3">
                 <div className="text-xs text-ink-3 font-mono mb-1.5">
@@ -98,7 +99,7 @@ export default function Search() {
         {/* Flashcard results */}
         {flashcardResults.length > 0 && (
           <div className="mb-4">
-            <div className="section-title" style={{ marginBottom: 10 }}>闪卡 · FLASHCARD <span className="ml-1 text-ink-2" style={{ fontSize: 11, letterSpacing: 0 }}>{flashcardResults.length}</span></div>
+            <div className="section-title" style={{ marginBottom: 10 }}>{S.search.flashcardTitle} <span className="ml-1 text-ink-2" style={{ fontSize: 11, letterSpacing: 0 }}>{flashcardResults.length}</span></div>
             <div className="flex flex-col gap-1.5">
               {flashcardResults.map(card => (
                 <div key={card.id} className="bg-bg-card rounded-lg p-3 border cursor-pointer" style={{ borderColor: 'var(--border-soft)' }}
@@ -113,8 +114,8 @@ export default function Search() {
 
         {!query.trim() && (
           <div className="text-center text-ink-3 py-8">
-            <div className="text-sm">输入关键词搜索</div>
-            <div className="text-xs mt-1 text-ink-4">支持中文、英文、LaTeX</div>
+            <div className="text-sm">{S.search.promptTitle}</div>
+            <div className="text-xs mt-1 text-ink-4">{S.search.promptHint}</div>
           </div>
         )}
       </main>

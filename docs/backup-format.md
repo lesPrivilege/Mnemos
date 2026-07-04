@@ -16,12 +16,14 @@ Any backup ever produced by Mnemos must import into any future version of Mnemos
 
 ## Storage Backend Note
 
-In v1.4, the big records `mnemos-data` and `examprep-questions` are served from
-IndexedDB and dual-written to localStorage for one release. In the following
-release, those localStorage copies may be stale and exist only as transition
-copies; after that, the `saveJson` localStorage dual-write for these two keys is
-removed. Backup import/export is unaffected because it reads and writes through
-the same module loaders.
+As of R4+1, the big records `mnemos-data` and `examprep-questions` live in
+IndexedDB only; `setCached` no longer dual-writes them to localStorage. A
+device that still has a pre-R4 localStorage copy migrates it into IndexedDB on
+first hydrate and then deletes the localStorage copy once that write is
+confirmed — this migration read path is retained indefinitely so any
+pre-R4 device can still recover its data on upgrade, no matter how long it
+was left on an old build. Backup import/export is unaffected because it reads
+and writes through the same module loaders.
 
 ## Full Backup
 

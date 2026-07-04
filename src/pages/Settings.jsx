@@ -30,6 +30,7 @@ import { getAutoBackupConfig, setEnabled, runBackupNow } from '../lib/autoBackup
 import { isEnabled, getReminderTime, setReminderTime, enableReminders, disableReminders, resyncReminders } from '../lib/reminders'
 import { useToast, Toast } from '../components/Toast'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
+import { S } from '../lib/strings'
 import pkg from '../../package.json'
 
 function ActionRow({ title, detail, action, tone = 'danger', confirm, onClick, disabled }) {
@@ -186,7 +187,7 @@ export default function Settings() {
   const handleExportQuarantined = (entry) => {
     const raw = getQuarantinedRaw(entry.key)
     if (raw == null) {
-      showToast('隔离数据不存在')
+      showToast(S.settings.quarantineMissing)
       refresh()
       return
     }
@@ -196,14 +197,14 @@ export default function Settings() {
 
   const handleDiscardQuarantined = async (entry) => {
     const ok = await confirm({
-      title: '丢弃受损数据',
-      message: `丢弃 ${entry.key} 的隔离副本？请确认已经导出或不再需要它。`,
-      confirmLabel: '确认丢弃',
+      title: S.settings.discardQuarantineTitle,
+      message: S.settings.discardQuarantineMessage(entry.key),
+      confirmLabel: S.settings.confirmDiscard,
     })
     if (!ok) return
     discardQuarantined(entry.key)
     setQuarantined(listQuarantined())
-    showToast('已丢弃隔离数据')
+    showToast(S.settings.quarantineDiscarded)
   }
 
   const handleClearProgress = () => {
@@ -278,13 +279,13 @@ export default function Settings() {
         <button onClick={goBack} className="tb-btn">
           <BackIcon />
         </button>
-        <h1 className="flex-1 font-zh text-[17px] font-medium text-ink pl-1">设置</h1>
+        <h1 className="flex-1 font-zh text-[17px] font-medium text-ink pl-1">{S.settings.title}</h1>
       </header>
 
       <main className="flex-1 overflow-y-auto p-[18px] flex flex-col gap-4">
         {/* Appearance */}
         <div className="settings-card">
-          <div className="lbl">外观 · APPEARANCE</div>
+          <div className="lbl">{S.settings.appearanceHeading}</div>
           <div className="seg">
             <button onClick={() => setDark(false)} className={!dark ? 'on' : ''}>
               <SunIcon size={16} /> Light
@@ -297,35 +298,35 @@ export default function Settings() {
 
         {/* Recall module */}
         <section className="settings-card settings-module">
-          <div className="lbl">记忆 · RECALL</div>
+          <div className="lbl">{S.settings.recallHeading}</div>
           <div className="settings-metrics">
-            <div><span>{flashcardStats?.length || 0}</span><em>卡组</em></div>
-            <div><span>{flashcardTotal}</span><em>卡片</em></div>
-            <div><span style={{ color: 'var(--accent)' }}>{flashcardDue}</span><em>待复习</em></div>
+            <div><span>{flashcardStats?.length || 0}</span><em>{S.settings.decksLabel}</em></div>
+            <div><span>{flashcardTotal}</span><em>{S.settings.cardsLabel}</em></div>
+            <div><span style={{ color: 'var(--accent)' }}>{flashcardDue}</span><em>{S.settings.dueLabel}</em></div>
           </div>
           <div className="settings-field">
             <div>
-              <span className="settings-field-title">每日上限</span>
-              <span className="settings-field-hint">限定记忆卡当天复习数量</span>
+              <span className="settings-field-title">{S.settings.dailyLimitTitle}</span>
+              <span className="settings-field-hint">{S.settings.dailyLimitHint}</span>
             </div>
             <input type="number" value={dailyLimit} onChange={(e) => setDailyLimit(e.target.value)}
-              placeholder="不限" min="1"
+              placeholder={S.settings.dailyLimitPlaceholder} min="1"
               className="settings-field-input" />
           </div>
           <div className="settings-action-group">
-            <div className="settings-action-group-title">数据</div>
+            <div className="settings-action-group-title">{S.settings.dataGroupTitle}</div>
             <ActionRow
-              title="重置记忆进度"
-              detail="保留卡组、卡片和收藏，重新开始排程"
-              action={showConfirm === 'flashcard-progress' ? '确认重置' : '重置'}
+              title={S.settings.resetFlashcardProgressTitle}
+              detail={S.settings.resetFlashcardProgressDetail}
+              action={showConfirm === 'flashcard-progress' ? S.settings.confirmReset : S.settings.reset}
               confirm={showConfirm === 'flashcard-progress'}
               onClick={handleClearFlashcardProgress}
               disabled={!flashcardTotal}
             />
             <ActionRow
-              title="删除全部记忆卡"
-              detail="删除所有卡组和卡片"
-              action={showConfirm === 'flashcards' ? '确认删除' : '删除'}
+              title={S.settings.deleteAllFlashcardsTitle}
+              detail={S.settings.deleteAllFlashcardsDetail}
+              action={showConfirm === 'flashcards' ? S.settings.confirmDelete : S.settings.delete}
               confirm={showConfirm === 'flashcards'}
               onClick={handleClearFlashcards}
               disabled={!flashcardTotal}
@@ -333,7 +334,7 @@ export default function Settings() {
           </div>
           {(showConfirm === 'flashcard-progress' || showConfirm === 'flashcards') && (
             <div className="settings-confirm-note">
-              此操作只影响记忆卡模块，请确认是否继续？
+              {S.settings.flashcardModuleConfirmNote}
             </div>
           )}
         </section>
@@ -341,11 +342,11 @@ export default function Settings() {
         {/* Reminder */}
         {isNative() && (
           <section className="settings-card settings-module">
-            <div className="lbl">提醒 · REMINDER</div>
+            <div className="lbl">{S.settings.reminderHeading}</div>
             <div className="settings-action">
               <div className="settings-action-copy">
-                <span className="settings-action-title">每日复习提醒</span>
-                <span className="settings-action-detail">有到期卡片时按时提醒</span>
+                <span className="settings-action-title">{S.settings.dailyReminderTitle}</span>
+                <span className="settings-action-detail">{S.settings.dailyReminderDetail}</span>
               </div>
               <button type="button" onClick={async () => {
                 if (reminderOn) {
@@ -360,19 +361,19 @@ export default function Settings() {
                     setReminderOn(true)
                     refreshReminderStatus()
                   } else {
-                    setReminderError('通知权限被拒绝，请在系统设置中开启')
+                    setReminderError(S.settings.notificationDenied)
                   }
                 }
               }}
                 className={`settings-action-btn ${reminderOn ? 'confirm' : ''}`}
                 style={reminderOn ? { background: 'var(--accent)', color: '#fff', border: 'none' } : {}}>
-                {reminderOn ? '开启' : '关闭'}
+                {reminderOn ? S.settings.on : S.settings.off}
               </button>
             </div>
             {reminderOn && (
               <div className="settings-field">
                 <div>
-                  <span className="settings-field-title">提醒时间</span>
+                  <span className="settings-field-title">{S.settings.reminderTimeTitle}</span>
                 </div>
                 <input type="time" value={reminderTime}
                   onChange={async (e) => {
@@ -390,18 +391,18 @@ export default function Settings() {
             )}
             {reminderOn && nextReminder && (
               <div className="kv-row">
-                <span className="k">下次提醒</span>
+                <span className="k">{S.settings.nextReminderLabel}</span>
                 <span className="v">
                   {nextReminder.at.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' })}{' '}
                   {nextReminder.at.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
-                  {nextReminder.count > 0 && ` · ${nextReminder.count} 张`}
+                  {nextReminder.count > 0 && S.settings.reminderCountSuffix(nextReminder.count)}
                 </span>
               </div>
             )}
             {reminderOn && !nextReminder && (
               <div className="kv-row">
-                <span className="k">状态</span>
-                <span className="v" style={{ color: 'var(--ink-3)' }}>暂无待复习卡片，未安排提醒</span>
+                <span className="k">{S.settings.statusLabel}</span>
+                <span className="v" style={{ color: 'var(--ink-3)' }}>{S.settings.noReminderScheduled}</span>
               </div>
             )}
           </section>
@@ -410,14 +411,14 @@ export default function Settings() {
         {/* Practice module */}
         {storageStats && (
           <section className="settings-card settings-module">
-            <div className="lbl">练习 · PRACTICE</div>
+            <div className="lbl">{S.settings.practiceHeading}</div>
             <div className="settings-metrics">
-              <div><span>{storageStats.totalQuestions}</span><em>题目</em></div>
-              <div><span>{storageStats.totalProgress}</span><em>已练习</em></div>
-              <div><span>{storageStats.totalStarred}</span><em>收藏</em></div>
+              <div><span>{storageStats.totalQuestions}</span><em>{S.settings.questionsLabel}</em></div>
+              <div><span>{storageStats.totalProgress}</span><em>{S.settings.practicedLabel}</em></div>
+              <div><span>{storageStats.totalStarred}</span><em>{S.settings.starredLabel}</em></div>
             </div>
             <div className="settings-action-group">
-              <div className="settings-action-group-title">科目</div>
+              <div className="settings-action-group-title">{S.settings.subjectsGroupTitle}</div>
               {subjects.length > 0 ? subjects.map(subject => {
                 const subjStats = storageStats?.bySubject[subject]
                 const hue = SUBJECT_HUE[subject] || 0
@@ -432,40 +433,40 @@ export default function Settings() {
                     }} />
                     <div className="settings-subject-copy">
                       <span>{getSubjectDisplayName(subject)}</span>
-                      <em>{subjStats ? `${subjStats.total}题` : ''}{progressCount > 0 && ` · ${progressCount}条进度`}</em>
+                      <em>{subjStats ? S.settings.subjectTotalSuffix(subjStats.total) : ''}{progressCount > 0 && S.settings.subjectProgressSuffix(progressCount)}</em>
                     </div>
                     <div className="settings-subject-actions">
                       {progressCount > 0 && (
                         <button onClick={() => handleClearSubjectProgress(subject)}
                           className={`settings-action-btn warn ${subjectConfirm === `clear-${subject}` ? 'confirm' : ''}`}>
-                          {subjectConfirm === `clear-${subject}` ? '确认重置' : '重置'}
+                          {subjectConfirm === `clear-${subject}` ? S.settings.confirmReset : S.settings.reset}
                         </button>
                       )}
                       <button onClick={() => handleDeleteSubject(subject)}
                         className={`settings-action-btn danger ${subjectConfirm === `delete-${subject}` ? 'confirm' : ''}`}>
-                        {subjectConfirm === `delete-${subject}` ? '确认删除' : '删除'}
+                        {subjectConfirm === `delete-${subject}` ? S.settings.confirmDelete : S.settings.delete}
                       </button>
                     </div>
                   </div>
                 )
               }) : (
-                <div className="settings-empty-note">暂无题库</div>
+                <div className="settings-empty-note">{S.settings.emptySubjectsNote}</div>
               )}
             </div>
             <div className="settings-action-group">
-              <div className="settings-action-group-title">数据</div>
+              <div className="settings-action-group-title">{S.settings.dataGroupTitle}</div>
               <ActionRow
-                title="重置练习进度"
-                detail="保留题库和收藏，只清空答题记录"
-                action={showConfirm === 'progress' ? '确认重置' : '重置'}
+                title={S.settings.resetPracticeProgressTitle}
+                detail={S.settings.resetPracticeProgressDetail}
+                action={showConfirm === 'progress' ? S.settings.confirmReset : S.settings.reset}
                 confirm={showConfirm === 'progress'}
                 onClick={handleClearProgress}
                 disabled={!storageStats.totalProgress}
               />
               <ActionRow
-                title="删除全部题库"
-                detail="删除所有题目、进度和继续练习记录"
-                action={showConfirm === 'questions' ? '确认删除' : '删除'}
+                title={S.settings.deleteAllQuestionsTitle}
+                detail={S.settings.deleteAllQuestionsDetail}
+                action={showConfirm === 'questions' ? S.settings.confirmDelete : S.settings.delete}
                 confirm={showConfirm === 'questions'}
                 onClick={handleClearQuestions}
                 disabled={!storageStats.totalQuestions}
@@ -473,12 +474,12 @@ export default function Settings() {
             </div>
             {subjectConfirm && (
               <div className="settings-confirm-note">
-                此操作只影响该科目，请确认是否继续？
+                {S.settings.subjectModuleConfirmNote}
               </div>
             )}
             {(showConfirm === 'progress' || showConfirm === 'questions') && (
               <div className="settings-confirm-note">
-                此操作只影响练习模块，请确认是否继续？
+                {S.settings.practiceModuleConfirmNote}
               </div>
             )}
           </section>
@@ -487,32 +488,32 @@ export default function Settings() {
         {/* Reading module */}
         {readingInfo && (
           <section className="settings-card settings-module">
-            <div className="lbl">阅读 · READING</div>
+            <div className="lbl">{S.settings.readingHeading}</div>
             <div className="settings-metrics">
-              <div><span>{readingInfo.collections}</span><em>文集</em></div>
-              <div><span>{readingInfo.documents}</span><em>文档</em></div>
-              <div><span>{readingInfo.totalMinutes}</span><em>分钟</em></div>
+              <div><span>{readingInfo.collections}</span><em>{S.settings.collectionsLabel}</em></div>
+              <div><span>{readingInfo.documents}</span><em>{S.settings.documentsLabel}</em></div>
+              <div><span>{readingInfo.totalMinutes}</span><em>{S.settings.minutesLabel}</em></div>
             </div>
             <div className="kv-row">
-              <span className="k">高亮</span>
+              <span className="k">{S.settings.highlightsLabel}</span>
               <span className="v">{readingInfo.highlights}</span>
             </div>
             <div className="kv-row">
-              <span className="k">书签</span>
+              <span className="k">{S.settings.bookmarksLabel}</span>
               <span className="v">{readingInfo.bookmarks}</span>
             </div>
             {readingInfo.docsCompleted > 0 && (
               <div className="kv-row">
-                <span className="k">读完</span>
+                <span className="k">{S.settings.finishedLabel}</span>
                 <span className="v">{readingInfo.docsCompleted}</span>
               </div>
             )}
             <div className="settings-action-group">
-              <div className="settings-action-group-title">数据</div>
+              <div className="settings-action-group-title">{S.settings.dataGroupTitle}</div>
               <ActionRow
-                title="重置阅读统计"
-                detail="保留文集、文档、高亮和书签"
-                action={showConfirm === 'reading-stats' ? '确认重置' : '重置'}
+                title={S.settings.resetReadingStatsTitle}
+                detail={S.settings.resetReadingStatsDetail}
+                action={showConfirm === 'reading-stats' ? S.settings.confirmReset : S.settings.reset}
                 confirm={showConfirm === 'reading-stats'}
                 disabled={!readingInfo.totalMinutes && !readingInfo.docsCompleted}
                 onClick={() => {
@@ -526,9 +527,9 @@ export default function Settings() {
                 }}
               />
               <ActionRow
-                title="删除全部阅读数据"
-                detail="删除文集、文档、高亮、书签和阅读设置"
-                action={showConfirm === 'reading-all' ? '确认删除' : '删除'}
+                title={S.settings.deleteAllReadingTitle}
+                detail={S.settings.deleteAllReadingDetail}
+                action={showConfirm === 'reading-all' ? S.settings.confirmDelete : S.settings.delete}
                 confirm={showConfirm === 'reading-all'}
                 disabled={!readingInfo.collections && !readingInfo.documents}
                 onClick={() => {
@@ -544,7 +545,7 @@ export default function Settings() {
             </div>
             {(showConfirm === 'reading-stats' || showConfirm === 'reading-all') && (
               <div className="settings-confirm-note">
-                此操作只影响阅读模块，请确认是否继续？
+                {S.settings.readingModuleConfirmNote}
               </div>
             )}
           </section>
@@ -552,20 +553,20 @@ export default function Settings() {
 
         {/* Data export */}
         <section className="settings-card settings-module">
-          <div className="lbl">备份 · BACKUP</div>
+          <div className="lbl">{S.settings.backupHeading}</div>
           <div className="settings-backup-list">
-            <BackupButton primary onClick={handleExportAll}>完整备份</BackupButton>
-            <BackupButton onClick={handleExportFlashcard}>仅导出记忆</BackupButton>
-            <BackupButton onClick={handleExportQuiz}>仅导出练习</BackupButton>
-            <BackupButton onClick={handleExportReading}>仅导出阅读</BackupButton>
+            <BackupButton primary onClick={handleExportAll}>{S.settings.fullBackup}</BackupButton>
+            <BackupButton onClick={handleExportFlashcard}>{S.settings.exportFlashcardOnly}</BackupButton>
+            <BackupButton onClick={handleExportQuiz}>{S.settings.exportQuizOnly}</BackupButton>
+            <BackupButton onClick={handleExportReading}>{S.settings.exportReadingOnly}</BackupButton>
           </div>
           {autoBackup && (
             <div className="settings-action-group" style={{ marginTop: 12 }}>
-              <div className="settings-action-group-title">自动备份</div>
+              <div className="settings-action-group-title">{S.settings.autoBackupGroupTitle}</div>
               <div className="settings-action">
                 <div className="settings-action-copy">
-                  <span className="settings-action-title">每日自动备份</span>
-                  <span className="settings-action-detail">自动保存完整备份到设备存储</span>
+                  <span className="settings-action-title">{S.settings.dailyAutoBackupTitle}</span>
+                  <span className="settings-action-detail">{S.settings.dailyAutoBackupDetail}</span>
                 </div>
                 <button type="button" onClick={() => {
                   setEnabled(!autoBackup.enabled)
@@ -573,22 +574,22 @@ export default function Settings() {
                 }}
                   className={`settings-action-btn ${autoBackup.enabled ? 'confirm' : ''}`}
                   style={autoBackup.enabled ? { background: 'var(--accent)', color: '#fff', border: 'none' } : {}}>
-                  {autoBackup.enabled ? '开启' : '关闭'}
+                  {autoBackup.enabled ? S.settings.on : S.settings.off}
                 </button>
               </div>
               {autoBackup.status && (
                 <div className="kv-row">
-                  <span className="k">上次备份</span>
+                  <span className="k">{S.settings.lastBackupLabel}</span>
                   <span className="v" style={{ color: autoBackup.status.ok ? 'var(--good)' : 'var(--danger)' }}>
                     {new Date(autoBackup.status.at).toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' })}{' '}
                     {new Date(autoBackup.status.at).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
-                    {' · '}{autoBackup.status.ok ? '成功' : '失败'}
+                    {' · '}{autoBackup.status.ok ? S.settings.backupOk : S.settings.backupFailed}
                   </span>
                 </div>
               )}
               {autoBackup.status?.ok && (
                 <div className="kv-row">
-                  <span className="k">位置</span>
+                  <span className="k">{S.settings.locationLabel}</span>
                   <span className="v font-mono text-[11px]">{autoBackup.status.dir}/Mnemos/</span>
                 </div>
               )}
@@ -596,24 +597,24 @@ export default function Settings() {
                 <div className="font-zh text-xs" style={{ color: 'var(--danger)' }}>{autoBackup.status.error}</div>
               )}
               <ActionRow
-                title="立即备份"
-                detail="跳过 20 小时间隔，马上备份"
-                action="备份"
+                title={S.settings.backupNowTitle}
+                detail={S.settings.backupNowDetail}
+                action={S.settings.backupNowAction}
                 tone="warn"
                 onClick={async () => {
                   const result = await runBackupNow()
                   setAutoBackup(getAutoBackupConfig())
-                  if (!result.ok) showToast(`备份失败: ${result.error}`)
-                  else showToast('备份成功')
+                  if (!result.ok) showToast(S.settings.backupNowFailedToast(result.error))
+                  else showToast(S.settings.backupNowSuccessToast)
                 }}
               />
             </div>
           )}
           <div className="settings-action-group" style={{ marginTop: 12 }}>
             <ActionRow
-              title="恢复备份"
-              detail="从备份文件恢复数据"
-              action="恢复"
+              title={S.settings.restoreBackupTitle}
+              detail={S.settings.restoreBackupDetail}
+              action={S.settings.restoreBackupAction}
               tone="warn"
               onClick={() => navigate('/import?tab=restore')}
             />
@@ -621,9 +622,9 @@ export default function Settings() {
           {quarantined.length > 0 && (
             <div className="settings-action-group settings-quarantine" style={{ marginTop: 12 }}>
               <div>
-                <div className="settings-quarantine-title">检测到 {quarantined.length} 份受损数据</div>
+                <div className="settings-quarantine-title">{S.settings.quarantineDetectedTitle(quarantined.length)}</div>
                 <div className="settings-quarantine-detail">
-                  原始内容已保存为隔离副本，可先导出给外部工具修复，再通过恢复备份重新导入。
+                  {S.settings.quarantineDetail}
                 </div>
               </div>
               {quarantined.map((entry) => (
@@ -638,7 +639,7 @@ export default function Settings() {
                             hour: '2-digit',
                             minute: '2-digit',
                           })
-                        : '时间未知'}{' '}
+                        : S.settings.quarantineTimeUnknown}{' '}
                       · {formatBytes(entry.size)}
                     </em>
                   </div>
@@ -648,14 +649,14 @@ export default function Settings() {
                       className="settings-action-btn warn"
                       onClick={() => handleExportQuarantined(entry)}
                     >
-                      导出
+                      {S.settings.exportAction}
                     </button>
                     <button
                       type="button"
                       className="settings-action-btn danger"
                       onClick={() => handleDiscardQuarantined(entry)}
                     >
-                      丢弃
+                      {S.settings.discardAction}
                     </button>
                   </div>
                 </div>
@@ -666,18 +667,18 @@ export default function Settings() {
 
         {/* About */}
         <div className="settings-card">
-          <div className="lbl">关于 · ABOUT</div>
+          <div className="lbl">{S.settings.aboutHeading}</div>
           <div className="flex flex-col items-center gap-2 py-3.5">
             <MnemosMark size={36} accent="var(--accent)" />
             <div className="font-display text-[26px] tracking-wide text-ink">Mnemos</div>
             <div className="font-mono text-[10px] text-ink-3 tracking-[0.18em]">VERSION {pkg.version}</div>
           </div>
           <div className="kv-row">
-            <span className="k">间隔算法</span>
+            <span className="k">{S.settings.intervalAlgorithmLabel}</span>
             <span className="v">SM-2</span>
           </div>
           <div className="kv-row">
-            <span className="k">显示字体</span>
+            <span className="k">{S.settings.displayFontLabel}</span>
             <span className="v">Instrument · Noto Serif SC</span>
           </div>
         </div>

@@ -10,15 +10,16 @@ import { HeroSection } from '../components/HeroSection'
 import EmptyState from '../components/EmptyState'
 import { useToast, Toast } from '../components/Toast'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
+import { S } from '../lib/strings'
 
 function getTimeAgo(ts) {
   const mins = Math.floor((Date.now() - ts) / 60000)
-  if (mins < 1) return '刚刚'
-  if (mins < 60) return `${mins}分钟前`
+  if (mins < 1) return S.quizHome.justNow
+  if (mins < 60) return S.quizHome.minutesAgoSuffix(mins)
   const hours = Math.floor(mins / 60)
-  if (hours < 24) return `${hours}小时前`
+  if (hours < 24) return S.quizHome.hoursAgoSuffix(hours)
   const days = Math.floor(hours / 24)
-  return `${days}天前`
+  return S.quizHome.daysAgoSuffix(days)
 }
 
 function ContinueCard({ subjects, onDismiss }) {
@@ -28,21 +29,21 @@ function ContinueCard({ subjects, onDismiss }) {
   // Skip if the session's subject no longer exists (e.g. it was deleted)
   if (subjects && !subjects.includes(session.subject)) return null
   const ago = Math.floor((Date.now() - session.timestamp) / 60000)
-  const timeStr = ago < 60 ? `${ago}分钟前` : ago < 1440 ? `${Math.floor(ago / 60)}小时前` : `${Math.floor(ago / 1440)}天前`
+  const timeStr = ago < 60 ? S.quizHome.minutesAgoSuffix(ago) : ago < 1440 ? S.quizHome.hoursAgoSuffix(Math.floor(ago / 60)) : S.quizHome.daysAgoSuffix(Math.floor(ago / 1440))
 
   return (
     <div className="deck group" onClick={() => navigate(session.route)}>
       <div className={`deck-spine h${SUBJECT_HUE[session.subject] || 0}`}>
-        <span className="glyph">{SUBJECT_GLYPH[session.subject] || '继'}</span>
+        <span className="glyph">{SUBJECT_GLYPH[session.subject] || S.quizHome.defaultGlyph}</span>
       </div>
       <div className="deck-meta">
         <div className="deck-name">
           {getSubjectDisplayName(session.subject)}
         </div>
         <div className="deck-stats">
-          <span className="due">继续</span>
+          <span className="due">{S.quizHome.continuing}</span>
           <span className="dot">·</span>
-          <span>{session.chapter || '上次练习'}</span>
+          <span>{session.chapter || S.quizHome.lastPracticeFallback}</span>
           <span className="dot">·</span>
           <span>{timeStr}</span>
         </div>
@@ -59,7 +60,7 @@ function SubjectCard({ subject, onChange, confirm }) {
   const navigate = useNavigate()
   const stats = getSubjectStats(subject)
   const hue = SUBJECT_HUE[subject] || 0
-  const glyph = SUBJECT_GLYPH[subject] || '学'
+  const glyph = SUBJECT_GLYPH[subject] || S.quizHome.subjectGlyphFallback
   const lastSession = loadLastSession()
   const isThisSubject = lastSession?.subject === subject
   const timeAgo = isThisSubject ? getTimeAgo(lastSession.timestamp) : null
@@ -78,20 +79,20 @@ function SubjectCard({ subject, onChange, confirm }) {
       <div className="deck-meta">
         <div className="deck-name">{getSubjectDisplayName(subject)}</div>
         <div className="deck-stats">
-          {stats.wrong > 0 && <><span className="due">{stats.wrong}错</span><span className="dot">·</span></>}
-          <span>{stats.total}题</span>
+          {stats.wrong > 0 && <><span className="due">{stats.wrong}{S.quizHome.wrongSuffix}</span><span className="dot">·</span></>}
+          <span>{stats.total}{S.quizHome.totalSuffix}</span>
           {stats.done > 0 && <><span className="dot">·</span><span>{Math.round((stats.done / stats.total) * 100)}%</span></>}
           {timeAgo && <><span className="dot">·</span><span style={{ color: 'var(--accent)' }}>{timeAgo}</span></>}
         </div>
         <div style={{ display: 'flex', gap: 4, marginTop: 4 }}>
           {typeCounts.choice > 0 && (
             <span className="chip" style={{ fontSize: 10, padding: '2px 7px', pointerEvents: 'none' }}>
-              选择 {typeCounts.choice}
+              {S.quizHome.choiceCountPrefix}{typeCounts.choice}
             </span>
           )}
           {typeCounts.review > 0 && (
             <span className="chip" style={{ fontSize: 10, padding: '2px 7px', pointerEvents: 'none' }}>
-              解答 {typeCounts.review}
+              {S.quizHome.reviewCountPrefix}{typeCounts.review}
             </span>
           )}
         </div>
@@ -101,13 +102,13 @@ function SubjectCard({ subject, onChange, confirm }) {
           className="inline-flex items-center justify-center w-7 h-7 rounded-md text-ink-3 opacity-40 hover:opacity-100 hover:text-danger hover:bg-danger-soft transition-colors flex-shrink-0"
           onClick={async (e) => {
             e.stopPropagation()
-            const ok = await confirm({ title: '删除科目', message: `删除科目「${getSubjectDisplayName(subject)}」及其全部题目与进度？此操作不可撤销。`, confirmLabel: '确认删除' })
+            const ok = await confirm({ title: S.quizHome.deleteSubjectTitle, message: S.quizHome.deleteSubjectMessage(getSubjectDisplayName(subject)), confirmLabel: S.quizHome.confirmDelete })
             if (ok) {
               deleteSubject(subject)
               onChange?.()
             }
           }}
-          title="删除科目">
+          title={S.quizHome.deleteSubjectAction}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
             <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />
           </svg>
@@ -117,7 +118,7 @@ function SubjectCard({ subject, onChange, confirm }) {
             e.stopPropagation()
             navigate(typeCounts.choice > 0 ? `/quiz/${subject}` : `/quiz-review/${subject}`)
           }}>
-            练习<span className="arr">→</span>
+            {S.quizHome.practiceAction}<span className="arr">→</span>
           </button>
         )}
       </div>
@@ -125,7 +126,7 @@ function SubjectCard({ subject, onChange, confirm }) {
   )
 }
 
-const DAY_LABELS = ['日', '一', '二', '三', '四', '五', '六']
+const DAY_LABELS = S.quizHome.dayLabels
 
 function getWeekStats() {
   const progress = loadProgress()
@@ -188,16 +189,16 @@ export function QuizHomeContent() {
     try {
       const result = parseQuestionsJson(newSubjectJson)
       if (result.questions.length === 0) {
-        showToast('未识别到题目。请确认 JSON 格式是否正确。')
+        showToast(S.quizHome.noQuestionsDetected)
         return
       }
       const r = addQuestions(result.questions)
-      showToast(`导入完成！新增: ${r.added}，重复跳过: ${r.duplicates}`)
+      showToast(S.quizHome.importSummary(r))
       setNewSubjectJson('')
       setShowNewSubject(false)
       refresh()
     } catch {
-      showToast('导入失败: JSON 格式错误')
+      showToast(S.quizHome.importJsonError)
     }
   }
 
@@ -205,20 +206,20 @@ export function QuizHomeContent() {
     <div className="scr">
       {/* Hero */}
       <HeroSection
-        label={isEmptyLibrary ? '准备 · READY' : '本周 · THIS WEEK'}
+        label={isEmptyLibrary ? S.quizHome.readyLabel : S.quizHome.thisWeekLabel}
         right={isEmptyLibrary
-          ? [{ icon: <UploadIcon size={14} />, text: '待导入' }]
-          : [{ icon: <SparkIcon size={14} />, text: `正确率 ${weekStats.correctRate}%`, warn: true }]}
+          ? [{ icon: <UploadIcon size={14} />, text: S.quizHome.pendingImport }]
+          : [{ icon: <SparkIcon size={14} />, text: S.quizHome.correctRatePrefix(weekStats.correctRate), warn: true }]}
         metrics={isEmptyLibrary
           ? [
-              { value: subjects.length, label: 'SETS', zhLabel: '题库', accent: true },
-              { value: wrongCount, label: 'WRONG', zhLabel: '错题' },
-              { value: totalQs, label: 'QUEST', zhLabel: '题目' },
+              { value: subjects.length, label: 'SETS', zhLabel: S.quizHome.setsZhLabel, accent: true },
+              { value: wrongCount, label: 'WRONG', zhLabel: S.quizHome.wrongZhLabel },
+              { value: totalQs, label: 'QUEST', zhLabel: S.quizHome.questZhLabel },
             ]
           : [
-              { value: wrongCount, label: 'WRONG', zhLabel: '错题', accent: true },
-              { value: weekStats.doneThisWeek, label: 'DONE', zhLabel: '本周' },
-              { value: totalQs, label: 'TOTAL', zhLabel: '总数' },
+              { value: wrongCount, label: 'WRONG', zhLabel: S.quizHome.wrongZhLabel, accent: true },
+              { value: weekStats.doneThisWeek, label: 'DONE', zhLabel: S.quizHome.doneZhLabel },
+              { value: totalQs, label: 'TOTAL', zhLabel: S.quizHome.totalZhLabel },
             ]}
         chartData={weekStats.chart.map(d => ({ count: d.n, isToday: d.today, label: d.d }))}
         chartColor="teal"
@@ -230,7 +231,7 @@ export function QuizHomeContent() {
 
       {/* Subject list header */}
       <div className="list-head">
-        <div className="section-title" style={{ flex: 'none' }}>科目 · SUBJECTS</div>
+        <div className="section-title" style={{ flex: 'none' }}>{S.quizHome.subjectsHeading}</div>
         <span className="count">{subjects.length}</span>
       </div>
 
@@ -238,8 +239,8 @@ export function QuizHomeContent() {
       {subjects.length === 0 ? (
         <EmptyState
           icon={<PasteIcon size={48} />}
-          title="暂无题库"
-          hint="导入或新建题库即可开始"
+          title={S.quizHome.emptySubjectsTitle}
+          hint={S.quizHome.emptySubjectsHint}
         />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -260,20 +261,20 @@ export function QuizHomeContent() {
             <div className="flex gap-2">
               <button type="button" onClick={() => { setShowNewSubject(false); setNewSubjectJson('') }}
                 className="flex-1 py-2.5 rounded-md font-body text-sm border text-ink-2 active:scale-[0.97] transition-transform"
-                style={{ borderColor: 'var(--border)' }}>取消</button>
+                style={{ borderColor: 'var(--border)' }}>{S.quizHome.cancel}</button>
               <button type="submit" disabled={!newSubjectJson.trim()}
                 className="flex-1 py-2.5 rounded-md font-medium text-sm font-body bg-ink text-bg active:scale-[0.97] transition-transform disabled:opacity-40">
-                导入
+                {S.quizHome.importAction}
               </button>
             </div>
           </form>
         ) : (
           <>
             <Link to="/import?tab=json" className="btn btn-ghost">
-              <UploadIcon size={16} /> 导入
+              <UploadIcon size={16} /> {S.quizHome.importAction}
             </Link>
             <button onClick={() => setShowNewSubject(true)} className="btn btn-primary">
-              <PlusIcon size={16} /> 新建题库
+              <PlusIcon size={16} /> {S.quizHome.newSubjectAction}
             </button>
           </>
         )}

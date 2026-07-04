@@ -6,6 +6,7 @@ import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
 import RenderMarkdown from '../quiz/components/RenderMarkdown'
 import { BackIcon, StarIcon, TrashIcon } from '../components/Icons'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
+import { S } from '../lib/strings'
 import '../styles/markdown.css'
 
 export default function Starred() {
@@ -30,7 +31,7 @@ export default function Starred() {
   }
 
   const handleDelete = async (id) => {
-    const ok = await confirm({ title: '删除题目', message: '删除这道题目？此操作不可撤销。', confirmLabel: '确认删除' })
+    const ok = await confirm({ title: S.starred.deleteQuestionTitle, message: S.starred.deleteQuestionMessage, confirmLabel: S.starred.confirmDelete })
     if (!ok) return
     deleteQuestion(id)
     setItems(prev => prev.filter(q => q.id !== id))
@@ -40,15 +41,15 @@ export default function Starred() {
     <div className="page-fill">
       <div className="topbar">
         <button className="tb-btn" onClick={() => goBack()} aria-label="Back"><BackIcon /></button>
-        <h1 className="zh" style={{ flex: 1, paddingLeft: 4 }}>收藏</h1>
+        <h1 className="zh" style={{ flex: 1, paddingLeft: 4 }}>{S.starred.title}</h1>
       </div>
 
       <main className="flex-1 overflow-y-auto p-[18px] flex flex-col gap-3">
         {items.length === 0 ? (
           <div className="empty">
             <div className="glyph">★</div>
-            <div className="msg">暂无收藏</div>
-            <div className="motto-zh">练习时点击星标即可收藏</div>
+            <div className="msg">{S.starred.empty}</div>
+            <div className="motto-zh">{S.starred.emptyHint}</div>
           </div>
         ) : (
            items.map(q => (
@@ -60,7 +61,7 @@ export default function Starred() {
                   <button
                     className="hidden group-hover:inline-flex items-center justify-center w-7 h-7 rounded-md text-ink-3 hover:text-danger hover:bg-danger-soft transition-colors"
                     onClick={(e) => { e.stopPropagation(); handleDelete(q.id) }}
-                    title="删除题目">
+                    title={S.starred.deleteQuestion}>
                     <TrashIcon size={14} />
                   </button>
                   <button onClick={(e) => { e.stopPropagation(); handleRemove(q.id) }} style={{ color: 'var(--accent)' }}>

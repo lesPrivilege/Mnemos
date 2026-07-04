@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { S } from '../lib/strings'
 
 export function useConfirm() {
   const [confirmState, setConfirmState] = useState(null)
@@ -6,10 +7,10 @@ export function useConfirm() {
   const confirm = useCallback((opts) => {
     return new Promise((resolve) => {
       setConfirmState({
-        title: opts.title || '确认操作',
+        title: opts.title || S.common.confirmOperation,
         message: opts.message || '',
-        confirmLabel: opts.confirmLabel || '确认',
-        cancelLabel: opts.cancelLabel || '取消',
+        confirmLabel: opts.confirmLabel || S.common.confirm,
+        cancelLabel: opts.cancelLabel || S.common.cancel,
         destructive: opts.destructive ?? true,
         onResult: (result) => { setConfirmState(null); resolve(result) },
       })

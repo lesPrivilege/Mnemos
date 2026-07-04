@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { S } from '../lib/strings'
 
 // Tier bar — thin stacked horizontal bar showing weak/mid/solid/new distribution
 function TierBar({ tiers }) {
@@ -85,7 +86,7 @@ function TreeNode({ node, depth, onLeafTap }) {
 export default function StructureTree({ nodes, onLeafTap }) {
   if (!nodes || nodes.length === 0) {
     return (
-      <div className="text-center py-6 text-ink-3 font-zh text-xs">暂无数据</div>
+      <div className="text-center py-6 text-ink-3 font-zh text-xs">{S.structure.empty}</div>
     )
   }
 

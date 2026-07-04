@@ -12,13 +12,14 @@ import { exportHighlightsMd } from '../lib/exportHighlights'
 import { downloadBlob } from '../../lib/utils'
 import ReaderToolbar from '../components/ReaderToolbar'
 import { TocPanel, HighlightsPanel, BookmarksPanel } from '../components/ReaderPanels'
+import { S } from '../../lib/strings'
 import '../../styles/markdown.css'
 import '../styles/reader.css'
 
 const BOTTOM_BTNS = [
   { key: 'toc',        label: 'TOC' },
-  { key: 'highlights', label: '高亮' },
-  { key: 'bookmarks',  label: '书签' },
+  { key: 'highlights', label: S.reader.highlightsTab },
+  { key: 'bookmarks',  label: S.reader.bookmarksTab },
 ]
 
 export default function Reader() {
@@ -176,7 +177,7 @@ export default function Reader() {
     setSelection(null)
     window.getSelection()?.removeAllRanges()
     setActivePanel('highlights')
-    showToast('已保存高亮')
+    showToast(S.reader.savedHighlightToast)
   }
 
   // ── Handlers ────────────────────────────────────────
@@ -210,7 +211,7 @@ export default function Reader() {
     }
   }
   const handleDeleteBookmark = (bId) => { deleteBookmark(bId); setBookmarks(getBookmarksByDoc(doc.id)) }
-  const handleAddBookmark = () => { if (!doc) return; addBookmark(doc.id, scrollPct); setBookmarks(getBookmarksByDoc(doc.id)); showToast('已添加书签') }
+  const handleAddBookmark = () => { if (!doc) return; addBookmark(doc.id, scrollPct); setBookmarks(getBookmarksByDoc(doc.id)); showToast(S.reader.addedBookmarkToast) }
   const handleUpdateSettings = (f) => { setSettings(updateReadingSettings(f)) }
 
   const handleExportHighlights = () => {
@@ -218,7 +219,7 @@ export default function Reader() {
     const md = exportHighlightsMd(doc, highlights, html)
     const blob = new Blob([md], { type: 'text/markdown' })
     downloadBlob(blob, `${doc.title || 'highlights'}-highlights.md`)
-    showToast('已导出高亮')
+    showToast(S.reader.exportedHighlightsToast)
   }
 
   const handleGenerateFlashcards = () => {
@@ -232,10 +233,10 @@ export default function Reader() {
         front = h.selectedText
         back = h.contextSnippet || ''
       }
-      back += `\n\n——《${doc.title}》`
+      back += S.reader.flashcardSourceAttribution(doc.title)
       return { front, back, type: 'recall', chapter: doc.title || '', section: '' }
     })
-    navigate('/import', { state: { prefillCards: cards, prefillDeckName: `阅读 · ${doc.title}` } })
+    navigate('/import', { state: { prefillCards: cards, prefillDeckName: `${S.reader.flashcardDeckNamePrefix}${doc.title}` } })
   }
 
   if (!doc) return null
@@ -288,7 +289,7 @@ export default function Reader() {
           }} dangerouslySetInnerHTML={{ __html: html }} />
         ) : (
           <div className="flex items-center justify-center h-full text-ink-3 font-zh text-sm tracking-[0.04em]">
-            加载中...
+            {S.reader.loading}
           </div>
         )}
       </div>
@@ -305,7 +306,7 @@ export default function Reader() {
             top: Math.min(selection.rect.bottom + 8, window.innerHeight - 60),
             animation: 'fadeIn 150ms ease-out',
           }}>
-          保存高亮
+          {S.reader.saveHighlight}
         </button>
       )}
 
@@ -374,7 +375,7 @@ export default function Reader() {
           <button onClick={() => { setSettingsOpen(v => !v); setActivePanel(null) }}
             className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md transition-colors"
             style={{ color: settingsOpen ? 'var(--accent)' : 'var(--ink-3)' }}>
-            <span className="font-zh text-[13px]">设置</span>
+            <span className="font-zh text-[13px]">{S.reader.settings}</span>
           </button>
         </div>
       </div>

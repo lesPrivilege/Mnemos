@@ -1,5 +1,6 @@
 // 题目解析器
 // 支持 questions.json 格式导入
+import { S } from '../../lib/strings'
 
 // source 推断：根据文件路径或 subject 字段
 function inferSource(item, filePath) {
@@ -48,12 +49,12 @@ export function parseQuestionsJson(jsonString, filePath) {
   for (const item of items) {
     // 验证必需字段
     if (!item.id) {
-      errors.push(`跳过无效题目: 缺少 id`)
+      errors.push(S.questionParser.skipMissingId)
       continue
     }
 
     if (!item.type) {
-      errors.push(`跳过题目 ${item.id}: 缺少 type`)
+      errors.push(S.questionParser.skipMissingType(item.id))
       continue
     }
 
@@ -64,7 +65,7 @@ export function parseQuestionsJson(jsonString, filePath) {
 
     // 验证类型
     if (!['choice', 'review'].includes(item.type)) {
-      errors.push(`跳过题目 ${item.id}: 未知类型 "${item.type}"`)
+      errors.push(S.questionParser.skipUnknownType(item.id, item.type))
       continue
     }
 
@@ -101,7 +102,7 @@ export function parseQuestionsJson(jsonString, filePath) {
 
     // 验证选择题必须有选项
     if (question.type === 'choice' && (!question.options || question.options.length === 0)) {
-      errors.push(`警告: 选择题 ${question.id} 没有选项`)
+      errors.push(S.questionParser.noOptionsWarning(question.id))
     }
 
     questions.push(question)

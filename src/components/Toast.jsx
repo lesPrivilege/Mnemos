@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
+import { S } from '../lib/strings'
 
 export function useToast() {
   const [toast, setToast] = useState(null)
@@ -28,7 +29,7 @@ export function Toast({ message, onClick }) {
       maxWidth: '80vw', textAlign: 'center',
     }}>
       {message}
-      {onClick && <span style={{ opacity: 0.6, marginLeft: 6 }}>撤销</span>}
+      {onClick && <span style={{ opacity: 0.6, marginLeft: 6 }}>{S.common.undo}</span>}
       <style>{`@keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(8px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }`}</style>
     </div>
   )

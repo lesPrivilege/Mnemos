@@ -9,8 +9,9 @@ import { loadReviewSession, clearReviewSession } from '../lib/reviewSession'
 import EmptyState from '../components/EmptyState'
 import { useToast, Toast } from '../components/Toast'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
+import { S } from '../lib/strings'
 
-const DAY_LABELS = ['日', '一', '二', '三', '四', '五', '六']
+const DAY_LABELS = S.flashcardHome.dayLabels
 
 function computeStreak() {
   const data = loadData()
@@ -67,7 +68,7 @@ export function FlashcardHomeContent() {
 
   const handleBatchDelete = async () => {
     if (selected.size === 0) return
-    const ok = await confirm({ title: '批量删除', message: `删除 ${selected.size} 个卡组及其所有卡片？此操作不可撤销。`, confirmLabel: '确认删除' })
+    const ok = await confirm({ title: S.flashcardHome.batchDeleteTitle, message: S.flashcardHome.batchDeleteMessage(selected.size), confirmLabel: S.flashcardHome.confirmDelete })
     if (!ok) return
     deleteDecks([...selected])
     setSelected(new Set())
@@ -119,22 +120,22 @@ export function FlashcardHomeContent() {
       {/* Hero — hidden in edit mode */}
       {!editing && (
         <HeroSection
-          label={isEmptyLibrary ? '准备 · READY' : '今日 · TODAY'}
+          label={isEmptyLibrary ? S.flashcardHome.readyLabel : S.flashcardHome.todayLabel}
           right={[
-            ...(isEmptyLibrary ? [{ icon: <UploadIcon size={14} />, text: '待导入' }] : []),
-            ...(!isEmptyLibrary && streak > 0 ? [{ icon: <FlameIcon size={14} />, text: `${streak} 日` }] : []),
+            ...(isEmptyLibrary ? [{ icon: <UploadIcon size={14} />, text: S.flashcardHome.pendingImport }] : []),
+            ...(!isEmptyLibrary && streak > 0 ? [{ icon: <FlameIcon size={14} />, text: `${streak}${S.flashcardHome.streakSuffix}` }] : []),
             ...(!isEmptyLibrary && starredCount > 0 ? [{ icon: <StarIcon size={14} />, text: String(starredCount) }] : []),
           ]}
           metrics={isEmptyLibrary
             ? [
-                { value: decks.length, label: 'DECKS', zhLabel: '卡组', accent: true },
-                { value: totalDue, label: 'DUE', zhLabel: '待复习' },
-                { value: totalCards, label: 'CARDS', zhLabel: '卡片' },
+                { value: decks.length, label: 'DECKS', zhLabel: S.flashcardHome.decksZh, accent: true },
+                { value: totalDue, label: 'DUE', zhLabel: S.flashcardHome.dueZh },
+                { value: totalCards, label: 'CARDS', zhLabel: S.flashcardHome.cardsZh },
               ]
             : [
-                { value: totalDue, label: 'DUE', zhLabel: '待复习', accent: true },
-                { value: reviewedToday, label: 'DONE', zhLabel: '今日' },
-                { value: totalCards, label: 'TOTAL', zhLabel: '总数' },
+                { value: totalDue, label: 'DUE', zhLabel: S.flashcardHome.dueZh, accent: true },
+                { value: reviewedToday, label: 'DONE', zhLabel: S.flashcardHome.todayZh },
+                { value: totalCards, label: 'TOTAL', zhLabel: S.flashcardHome.totalZh },
               ]}
           chartData={weekChart.map(d => ({ count: d.count, isToday: d.isToday, label: DAY_LABELS[d.dow] }))}
           chartColor=""
@@ -152,9 +153,9 @@ export function FlashcardHomeContent() {
           <div className="deck-meta">
             <div className="deck-name">{reviewSession.deckName}</div>
             <div className="deck-stats">
-              <span className="due">继续复习</span>
+              <span className="due">{S.flashcardHome.continueReview}</span>
               <span className="dot">·</span>
-              <span>{reviewSession.dueCount} 张待复习</span>
+              <span>{reviewSession.dueCount}{S.flashcardHome.dueCountSuffix}</span>
             </div>
           </div>
           <div className="deck-cta">
@@ -166,7 +167,7 @@ export function FlashcardHomeContent() {
 
       {/* Decks section header */}
       <div className="list-head">
-        <div className="section-title">卡组 · DECKS</div>
+        <div className="section-title">{S.flashcardHome.decksTitle}</div>
         <span className="count">{decks.length}</span>
       </div>
 
@@ -174,8 +175,8 @@ export function FlashcardHomeContent() {
       {decks.length === 0 ? (
         <EmptyState
           icon={<MnemosMark size={48} accent="var(--accent)" />}
-          title="暂无卡组"
-          hint="导入或新建卡组即可开始"
+          title={S.flashcardHome.emptyDecksTitle}
+          hint={S.flashcardHome.emptyDecksHint}
         />
       ) : (
         <div className="flex flex-col gap-2">
@@ -220,31 +221,31 @@ export function FlashcardHomeContent() {
                     </div>
                     <div className="deck-stats">
                       {deck.dueCount > 0
-                        ? <><span className="due">{deck.dueCount}</span><span>待复习</span></>
-                        : <span style={{ color: 'var(--good)' }}>已完成</span>}
+                        ? <><span className="due">{deck.dueCount}</span><span>{S.flashcardHome.due}</span></>
+                        : <span style={{ color: 'var(--good)' }}>{S.flashcardHome.done}</span>}
                       <span className="dot">·</span>
-                      <span>{deck.totalCards} 张</span>
+                      <span>{deck.totalCards}{S.flashcardHome.cardsSuffix}</span>
                     </div>
                   </div>
                   <div className="deck-cta" style={{ gap: 6 }}>
                     <button
                       className="inline-flex items-center justify-center w-7 h-7 rounded-md text-ink-3 opacity-40 hover:opacity-100 hover:text-accent hover:bg-accent-soft transition-colors flex-shrink-0"
                       onClick={(e) => { e.stopPropagation(); e.preventDefault(); togglePin(deck.id); refresh() }}
-                      title={deck.pinned ? '取消置顶' : '置顶卡组'}
-                      aria-label={deck.pinned ? '取消置顶' : '置顶卡组'}>
+                      title={deck.pinned ? S.flashcardHome.unpinDeck : S.flashcardHome.pinDeck}
+                      aria-label={deck.pinned ? S.flashcardHome.unpinDeck : S.flashcardHome.pinDeck}>
                       <PinIcon size={15} filled={deck.pinned} />
                     </button>
                     <button
                       className="inline-flex items-center justify-center w-7 h-7 rounded-md text-ink-3 opacity-40 hover:opacity-100 hover:text-danger hover:bg-danger-soft transition-colors flex-shrink-0"
-                      onClick={(e) => { e.stopPropagation(); e.preventDefault(); confirm({ title: '删除卡组', message: `删除卡组「${deck.name}」？此操作不可撤销。`, confirmLabel: '确认删除' }).then(ok => { if (ok) { deleteDecks([deck.id]); refresh() } }) }}
-                      title="删除卡组">
+                      onClick={(e) => { e.stopPropagation(); e.preventDefault(); confirm({ title: S.flashcardHome.deleteDeckTitle, message: S.flashcardHome.deleteDeckMessage(deck.name), confirmLabel: S.flashcardHome.confirmDelete }).then(ok => { if (ok) { deleteDecks([deck.id]); refresh() } }) }}
+                      title={S.flashcardHome.deleteDeckMenu}>
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />
                       </svg>
                     </button>
                     {deck.dueCount > 0 ? (
                       <button className="cta-pill" onClick={(e) => { e.stopPropagation(); e.preventDefault(); navigate(`/review/${deck.id}`) }}>
-                        复习<span className="arr">→</span>
+                        {S.flashcardHome.reviewAction}<span className="arr">→</span>
                       </button>
                     ) : null}
                   </div>
@@ -261,11 +262,11 @@ export function FlashcardHomeContent() {
             <button onClick={handleBatchDelete}
               className="flex-1 py-2.5 rounded-md font-body text-sm text-danger border active:scale-[0.97] transition-transform"
               style={{ borderColor: 'color-mix(in oklch, var(--danger) 30%, transparent)' }}>
-              删除 ({selected.size})
+              {S.flashcardHome.batchDeleteLabel(selected.size)}
             </button>
           )}
           <button onClick={async () => {
-            const ok = await confirm({ title: '全部删除', message: `删除全部 ${decks.length} 个卡组及其所有卡片？此操作不可撤销。`, confirmLabel: '确认删除' })
+            const ok = await confirm({ title: S.flashcardHome.deleteAllTitle, message: S.flashcardHome.deleteAllMessage(decks.length), confirmLabel: S.flashcardHome.confirmDelete })
             if (!ok) return
             deleteDecks(decks.map((d) => d.id))
             setSelected(new Set())
@@ -274,7 +275,7 @@ export function FlashcardHomeContent() {
           }}
             className="flex-1 py-2.5 rounded-md font-body text-sm text-danger border active:scale-[0.97] transition-transform"
             style={{ borderColor: 'color-mix(in oklch, var(--danger) 30%, transparent)' }}>
-              全部删除
+              {S.flashcardHome.deleteAllButton}
           </button>
         </div>
       )}
@@ -285,28 +286,28 @@ export function FlashcardHomeContent() {
           {showNewDeck ? (
             <form onSubmit={handleAddDeck} className="col-span-2 flex gap-2">
               <input value={newDeckName} onChange={(e) => setNewDeckName(e.target.value)}
-                placeholder="卡组名称" autoFocus
+                placeholder={S.flashcardHome.deckNamePlaceholder} autoFocus
                 className="flex-1 px-3 py-2.5 rounded-md border bg-bg-card text-ink font-body text-sm placeholder:text-ink-3 focus:outline-none focus:border-accent"
                 style={{ borderColor: 'var(--border)' }} />
               <button type="submit" disabled={!newDeckName.trim()}
                 className="px-4 py-2.5 rounded-md font-medium text-sm font-body bg-ink text-bg active:scale-[0.97] transition-transform disabled:opacity-40">
-                添加
+                {S.flashcardHome.add}
               </button>
               <button type="button" onClick={() => { setShowNewDeck(false); setNewDeckName('') }}
                 className="px-4 py-2.5 rounded-md font-body text-sm border text-ink-2 active:scale-[0.97] transition-transform"
                 style={{ borderColor: 'var(--border)' }}>
-                取消
+                {S.flashcardHome.cancel}
               </button>
             </form>
           ) : (
             <>
               <Link to="/import?tab=md"
                 className="btn btn-ghost">
-                <UploadIcon size={16} /> 导入
+                <UploadIcon size={16} /> {S.flashcardHome.importAction}
               </Link>
               <button onClick={() => setShowNewDeck(true)}
                 className="btn btn-primary">
-                <PlusIcon size={16} /> 新建卡组
+                <PlusIcon size={16} /> {S.flashcardHome.newDeckAction}
               </button>
             </>
           )}
