@@ -1,6 +1,7 @@
 // localStorage 读写封装
 // 数据结构: { decks: Deck[], cards: Card[] }
 import { localToday } from './dateUtils'
+import { quarantine } from './quarantine'
 
 const STORAGE_KEY = 'mnemos-data'
 export const DAILY_LIMIT_KEY = 'mnemos-daily-limit'
@@ -10,10 +11,12 @@ function getDefaultData() {
 }
 
 export function loadData() {
+  const raw = localStorage.getItem(STORAGE_KEY)
+  if (!raw) return getDefaultData()
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : getDefaultData()
-  } catch {
+    return normalizeData(JSON.parse(raw))
+  } catch (e) {
+    quarantine(STORAGE_KEY, raw, e)
     return getDefaultData()
   }
 }

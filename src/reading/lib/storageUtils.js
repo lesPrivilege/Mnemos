@@ -1,14 +1,27 @@
 // Shared localStorage helpers for reading module
 // All reading storage files should import from here
+import { quarantine } from '../../lib/quarantine'
+
+function matchesFallbackShape(value, fallback) {
+  if (Array.isArray(fallback)) return Array.isArray(value)
+  if (fallback && typeof fallback === 'object') {
+    return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
+  }
+  return true
+}
 
 /**
  * Load JSON from localStorage with fallback
  */
 export function load(key, fallback) {
+  const raw = localStorage.getItem(key)
+  if (!raw) return fallback
   try {
-    const raw = localStorage.getItem(key)
-    return raw ? JSON.parse(raw) : fallback
-  } catch {
+    const parsed = JSON.parse(raw)
+    if (!matchesFallbackShape(parsed, fallback)) throw new Error('Invalid format')
+    return parsed
+  } catch (e) {
+    quarantine(key, raw, e)
     return fallback
   }
 }

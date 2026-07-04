@@ -1,5 +1,6 @@
 // localStorage 读写封装
 // namespace: examprep-*
+import { quarantine } from '../../lib/quarantine'
 
 const STORAGE_KEYS = {
   QUESTIONS: 'examprep-questions',
@@ -8,13 +9,27 @@ const STORAGE_KEYS = {
   LAST_SESSION: 'examprep-last-session',
 }
 
+function isPlainObject(value) {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
+}
+
+function loadJson(key, fallback, validate = () => true) {
+  const raw = localStorage.getItem(key)
+  if (!raw) return fallback
+  try {
+    const parsed = JSON.parse(raw)
+    if (!validate(parsed)) throw new Error('Invalid format')
+    return parsed
+  } catch (e) {
+    quarantine(key, raw, e)
+    return fallback
+  }
+}
+
 // ── Questions ──────────────────────────────────────────────────────
 
 export function loadQuestions() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.QUESTIONS)
-    return raw ? JSON.parse(raw) : []
-  } catch { return [] }
+  return loadJson(STORAGE_KEYS.QUESTIONS, [], Array.isArray)
 }
 
 export function saveQuestions(questions) {
@@ -62,10 +77,7 @@ function defaultProgress() {
 }
 
 export function loadProgress() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.PROGRESS)
-    return raw ? JSON.parse(raw) : {}
-  } catch { return {} }
+  return loadJson(STORAGE_KEYS.PROGRESS, {}, isPlainObject)
 }
 
 export function saveProgress(progress) {
@@ -112,10 +124,7 @@ export function clearAllProgress() { saveProgress({}) }
 // ── Starred (收藏) ────────────────────────────────────────────────
 
 export function loadStarred() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.STARRED)
-    return raw ? JSON.parse(raw) : []
-  } catch { return [] }
+  return loadJson(STORAGE_KEYS.STARRED, [], Array.isArray)
 }
 
 export function saveStarred(ids) {
@@ -154,10 +163,11 @@ export function saveLastSession(session) {
 }
 
 export function loadLastSession() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.LAST_SESSION)
-    return raw ? JSON.parse(raw) : null
-  } catch { return null }
+  return loadJson(
+    STORAGE_KEYS.LAST_SESSION,
+    null,
+    (value) => value === null || isPlainObject(value)
+  )
 }
 
 export function clearLastSession() {
