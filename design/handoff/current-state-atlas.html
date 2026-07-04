@@ -427,6 +427,19 @@ html, body {
 .phone-screen .tb-text {
   font-size: var(--text-sm); color: var(--ink-2); font-family: var(--font-zh);
 }
+/* Topbar title fill patterns — promoted after repeating 2-3x verbatim as
+   inline styles across DeckDetail/QuizPage/SetDetail/Wrong-style frames.
+   .tb-title-left mirrors the real h1.zh { flex:1; paddingLeft:4px } inline
+   style (page-name headers); .tb-title-center mirrors the real .tb-text
+   { flex:1; textAlign:'center' } inline style (Review/Reader-style headers
+   with an icon on both sides). */
+.phone-screen .tb-title-left { flex: 1; padding-left: 4px; }
+.phone-screen .tb-title-center { flex: 1; text-align: center; }
+/* Single fixed-height card screen (Review/QuizPage/QuizReview-style pages
+   that manage their own internal scroll region and must not let the outer
+   .phone-screen scroll) — promoted after the same overflow-y:hidden
+   override got copy-pasted onto 2-3 frames' .phone-screen element. */
+.phone-screen.card-screen-fixed { overflow-y: hidden; }
 
 /* Segmented tabs (Home) */
 .phone-screen .tabs-head {
@@ -509,6 +522,7 @@ html, body {
   background: var(--accent-line);
   border-radius: 3px 3px 1px 1px;
 }
+.phone-screen .hero-bar.teal .b { background: var(--teal); }
 .phone-screen .hero-bar.today .b { background: var(--accent); }
 .phone-screen .hero-bar.empty .b { background: var(--border); }
 .phone-screen .hero-bar .day {
@@ -566,6 +580,7 @@ html, body {
 .phone-screen .deck-spine.good .glyph { color: var(--good); }
 .phone-screen .deck-spine.plum::before { background: var(--plum); }
 .phone-screen .deck-spine.plum .glyph { color: var(--plum); }
+.phone-screen .deck-meta { min-width: 0; }
 .phone-screen .deck-name {
   font-family: var(--font-zh); font-size: var(--text-base); font-weight: 500;
   color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -627,6 +642,7 @@ html, body {
   display: flex; align-items: center; justify-content: space-between;
   text-decoration: none;
 }
+.phone-screen .dd-cta-main.teal { background: var(--teal); }
 .phone-screen .dd-cta-main .left { display: flex; flex-direction: column; gap: 2px; }
 .phone-screen .dd-cta-main .lead {
   font-family: var(--font-zh); font-size: var(--text-base); font-weight: 500;
@@ -667,6 +683,7 @@ html, body {
   height: 6px; border-radius: 3px; background: var(--bg-raised); overflow: hidden;
 }
 .phone-screen .dd-progress .bar { height: 100%; border-radius: 3px; background: var(--accent); }
+.phone-screen .dd-progress .bar.teal { background: var(--teal); }
 .phone-screen .dd-progress-row {
   display: flex; justify-content: space-between;
   font-family: var(--font-mono); font-size: var(--text-xs); color: var(--ink-3);
@@ -681,6 +698,24 @@ html, body {
   font-size: var(--text-xs); color: var(--ink-2); font-family: var(--font-ui);
 }
 .phone-screen .chip.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* Question-type tags (QuizPage/SetDetail crumb + tree-row badges) */
+.phone-screen .q-tag {
+  font-family: var(--font-zh); font-size: 9px; letter-spacing: 0.1em;
+  padding: 2px 7px; border-radius: 4px; border: 1px solid var(--border); color: var(--ink-3);
+}
+.phone-screen .q-tag.choice { color: var(--accent); border-color: var(--accent-line); }
+.phone-screen .q-tag.review { color: var(--teal); border-color: color-mix(in oklch, var(--teal) 40%, transparent); }
+.phone-screen .q-tag-mini {
+  font-family: var(--font-zh); font-size: 9px;
+  padding: 1px 5px; border-radius: 3px; border: 1px solid var(--border); color: var(--ink-3); flex-shrink: 0;
+}
+.phone-screen .q-tag-mini:not(.choice):not(.review) {
+  font-family: var(--font-ui); letter-spacing: 0.06em; text-transform: uppercase;
+}
+.phone-screen .q-tag-mini.choice { color: var(--accent); border-color: var(--accent-line); }
+.phone-screen .q-tag-mini.review { color: var(--teal); border-color: color-mix(in oklch, var(--teal) 40%, transparent); }
+
 .phone-screen .seg {
   display: flex; gap: 2px; padding: 3px;
   background: var(--surface-raised); border-radius: var(--r-sm);
@@ -861,6 +896,148 @@ html, body {
 .phone-screen .empty .msg { font-family: var(--font-zh); font-size: var(--text-sm); }
 .phone-screen .empty .motto-zh { font-family: var(--font-zh); font-size: var(--text-xs); color: var(--ink-3); }
 
+/* Done-screen grid (QuizPage/QuizReview done screen — 2-column variant) */
+.phone-screen .done-wrap {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--sp-4); padding: var(--sp-6) var(--sp-5); text-align: center;
+}
+.phone-screen .done-mark {
+  width: 68px; height: 68px; border-radius: 50%;
+  background: var(--good-soft); border: 1px solid color-mix(in oklch, var(--good) 30%, transparent);
+  display: flex; align-items: center; justify-content: center; color: var(--good);
+}
+.phone-screen .done-title { font-family: var(--font-disp); font-size: var(--text-2xl); color: var(--ink); }
+.phone-screen .done-stats {
+  display: flex; gap: var(--sp-4); font-family: var(--font-zh); font-size: var(--text-sm); color: var(--ink-2);
+}
+.phone-screen .done-stats .v { font-family: var(--font-mono); color: var(--ink); font-weight: 600; }
+.phone-screen .done-grid { display: grid; gap: 6px; width: 100%; }
+.phone-screen .done-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.phone-screen .done-grid .cell {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: var(--sp-3) var(--sp-2); border-radius: var(--r-sm);
+  font-family: var(--font-zh); font-size: var(--text-xs);
+}
+.phone-screen .done-grid .cell .num { font-family: var(--font-disp); font-size: var(--text-xl); }
+.phone-screen .done-grid .cell.again { background: var(--danger-soft); color: var(--danger); }
+.phone-screen .done-grid .cell.good { background: var(--accent-soft); color: var(--accent); }
+.phone-screen .done-grid .cell.easy { background: var(--good-soft); color: var(--good); }
+
+/* Quiz answer card (QuizPage.jsx approximation — choice questions) */
+.phone-screen .qa-card {
+  flex: 1; background: var(--bg-card); border: 1px solid var(--border-soft);
+  border-radius: var(--r-lg); padding: 22px 20px 20px; position: relative;
+  display: flex; flex-direction: column; gap: var(--sp-4); box-shadow: var(--shadow-sm);
+}
+.phone-screen .qa-card .corner {
+  font-size: 9px; letter-spacing: 0.18em; color: var(--ink-3); text-transform: uppercase;
+  display: flex; gap: 6px; align-items: center;
+}
+.phone-screen .qa-card .corner .num { font-family: var(--font-mono); color: var(--accent); font-weight: 600; }
+.phone-screen .qa-stem {
+  font-family: var(--font-zh); font-size: var(--text-lg); font-weight: 500;
+  color: var(--ink); line-height: var(--leading-relaxed);
+}
+.phone-screen .qa-options { display: flex; flex-direction: column; gap: var(--sp-2); }
+.phone-screen .qa-opt {
+  display: flex; align-items: center; gap: var(--sp-3);
+  padding: 13px 14px; border-radius: var(--r-md); border: 1px solid var(--border-soft);
+  background: var(--bg); font-family: var(--font-zh); font-size: var(--text-base); color: var(--ink);
+}
+.phone-screen .qa-opt.picked { border-color: var(--accent); background: var(--accent-soft); }
+.phone-screen .qa-opt.correct { border-color: var(--good); background: var(--good-soft); }
+.phone-screen .qa-opt.wrong { border-color: var(--danger); background: var(--danger-soft); }
+.phone-screen .qa-opt.faded { opacity: 0.5; }
+.phone-screen .qa-mark {
+  width: 26px; height: 26px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); font-family: var(--font-mono); font-size: var(--text-xs);
+  font-weight: 600; color: var(--ink-2); flex-shrink: 0;
+}
+.phone-screen .qa-opt.picked .qa-mark { border-color: var(--accent); color: var(--accent); background: var(--bg-card); }
+.phone-screen .qa-opt.correct .qa-mark { border-color: var(--good); color: var(--good); background: var(--bg-card); }
+.phone-screen .qa-opt.wrong .qa-mark { border-color: var(--danger); color: var(--danger); background: var(--bg-card); }
+.phone-screen .qa-text { flex: 1; }
+.phone-screen .qa-icon { flex-shrink: 0; }
+.phone-screen .qa-explain {
+  padding: var(--sp-3); border-radius: var(--r-sm); background: var(--bg-raised); border: 1px solid var(--border-soft);
+}
+.phone-screen .qa-explain-h {
+  font-family: var(--font-zh); font-size: var(--text-xs); letter-spacing: 0.14em; color: var(--ink-3);
+  margin-bottom: var(--sp-2);
+}
+.phone-screen .qa-explain p { font-family: var(--font-zh); font-size: var(--text-sm); line-height: var(--leading-relaxed); color: var(--ink-2); }
+.phone-screen .mode-chips { padding: var(--sp-2) var(--sp-4) 4px; display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* Reader panels (ReaderPanels.jsx approximation — slide-in shell) */
+.phone-screen .reader-panel-shell {
+  position: absolute; top: 0; left: 0; bottom: 0; width: 240px; z-index: 15;
+  background: var(--bg-card); border-right: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-lg); overflow-y: auto;
+}
+.phone-screen .panel-header {
+  padding: var(--sp-2) var(--sp-3); font-family: var(--font-mono); font-size: var(--text-xs);
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); border-bottom: 1px solid var(--border-soft);
+}
+.phone-screen .panel-hl-row { padding: var(--sp-3); border-bottom: 1px solid var(--border-soft); }
+.phone-screen .panel-hl-text {
+  font-family: var(--font-zh); font-size: var(--text-sm); color: var(--ink); line-height: var(--leading-relaxed);
+  border-left: 3px solid var(--accent); padding-left: var(--sp-2);
+}
+.phone-screen .panel-hl-meta {
+  display: flex; align-items: center; justify-content: space-between; margin-top: var(--sp-2);
+  font-family: var(--font-mono); font-size: 9px; color: var(--ink-4);
+}
+.phone-screen .panel-hl-meta .del { font-family: var(--font-ui); color: var(--ink-3); }
+.phone-screen .panel-footer-action {
+  display: flex; align-items: center; gap: var(--sp-2); padding: 10px var(--sp-3);
+  font-family: var(--font-ui); font-size: var(--text-sm); color: var(--ink-2);
+  border-top: 1px solid var(--border-soft);
+}
+
+/* Reader bottom function bar */
+.phone-screen .reader-bottom-bar {
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  padding: 10px var(--sp-4); background: var(--bg); border-top: 1px solid var(--border-soft);
+}
+.phone-screen .reader-bottom-bar .fn-btn {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: var(--sp-2) 0; font-family: var(--font-zh); font-size: var(--text-sm); color: var(--ink-3);
+}
+.phone-screen .reader-bottom-bar .fn-btn.on { color: var(--accent); }
+.phone-screen .reader-bottom-bar .fn-sep { width: 1px; height: 24px; background: var(--border-soft); }
+.phone-screen .reader-settings-row {
+  display: flex; align-items: center; justify-content: center; gap: var(--sp-4);
+  padding: var(--sp-2) var(--sp-4); background: var(--bg); border-top: 1px solid var(--border-soft);
+}
+.phone-screen .reader-settings-group { display: flex; align-items: center; gap: 4px; }
+.phone-screen .reader-settings-group .val { font-family: var(--font-mono); font-size: 9px; color: var(--ink-3); width: 20px; text-align: right; }
+.phone-screen .reader-settings-group button {
+  width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center;
+  color: var(--ink-3); font-size: var(--text-xs); border: 1px solid var(--border); background: none;
+}
+.phone-screen .reader-settings-sep { width: 1px; height: 20px; background: var(--border-soft); }
+.phone-screen .reader-progress-top { position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--bg-raised); z-index: 10; }
+.phone-screen .reader-progress-top .bar { height: 100%; background: var(--accent); }
+.phone-screen .reader-progress-bottom { flex-shrink: 0; height: 3px; background: var(--bg-raised); }
+.phone-screen .reader-progress-bottom .bar { height: 100%; background: var(--accent); }
+.phone-screen .reader-content {
+  flex: 1; min-height: 0; overflow-y: auto; padding: var(--sp-5) var(--sp-4);
+}
+.phone-screen .reader-content .latex-placeholder {
+  font-family: var(--font-mono); font-size: var(--text-sm); color: var(--ink-2);
+  background: var(--code-bg); border: 1px solid var(--code-border);
+  border-radius: 6px; padding: 8px 10px; display: block; margin: var(--sp-2) 0;
+}
+.phone-screen .reader-content p { font-family: var(--font-zh); font-size: var(--text-base); line-height: var(--leading-relaxed); color: var(--ink); margin-bottom: var(--sp-4); }
+.phone-screen .reader-content h2 { font-family: var(--font-disp); font-size: var(--text-xl); color: var(--ink); margin-bottom: var(--sp-3); }
+.phone-screen .reader-content mark { background: color-mix(in oklch, var(--accent) 25%, transparent); border-radius: 2px; }
+.phone-screen .reader-float-save {
+  position: absolute; z-index: 40; padding: 7px 14px; border-radius: var(--r-md);
+  background: var(--ink); color: var(--bg); font-family: var(--font-zh); font-size: var(--text-sm);
+  font-weight: 500; box-shadow: var(--shadow-lg);
+}
+
 /* Generic mono chip used for badges on captions */
 .state-tag {
   display: inline-block;
@@ -886,7 +1063,7 @@ html, body {
     （屏名 / 路由 / 展示狀態）。按模組分組：记忆 / 练习 / 阅读 / 系统。
     這不是像素級複製，也不是重新設計的底稿——僅呈現目前的 UX 結構。
   </p>
-  <div class="atlas-meta">COMMIT 1 OF 3 · 记忆 module · 6 frames · tokens inlined from src/styles/tokens.css</div>
+  <div class="atlas-meta">COMMIT 2 OF 3 · 记忆 + 练习 + 阅读 modules · 16 frames · tokens inlined from src/styles/tokens.css</div>
 </header>
 
 <!-- ═══════════════════════════════════════════════════════════════
@@ -1018,7 +1195,7 @@ html, body {
         <div class="phone-screen">
           <header class="topbar">
             <button class="tb-btn">←</button>
-            <h1 class="zh" style="flex:1; padding-left:4px;">有机化学反应机理</h1>
+            <h1 class="zh tb-title-left">有机化学反应机理</h1>
             <div class="tb-actions"><button class="tb-btn">⋯</button></div>
           </header>
 
@@ -1112,10 +1289,10 @@ html, body {
     <!-- FRAME 3 — Review · card front -->
     <div class="frame">
       <div class="phone-frame">
-        <div class="phone-screen" style="overflow-y:hidden;">
+        <div class="phone-screen card-screen-fixed">
           <header class="topbar">
             <button class="tb-btn">←</button>
-            <span class="tb-text" style="flex:1; text-align:center;">日本語N2文法</span>
+            <span class="tb-text tb-title-center">日本語N2文法</span>
             <button class="tb-btn">☆</button>
           </header>
 
@@ -1148,10 +1325,10 @@ html, body {
     <!-- FRAME 4 — Review · card back + rating + learning badge -->
     <div class="frame">
       <div class="phone-frame">
-        <div class="phone-screen" style="overflow-y:hidden;">
+        <div class="phone-screen card-screen-fixed">
           <header class="topbar">
             <button class="tb-btn">←</button>
-            <span class="tb-text" style="flex:1; text-align:center;">日本語N2文法</span>
+            <span class="tb-text tb-title-center">日本語N2文法</span>
             <button class="tb-btn" style="color:var(--accent)">★</button>
           </header>
 
@@ -1192,7 +1369,7 @@ html, body {
     <!-- FRAME 5 — Browse with leech-paused row -->
     <div class="frame">
       <div class="phone-frame">
-        <div class="phone-screen" style="overflow-y:hidden;">
+        <div class="phone-screen card-screen-fixed">
           <header class="topbar">
             <button class="tb-btn">←</button>
             <span style="font-family:var(--font-mono); font-size:11px;"><strong style="color:var(--ink)">12</strong><span style="color:var(--ink-3)"> / 86</span></span>
@@ -1234,7 +1411,7 @@ html, body {
         <div class="phone-screen">
           <header class="topbar">
             <button class="tb-btn">←</button>
-            <h1 class="zh" style="flex:1; padding-left:4px;">世界史·近代条约体系（新建）</h1>
+            <h1 class="zh tb-title-left">世界史·近代条约体系（新建）</h1>
           </header>
           <div class="empty">
             <div class="empty-icon" style="font-family:var(--font-disp); font-size:52px; color:var(--ink-4); line-height:1;">∅</div>
@@ -1258,25 +1435,611 @@ html, body {
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════════
-     MODULE: 练习 (Practice / Quiz) — filled in Commit 2
+     MODULE: 练习 (Practice / Quiz)
      ═══════════════════════════════════════════════════════════════ -->
 <section class="module-group" id="module-lianxi">
   <div class="module-head">
     <span class="zh">练习</span>
     <span class="en">PRACTICE / QUIZ</span>
   </div>
-  <div class="module-empty-note">Commit 2 — Home-练习 tab · SetDetail · QuizPage（选择题 / 解答题自评）· Wrong 错题本</div>
+
+  <div class="frame-grid">
+
+    <!-- FRAME 7 — Home · 练习 tab -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <header class="topbar">
+            <h1><span style="color:var(--accent); font-size: 20px;">卌</span>Mnemos</h1>
+            <div class="tb-actions">
+              <button class="tb-btn">⌕</button>
+              <button class="tb-btn">⚙</button>
+            </div>
+          </header>
+
+          <div class="tabs-head">
+            <button class="tabs-tab on"><span class="zh">练习</span><span class="en">PRACTICE</span></button>
+            <button class="tabs-tab"><span class="zh">记忆</span><span class="en">RECALL</span></button>
+            <button class="tabs-tab"><span class="zh">阅读</span><span class="en">READING</span></button>
+          </div>
+
+          <div class="hero">
+            <div class="hero-head">
+              <span class="lbl">本周 · THIS WEEK</span>
+              <div class="hero-head-right"><span class="streak" style="color:var(--warn)">✦ 正确率 78%</span></div>
+            </div>
+            <div class="hero-row">
+              <div class="hero-col"><span class="num accent">23</span><span class="label">WRONG</span><span class="zh-label">错题</span></div>
+              <div class="hero-divider"></div>
+              <div class="hero-col"><span class="num">64</span><span class="label">DONE</span><span class="zh-label">本周已练</span></div>
+              <div class="hero-divider"></div>
+              <div class="hero-col"><span class="num">890</span><span class="label">TOTAL</span><span class="zh-label">总题量</span></div>
+            </div>
+            <div class="hero-chart">
+              <div class="hero-bar teal"><div class="b" style="height:12px"></div><span class="day">日</span></div>
+              <div class="hero-bar teal"><div class="b" style="height:20px"></div><span class="day">一</span></div>
+              <div class="hero-bar teal today"><div class="b" style="height:26px"></div><span class="day">二</span></div>
+              <div class="hero-bar teal"><div class="b" style="height:8px"></div><span class="day">三</span></div>
+              <div class="hero-bar empty"><div class="b" style="height:2px"></div><span class="day">四</span></div>
+              <div class="hero-bar empty"><div class="b" style="height:2px"></div><span class="day">五</span></div>
+              <div class="hero-bar empty"><div class="b" style="height:2px"></div><span class="day">六</span></div>
+            </div>
+          </div>
+
+          <div class="list-head">
+            <span class="section-title">题库</span>
+            <span class="count">4</span>
+          </div>
+
+          <div class="deck-list">
+            <a class="deck" href="#" onclick="return false">
+              <div class="deck-spine"><span class="glyph">数</span></div>
+              <div class="deck-meta">
+                <div class="deck-name">数据结构与算法</div>
+                <div class="deck-stats"><span class="due">12</span><span>错题</span><span class="dot">·</span><span>320 题</span><span class="dot">·</span><span>73%</span></div>
+                <div style="display:flex; gap:4px; margin-top:4px;">
+                  <span class="chip" style="font-size:10px; padding:2px 7px;">选择 210</span>
+                  <span class="chip" style="font-size:10px; padding:2px 7px;">解答 110</span>
+                </div>
+              </div>
+              <div class="deck-cta"><button class="cta-pill">开始<span>→</span></button></div>
+            </a>
+            <a class="deck" href="#" onclick="return false">
+              <div class="deck-spine teal"><span class="glyph">概</span></div>
+              <div class="deck-meta">
+                <div class="deck-name">概率论与数理统计</div>
+                <div class="deck-stats"><span class="due">7</span><span>错题</span><span class="dot">·</span><span>156 题</span><span class="dot">·</span><span style="color:var(--accent)">刚刚</span></div>
+                <div style="display:flex; gap:4px; margin-top:4px;">
+                  <span class="chip" style="font-size:10px; padding:2px 7px;">选择 156</span>
+                </div>
+              </div>
+              <div class="deck-cta"><button class="cta-pill">开始<span>→</span></button></div>
+            </a>
+            <a class="deck" href="#" onclick="return false">
+              <div class="deck-spine good"><span class="glyph">法</span></div>
+              <div class="deck-meta">
+                <div class="deck-name">法律基础知识</div>
+                <div class="deck-stats"><span>414 题</span><span class="dot">·</span><span>91%</span></div>
+                <div style="display:flex; gap:4px; margin-top:4px;">
+                  <span class="chip" style="font-size:10px; padding:2px 7px;">解答 414</span>
+                </div>
+              </div>
+              <div class="deck-cta"><button class="cta-pill">开始<span>→</span></button></div>
+            </a>
+          </div>
+
+          <div class="bottom-actions">
+            <button class="btn btn-ghost">⇧ 导入</button>
+            <button class="btn btn-primary">+ 新题库</button>
+          </div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">Home — 练习 tab</span>
+        <span class="route">/ (tab=quiz)</span>
+        <span class="states">Teal hero chart (chartColor="teal"), subject cards with 错题/正确率/时间 stats and choice/review type-count chips, bottom new-subject/import actions.</span>
+      </div>
+    </div>
+
+    <!-- FRAME 8 — SetDetail -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <header class="topbar">
+            <button class="tb-btn">←</button>
+            <h1 class="zh tb-title-left">数据结构与算法</h1>
+            <div class="tb-actions"><button class="tb-btn">⋯</button></div>
+          </header>
+
+          <div class="dd-head">
+            <div class="dd-meta">
+              <span>320 题</span><span class="sep">/</span>
+              <span>选择 210</span><span class="sep">/</span>
+              <span>解答 110</span><span class="sep">/</span>
+              <span style="color:var(--good)">73%</span>
+            </div>
+            <div class="dd-progress"><div class="bar teal" style="width:73%"></div></div>
+            <div class="dd-progress-row"><span>ACCURACY</span><span>73%</span></div>
+          </div>
+
+          <div class="filters">
+            <span class="chip on">全部 320</span>
+            <span class="chip">选择 210</span>
+            <span class="chip">解答 110</span>
+            <span class="chip">★ 已標星 18</span>
+          </div>
+
+          <div class="seg">
+            <button class="on">列表</button>
+            <button>结构视图</button>
+          </div>
+
+          <div class="tree" style="border-top:1px solid var(--border-soft); margin:6px var(--sp-4) 0;">
+            <div class="tree-row" style="padding:8px 12px 8px 4px;">
+              <span class="chev" style="width:auto; margin-right:4px;">›</span>
+              <span class="label" style="font-weight:500;">第二章 · 树与二叉树</span>
+              <span class="count" style="font-family:var(--font-mono); font-size:10px; color:var(--ink-3);">86 题 · 选择 12 · 解答 8 · <span style="color:var(--danger)">6 错</span></span>
+            </div>
+            <div style="padding-left:16px;">
+              <div class="tree-row depth-1" style="padding:6px 8px 6px 22px;">
+                <span class="q-tag-mini choice" style="margin-right:4px;">选</span>
+                <span class="label" style="font-size:13px; font-weight:400;">选择题 · 12 题</span>
+              </div>
+              <div class="tree-row depth-1" style="padding:6px 8px 6px 22px;">
+                <span class="q-tag-mini review" style="margin-right:4px;">解</span>
+                <span class="label" style="font-size:13px; font-weight:400;">解答题 · 8 题</span>
+              </div>
+            </div>
+            <div class="tree-row" style="padding:8px 12px 8px 4px;">
+              <span class="chev" style="width:auto; margin-right:4px;">›</span>
+              <span class="label" style="font-weight:500;">第三章 · 图论基础</span>
+              <span class="count" style="font-family:var(--font-mono); font-size:10px; color:var(--ink-3);">64 题</span>
+            </div>
+          </div>
+
+          <div style="height:160px; flex-shrink:0;"></div>
+
+          <div class="floating-bar">
+            <button class="dd-cta-main teal" style="width:100%; border:none; cursor:pointer;">
+              <div class="left">
+                <span class="lead"><span class="num">320</span>题</span>
+                <span class="sub">开始练习</span>
+              </div>
+              <span class="arr">→</span>
+            </button>
+            <div class="dd-secondary">
+              <a class="dd-action" href="#" onclick="return false">↻<span class="lab">错题本</span></a>
+              <a class="dd-action" href="#" onclick="return false">★<span class="lab">已標星</span></a>
+              <a class="dd-action" href="#" onclick="return false">⇧<span class="lab">导入</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">SetDetail</span>
+        <span class="route">/set/:subject</span>
+        <span class="states">ACCURACY progress head (teal bar), 4 filter chips (全部/选择/解答/已標星), list/结构视图 seg toggle, chapter list with choice/review sub-rows, FloatingBar with teal primary CTA + 错题本/已標星/导入 secondary actions.</span>
+      </div>
+    </div>
+
+    <!-- FRAME 9 — QuizPage · 选择题作答前 -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen card-screen-fixed">
+          <header class="topbar">
+            <button class="tb-btn">←</button>
+            <h1 class="zh tb-title-left">树与二叉树</h1>
+            <span style="font-family:var(--font-mono); font-size:11px;"><strong style="color:var(--ink)">3</strong><span style="color:var(--ink-3)"> / 10</span></span>
+            <div class="tb-actions"><button class="tb-btn">☆</button></div>
+          </header>
+
+          <div class="mode-chips">
+            <span class="chip on">随机</span>
+            <span class="chip">顺序</span>
+            <span class="chip">仅未做</span>
+            <span class="chip">错题</span>
+            <span class="chip">已標星</span>
+          </div>
+
+          <div class="rv-progress"><div class="bar" style="width:20%"></div></div>
+
+          <div class="rv-meta">
+            <span class="crumb"><span class="q-tag choice">选择</span>第二章 · 树与二叉树</span>
+            <span class="pos"><span class="now">03</span> / 10</span>
+          </div>
+
+          <div style="flex:1; min-height:0; padding:var(--sp-4); display:flex; flex-direction:column;">
+            <div class="qa-card">
+              <span class="corner"><span class="num">03</span><span class="zh" style="font-family:var(--font-zh)">选择</span> · 单选</span>
+              <div class="qa-stem">在一棵完全二叉树中，若某节点的编号为 i（从 1 开始），则其左孩子的编号为多少？</div>
+              <div class="qa-options">
+                <button class="qa-opt"><span class="qa-mark">A</span><span class="qa-text">i / 2</span></button>
+                <button class="qa-opt"><span class="qa-mark">B</span><span class="qa-text">2i</span></button>
+                <button class="qa-opt picked"><span class="qa-mark">C</span><span class="qa-text">2i + 1</span></button>
+                <button class="qa-opt"><span class="qa-mark">D</span><span class="qa-text">i + 1</span></button>
+              </div>
+              <div class="ornament"></div>
+            </div>
+          </div>
+
+          <div style="padding:0 var(--sp-4) var(--sp-4); flex-shrink:0;">
+            <button class="btn btn-primary" style="width:100%;">提交答案</button>
+          </div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">QuizPage <span class="state-tag">选择题作答前</span></span>
+        <span class="route">/quiz/:subject</span>
+        <span class="states">Mode-filter chips (随机/顺序/仅未做/错题/已標星), progress bar, choice-tag crumb, qa-card with one option picked (not yet submitted), disabled 提交答案 CTA becomes active once an option is picked.</span>
+      </div>
+    </div>
+
+    <!-- FRAME 10 — QuizPage · 答错解析 -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen card-screen-fixed">
+          <header class="topbar">
+            <button class="tb-btn">←</button>
+            <h1 class="zh tb-title-left">树与二叉树</h1>
+            <span style="font-family:var(--font-mono); font-size:11px;"><strong style="color:var(--ink)">3</strong><span style="color:var(--ink-3)"> / 10</span></span>
+            <div class="tb-actions"><button class="tb-btn">☆</button></div>
+          </header>
+
+          <div class="mode-chips">
+            <span class="chip on">随机</span>
+            <span class="chip">顺序</span>
+            <span class="chip">仅未做</span>
+            <span class="chip">错题</span>
+          </div>
+
+          <div class="rv-progress"><div class="bar" style="width:20%"></div></div>
+
+          <div class="rv-meta">
+            <span class="crumb"><span class="q-tag choice">选择</span>第二章 · 树与二叉树</span>
+            <span class="pos"><span class="now">03</span> / 10</span>
+          </div>
+
+          <div style="flex:1; min-height:0; overflow-y:auto; padding:var(--sp-4); display:flex; flex-direction:column; gap:12px;">
+            <div class="qa-card" style="flex:none;">
+              <span class="corner"><span class="num">03</span><span class="zh" style="font-family:var(--font-zh)">选择</span> · 单选</span>
+              <div class="qa-stem">在一棵完全二叉树中，若某节点的编号为 i（从 1 开始），则其左孩子的编号为多少？</div>
+              <div class="qa-options">
+                <button class="qa-opt wrong" disabled><span class="qa-mark">A</span><span class="qa-text">i / 2</span><span class="qa-icon">✕</span></button>
+                <button class="qa-opt correct" disabled><span class="qa-mark">B</span><span class="qa-text">2i</span><span class="qa-icon">✓</span></button>
+                <button class="qa-opt faded" disabled><span class="qa-mark">C</span><span class="qa-text">2i + 1</span></button>
+                <button class="qa-opt faded" disabled><span class="qa-mark">D</span><span class="qa-text">i + 1</span></button>
+              </div>
+              <div class="qa-explain">
+                <div class="qa-explain-h">解析</div>
+                <p>完全二叉树按层序编号时，编号为 i 的节点左孩子编号为 2i，右孩子编号为 2i + 1（i 从 1 开始）。本题误选 i/2 —— 这是「求父节点编号」的公式，与「求左孩子编号」相反，注意区分方向。</p>
+              </div>
+              <div class="ornament"></div>
+            </div>
+          </div>
+
+          <div style="padding:0 var(--sp-4) var(--sp-4); flex-shrink:0;">
+            <button class="btn btn-primary" style="width:100%;">下一题</button>
+          </div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">QuizPage <span class="state-tag">答错解析</span></span>
+        <span class="route">/quiz/:subject</span>
+        <span class="states">Submitted + wrong state: picked option marked .wrong (✕), correct option marked .correct (✓), remaining options .faded, 解析 explanation panel auto-expanded, CTA becomes 下一题.</span>
+      </div>
+    </div>
+
+    <!-- FRAME 11 — QuizPage (QuizReview.jsx) · 解答题自评 -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen card-screen-fixed">
+          <header class="topbar">
+            <button class="tb-btn">←</button>
+            <span style="font-family:var(--font-mono); font-size:11px;"><strong style="color:var(--ink)">05</strong><span style="color:var(--ink-3)"> / 20</span></span>
+            <div class="tb-actions"><button class="tb-btn" style="color:var(--accent)">★</button></div>
+          </header>
+
+          <div class="mode-chips">
+            <span class="chip on">随机</span>
+            <span class="chip">顺序</span>
+            <span class="chip">错题</span>
+          </div>
+
+          <div class="rv-progress"><div class="bar" style="width:24%"></div></div>
+
+          <div class="rv-meta">
+            <span class="crumb"><span class="q-tag review">解答</span>第五章 · 图的最短路径</span>
+            <span class="pos"><span class="now">05</span> / 20</span>
+          </div>
+
+          <div class="rv-card-wrap" style="flex:1; min-height:0;">
+            <div class="rv-card">
+              <span class="corner"><span class="num">05</span>REFERENCE</span>
+              <div class="body">
+                <div class="echo-q">简述 Dijkstra 算法的核心思想，并说明其为何不能正确处理带负权边的图。</div>
+                <div class="divider-srs">REVERSO</div>
+                <div class="back-a">Dijkstra 算法采用贪心策略，每次从未确定最短路径的顶点中选取当前距离源点最近的顶点，将其标记为已确定，并用其松弛邻接边。<br><br>参考路径：<br><code style="font-family:var(--font-mono); font-size:12px; background:var(--code-bg); padding:1px 4px; border-radius:3px;">图论 › 单源最短路径 › Dijkstra</code><br><br>因为算法假设一旦某顶点被标记为「已确定」，其最短距离不会再变小；但负权边可能让后续松弛产生更短路径，破坏这一假设，故不能处理负权边（需改用 Bellman-Ford）。</div>
+              </div>
+              <div class="ornament"></div>
+            </div>
+          </div>
+
+          <div class="rate">
+            <button class="rate-btn rate-again"><span>没掌握</span><span class="iv" style="font-family:var(--font-ui)">MISSED</span></button>
+            <button class="rate-btn rate-easy"><span>掌握了</span><span class="iv" style="font-family:var(--font-ui)">GOT IT</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">QuizPage <span class="state-tag">解答题自评（QuizReview.jsx）</span></span>
+        <span class="route">/quiz-review/:subject</span>
+        <span class="states">Flip-card back face already shown (REFERENCE/REVERSO, echoing the question then the reference answer with a solution-path breadcrumb), 2-button self-rating row (没掌握 MISSED / 掌握了 GOT IT) replacing the 4-way SM2 rating used in Review.</span>
+      </div>
+    </div>
+
+    <!-- FRAME 12 — Wrong 错题本（含「生成闪卡」入口） -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <header class="topbar">
+            <button class="tb-btn">←</button>
+            <h1 class="zh tb-title-left">错题本</h1>
+            <button class="tb-btn" style="width:auto; padding:0 8px; color:var(--accent); font-family:var(--font-zh); font-size:13px;">生成闪卡</button>
+          </header>
+
+          <div style="padding:12px var(--sp-4) 0; display:flex; gap:6px; overflow-x:auto;">
+            <span class="chip on">全部</span>
+            <span class="chip">数据结构与算法</span>
+            <span class="chip">概率论与数理统计</span>
+          </div>
+
+          <div style="flex:1; padding:var(--sp-4); display:flex; flex-direction:column; gap:12px;">
+            <div style="background:var(--bg-card); border-radius:var(--r-lg); padding:var(--sp-3); border:1px solid var(--border-soft);">
+              <div style="display:flex; align-items:start; justify-content:space-between; gap:8px; margin-bottom:8px;">
+                <span style="font-size:11px; color:var(--ink-3); font-family:var(--font-zh);">数据结构与算法 · 第二章</span>
+                <span style="padding:2px 8px; border-radius:4px; font-size:11px; background:var(--danger-soft); color:var(--danger);">choice</span>
+              </div>
+              <div style="font-size:14px; color:var(--ink); font-family:var(--font-zh); margin-bottom:8px;">红黑树在插入新节点后，为恢复平衡最多需要几次旋转？</div>
+              <div style="display:flex; align-items:center; justify-content:space-between;">
+                <div style="display:flex; gap:12px; font-size:11px; color:var(--ink-3);">
+                  <span>错 3 次</span><span>连续错 2 次</span>
+                </div>
+                <button style="padding:4px 12px; border-radius:6px; font-size:11px; font-weight:500; background:var(--accent-soft); color:var(--accent); border:none;">重做</button>
+              </div>
+            </div>
+            <div style="background:var(--bg-card); border-radius:var(--r-lg); padding:var(--sp-3); border:1px solid var(--border-soft);">
+              <div style="display:flex; align-items:start; justify-content:space-between; gap:8px; margin-bottom:8px;">
+                <span style="font-size:11px; color:var(--ink-3); font-family:var(--font-zh);">概率论与数理统计 · 第一章</span>
+                <span style="padding:2px 8px; border-radius:4px; font-size:11px; background:var(--danger-soft); color:var(--danger);">choice</span>
+              </div>
+              <div style="font-size:14px; color:var(--ink); font-family:var(--font-zh); margin-bottom:8px;">设随机变量 X ~ N(0,1)，求 P(X &gt; 1.96) 的近似值。</div>
+              <div style="display:flex; align-items:center; justify-content:space-between;">
+                <div style="display:flex; gap:12px; font-size:11px; color:var(--ink-3);">
+                  <span>错 1 次</span><span>连续错 1 次</span>
+                </div>
+                <button style="padding:4px 12px; border-radius:6px; font-size:11px; font-weight:500; background:var(--accent-soft); color:var(--accent); border:none;">重做</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">Wrong 错题本 <span class="state-tag">含「生成闪卡」入口</span></span>
+        <span class="route">/wrong?subject=...</span>
+        <span class="states">Subject filter chips, per-question wrong_count/wrongStreak stats + 重做 (redo) action, 生成闪卡 button in the topbar (navigates to Import with prefilled cards built from the wrong-question set — only shown when the list is non-empty).</span>
+      </div>
+    </div>
+
+  </div>
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════════
-     MODULE: 阅读 (Reading) — filled in Commit 2
+     MODULE: 阅读 (Reading)
      ═══════════════════════════════════════════════════════════════ -->
 <section class="module-group" id="module-yuedu">
   <div class="module-head">
     <span class="zh">阅读</span>
     <span class="en">READING</span>
   </div>
-  <div class="module-empty-note">Commit 2 — Home-阅读 tab · Reader 沉浸态 / chrome 显示态 · 高亮面板</div>
+
+  <div class="frame-grid">
+
+    <!-- FRAME 13 — Home · 阅读 tab -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <header class="topbar">
+            <h1><span style="color:var(--accent); font-size: 20px;">卌</span>Mnemos</h1>
+            <div class="tb-actions">
+              <button class="tb-btn">⌕</button>
+              <button class="tb-btn">⚙</button>
+            </div>
+          </header>
+
+          <div class="tabs-head">
+            <button class="tabs-tab"><span class="zh">练习</span><span class="en">PRACTICE</span></button>
+            <button class="tabs-tab"><span class="zh">记忆</span><span class="en">RECALL</span></button>
+            <button class="tabs-tab on"><span class="zh">阅读</span><span class="en">READING</span></button>
+          </div>
+
+          <div class="search" style="margin: 12px var(--sp-4) 0;"><input placeholder="搜尋文档…" disabled><span class="icn">⌕</span></div>
+
+          <div class="hero">
+            <div class="hero-head">
+              <span class="lbl">本周 · THIS WEEK</span>
+              <div class="hero-head-right"><span class="streak" style="color:var(--warn)">✦ 126 分钟</span></div>
+            </div>
+            <div class="hero-row">
+              <div class="hero-col"><span class="num accent">126</span><span class="label">MIN</span><span class="zh-label">本周阅读</span></div>
+              <div class="hero-divider"></div>
+              <div class="hero-col"><span class="num">4</span><span class="label">DONE</span><span class="zh-label">已读完</span></div>
+              <div class="hero-divider"></div>
+              <div class="hero-col"><span class="num">31</span><span class="label">DOCS</span><span class="zh-label">总文档</span></div>
+            </div>
+            <div class="hero-chart">
+              <div class="hero-bar teal"><div class="b" style="height:14px"></div><span class="day">日</span></div>
+              <div class="hero-bar teal today"><div class="b" style="height:22px"></div><span class="day">一</span></div>
+              <div class="hero-bar teal"><div class="b" style="height:18px"></div><span class="day">二</span></div>
+              <div class="hero-bar empty"><div class="b" style="height:2px"></div><span class="day">三</span></div>
+              <div class="hero-bar empty"><div class="b" style="height:2px"></div><span class="day">四</span></div>
+              <div class="hero-bar empty"><div class="b" style="height:2px"></div><span class="day">五</span></div>
+              <div class="hero-bar empty"><div class="b" style="height:2px"></div><span class="day">六</span></div>
+            </div>
+          </div>
+
+          <div class="deck-list" style="margin-top: var(--sp-3);">
+            <a class="deck" href="#" onclick="return false">
+              <div class="deck-spine"><span class="glyph">文</span></div>
+              <div class="deck-meta">
+                <div class="deck-name">《文明的滴定》读书笔记</div>
+                <div class="deck-stats"><span class="due" style="font-family:var(--font-zh)">继续阅读</span><span class="dot">·</span><span>62%</span></div>
+              </div>
+            </a>
+          </div>
+
+          <div class="list-head" style="margin-top: var(--sp-2);">
+            <span class="section-title">收藏夹</span>
+            <span class="count">3</span>
+          </div>
+
+          <div class="deck-list">
+            <a class="deck" href="#" onclick="return false">
+              <div class="deck-spine teal"><span class="glyph">论</span></div>
+              <div class="deck-meta">
+                <div class="deck-name">论文精读<span class="deck-pin">◆</span></div>
+                <div class="deck-stats"><span>12 篇</span></div>
+              </div>
+              <div class="deck-cta"><button class="cta-pill">阅读<span>→</span></button></div>
+            </a>
+            <a class="deck" href="#" onclick="return false">
+              <div class="deck-spine good"><span class="glyph">历</span></div>
+              <div class="deck-meta">
+                <div class="deck-name">历史读物</div>
+                <div class="deck-stats"><span>8 篇</span></div>
+              </div>
+              <div class="deck-cta"><button class="cta-pill">阅读<span>→</span></button></div>
+            </a>
+            <a class="deck" href="#" onclick="return false">
+              <div class="deck-spine plum"><span class="glyph">杂</span></div>
+              <div class="deck-meta">
+                <div class="deck-name">杂志剪存</div>
+                <div class="deck-stats"><span>11 篇</span></div>
+              </div>
+              <div class="deck-cta"><button class="cta-pill">阅读<span>→</span></button></div>
+            </a>
+          </div>
+
+          <div class="bottom-actions">
+            <button class="btn btn-ghost">⇧ 导入</button>
+            <button class="btn btn-primary">+ 新收藏夹</button>
+          </div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">Home — 阅读 tab</span>
+        <span class="route">/ (tab=reading)</span>
+        <span class="states">Search bar (shown once a collection has documents), teal hero chart, continue-reading card with scroll %, pinned collection (◆), collection list with document counts, bottom new-collection/import actions.</span>
+      </div>
+    </div>
+
+    <!-- FRAME 14 — Reader 沉浸态（chrome 隐藏） -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen" style="position:relative;">
+          <div class="reader-progress-top"><div class="bar" style="width:62%"></div></div>
+          <div class="reader-content">
+            <h2>第三章 · 磺胺药与青霉素的发现</h2>
+            <p>1932 年，多马克在研究染料化合物的抗菌性质时，意外发现百浪多息（Prontosil）对链球菌感染有显著疗效。这一发现开启了磺胺类药物的黄金时代，也为后续抗生素的系统性筛选提供了方法论基础。</p>
+            <p>与此同时，弗莱明在圣玛丽医院的实验室里，注意到一块被青霉菌污染的葡萄球菌培养皿中出现了明显的抑菌圈。这一观察后来被弗洛里与钱恩等人系统化验证，最终促成青霉素的工业化量产。</p>
+            <p>若以抑菌圈半径 <span class="latex-placeholder">$r$</span> 与药物浓度 <span class="latex-placeholder">$C$</span> 的关系建模，早期文献常用如下近似：<span class="latex-placeholder">$r \propto \log(C / C_0)$</span>，其中 <span class="latex-placeholder">$C_0$</span> 为最低有效浓度阈值。</p>
+            <p>这段历史提示我们：许多重大发现最初都源于「反常现象」而非预设假说 —— 培养皿污染本是实验失败的标志，却在弗莱明手中转化为关键证据。</p>
+          </div>
+          <div class="reader-progress-bottom"><div class="bar" style="width:62%"></div></div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">Reader <span class="state-tag">沉浸态（chrome 隐藏）</span></span>
+        <span class="route">/reading/doc/:id</span>
+        <span class="states">Topbar and bottom function bar both hidden (opacity 0 + translateY off-screen, toggled by tapping content); only the 2px top and 3px bottom accent progress bars remain visible. LaTeX shown as raw placeholder text, not rendered — e.g. <code style="font-family:var(--font-mono)">$r \propto \log(C/C_0)$</code>.</span>
+      </div>
+    </div>
+
+    <!-- FRAME 15 — Reader chrome 显示态（底部工具栏 + 设置面板展开） -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen" style="position:relative;">
+          <div class="reader-progress-top"><div class="bar" style="width:62%"></div></div>
+          <header class="topbar">
+            <button class="tb-btn">←</button>
+            <span class="tb-text tb-title-center">文明的滴定</span>
+            <div style="width:32px;"></div>
+          </header>
+          <div class="reader-content" style="padding-bottom: 8px;">
+            <h2>第三章 · 磺胺药与青霉素的发现</h2>
+            <p>1932 年，多马克在研究染料化合物的抗菌性质时，意外发现百浪多息（Prontosil）对链球菌感染有显著疗效。这一发现开启了磺胺类药物的黄金时代<mark>，也为后续抗生素的系统性筛选提供了方法论基础</mark>。</p>
+            <p>与此同时，弗莱明在圣玛丽医院的实验室里，注意到一块被青霉菌污染的葡萄球菌培养皿中出现了明显的抑菌圈。</p>
+          </div>
+          <div class="reader-settings-row">
+            <div class="reader-settings-group"><span class="val">17</span><button>A-</button><button>A+</button></div>
+            <div class="reader-settings-sep"></div>
+            <div class="reader-settings-group"><span class="val">1.8</span><button>-</button><button>+</button></div>
+            <div class="reader-settings-sep"></div>
+            <div class="reader-settings-group"><span class="val">24</span><button>-</button><button>+</button></div>
+          </div>
+          <div class="reader-bottom-bar">
+            <span class="fn-btn">TOC</span>
+            <span class="fn-btn">高亮</span>
+            <span class="fn-btn">书签</span>
+            <div class="fn-sep"></div>
+            <span class="fn-btn on">显示设置</span>
+          </div>
+          <div class="reader-progress-bottom"><div class="bar" style="width:62%"></div></div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">Reader <span class="state-tag">chrome 显示态（底部工具栏 + 设置面板展开）</span></span>
+        <span class="route">/reading/doc/:id</span>
+        <span class="states">Topbar + bottom function bar visible (TOC/高亮/书签/显示设置 tabs), settings-expansion row above the function bar with font-size/line-height/margins A-/A+ steppers, one highlighted span (&lt;mark&gt;) visible in the content.</span>
+      </div>
+    </div>
+
+    <!-- FRAME 16 — 高亮面板 -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen" style="position:relative;">
+          <div class="reader-progress-top"><div class="bar" style="width:62%"></div></div>
+          <div class="reader-panel-shell">
+            <div class="panel-header">高亮 · 3</div>
+            <div class="panel-hl-row">
+              <div class="panel-hl-text">磺胺类药物的黄金时代，也为后续抗生素的系统性筛选提供了方法论基础</div>
+              <div class="panel-hl-meta"><span>2026/6/28</span><span class="del">删除</span></div>
+            </div>
+            <div class="panel-hl-row">
+              <div class="panel-hl-text">培养皿污染本是实验失败的标志，却在弗莱明手中转化为关键证据</div>
+              <div class="panel-hl-meta"><span>2026/6/29</span><span class="del">删除</span></div>
+            </div>
+            <div class="panel-hl-row">
+              <div class="panel-hl-text">弗洛里与钱恩等人系统化验证，最终促成青霉素的工业化量产</div>
+              <div class="panel-hl-meta"><span>2026/7/1</span><span class="del">删除</span></div>
+            </div>
+            <div class="panel-footer-action">+ 生成闪卡</div>
+            <div class="panel-footer-action">↓ 导出高亮</div>
+          </div>
+          <div class="reader-content" style="opacity:0.35;">
+            <h2>第三章 · 磺胺药与青霉素的发现</h2>
+            <p>1932 年，多马克在研究染料化合物的抗菌性质时，意外发现百浪多息对链球菌感染有显著疗效。</p>
+          </div>
+          <div class="reader-progress-bottom"><div class="bar" style="width:62%"></div></div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">高亮面板 (HighlightsPanel)</span>
+        <span class="route">/reading/doc/:id (activePanel='highlights')</span>
+        <span class="states">Slide-in panel (280px, left-anchored) listing saved highlights with date + 删除 action per row, footer actions 生成闪卡 (only when highlights exist) and 导出高亮; content dimmed behind the backdrop.</span>
+      </div>
+    </div>
+
+  </div>
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════════
