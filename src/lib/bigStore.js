@@ -146,6 +146,7 @@ export function setCached(key, value) {
   const normalized = normalizeRecord(config, value)
   cache.set(key, normalized)
   scheduleIdbSet(key, normalized)
+  // TODO(R4+1): remove localStorage dual-write for big records after one release.
   return saveJson(key, normalized, { label: config.label })
 }
 
