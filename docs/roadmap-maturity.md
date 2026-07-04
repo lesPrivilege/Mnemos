@@ -29,8 +29,41 @@ component   tab bar / sheet / card         只用 semantic，零硬編碼
   材質抽象在位後，跟進 Liquid Glass / Material You 只改 token 定義文件。
 - **動效 token**：`--motion-quick` / `--motion-gentle` + 全局尊重
   `prefers-reduced-motion`。清理散落的內聯 `transition: 120ms`（StructureTree 等）。
-- 產出：`src/styles/tokens.css` + `docs/design-tokens.md`（給 Claude Design 的
-  約束輸入，導圖 mock 那輪就能用上）。
+
+### M1b — 視覺重定調（與 token 化同批，2026-07 補充）
+
+背景判斷：現有 UX 為兩個月前 Claude Design 交付，其風格語彙（mono 雙語標籤、
+深色卡片、accent 點綴）已因大量湧現而俗套化，「打開即 Demo」。token 化若只整理
+現值，等於把俗套凍結成契約。因此 M1 同批做重定調：
+
+- **錨點：Apple HIG 的原則層，不是控件皮**。層級靠字號字重、深度吝嗇、控件讓位
+  內容。不在 WebView 仿真 iOS 控件外觀（假 native 是恐怖谷）。字階採 Dynamic
+  Type 比例邏輯（接 M4 動態字體）、間距 4/8 網格、材質只留 chrome 一層模糊。
+  中文排版精度是 HIG 未覆蓋、Mnemos 可建立身份的地方。參照系：iA Writer / Bear
+  / Things——無可模仿的風格特徵，只有難以模仿的執行精度。
+- **減法審計**：雙語標籤只留有信息量處（如評分按鈕），餘降純中文；mono 字體收縮
+  到真數據場景（數字/日期/統計）；裝飾漸變與圖標密度砍半。細節打磨度允許不均勻
+  ——關鍵路徑 98 分，次要處敢於樸素。
+- **字符串外置**（i18n 預留的正確形式）：用戶可見文案收進 `src/lib/strings.js`
+  平面模塊（含 lib 層的 quota 錯誤文案），不引 i18n 框架。換語言 = 換文件。
+- **首開體驗**：命名與 icon 已撐得住，首屏必須接住——splash 到首幀無白閃無跳動
+  （M4 已列），Home 首屏是產品的臉，重定調的驗收以「冷啟動第一眼不像 Demo」為準。
+
+### Claude Design 接力協議（M1b 完成後啟動）
+
+1. **盤點 brief**：全頁面/全狀態清單 + 新 tokens + 反俗套約束（禁用其默認語彙、
+   給定參照物）+ HIG 原則摘要。
+2. **Claude Design**：單文件 HTML prototype，硬約束**只准用 brief 給定的 token
+   變量名**，禁自帶調色板。
+3. **CLI**：翻譯成真組件棧的純渲染預覽（`/design-preview` 路由，真組件 + mock
+   數據、零業務邏輯），輸出構建後 HTML 截面。
+4. **回傳批改**，兩方傳 HTML 收斂 2-3 輪。工作模式沿用 `design/v2-redesign`。
+
+依賴順序：M1 token 減法審計 → 接力啟動（否則 Claude Design 拿到的仍是俗套
+token 表）。啟動前提：功能盤完（P2 導圖、R4+1 等在跑事項收尾）。
+
+- 產出：`src/styles/tokens.css` + `docs/design-tokens.md` + `src/lib/strings.js`
+  + 盤點 brief（給 Claude Design 的約束輸入，導圖 mock 那輪就能用上）。
 
 ## M2 — Chrome 與內容解耦：AppShell
 
