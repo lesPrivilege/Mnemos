@@ -1,4 +1,5 @@
 export const starred = {
+  back: '返回',
   title: '收藏',
   empty: '暂无收藏',
   emptyHint: '练习时点击星标即可收藏',

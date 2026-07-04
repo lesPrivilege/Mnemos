@@ -1,4 +1,5 @@
 export const collectionDetail = {
+  closeMenu: '关闭菜单',
   importFailedToast: '文件导入失败，请检查文件格式',
   deleteDocTitle: '删除文档',
   deleteDocMessage: '删除这篇文档？此操作不可撤销。',
@@ -20,9 +21,9 @@ export const collectionDetail = {
   docContentPlaceholder: '文档内容（Markdown）',
   cancel: '取消',
   create: '创建',
-  continueReadingSuffix: 'CONTINUE · 继续阅读',
+  continueReadingSuffix: '继续阅读',
   emptyDocsLead: '暂无文档',
-  importFirstSuffix: 'IMPORT · 请先导入',
+  importFirstSuffix: '请先导入',
   importAction: '导入',
   newAction: '新建',
 }

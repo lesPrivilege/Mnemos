@@ -61,7 +61,7 @@ export default function Search() {
   return (
     <div className="page-fill">
       <div className="topbar">
-        <button className="tb-btn" onClick={() => goBack()} aria-label="Back"><BackIcon /></button>
+        <button className="tb-btn" onClick={() => goBack()} aria-label={S.search.back}><BackIcon /></button>
         <div className="search" style={{ margin: 0, flex: 1 }}>
           <SearchIcon size={16} />
           <input value={query} onChange={e => setQuery(e.target.value)}

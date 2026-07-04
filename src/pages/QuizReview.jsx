@@ -126,7 +126,7 @@ export default function ReviewQuestion() {
     return (
       <div className="page-fixed" style={{ background: 'var(--bg)' }}>
         <div className="topbar">
-          <button className="tb-btn" onClick={() => goBack()} aria-label="Back"><BackIcon /></button>
+          <button className="tb-btn" onClick={() => goBack()} aria-label={S.quizReview.back}><BackIcon /></button>
         </div>
         <div className="page-scroll">
           <div className="done-wrap">
@@ -163,7 +163,7 @@ export default function ReviewQuestion() {
     return (
       <div className="page-fixed" style={{ background: 'var(--bg)' }}>
         <div className="topbar">
-          <button className="tb-btn" onClick={() => goBack()} aria-label="Back"><BackIcon /></button>
+          <button className="tb-btn" onClick={() => goBack()} aria-label={S.quizReview.back}><BackIcon /></button>
           <h1 className="zh" style={{ flex: 1, paddingLeft: 4 }}>{chapter || getSubjectDisplayName(subject)}</h1>
         </div>
         <div className="page-scroll">
@@ -204,7 +204,7 @@ export default function ReviewQuestion() {
       onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       {/* Topbar */}
       <div className="topbar">
-        <button className="tb-btn" onClick={() => goBack()} aria-label="Back"><BackIcon /></button>
+        <button className="tb-btn" onClick={() => goBack()} aria-label={S.quizReview.back}><BackIcon /></button>
         <span className="font-mono text-[11px]">
           <span style={{ color: 'var(--ink)', fontWeight: 600 }}>{String(currentIndex + 1).padStart(2, '0')}</span>
           <span style={{ color: 'var(--ink-3)' }}> / {String(questions.length).padStart(2, '0')}</span>
@@ -220,7 +220,7 @@ export default function ReviewQuestion() {
             </button>
             {showMenu && (
               <>
-                <button className="fixed inset-0 z-10 cursor-default" onClick={() => setShowMenu(false)} aria-label="Close menu" />
+                <button className="fixed inset-0 z-10 cursor-default" onClick={() => setShowMenu(false)} aria-label={S.quizReview.closeMenu} />
                 <div className="absolute right-0 top-9 z-20 min-w-[160px] rounded-md bg-bg-card shadow-lg overflow-hidden"
                   role="menu"
                   style={{ border: '1px solid var(--border-soft)' }}>

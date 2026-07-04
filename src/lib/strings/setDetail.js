@@ -1,4 +1,5 @@
 export const setDetail = {
+  closeMenu: '关闭菜单',
   deleteSubjectTitle: '删除科目',
   deleteSubjectMessage: (subjectName) => `删除科目「${subjectName}」及其全部题目与进度？此操作不可撤销。`,
   confirmDelete: '确认删除',
@@ -27,9 +28,9 @@ export const setDetail = {
   reviewLabelWithCount: (count) => `解答题 (${count}题)`,
   emptyStarredChapters: '暂无收藏章节',
   emptyChapters: '暂无章节数据',
-  beginPracticeLabel: 'BEGIN · 开始练习',
+  beginPracticeLabel: '开始练习',
   noQuestions: '暂无题目',
-  importFirstLabel: 'IMPORT · 请先导入',
+  importFirstLabel: '请先导入',
   wrongAction: '错题',
   starredAction: '收藏',
   importAction: '导入',

@@ -227,7 +227,7 @@ export default function DeckDetail() {
             </button>
             {showDeckMenu && (
               <>
-                <button className="fixed inset-0 z-10 cursor-default" onClick={() => setShowDeckMenu(false)} aria-label="Close menu" />
+                <button className="fixed inset-0 z-10 cursor-default" onClick={() => setShowDeckMenu(false)} aria-label={S.deckDetail.closeMenu} />
                 <div className="absolute right-0 top-9 z-20 min-w-[168px] rounded-md bg-bg-card shadow-lg overflow-hidden"
                   role="menu"
                   style={{ border: '1px solid var(--border-soft)' }}>

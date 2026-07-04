@@ -1,7 +1,7 @@
 export const review = {
   again: '重来',
   remember: '记住',
-  flipHint: '轻点翻面 · TAP TO FLIP',
+  flipHint: '轻点翻面',
   hard: '困难',
   easy: '容易',
   later: '稍后', // used as a control-flow sentinel via === in Review.jsx's predictInterval(), not decorative-only text
@@ -12,7 +12,7 @@ export const review = {
   undoLastCard: '撤销上一张',
   backToDeck: '返回卡组',
   browseCards: '浏览卡片',
-  leechToast: '卡片已标记为顽固卡并暂停 · LEECH',
+  leechToast: '卡片已标记为顽固卡并暂停',
   ratedToastPrefix: '已評分 · ',
   undoToast: '已撤銷',
   undoToastLabel: '撤销',

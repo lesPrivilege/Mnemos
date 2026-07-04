@@ -154,7 +154,7 @@ export default function Quiz() {
     return (
       <div className="page-fixed" style={{ background: 'var(--bg)' }}>
         <div className="topbar">
-          <button className="tb-btn" onClick={() => goBack()} aria-label="Back"><BackIcon /></button>
+          <button className="tb-btn" onClick={() => goBack()} aria-label={S.quizPage.back}><BackIcon /></button>
         </div>
         <div className="page-scroll">
           <div className="done-wrap">
@@ -186,7 +186,7 @@ export default function Quiz() {
     return (
       <div className="page-fixed" style={{ background: 'var(--bg)' }}>
         <div className="topbar">
-          <button className="tb-btn" onClick={() => goBack()} aria-label="Back"><BackIcon /></button>
+          <button className="tb-btn" onClick={() => goBack()} aria-label={S.quizPage.back}><BackIcon /></button>
           <h1 className="zh" style={{ flex: 1, paddingLeft: 4 }}>{chapter || getSubjectDisplayName(subject)}{S.quizPage.subjectHeadingSuffix}</h1>
         </div>
         <div className="page-scroll">
@@ -204,7 +204,7 @@ export default function Quiz() {
     <div className="page-fixed" style={{ background: 'var(--bg)' }}>
       {/* Topbar */}
       <div className="topbar">
-        <button className="tb-btn" onClick={() => goBack()} aria-label="Back"><BackIcon /></button>
+        <button className="tb-btn" onClick={() => goBack()} aria-label={S.quizPage.back}><BackIcon /></button>
         <h1 className="zh" style={{ flex: 1, paddingLeft: 4 }}>{chapter || getSubjectDisplayName(subject)}</h1>
         <span className="font-mono text-[11px]">
           <span style={{ color: 'var(--ink)', fontWeight: 600 }}>{currentIndex + 1}</span>
@@ -222,7 +222,7 @@ export default function Quiz() {
             </button>
             {showMenu && (
               <>
-                <button className="fixed inset-0 z-10 cursor-default" onClick={() => setShowMenu(false)} aria-label="Close menu" />
+                <button className="fixed inset-0 z-10 cursor-default" onClick={() => setShowMenu(false)} aria-label={S.quizPage.closeMenu} />
                 <div className="absolute right-0 top-9 z-20 min-w-[160px] rounded-md bg-bg-card shadow-lg overflow-hidden"
                   role="menu"
                   style={{ border: '1px solid var(--border-soft)' }}>

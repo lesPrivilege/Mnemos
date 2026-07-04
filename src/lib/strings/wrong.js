@@ -1,4 +1,5 @@
 export const wrong = {
+  back: '返回',
   correctAnswerPrefix: '正确答案：',
   title: '错题本',
   deleteQuestionTitle: '删除题目',

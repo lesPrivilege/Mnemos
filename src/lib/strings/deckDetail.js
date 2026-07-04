@@ -1,4 +1,5 @@
 export const deckDetail = {
+  closeMenu: '关闭菜单',
   resetProgressTitle: '重置进度',
   resetProgressMessage: (deckName) => `重置「${deckName}」的学习进度？已收藏的卡片会保留。`,
   confirmReset: '确认重置',
@@ -34,7 +35,7 @@ export const deckDetail = {
   deleteAllMessage: (count) => `删除卡组内全部 ${count} 张卡片？此操作不可撤销。`,
   deleteAllButton: '全部删除',
   dueLeadSuffix: '张 待复习',
-  beginLabel: 'BEGIN · 开始',
+  beginLabel: '开始',
   browseAction: '浏览',
   reviewAllAction: '全部复习',
   importAction: '导入',

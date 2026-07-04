@@ -40,7 +40,7 @@ export default function Starred() {
   return (
     <div className="page-fill">
       <div className="topbar">
-        <button className="tb-btn" onClick={() => goBack()} aria-label="Back"><BackIcon /></button>
+        <button className="tb-btn" onClick={() => goBack()} aria-label={S.starred.back}><BackIcon /></button>
         <h1 className="zh" style={{ flex: 1, paddingLeft: 4 }}>{S.starred.title}</h1>
       </div>
 
