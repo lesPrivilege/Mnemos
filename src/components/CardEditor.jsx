@@ -92,9 +92,9 @@ export default function CardEditor({ initial, onSave, onCancel }) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-mono text-ink-3 tracking-wider uppercase">Front</span>
+        <span className="text-xs font-body text-ink-3 tracking-wider uppercase">Front</span>
         <button type="button" onClick={() => setFrontPreview(p => !p)}
-          className="text-xs font-mono text-ink-3 hover:text-ink tracking-wider uppercase">
+          className="text-xs font-body text-ink-3 hover:text-ink tracking-wider uppercase">
           {frontPreview ? S.cardEditor.edit : S.cardEditor.preview}
         </button>
       </div>
@@ -117,9 +117,9 @@ export default function CardEditor({ initial, onSave, onCancel }) {
       )}
 
       <div className="flex items-center justify-between">
-        <span className="text-xs font-mono text-ink-3 tracking-wider uppercase">Back</span>
+        <span className="text-xs font-body text-ink-3 tracking-wider uppercase">Back</span>
         <button type="button" onClick={() => setBackPreview(p => !p)}
-          className="text-xs font-mono text-ink-3 hover:text-ink tracking-wider uppercase">
+          className="text-xs font-body text-ink-3 hover:text-ink tracking-wider uppercase">
           {backPreview ? S.cardEditor.edit : S.cardEditor.preview}
         </button>
       </div>

@@ -41,7 +41,7 @@ function ContinueCard({ subjects, onDismiss }) {
           {getSubjectDisplayName(session.subject)}
         </div>
         <div className="deck-stats">
-          <span className="due">{S.quizHome.continuing}</span>
+          <span className="due" style={{ fontFamily: 'var(--font-zh)' }}>{S.quizHome.continuing}</span>
           <span className="dot">·</span>
           <span>{session.chapter || S.quizHome.lastPracticeFallback}</span>
           <span className="dot">·</span>

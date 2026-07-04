@@ -55,7 +55,7 @@ function ActivityRings({ today, targets }) {
           {ringPath(practice, 66, 'var(--teal)')}
           {ringPath(reading, 46, 'var(--good)')}
           <text x="100" y="96" textAnchor="middle" fontFamily="var(--font-disp)" fontSize="38" fill="var(--ink)">{percentValue}</text>
-          <text x="100" y="116" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="9" fill="var(--ink-3)" letterSpacing="2">PERCENT</text>
+          <text x="100" y="116" textAnchor="middle" fontFamily="var(--font-ui)" fontSize="9" fill="var(--ink-3)" letterSpacing="2">PERCENT</text>
         </svg>
       </div>
       <div className="activity-ring-stats">
@@ -268,7 +268,7 @@ export default function Activity() {
         <section className="activity-section activity-modules-card">
           <div className="activity-section-head">
             <div className="section-title">{S.activity.modulesTitle}</div>
-            <span><SparkIcon size={13} />{S.activity.readonlyAggregate}</span>
+            <span style={{ fontFamily: 'var(--font-zh)' }}><SparkIcon size={13} />{S.activity.readonlyAggregate}</span>
           </div>
           <div className="activity-modules">
             <ModuleRow

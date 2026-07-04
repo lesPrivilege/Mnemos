@@ -40,7 +40,7 @@ export default function Starred() {
   return (
     <div className="page-fill">
       <div className="topbar">
-        <button className="tb-btn" onClick={() => goBack()} aria-label="Back"><BackIcon /></button>
+        <button className="tb-btn" onClick={() => goBack()} aria-label={S.starred.back}><BackIcon /></button>
         <h1 className="zh" style={{ flex: 1, paddingLeft: 4 }}>{S.starred.title}</h1>
       </div>
 
@@ -56,7 +56,7 @@ export default function Starred() {
             <div key={q.id} className="bg-bg-card rounded-lg p-4 border cursor-pointer group" style={{ borderColor: 'var(--border-soft)' }}
               onClick={() => navigate(q.type === 'choice' ? `/quiz/${q.subject}?mode=starred&qid=${q.id}` : `/quiz-review/${q.subject}?mode=starred&qid=${q.id}`)}>
               <div className="flex items-start justify-between gap-2 mb-2">
-                <div className="text-xs text-ink-3 font-mono">{getSubjectDisplayName(q.subject)} · {q.chapter}</div>
+                <div className="text-xs text-ink-3 font-zh">{getSubjectDisplayName(q.subject)} · {q.chapter}</div>
                 <div className="flex items-center gap-1.5">
                   <button
                     className="hidden group-hover:inline-flex items-center justify-center w-7 h-7 rounded-md text-ink-3 hover:text-danger hover:bg-danger-soft transition-colors"

@@ -1,0 +1,188 @@
+/* ═══════════════════════════════════════════════════
+   MNEMOS DESIGN TOKENS — three-layer structure
+   1. Primitives   — raw color/shadow/radius/font values (existing)
+   2. Scales       — type / spacing / motion (this commit, unused yet)
+   3. Surfaces     — composite semantics built from primitives
+   ═══════════════════════════════════════════════════ */
+
+:root {
+  /* Light · warm parchment */
+  --bg:            oklch(96.5% 0.012 80);
+  --bg-card:       oklch(99% 0.006 80);
+  --bg-raised:     oklch(94% 0.016 80);
+  --bg-sunken:     oklch(92.5% 0.018 80);
+  --border:        oklch(86% 0.018 80);
+  --border-soft:   oklch(91% 0.015 80);
+  --border-strong: oklch(72% 0.025 80);
+  --ink:           oklch(22% 0.022 80);
+  --ink-2:         oklch(48% 0.020 80);
+  --ink-3:         oklch(66% 0.014 80);
+  --ink-4:         oklch(78% 0.012 80);
+  --accent:        oklch(56% 0.13 60);          /* ochre */
+  --accent-soft:   oklch(94% 0.038 60);
+  --accent-line:   oklch(78% 0.07 60);
+  --teal:          oklch(50% 0.09 195);          /* answer / reading */
+  --teal-soft:     oklch(94% 0.025 195);
+  --good:          oklch(54% 0.11 155);
+  --good-soft:     oklch(94% 0.030 155);
+  --warn:          oklch(58% 0.13 70);
+  --warn-soft:     oklch(94% 0.035 70);
+  --danger:        oklch(54% 0.16 28);
+  --danger-soft:   oklch(94% 0.030 28);
+  --teal-line:     oklch(78% 0.06 195);
+  --plum:          oklch(48% 0.10 320);
+  --rate-hard:     oklch(48% 0.12 100);
+  --rate-hard-soft: oklch(93% 0.035 100);
+
+  --shadow-sm:     0 1px 2px oklch(22% 0.02 80 / 0.04);
+  --shadow-md:     0 1px 2px oklch(22% 0.02 80 / 0.04), 0 8px 28px oklch(22% 0.02 80 / 0.045);
+  --shadow-lg:     0 2px 6px oklch(22% 0.02 80 / 0.06), 0 20px 48px oklch(22% 0.02 80 / 0.07);
+
+  /* Code syntax — light */
+  --code-bg:       oklch(95% 0.012 80);
+  --code-border:   oklch(89% 0.014 80);
+  --tk-key:        oklch(48% 0.14 320);
+  --tk-str:        oklch(48% 0.11 155);
+  --tk-num:        oklch(48% 0.08 65);
+  --tk-com:        oklch(58% 0.04 80);
+  --tk-fn:         oklch(48% 0.13 195);
+  --tk-op:         oklch(48% 0.06 80);
+
+  --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 22px;
+
+  --font-zh:    'Noto Serif SC', 'Songti SC', Georgia, serif;
+  --font-disp:  'Instrument Serif', 'Noto Serif SC', Georgia, serif;
+  --font-ui:    'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono:  'JetBrains Mono', ui-monospace, monospace;
+
+  /* ─────── Type scale (Dynamic Type-ready) ───────
+     Ratio ≈1.2 (minor third) stepping from --text-base: 1rem.
+     rem units so the whole scale responds to the user's root
+     font-size / OS text-size setting. Not yet wired into any
+     component — named steps for Claude Design + later rounds. */
+  --text-xs:   0.694rem;  /* ~11.1px */
+  --text-sm:   0.833rem;  /* ~13.3px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg:   1.2rem;    /* ~19.2px */
+  --text-xl:   1.44rem;   /* ~23px */
+  --text-2xl:  1.728rem;  /* ~27.6px */
+  --text-3xl:  2.074rem;  /* ~33.2px */
+
+  --leading-tight:  1.2;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.7;
+
+  /* ─────── Spacing (4/8 grid) ───────
+     8-step scale from 4px to 64px. Mostly-4/8 multiples with a
+     12px half-step at --sp-3 for the tight in-between cases that
+     show up constantly in this codebase's existing px values. */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+  --sp-8: 64px;
+
+  /* ─────── Motion ───────
+     Two durations covering this app's existing transition range
+     (100-200ms micro-interactions -> --motion-quick; 240ms+
+     sheet/panel movements -> --motion-gentle). Shared ease matches
+     iOS/Material "standard decelerate" curves already implied by
+     the hand-picked cubic-beziers elsewhere in index.css. */
+  --motion-quick:  120ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-gentle: 240ms cubic-bezier(0.2, 0, 0, 1);
+
+  /* ─────── Surfaces — light ───────
+     Composite semantics built from the primitives above.
+     - --surface-chrome-bg / --surface-chrome-blur are calibrated to
+       FloatingBar.jsx's real, already-shipped production values
+       (recalibrated in Commit 2 — Commit 1 guessed --bg at 78% alpha
+       + blur(16px) before that call site existed to check against).
+       FloatingBar mixes --bg-card (not --bg) at 85% alpha with
+       blur(8px). color-mix() is used here rather than a hardcoded
+       oklch-alpha literal so the token stays derived from --bg-card
+       as its single source of truth instead of duplicating it.
+     - --surface-raised / --surface-overlay are plain 1:1 aliases
+       today (var(--bg-raised) / var(--bg-card)), not multi-property
+       composites like --surface-chrome. That's deliberate: the value
+       here is the semantic name, not the property count — call sites
+       say "give me the raised/overlay surface" instead of naming a
+       bg-* primitive directly, so if a surface later needs a shadow
+       or border alongside its color, that composition happens in one
+       place (here) instead of at every call site. */
+  --surface-chrome-bg:     color-mix(in oklch, var(--bg-card) 85%, transparent);
+  --surface-chrome-blur:   blur(8px);
+  --surface-chrome-border: var(--border-soft);
+  --surface-raised:        var(--bg-raised);
+  --surface-overlay:       var(--bg-card);
+}
+
+:root.dark {
+  /* Dark · neutral graphite (hue 250) */
+  --bg:            oklch(16% 0.014 250);
+  --bg-card:       oklch(20% 0.016 250);
+  --bg-raised:     oklch(24% 0.018 250);
+  --bg-sunken:     oklch(13% 0.012 250);
+  --border:        oklch(30% 0.018 250);
+  --border-soft:   oklch(26% 0.014 250);
+  --border-strong: oklch(42% 0.022 250);
+  --ink:           oklch(95% 0.008 250);
+  --ink-2:         oklch(76% 0.012 250);
+  --ink-3:         oklch(58% 0.014 250);
+  --ink-4:         oklch(42% 0.016 250);
+  --accent:        oklch(74% 0.13 65);
+  --accent-soft:   oklch(28% 0.06 50);
+  --accent-line:   oklch(44% 0.10 60);
+  --teal:          oklch(74% 0.10 195);
+  --teal-soft:     oklch(26% 0.05 195);
+  --teal-line:     oklch(44% 0.08 195);
+  --good:          oklch(74% 0.13 155);
+  --good-soft:     oklch(24% 0.05 155);
+  --warn:          oklch(76% 0.13 75);
+  --warn-soft:     oklch(26% 0.05 75);
+  --danger:        oklch(72% 0.15 28);
+  --danger-soft:   oklch(26% 0.06 28);
+  --plum:          oklch(72% 0.12 320);
+  --rate-hard:     oklch(66% 0.12 100);
+  --rate-hard-soft: oklch(26% 0.05 100);
+  --shadow-sm:     0 1px 2px #0008;
+  --shadow-md:     0 1px 3px #0008, 0 6px 24px #0006;
+  --shadow-lg:     0 4px 12px #000a, 0 16px 40px #0008;
+
+  /* Code syntax — dark */
+  --code-bg:       oklch(13% 0.012 250);
+  --code-border:   oklch(26% 0.014 250);
+  --tk-key:        oklch(74% 0.14 320);
+  --tk-str:        oklch(74% 0.11 155);
+  --tk-num:        oklch(76% 0.13 60);
+  --tk-com:        oklch(54% 0.014 250);
+  --tk-fn:         oklch(74% 0.11 240);
+  --tk-op:         oklch(85% 0.010 250);
+
+  /* ─────── Surfaces — dark ───────
+     Same rationale and values as the light-theme surfaces above —
+     color-mix(in oklch, var(--bg-card) 85%, transparent) resolves
+     against dark's own --bg-card here, so no separate alpha literal
+     is needed per theme. */
+  --surface-chrome-bg:     color-mix(in oklch, var(--bg-card) 85%, transparent);
+  --surface-chrome-blur:   blur(8px);
+  --surface-chrome-border: var(--border-soft);
+  --surface-raised:        var(--bg-raised);
+  --surface-overlay:       var(--bg-card);
+}
+
+/* ─────── Reduced motion ───────
+   Global override: zero out animation/transition durations for
+   users who have asked the OS for reduced motion. Applies to
+   every element regardless of which token or hardcoded duration
+   is in play. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

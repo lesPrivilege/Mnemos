@@ -30,7 +30,7 @@ export function ConfirmSheet({ state }) {
       }} />
       <div style={{
         position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 101,
-        background: 'var(--bg-card, var(--bg))', borderTopLeftRadius: 16, borderTopRightRadius: 16,
+        background: 'var(--surface-overlay, var(--bg))', borderTopLeftRadius: 16, borderTopRightRadius: 16,
         padding: '20px 18px max(20px, env(safe-area-inset-bottom))',
         boxShadow: '0 -4px 20px rgba(0,0,0,0.15)',
         animation: 'sheetUp 200ms ease-out',

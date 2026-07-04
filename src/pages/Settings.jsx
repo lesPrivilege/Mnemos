@@ -671,7 +671,7 @@ export default function Settings() {
           <div className="flex flex-col items-center gap-2 py-3.5">
             <MnemosMark size={36} accent="var(--accent)" />
             <div className="font-display text-[26px] tracking-wide text-ink">Mnemos</div>
-            <div className="font-mono text-[10px] text-ink-3 tracking-[0.18em]">VERSION {pkg.version}</div>
+            <div className="font-body text-[10px] text-ink-3 tracking-[0.18em]">VERSION <span className="font-mono">{pkg.version}</span></div>
           </div>
           <div className="kv-row">
             <span className="k">{S.settings.intervalAlgorithmLabel}</span>

@@ -61,7 +61,7 @@ export default function Search() {
   return (
     <div className="page-fill">
       <div className="topbar">
-        <button className="tb-btn" onClick={() => goBack()} aria-label="Back"><BackIcon /></button>
+        <button className="tb-btn" onClick={() => goBack()} aria-label={S.search.back}><BackIcon /></button>
         <div className="search" style={{ margin: 0, flex: 1 }}>
           <SearchIcon size={16} />
           <input value={query} onChange={e => setQuery(e.target.value)}
@@ -80,7 +80,7 @@ export default function Search() {
             <div className="section-title" style={{ marginBottom: 10 }}>{S.search.quizTitle} <span className="ml-1 text-ink-2" style={{ fontSize: 11, letterSpacing: 0 }}>{quizResults.length}</span></div>
             {Object.values(quizGrouped).map(group => (
               <div key={`q-${group.subject}|||${group.chapter}`} className="mb-3">
-                <div className="text-xs text-ink-3 font-mono mb-1.5">
+                <div className="text-xs text-ink-3 font-zh mb-1.5">
                   {getSubjectDisplayName(group.subject)} · {group.chapter}
                 </div>
                 <div className="flex flex-col gap-1.5">
@@ -104,7 +104,7 @@ export default function Search() {
               {flashcardResults.map(card => (
                 <div key={card.id} className="bg-bg-card rounded-lg p-3 border cursor-pointer" style={{ borderColor: 'var(--border-soft)' }}
                   onClick={() => navigate(`/deck/${card.deckId}`)}>
-                  <div className="text-xs text-ink-3 font-mono mb-1">{card.deckName}</div>
+                  <div className="text-xs text-ink-3 font-zh mb-1">{card.deckName}</div>
                   <div className="text-sm text-ink card-content line-clamp-1">{card.front}</div>
                 </div>
               ))}

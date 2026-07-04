@@ -36,7 +36,7 @@ function TreeNode({ node, depth, onLeafTap }) {
           padding: '8px 12px', paddingLeft: `${depth * 16 + 12}px`,
           cursor: 'pointer', borderBottom: '1px solid var(--border-soft)',
           background: 'transparent',
-          transition: 'background 120ms',
+          transition: 'background var(--motion-quick)',
         }}
         onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-raised)'}
         onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
@@ -45,9 +45,9 @@ function TreeNode({ node, depth, onLeafTap }) {
         {hasChildren ? (
           <span style={{
             display: 'inline-flex', width: 16, justifyContent: 'center',
-            fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--ink-3)',
+            fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--ink-3)',
             transform: open ? 'rotate(90deg)' : 'rotate(0deg)',
-            transition: 'transform 150ms',
+            transition: 'transform var(--motion-quick)',
           }}>›</span>
         ) : (
           <span style={{ width: 16 }} />
