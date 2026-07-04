@@ -1,0 +1,17 @@
+export const wrong = {
+  correctAnswerPrefix: '正确答案：',
+  title: '错题本',
+  deleteQuestionTitle: '删除题目',
+  deleteQuestionMessage: '删除这道题目？此操作不可撤销。',
+  confirmDelete: '确认删除',
+  defaultDeckName: '错题本',
+  subjectDeckNamePrefix: '错题 · ',
+  generateFlashcards: '生成闪卡',
+  all: '全部',
+  empty: '暂无错题',
+  emptyHint: '继续保持',
+  wrongCountSuffix: (count) => `错${count}次`,
+  wrongStreakSuffix: (count) => `连续错${count}次`,
+  deleteQuestion: '删除题目',
+  redo: '重做',
+}
