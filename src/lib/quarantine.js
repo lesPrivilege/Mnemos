@@ -37,7 +37,7 @@ function readEntry(key) {
 export function quarantine(key, raw, err) {
   try {
     const record = {
-      raw,
+      raw: String(raw ?? ''),
       quarantinedAt: new Date().toISOString(),
       error: err?.message || String(err || 'Unknown storage error'),
     }

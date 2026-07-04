@@ -38,7 +38,7 @@ describe('quarantine', () => {
   it('quarantines corrupt flashcard JSON and returns the fallback', () => {
     localStorage.setItem('mnemos-data', '{oops')
 
-    expect(loadData()).toEqual({ decks: [], cards: [] })
+    expect(loadData()).toEqual({ version: 1, decks: [], cards: [] })
     expect(listQuarantined()).toEqual([
       {
         key: 'mnemos-data',
@@ -51,7 +51,7 @@ describe('quarantine', () => {
   })
 
   it('does not quarantine an absent key', () => {
-    expect(loadData()).toEqual({ decks: [], cards: [] })
+    expect(loadData()).toEqual({ version: 1, decks: [], cards: [] })
     expect(listQuarantined()).toEqual([])
   })
 
