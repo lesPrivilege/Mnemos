@@ -17,7 +17,7 @@ export const S = {
     flipHint: '轻点翻面 · TAP TO FLIP',
     hard: '困难',
     easy: '容易',
-    later: '稍后',
+    later: '稍后', // used as a control-flow sentinel via === in Review.jsx's predictInterval(), not decorative-only text
     title: '复习',
     doneZh: '今日复习完成',
     reviewedCount: '已复习',

@@ -15,6 +15,9 @@ import { S } from '../lib/strings'
 
 function predictInterval(card, quality, passCount) {
   // Learning card first pass Good: reinserts, doesn't schedule
+  // S.review.later is a control-flow sentinel here, not decorative copy —
+  // the caller below compares against it with ===. Keep both sides pointed
+  // at this same key if it's ever touched during a wording pass.
   if (card.repetitions === 0 && quality === 4 && passCount === 0) return S.review.later
   const result = sm2(card, quality)
   return result.interval
@@ -430,6 +433,7 @@ export default function Review() {
           <span>{S.review.hard}</span><span className="iv">{predictInterval(card, 2, passCount)}d</span>
         </button>
         <button onClick={() => handleRate(4)} className="rate-btn rate-good">
+          {/* S.review.later compared via === below is a control-flow sentinel (predictInterval's "no interval yet" case), not decorative text — see predictInterval() */}
           <span>{S.review.remember}</span><span className="iv">{predictInterval(card, 4, passCount) === S.review.later ? S.review.later : `${predictInterval(card, 4, passCount)}d`}</span>
         </button>
         <button onClick={() => handleRate(5)} className="rate-btn rate-easy">
