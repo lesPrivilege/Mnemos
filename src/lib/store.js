@@ -1,4 +1,5 @@
 import { quarantine } from './quarantine'
+import { S } from './strings'
 
 export function isPlainObject(value) {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
@@ -31,9 +32,9 @@ export function saveJson(key, value, { label } = {}) {
     return { ok: true }
   } catch (err) {
     if (isQuotaError(err)) {
-      const detail = label || '数据未保存'
+      const detail = label || S.storage.genericUnsaved
       console.warn(`Storage full for key "${key}": ${detail}`)
-      return { ok: false, error: `储存空间已满，${detail}` }
+      return { ok: false, error: S.storage.quotaFull(detail) }
     }
     throw err
   }

@@ -16,6 +16,7 @@
  */
 
 import { isPlainObject, loadJson, saveJson } from './store'
+import { S } from './strings'
 
 const LOG_KEY = 'mnemos-review-log'
 const MAX_AGE_DAYS = 90
@@ -29,7 +30,7 @@ function loadLog() {
 }
 
 function writeLog(data) {
-  return saveJson(LOG_KEY, data, { label: '复习日志未保存' })
+  return saveJson(LOG_KEY, data, { label: S.reviewLog.unsaved })
 }
 
 function saveLog(data) {

@@ -1,4 +1,5 @@
 import { useRenderedMarkdown } from '../lib/useRenderedMarkdown'
+import { S } from '../lib/strings'
 import '../styles/markdown.css'
 
 export default function ReviewCard({ card, index, flipped, onFlip, swipeOffset }) {
@@ -54,7 +55,7 @@ export default function ReviewCard({ card, index, flipped, onFlip, swipeOffset }
             background: `color-mix(in oklch, var(--danger) ${Math.round(labelOpacity * 15)}%, transparent)`,
             pointerEvents: 'none', zIndex: 10,
           }}>
-            <span style={{ color: 'var(--danger)', fontWeight: 600, fontSize: 18, opacity: labelOpacity }}>重来</span>
+            <span style={{ color: 'var(--danger)', fontWeight: 600, fontSize: 18, opacity: labelOpacity }}>{S.review.again}</span>
           </div>
         )}
         {showLabel && swipeOffset > 0 && (
@@ -64,13 +65,13 @@ export default function ReviewCard({ card, index, flipped, onFlip, swipeOffset }
             background: `color-mix(in oklch, var(--accent) ${Math.round(labelOpacity * 15)}%, transparent)`,
             pointerEvents: 'none', zIndex: 10,
           }}>
-            <span style={{ color: 'var(--accent)', fontWeight: 600, fontSize: 18, opacity: labelOpacity }}>记住</span>
+            <span style={{ color: 'var(--accent)', fontWeight: 600, fontSize: 18, opacity: labelOpacity }}>{S.review.remember}</span>
           </div>
         )}
       </div>
 
       {!flipped && (
-        <div className="rv-flip-hint">轻点翻面 · TAP TO FLIP</div>
+        <div className="rv-flip-hint">{S.review.flipHint}</div>
       )}
     </div>
   )

@@ -4,11 +4,12 @@
 // Actual queue is re-pulled via getDueCards() on resume (SM-2 scores are already persisted).
 
 import { isPlainObject, loadJson, removeKey, saveJson } from './store'
+import { S } from './strings'
 
 const KEY = 'mnemos-review-session'
 
 export function saveReviewSession(session) {
-  saveJson(KEY, { ...session, savedAt: Date.now() }, { label: '复习会话未保存' })
+  saveJson(KEY, { ...session, savedAt: Date.now() }, { label: S.reviewSession.unsaved })
 }
 
 export function loadReviewSession() {

@@ -6,6 +6,7 @@ import { isNative } from './platform'
 import { buildFullBackup } from './fullBackup'
 import { localToday } from './dateUtils'
 import { isPlainObject, loadJson, saveJson } from './store'
+import { S } from './strings'
 
 const ENABLED_KEY = 'mnemos-auto-backup-enabled'
 const STATUS_KEY = 'mnemos-last-auto-backup'
@@ -23,7 +24,7 @@ function getStatus() {
 }
 
 export function setStatus(status) {
-  saveJson(STATUS_KEY, status, { label: '自动备份状态未保存' })
+  saveJson(STATUS_KEY, status, { label: S.autoBackup.statusUnsaved })
 }
 
 export function setEnabled(on) {

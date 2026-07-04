@@ -1,4 +1,5 @@
 import { Component } from 'react'
+import { S } from '../lib/strings'
 
 export default class ErrorBoundary extends Component {
   constructor(props) {
@@ -21,7 +22,7 @@ export default class ErrorBoundary extends Component {
           fontFamily: 'var(--font-zh)',
         }}>
           <div style={{ fontSize: 48, opacity: 0.3 }}>⚠</div>
-          <div style={{ fontSize: 18, fontWeight: 500 }}>出错了</div>
+          <div style={{ fontSize: 18, fontWeight: 500 }}>{S.error.boundaryTitle}</div>
           <div style={{ fontSize: 14, color: 'var(--ink-2)', lineHeight: 1.6 }}>
             {this.state.error.message}
           </div>
@@ -30,7 +31,7 @@ export default class ErrorBoundary extends Component {
               padding: '10px 24px', borderRadius: 8, fontSize: 14,
               background: 'var(--ink)', color: 'var(--bg)', border: 0, cursor: 'pointer',
             }}>
-            重新加载
+            {S.error.reload}
           </button>
         </div>
       )

@@ -2,6 +2,7 @@
 // 数据结构: { decks: Deck[], cards: Card[] }
 import { localToday } from './dateUtils'
 import { getCached, registerBigRecord, setCached } from './bigStore'
+import { S } from './strings'
 
 const STORAGE_KEY = 'mnemos-data'
 const SCHEMA_VERSION = 1
@@ -11,7 +12,7 @@ registerBigRecord({
   key: STORAGE_KEY,
   fallback: getDefaultData(),
   normalize: normalizeData,
-  label: '请导出备份后清理数据',
+  label: S.storage.quotaFlashcard,
 })
 
 function getDefaultData() {
