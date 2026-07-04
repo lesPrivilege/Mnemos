@@ -101,7 +101,7 @@
 | ~~R1~~ ✅ | Phase 1.1 + 1.2 | vitest + 62 用例 + lint + `npm run check` |
 | ~~R2~~ ✅ | Phase 1.3 | 隔離區 + schema version + backup-format.md（74 用例） |
 | ~~R3~~ ✅ | Phase 2 存儲共享層 | store.js 統一六處實現（79 用例） |
-| R4 | Phase 2 IndexedDB 遷移（quiz 先行） | 雙寫 → 切讀 |
+| ~~R4~~ ✅ | Phase 2 IndexedDB 遷移（quiz 先行） | bigStore hydrate-cache（86 用例）；**雙寫移除留 R4+1**（bigStore.js TODO 標記） |
 | R5+ | Phase 3/4 穿插，跟功能走 | 每輪 1-2 條 polish |
 | 待定 | Phase 5 | 有發布意願時展開 |
 
