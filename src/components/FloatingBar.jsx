@@ -8,9 +8,9 @@ export default function FloatingBar({ children }) {
         bottom: 'max(12px, env(safe-area-inset-bottom))',
         padding: '12px 14px',
         borderRadius: 'var(--r-xl)',
-        background: 'color-mix(in oklch, var(--bg-card) 85%, transparent)',
-        backdropFilter: 'blur(8px)',
-        WebkitBackdropFilter: 'blur(8px)',
+        background: 'var(--surface-chrome-bg)',
+        backdropFilter: 'var(--surface-chrome-blur)',
+        WebkitBackdropFilter: 'var(--surface-chrome-blur)',
         border: '1px solid var(--border-soft)',
         boxShadow: 'var(--shadow-lg)',
       }}

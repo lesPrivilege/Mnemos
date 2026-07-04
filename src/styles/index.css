@@ -31,7 +31,12 @@ a { color: inherit; text-decoration: none; }
   border-bottom: 1px solid var(--border-soft);
   background: var(--bg);
   position: sticky; top: 0; z-index: 4;
-  backdrop-filter: blur(12px);
+  /* Background stays opaque var(--bg), not --surface-chrome-bg — tested
+     empirically (Commit 2) by scrolling real content under the sticky
+     header: the translucent token produces a visible color bleed-through
+     that isn't there today. Only the blur radius is adopted here since
+     it's still inert against an opaque background either way. */
+  backdrop-filter: var(--surface-chrome-blur);
   gap: 8px;
 }
 .topbar h1 {
@@ -52,7 +57,7 @@ a { color: inherit; text-decoration: none; }
   display: inline-flex; align-items: center; justify-content: center;
   border-radius: 8px;
   color: var(--ink-2);
-  transition: background 120ms, color 120ms;
+  transition: background var(--motion-quick), color var(--motion-quick);
 }
 .tb-btn:hover { background: var(--bg-raised); color: var(--ink); }
 .tb-text {
@@ -93,7 +98,7 @@ a { color: inherit; text-decoration: none; }
   font-size: 12px;
   color: var(--ink-2);
   font-family: var(--font-ui);
-  transition: all 120ms;
+  transition: all var(--motion-quick);
 }
 .chip.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .chip:hover:not(.on) { border-color: var(--border-strong); color: var(--ink); }
@@ -110,7 +115,7 @@ a { color: inherit; text-decoration: none; }
   border-radius: var(--r-md);
   font-size: 13px;
   outline: none;
-  transition: border-color 120ms;
+  transition: border-color var(--motion-quick);
 }
 .search input:focus { border-color: var(--accent); }
 .search input::placeholder { color: var(--ink-3); }
@@ -271,7 +276,7 @@ a { color: inherit; text-decoration: none; }
   border-radius: 999px;
   font-size: 11px;
   font-weight: 600;
-  transition: transform 120ms, opacity 120ms, background 120ms;
+  transition: transform var(--motion-quick), opacity var(--motion-quick), background var(--motion-quick);
 }
 .settings-action-btn:active { transform: scale(0.97); }
 .settings-action-btn:disabled {
@@ -365,7 +370,7 @@ a { color: inherit; text-decoration: none; }
   font-family: var(--font-zh);
   font-size: 13px;
   font-weight: 600;
-  transition: transform 120ms, border-color 120ms, background 120ms;
+  transition: transform var(--motion-quick), border-color var(--motion-quick), background var(--motion-quick);
 }
 .settings-backup-btn:active { transform: scale(0.98); }
 .settings-backup-btn.primary {
@@ -799,7 +804,7 @@ a { color: inherit; text-decoration: none; }
   outline: none;
   resize: none;
   min-height: 110px;
-  transition: border-color 120ms;
+  transition: border-color var(--motion-quick);
 }
 .textarea:focus { border-color: var(--accent); }
 
@@ -866,7 +871,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
 .tabs-head {
   display: flex; position: relative;
   margin: 0 18px;
-  background: var(--bg-raised);
+  background: var(--surface-raised);
   border-radius: var(--r-sm);
   border: 1px solid var(--border-soft);
   padding: 3px;
@@ -1289,7 +1294,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   display: flex; flex-direction: column; align-items: center; gap: 4px;
   padding: 10px 4px; border-radius: 8px;
   color: var(--ink-2);
-  transition: background 120ms, color 120ms;
+  transition: background var(--motion-quick), color var(--motion-quick);
 }
 .dd-action:hover { background: var(--bg-raised); color: var(--ink); }
 .dd-action .lab {
@@ -1306,7 +1311,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   background: var(--ink); color: var(--bg);
   font-family: var(--font-zh); font-size: 12px; font-weight: 500;
   letter-spacing: 0.02em;
-  transition: opacity 120ms, transform 120ms;
+  transition: opacity var(--motion-quick), transform var(--motion-quick);
 }
 .cta-pill:active { transform: scale(0.96); }
 .cta-pill:hover { opacity: 0.85; }
@@ -1376,7 +1381,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   font-family: var(--font-zh); font-size: 16px;
   color: var(--ink);
   cursor: pointer;
-  transition: border-color 120ms, background 120ms, opacity 120ms;
+  transition: border-color var(--motion-quick), background var(--motion-quick), opacity var(--motion-quick);
   text-align: left;
 }
 .qa-opt:hover:not(:disabled) { border-color: var(--border-strong); }

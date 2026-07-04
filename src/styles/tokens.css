@@ -95,18 +95,15 @@
   --motion-gentle: 240ms cubic-bezier(0.2, 0, 0, 1);
 
   /* ─────── Surfaces — light ───────
-     Composite semantics built from the primitives above. Nothing
-     adopts these until Commit 2, so this commit changes zero pixels.
-     - --surface-chrome-bg uses --bg (not --bg-card) at 78% alpha
-       because .topbar's current solid background is --bg, not
-       --bg-card; the token just makes that same color translucent.
-     - --surface-chrome-blur is blur(16px). .topbar already hardcodes
-       `backdrop-filter: blur(12px)` inline (see .topbar further down
-       this stylesheet's sibling index.css) — it's a no-op today only
-       because .topbar's bg is fully opaque. This token supersedes
-       that inline 12px value at 16px; Commit 2 should replace the
-       inline blur() with var(--surface-chrome-blur) rather than
-       leave two blur values coexisting unnoticed.
+     Composite semantics built from the primitives above.
+     - --surface-chrome-bg / --surface-chrome-blur are calibrated to
+       FloatingBar.jsx's real, already-shipped production values
+       (recalibrated in Commit 2 — Commit 1 guessed --bg at 78% alpha
+       + blur(16px) before that call site existed to check against).
+       FloatingBar mixes --bg-card (not --bg) at 85% alpha with
+       blur(8px). color-mix() is used here rather than a hardcoded
+       oklch-alpha literal so the token stays derived from --bg-card
+       as its single source of truth instead of duplicating it.
      - --surface-raised / --surface-overlay are plain 1:1 aliases
        today (var(--bg-raised) / var(--bg-card)), not multi-property
        composites like --surface-chrome. That's deliberate: the value
@@ -115,8 +112,8 @@
        bg-* primitive directly, so if a surface later needs a shadow
        or border alongside its color, that composition happens in one
        place (here) instead of at every call site. */
-  --surface-chrome-bg:     oklch(96.5% 0.012 80 / 0.78);
-  --surface-chrome-blur:   blur(16px);
+  --surface-chrome-bg:     color-mix(in oklch, var(--bg-card) 85%, transparent);
+  --surface-chrome-blur:   blur(8px);
   --surface-chrome-border: var(--border-soft);
   --surface-raised:        var(--bg-raised);
   --surface-overlay:       var(--bg-card);
@@ -165,11 +162,12 @@
   --tk-op:         oklch(85% 0.010 250);
 
   /* ─────── Surfaces — dark ───────
-     Same rationale as the light-theme surfaces above (--bg at 78%
-     alpha, 16px blur superseding .topbar's inline 12px, 1:1 aliases
-     as a semantic-naming layer over --bg-raised / --bg-card). */
-  --surface-chrome-bg:     oklch(16% 0.014 250 / 0.78);
-  --surface-chrome-blur:   blur(16px);
+     Same rationale and values as the light-theme surfaces above —
+     color-mix(in oklch, var(--bg-card) 85%, transparent) resolves
+     against dark's own --bg-card here, so no separate alpha literal
+     is needed per theme. */
+  --surface-chrome-bg:     color-mix(in oklch, var(--bg-card) 85%, transparent);
+  --surface-chrome-blur:   blur(8px);
   --surface-chrome-border: var(--border-soft);
   --surface-raised:        var(--bg-raised);
   --surface-overlay:       var(--bg-card);
