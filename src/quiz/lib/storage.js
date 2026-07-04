@@ -1,6 +1,6 @@
 // localStorage 读写封装
 // namespace: examprep-*
-import { quarantine } from '../../lib/quarantine'
+import { isPlainObject, loadJson, removeKey, saveJson } from '../../lib/store'
 
 const STORAGE_KEYS = {
   QUESTIONS: 'examprep-questions',
@@ -11,23 +11,6 @@ const STORAGE_KEYS = {
 }
 
 const SCHEMA_VERSION = 1
-
-function isPlainObject(value) {
-  return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
-}
-
-function loadJson(key, fallback, validate = () => true) {
-  const raw = localStorage.getItem(key)
-  if (!raw) return fallback
-  try {
-    const parsed = JSON.parse(raw)
-    if (!validate(parsed)) throw new Error('Invalid format')
-    return parsed
-  } catch (e) {
-    quarantine(key, raw, e)
-    return fallback
-  }
-}
 
 function writeSchemaVersion() {
   try {
@@ -44,17 +27,9 @@ export function loadQuestions() {
 }
 
 export function saveQuestions(questions) {
-  try {
-    localStorage.setItem(STORAGE_KEYS.QUESTIONS, JSON.stringify(questions))
-    writeSchemaVersion()
-    return { ok: true }
-  } catch (e) {
-    if (e.name === 'QuotaExceededError' || e.code === 22) {
-      console.warn('Quiz: storage full — questions not saved')
-      return { ok: false, error: '储存空间已满，题目未保存' }
-    }
-    throw e
-  }
+  const result = saveJson(STORAGE_KEYS.QUESTIONS, questions, { label: '题目未保存' })
+  if (result.ok) writeSchemaVersion()
+  return result
 }
 
 export function addQuestions(newQuestions) {
@@ -93,17 +68,9 @@ export function loadProgress() {
 }
 
 export function saveProgress(progress) {
-  try {
-    localStorage.setItem(STORAGE_KEYS.PROGRESS, JSON.stringify(progress))
-    writeSchemaVersion()
-    return { ok: true }
-  } catch (e) {
-    if (e.name === 'QuotaExceededError' || e.code === 22) {
-      console.warn('Quiz: storage full — progress not saved')
-      return { ok: false, error: '储存空间已满，进度未保存' }
-    }
-    throw e
-  }
+  const result = saveJson(STORAGE_KEYS.PROGRESS, progress, { label: '进度未保存' })
+  if (result.ok) writeSchemaVersion()
+  return result
 }
 
 export function recordAttempt(questionId, correct) {
@@ -141,17 +108,9 @@ export function loadStarred() {
 }
 
 export function saveStarred(ids) {
-  try {
-    localStorage.setItem(STORAGE_KEYS.STARRED, JSON.stringify(ids))
-    writeSchemaVersion()
-    return { ok: true }
-  } catch (e) {
-    if (e.name === 'QuotaExceededError' || e.code === 22) {
-      console.warn('Quiz: storage full — starred not saved')
-      return { ok: false, error: '储存空间已满，收藏未保存' }
-    }
-    throw e
-  }
+  const result = saveJson(STORAGE_KEYS.STARRED, ids, { label: '收藏未保存' })
+  if (result.ok) writeSchemaVersion()
+  return result
 }
 
 export function toggleStar(questionId) {
@@ -170,11 +129,11 @@ export function isStarred(questionId) {
 // ── Last Session (继续练习) ───────────────────────────────────────
 
 export function saveLastSession(session) {
-  localStorage.setItem(STORAGE_KEYS.LAST_SESSION, JSON.stringify({
+  const result = saveJson(STORAGE_KEYS.LAST_SESSION, {
     ...session,
     timestamp: Date.now(),
-  }))
-  writeSchemaVersion()
+  }, { label: '继续练习未保存' })
+  if (result.ok) writeSchemaVersion()
 }
 
 export function loadLastSession() {
@@ -186,7 +145,7 @@ export function loadLastSession() {
 }
 
 export function clearLastSession() {
-  localStorage.removeItem(STORAGE_KEYS.LAST_SESSION)
+  removeKey(STORAGE_KEYS.LAST_SESSION)
 }
 
 function clearLastSessionIfSubjectIn(subjects) {

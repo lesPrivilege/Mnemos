@@ -1,7 +1,7 @@
 // localStorage 读写封装
 // 数据结构: { decks: Deck[], cards: Card[] }
 import { localToday } from './dateUtils'
-import { quarantine } from './quarantine'
+import { loadJson, saveJson } from './store'
 
 const STORAGE_KEY = 'mnemos-data'
 const SCHEMA_VERSION = 1
@@ -12,27 +12,16 @@ function getDefaultData() {
 }
 
 export function loadData() {
-  const raw = localStorage.getItem(STORAGE_KEY)
-  if (!raw) return getDefaultData()
-  try {
-    return normalizeData(JSON.parse(raw))
-  } catch (e) {
-    quarantine(STORAGE_KEY, raw, e)
-    return getDefaultData()
-  }
+  const data = loadJson(STORAGE_KEY, null, (value) => {
+    normalizeData(value)
+    return true
+  })
+  return data ? normalizeData(data) : getDefaultData()
 }
 
 export function saveData(data) {
-  try {
-    const normalized = normalizeData(data)
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized))
-    return { ok: true }
-  } catch (e) {
-    if (e.name === 'QuotaExceededError' || e.code === 22) {
-      return { ok: false, error: '储存空间已满，请导出备份后清理数据' }
-    }
-    throw e
-  }
+  const normalized = normalizeData(data)
+  return saveJson(STORAGE_KEY, normalized, { label: '请导出备份后清理数据' })
 }
 
 function normalizeData(data) {

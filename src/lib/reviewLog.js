@@ -15,27 +15,29 @@
  * }
  */
 
+import { isPlainObject, loadJson, saveJson } from './store'
+
 const LOG_KEY = 'mnemos-review-log'
 const MAX_AGE_DAYS = 90
 
+function isLog(value) {
+  return isPlainObject(value) && Array.isArray(value.entries)
+}
+
 function loadLog() {
-  try {
-    const raw = localStorage.getItem(LOG_KEY)
-    return raw ? JSON.parse(raw) : { entries: [] }
-  } catch {
-    return { entries: [] }
-  }
+  return loadJson(LOG_KEY, { entries: [] }, isLog)
+}
+
+function writeLog(data) {
+  return saveJson(LOG_KEY, data, { label: '复习日志未保存' })
 }
 
 function saveLog(data) {
-  try {
-    localStorage.setItem(LOG_KEY, JSON.stringify(data))
-  } catch (e) {
-    if (e.name === 'QuotaExceededError' || e.code === 22) {
-      // log 滿了，先清理舊的再試
-      pruneOld(30)
-      try { localStorage.setItem(LOG_KEY, JSON.stringify(data)) } catch {}
-    }
+  const result = writeLog(data)
+  if (!result.ok) {
+    // log 滿了，先清理舊的再試
+    pruneOld(30)
+    writeLog(data)
   }
 }
 
@@ -43,7 +45,7 @@ function pruneOld(maxDays = MAX_AGE_DAYS) {
   const data = loadLog()
   const cutoff = Date.now() - maxDays * 86400000
   data.entries = data.entries.filter(e => e.timestamp >= cutoff)
-  saveLog(data)
+  writeLog(data)
 }
 
 // ─── 公開 API ────────────────────────────────────────
