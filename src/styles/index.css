@@ -466,6 +466,56 @@ a { color: inherit; text-decoration: none; }
   border-color: var(--ink);
   color: var(--bg);
 }
+.settings-quarantine {
+  padding: 12px;
+  border: 1px solid color-mix(in oklch, var(--danger) 24%, transparent);
+  border-radius: var(--r-sm);
+  background: var(--danger-soft);
+}
+.settings-quarantine-title {
+  font-family: var(--font-zh);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--danger);
+}
+.settings-quarantine-detail {
+  margin-top: 3px;
+  font-family: var(--font-zh);
+  font-size: 11px;
+  line-height: 1.45;
+  color: color-mix(in oklch, var(--danger) 72%, var(--ink-2));
+}
+.settings-quarantine-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed color-mix(in oklch, var(--danger) 24%, transparent);
+}
+.settings-quarantine-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.settings-quarantine-copy span {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.settings-quarantine-copy em {
+  font-family: var(--font-zh);
+  font-size: 11px;
+  font-style: normal;
+  color: var(--ink-3);
+}
+.settings-quarantine-actions {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 6px;
+}
 
 /* ─────── KV row ─────── */
 .kv-row {

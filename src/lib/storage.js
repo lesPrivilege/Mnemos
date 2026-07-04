@@ -1,26 +1,31 @@
 // localStorage 读写封装
 // 数据结构: { decks: Deck[], cards: Card[] }
 import { localToday } from './dateUtils'
+import { quarantine } from './quarantine'
 
 const STORAGE_KEY = 'mnemos-data'
+const SCHEMA_VERSION = 1
 export const DAILY_LIMIT_KEY = 'mnemos-daily-limit'
 
 function getDefaultData() {
-  return { decks: [], cards: [] }
+  return { version: SCHEMA_VERSION, decks: [], cards: [] }
 }
 
 export function loadData() {
+  const raw = localStorage.getItem(STORAGE_KEY)
+  if (!raw) return getDefaultData()
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : getDefaultData()
-  } catch {
+    return normalizeData(JSON.parse(raw))
+  } catch (e) {
+    quarantine(STORAGE_KEY, raw, e)
     return getDefaultData()
   }
 }
 
 export function saveData(data) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+    const normalized = normalizeData(data)
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized))
     return { ok: true }
   } catch (e) {
     if (e.name === 'QuotaExceededError' || e.code === 22) {
@@ -34,7 +39,11 @@ function normalizeData(data) {
   if (!data || !Array.isArray(data.decks) || !Array.isArray(data.cards)) {
     throw new Error('Invalid format')
   }
+  if (data.version != null && data.version !== SCHEMA_VERSION) {
+    throw new Error(`Unsupported schema version: ${data.version}`)
+  }
   return {
+    version: SCHEMA_VERSION,
     decks: data.decks,
     cards: data.cards,
   }
@@ -172,7 +181,7 @@ export function deleteCards(ids) {
 // --- 导入/导出 ---
 
 export function exportData() {
-  return JSON.stringify(loadData(), null, 2)
+  return JSON.stringify(normalizeData(loadData()), null, 2)
 }
 
 export function exportDeck(deckId) {
@@ -180,7 +189,7 @@ export function exportDeck(deckId) {
   const deck = data.decks.find((d) => d.id === deckId)
   if (!deck) return null
   const cards = data.cards.filter((c) => c.deckId === deckId)
-  return JSON.stringify({ decks: [deck], cards }, null, 2)
+  return JSON.stringify({ version: SCHEMA_VERSION, decks: [deck], cards }, null, 2)
 }
 
 export function importData(jsonString) {

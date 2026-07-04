@@ -24,10 +24,12 @@ import { getReadingStats } from '../reading/lib/stats'
 import { BackIcon, SunIcon, MoonIcon, DownloadIcon, MnemosMark } from '../components/Icons'
 import { useBackButton } from '../lib/useBackButton'
 import { downloadBlob } from '../lib/utils'
+import { discardQuarantined, getQuarantinedRaw, listQuarantined } from '../lib/quarantine'
 import { isNative } from '../lib/platform'
 import { getAutoBackupConfig, setEnabled, runBackupNow } from '../lib/autoBackup'
 import { isEnabled, getReminderTime, setReminderTime, enableReminders, disableReminders, resyncReminders } from '../lib/reminders'
 import { useToast, Toast } from '../components/Toast'
+import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 import pkg from '../../package.json'
 
 function ActionRow({ title, detail, action, tone = 'danger', confirm, onClick, disabled }) {
@@ -62,13 +64,26 @@ function BackupButton({ primary, children, onClick }) {
   )
 }
 
+function formatBytes(bytes) {
+  if (bytes < 1024) return `${bytes} B`
+  return `${(bytes / 1024).toFixed(1)} KB`
+}
+
+function quarantineFilename(entry) {
+  const safeKey = entry.key.replace(/[^a-z0-9._-]+/gi, '-')
+  const date = entry.quarantinedAt ? entry.quarantinedAt.slice(0, 10) : localToday()
+  return `mnemos-quarantine-${safeKey}-${date}.txt`
+}
+
 export default function Settings() {
   const navigate = useNavigate()
   const { goBack } = useBackButton()
+  const { confirmState, confirm } = useConfirm()
   const [showConfirm, setShowConfirm] = useState(null)
   const [subjectConfirm, setSubjectConfirm] = useState(null)
   const [storageStats, setStorageStats] = useState(null)
   const [subjects, setSubjects] = useState([])
+  const [quarantined, setQuarantined] = useState([])
   const { toast, showToast } = useToast()
   const [autoBackup, setAutoBackup] = useState(() => isNative() ? getAutoBackupConfig() : null)
   const [reminderOn, setReminderOn] = useState(() => isNative() && isEnabled())
@@ -125,6 +140,7 @@ export default function Settings() {
     setStorageStats(getStorageStats())
     setSubjects(getSubjectList())
     setFlashcardStats(getAllDeckStats())
+    setQuarantined(listQuarantined())
     if (isNative()) setAutoBackup(getAutoBackupConfig())
     const rStats = getReadingStats()
     setReadingInfo({
@@ -165,6 +181,29 @@ export default function Settings() {
     const merged = await buildFullBackup()
     const blob = new Blob([JSON.stringify(merged, null, 2)], { type: 'application/json' })
     downloadBlob(blob, `mnemos-full-backup-${localToday()}.json`)
+  }
+
+  const handleExportQuarantined = (entry) => {
+    const raw = getQuarantinedRaw(entry.key)
+    if (raw == null) {
+      showToast('隔离数据不存在')
+      refresh()
+      return
+    }
+    const blob = new Blob([raw], { type: 'text/plain;charset=utf-8' })
+    downloadBlob(blob, quarantineFilename(entry))
+  }
+
+  const handleDiscardQuarantined = async (entry) => {
+    const ok = await confirm({
+      title: '丢弃受损数据',
+      message: `丢弃 ${entry.key} 的隔离副本？请确认已经导出或不再需要它。`,
+      confirmLabel: '确认丢弃',
+    })
+    if (!ok) return
+    discardQuarantined(entry.key)
+    setQuarantined(listQuarantined())
+    showToast('已丢弃隔离数据')
   }
 
   const handleClearProgress = () => {
@@ -579,6 +618,50 @@ export default function Settings() {
               onClick={() => navigate('/import?tab=restore')}
             />
           </div>
+          {quarantined.length > 0 && (
+            <div className="settings-action-group settings-quarantine" style={{ marginTop: 12 }}>
+              <div>
+                <div className="settings-quarantine-title">检测到 {quarantined.length} 份受损数据</div>
+                <div className="settings-quarantine-detail">
+                  原始内容已保存为隔离副本，可先导出给外部工具修复，再通过恢复备份重新导入。
+                </div>
+              </div>
+              {quarantined.map((entry) => (
+                <div key={entry.key} className="settings-quarantine-entry">
+                  <div className="settings-quarantine-copy">
+                    <span>{entry.key}</span>
+                    <em>
+                      {entry.quarantinedAt
+                        ? new Date(entry.quarantinedAt).toLocaleString('zh-CN', {
+                            month: 'numeric',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })
+                        : '时间未知'}{' '}
+                      · {formatBytes(entry.size)}
+                    </em>
+                  </div>
+                  <div className="settings-quarantine-actions">
+                    <button
+                      type="button"
+                      className="settings-action-btn warn"
+                      onClick={() => handleExportQuarantined(entry)}
+                    >
+                      导出
+                    </button>
+                    <button
+                      type="button"
+                      className="settings-action-btn danger"
+                      onClick={() => handleDiscardQuarantined(entry)}
+                    >
+                      丢弃
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* About */}
@@ -600,6 +683,7 @@ export default function Settings() {
         </div>
       </main>
       <Toast message={toast} />
+      <ConfirmSheet state={confirmState} />
     </div>
   )
 }

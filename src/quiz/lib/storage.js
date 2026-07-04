@@ -1,25 +1,52 @@
 // localStorage 读写封装
 // namespace: examprep-*
+import { quarantine } from '../../lib/quarantine'
 
 const STORAGE_KEYS = {
   QUESTIONS: 'examprep-questions',
   PROGRESS: 'examprep-progress',
   STARRED: 'examprep-starred',
   LAST_SESSION: 'examprep-last-session',
+  SCHEMA_VERSION: 'examprep-schema-version',
+}
+
+const SCHEMA_VERSION = 1
+
+function isPlainObject(value) {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
+}
+
+function loadJson(key, fallback, validate = () => true) {
+  const raw = localStorage.getItem(key)
+  if (!raw) return fallback
+  try {
+    const parsed = JSON.parse(raw)
+    if (!validate(parsed)) throw new Error('Invalid format')
+    return parsed
+  } catch (e) {
+    quarantine(key, raw, e)
+    return fallback
+  }
+}
+
+function writeSchemaVersion() {
+  try {
+    localStorage.setItem(STORAGE_KEYS.SCHEMA_VERSION, String(SCHEMA_VERSION))
+  } catch {
+    // The marker is advisory for future migrations and must not block data saves.
+  }
 }
 
 // ── Questions ──────────────────────────────────────────────────────
 
 export function loadQuestions() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.QUESTIONS)
-    return raw ? JSON.parse(raw) : []
-  } catch { return [] }
+  return loadJson(STORAGE_KEYS.QUESTIONS, [], Array.isArray)
 }
 
 export function saveQuestions(questions) {
   try {
     localStorage.setItem(STORAGE_KEYS.QUESTIONS, JSON.stringify(questions))
+    writeSchemaVersion()
     return { ok: true }
   } catch (e) {
     if (e.name === 'QuotaExceededError' || e.code === 22) {
@@ -62,15 +89,13 @@ function defaultProgress() {
 }
 
 export function loadProgress() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.PROGRESS)
-    return raw ? JSON.parse(raw) : {}
-  } catch { return {} }
+  return loadJson(STORAGE_KEYS.PROGRESS, {}, isPlainObject)
 }
 
 export function saveProgress(progress) {
   try {
     localStorage.setItem(STORAGE_KEYS.PROGRESS, JSON.stringify(progress))
+    writeSchemaVersion()
     return { ok: true }
   } catch (e) {
     if (e.name === 'QuotaExceededError' || e.code === 22) {
@@ -112,15 +137,13 @@ export function clearAllProgress() { saveProgress({}) }
 // ── Starred (收藏) ────────────────────────────────────────────────
 
 export function loadStarred() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.STARRED)
-    return raw ? JSON.parse(raw) : []
-  } catch { return [] }
+  return loadJson(STORAGE_KEYS.STARRED, [], Array.isArray)
 }
 
 export function saveStarred(ids) {
   try {
     localStorage.setItem(STORAGE_KEYS.STARRED, JSON.stringify(ids))
+    writeSchemaVersion()
     return { ok: true }
   } catch (e) {
     if (e.name === 'QuotaExceededError' || e.code === 22) {
@@ -151,13 +174,15 @@ export function saveLastSession(session) {
     ...session,
     timestamp: Date.now(),
   }))
+  writeSchemaVersion()
 }
 
 export function loadLastSession() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.LAST_SESSION)
-    return raw ? JSON.parse(raw) : null
-  } catch { return null }
+  return loadJson(
+    STORAGE_KEYS.LAST_SESSION,
+    null,
+    (value) => value === null || isPlainObject(value)
+  )
 }
 
 export function clearLastSession() {
@@ -221,7 +246,9 @@ export function getChapterList(subject) {
 // ── Export / Import ────────────────────────────────────────────────
 
 export function exportData() {
+  writeSchemaVersion()
   return JSON.stringify({
+    version: SCHEMA_VERSION,
     questions: loadQuestions(),
     progress: loadProgress(),
     starred: loadStarred(),
@@ -234,6 +261,7 @@ export function importData(jsonString) {
   if (data.questions) saveQuestions(data.questions)
   if (data.progress) saveProgress(data.progress)
   if (data.starred) saveStarred(data.starred)
+  writeSchemaVersion()
   return {
     questions: data.questions?.length || 0,
     progress: Object.keys(data.progress || {}).length,
@@ -260,8 +288,10 @@ export function mergeImportData(jsonString) {
       }
       saveProgress(progress)
     }
+    writeSchemaVersion()
     return { questions: r.added, duplicates: r.duplicates, starred: starredMerged, progress: progressMerged }
   }
+  writeSchemaVersion()
   return { questions: 0, duplicates: 0, starred: 0, progress: 0 }
 }
 
