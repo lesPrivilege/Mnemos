@@ -6,6 +6,7 @@ import { isNative } from './platform'
 import { loadData } from './storage'
 import { isRecall } from './cardUtils'
 import { formatLocalDate } from './dateUtils'
+import { isPlainObject, loadJson } from './store'
 import { isInWrongBook } from '../quiz/lib/quizEngine'
 
 const ENABLED_KEY = 'mnemos-reminder-enabled'
@@ -161,12 +162,8 @@ function computeDueCounts() {
 }
 
 function getWrongBookSize() {
-  try {
-    const raw = localStorage.getItem('examprep-progress')
-    if (!raw) return 0
-    const progress = JSON.parse(raw)
-    return Object.values(progress).filter(p => isInWrongBook(p)).length
-  } catch { return 0 }
+  const progress = loadJson('examprep-progress', {}, isPlainObject)
+  return Object.values(progress).filter(p => isInWrongBook(p)).length
 }
 
 /**

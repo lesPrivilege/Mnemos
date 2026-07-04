@@ -5,6 +5,7 @@ import { Filesystem, Directory, Encoding } from '@capacitor/filesystem'
 import { isNative } from './platform'
 import { buildFullBackup } from './fullBackup'
 import { localToday } from './dateUtils'
+import { isPlainObject, loadJson, saveJson } from './store'
 
 const ENABLED_KEY = 'mnemos-auto-backup-enabled'
 const STATUS_KEY = 'mnemos-last-auto-backup'
@@ -12,24 +13,17 @@ const BACKUP_DIR = 'Mnemos'
 const MAX_BACKUPS = 7
 const MIN_INTERVAL_MS = 20 * 60 * 60 * 1000 // 20 hours
 
-function loadJson(key, fallback) {
-  try {
-    const raw = localStorage.getItem(key)
-    return raw ? JSON.parse(raw) : fallback
-  } catch { return fallback }
-}
-
 function isEnabled() {
   const v = localStorage.getItem(ENABLED_KEY)
   return v === null ? true : v === 'true'
 }
 
 function getStatus() {
-  return loadJson(STATUS_KEY, null)
+  return loadJson(STATUS_KEY, null, (value) => value === null || isPlainObject(value))
 }
 
 export function setStatus(status) {
-  localStorage.setItem(STATUS_KEY, JSON.stringify(status))
+  saveJson(STATUS_KEY, status, { label: '自动备份状态未保存' })
 }
 
 export function setEnabled(on) {

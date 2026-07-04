@@ -1,12 +1,12 @@
 import { formatLocalDate } from './dateUtils'
+import { isPlainObject, loadJson } from './store'
 
-function loadJson(key, fallback) {
-  try {
-    const raw = localStorage.getItem(key)
-    return raw ? JSON.parse(raw) : fallback
-  } catch {
-    return fallback
-  }
+function isLog(value) {
+  return isPlainObject(value) && Array.isArray(value.entries)
+}
+
+function isStats(value) {
+  return isPlainObject(value) && Array.isArray(value.sessions)
 }
 
 function dayKeyFromMs(ms) {
@@ -50,7 +50,7 @@ function emptyDay(date) {
 }
 
 function addRecall(daysByDate) {
-  const log = loadJson('mnemos-review-log', { entries: [] })
+  const log = loadJson('mnemos-review-log', { entries: [] }, isLog)
   for (const entry of log.entries || []) {
     if (entry.type !== 'flashcard' || !entry.timestamp) continue
     const date = dayKeyFromMs(entry.timestamp)
@@ -62,7 +62,7 @@ function addRecall(daysByDate) {
 }
 
 function addPracticeFromLog(daysByDate) {
-  const log = loadJson('mnemos-review-log', { entries: [] })
+  const log = loadJson('mnemos-review-log', { entries: [] }, isLog)
   let found = false
   for (const entry of log.entries || []) {
     if (entry.type !== 'quiz' || !entry.timestamp) continue
@@ -77,7 +77,7 @@ function addPracticeFromLog(daysByDate) {
 }
 
 function addPracticeFromProgress(daysByDate) {
-  const progress = loadJson('examprep-progress', {})
+  const progress = loadJson('examprep-progress', {}, isPlainObject)
   for (const item of Object.values(progress)) {
     if (!item?.last_attempt) continue
     const date = dayKeyFromMs(item.last_attempt * 1000)
@@ -89,7 +89,7 @@ function addPracticeFromProgress(daysByDate) {
 }
 
 function addReading(daysByDate) {
-  const stats = loadJson('reading-stats', { sessions: [] })
+  const stats = loadJson('reading-stats', { sessions: [] }, isStats)
   for (const session of stats.sessions || []) {
     if (!session.startedAt) continue
     const date = dayKeyFromMs(session.startedAt)

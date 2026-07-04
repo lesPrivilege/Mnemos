@@ -4,6 +4,7 @@
 
 import { load, save } from './storageUtils'
 import { localToday, formatLocalDate } from '../../lib/dateUtils'
+import { removeKey } from '../../lib/store'
 
 const KEY = 'reading-stats'
 const SESSION_KEY = 'reading-active-session'
@@ -56,7 +57,7 @@ export function endSession() {
   const session = load(SESSION_KEY, null)
   if (!session) return
   finalizeSession(session)
-  localStorage.removeItem(SESSION_KEY)
+  removeKey(SESSION_KEY)
 }
 
 function finalizeSession(session) {

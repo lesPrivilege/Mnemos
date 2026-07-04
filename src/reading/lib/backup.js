@@ -1,6 +1,7 @@
 // Reading module backup — export all data, import (replace or merge)
 import { READING_SCHEMA_VERSION, READING_SCHEMA_VERSION_KEY, load, save } from './storageUtils'
 import { idbSet } from '../../lib/idb'
+import { removeKey } from '../../lib/store'
 import { getDocuments, getDocumentContent } from './storage'
 
 const ALL_KEYS = [
@@ -54,18 +55,18 @@ export async function importReadingData(data) {
 }
 
 export function clearReadingStats() {
-  localStorage.removeItem('reading-stats')
-  localStorage.removeItem('reading-active-session')
-  localStorage.removeItem('reading-completed-docs')
+  removeKey('reading-stats')
+  removeKey('reading-active-session')
+  removeKey('reading-completed-docs')
 }
 
 export function clearAllReadingData() {
   for (const key of ALL_KEYS) {
-    localStorage.removeItem(key)
+    removeKey(key)
   }
-  localStorage.removeItem(READING_SCHEMA_VERSION_KEY)
-  localStorage.removeItem('reading-active-session')
-  localStorage.removeItem('reading-completed-docs')
+  removeKey(READING_SCHEMA_VERSION_KEY)
+  removeKey('reading-active-session')
+  removeKey('reading-completed-docs')
 }
 
 export async function mergeReadingData(data) {
