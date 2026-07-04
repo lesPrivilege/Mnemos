@@ -5,6 +5,7 @@
 import { load, save } from './storageUtils'
 import { localToday, formatLocalDate } from '../../lib/dateUtils'
 import { removeKey } from '../../lib/store'
+import { S } from '../../lib/strings'
 
 const KEY = 'reading-stats'
 const SESSION_KEY = 'reading-active-session'
@@ -129,7 +130,7 @@ export function getReadingStats() {
   }
 }
 
-const DAY_LABELS = ['日', '一', '二', '三', '四', '五', '六']
+const DAY_LABELS = S.readingStats.dayLabels
 
 export function getWeeklyMinutes() {
   const stats = load(KEY, getDefaultStats())

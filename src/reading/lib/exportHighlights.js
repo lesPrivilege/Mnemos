@@ -1,5 +1,6 @@
 // Export highlights as markdown, grouped under document headings
 import { extractToc } from './renderDoc'
+import { S } from '../../lib/strings'
 
 /**
  * @param {object} doc — { title }
@@ -41,7 +42,7 @@ export function exportHighlightsMd(doc, highlights, html) {
   // Sort groups by heading level order
   groups.sort((a, b) => a._order - b._order)
 
-  const lines = [`# ${doc.title} · 高亮导出`, '', `> ${highlights.length} 条高亮 · ${new Date().toLocaleDateString()}`, '']
+  const lines = [S.exportHighlights.titleHeading(doc.title), '', S.exportHighlights.countLine(highlights.length, new Date().toLocaleDateString()), '']
 
   for (const g of groups) {
     lines.push(`${'#'.repeat(Math.min(g.level + 1, 4))} ${g.heading}`, '')
@@ -53,7 +54,7 @@ export function exportHighlightsMd(doc, highlights, html) {
   }
 
   if (unmatched.length) {
-    lines.push('## 其他', '')
+    lines.push(S.exportHighlights.otherHeading, '')
     for (const item of unmatched) {
       lines.push(`> ${item.selectedText}`, '')
     }

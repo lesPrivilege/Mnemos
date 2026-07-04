@@ -4,6 +4,7 @@ import ReadingHomeBody from './ReadingHomeBody'
 import { SearchIcon } from '../../components/Icons'
 import { getDocumentsByCollection } from '../lib/storage'
 import { useConfirm, ConfirmSheet } from '../../components/ConfirmSheet'
+import { S } from '../../lib/strings'
 
 export default function ReadingHomeContent() {
   const { confirmState, confirm } = useConfirm()
@@ -17,7 +18,7 @@ export default function ReadingHomeContent() {
         <div className="relative">
           <div className="search" style={{ margin: 0 }}>
             <SearchIcon size={16} />
-            <input value={h.query} onChange={e => h.setQuery(e.target.value)} placeholder="搜索文档" />
+            <input value={h.query} onChange={e => h.setQuery(e.target.value)} placeholder={S.readingHomeContent.searchPlaceholder} />
           </div>
         </div>
       )}
