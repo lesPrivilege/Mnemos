@@ -1,6 +1,6 @@
 import { idbGet, idbSet } from './idb'
 import { quarantine } from './quarantine'
-import { saveJson } from './store'
+import { removeKey } from './store'
 
 const KV_STORE = 'kv'
 
@@ -59,8 +59,25 @@ async function readIdbRaw(key) {
   }
 }
 
+// idbSet() never rejects (it resolves silently even when IndexedDB is
+// unavailable), so a resolved write alone doesn't tell us whether the value
+// actually landed in the store. Read it back and compare to know for sure —
+// callers use this to decide whether it's safe to delete the localStorage
+// copy of a big record.
+async function writeAndConfirm(key, serialized) {
+  try {
+    await idbSet(KV_STORE, key, serialized)
+    return (await idbGet(KV_STORE, key)) === serialized
+  } catch {
+    return false
+  }
+}
+
 function scheduleIdbSet(key, value) {
-  const write = idbSet(KV_STORE, key, JSON.stringify(value)).catch(() => {})
+  const write = writeAndConfirm(key, JSON.stringify(value)).then((confirmed) => {
+    if (confirmed) removeKey(key)
+    return confirmed
+  })
   pendingWrites.add(write)
   write.finally(() => {
     pendingWrites.delete(write)
@@ -112,6 +129,9 @@ function requireHydrated() {
   }
 }
 
+// `label` is unused now that setCached() has no error surface to describe,
+// but it's kept on the config (and required from call sites) in case a
+// future error-surface mechanism for IDB failures needs it in R5+.
 export function registerBigRecord({ key, fallback, validate = () => true, normalize = identity, label }) {
   if (!key) {
     throw new Error('bigStore record key is required')
@@ -146,8 +166,10 @@ export function setCached(key, value) {
   const normalized = normalizeRecord(config, value)
   cache.set(key, normalized)
   scheduleIdbSet(key, normalized)
-  // TODO(R4+1): remove localStorage dual-write for big records after one release.
-  return saveJson(key, normalized, { label: config.label })
+  // IDB writes are async fire-and-forget and localStorage is no longer
+  // written here, so there's no synchronous failure mode left to report
+  // (quota errors were a localStorage-only concept).
+  return { ok: true }
 }
 
 export async function flushBigStoreWritesForTests() {
