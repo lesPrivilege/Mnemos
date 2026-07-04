@@ -5,7 +5,8 @@ import {
   listQuarantined,
   quarantine,
 } from './quarantine'
-import { loadData } from './storage'
+
+let loadData
 
 function createLocalStorage() {
   const store = new Map()
@@ -25,9 +26,11 @@ function createLocalStorage() {
 
 describe('quarantine', () => {
   beforeEach(() => {
+    vi.resetModules()
     vi.useFakeTimers()
     vi.setSystemTime(new Date(2026, 4, 3, 9))
     vi.stubGlobal('localStorage', createLocalStorage())
+    vi.stubGlobal('indexedDB', undefined)
   })
 
   afterEach(() => {
@@ -35,8 +38,18 @@ describe('quarantine', () => {
     vi.useRealTimers()
   })
 
-  it('quarantines corrupt flashcard JSON and returns the fallback', () => {
+  async function hydrateFlashcardStorage() {
+    const storage = await import('./storage')
+    const bigStore = await import('./bigStore')
+
+    loadData = storage.loadData
+
+    await bigStore.hydrate()
+  }
+
+  it('quarantines corrupt flashcard JSON and returns the fallback', async () => {
     localStorage.setItem('mnemos-data', '{oops')
+    await hydrateFlashcardStorage()
 
     expect(loadData()).toEqual({ version: 1, decks: [], cards: [] })
     expect(listQuarantined()).toEqual([
@@ -50,7 +63,9 @@ describe('quarantine', () => {
     expect(getQuarantinedRaw('mnemos-data')).toBe('{oops')
   })
 
-  it('does not quarantine an absent key', () => {
+  it('does not quarantine an absent key', async () => {
+    await hydrateFlashcardStorage()
+
     expect(loadData()).toEqual({ version: 1, decks: [], cards: [] })
     expect(listQuarantined()).toEqual([])
   })
