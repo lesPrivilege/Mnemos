@@ -39,6 +39,7 @@
     "autoprefixer": "^10.4.20",
     "eslint": "^10.6.0",
     "eslint-plugin-react-hooks": "^7.1.1",
+    "fake-indexeddb": "^6.2.5",
     "globals": "^17.7.0",
     "postcss": "^8.4.49",
     "prettier": "^3.9.4",
