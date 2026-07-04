@@ -26,14 +26,6 @@ export function addBookmark(docId, scrollPct, title = '') {
   return bookmark
 }
 
-export function updateBookmark(id, fields) {
-  const bookmarks = load(KEY, [])
-  const b = bookmarks.find(x => x.id === id)
-  if (b) Object.assign(b, fields)
-  save(KEY, bookmarks)
-  return b
-}
-
 export function deleteBookmark(id) {
   save(KEY, load(KEY, []).filter(b => b.id !== id))
 }

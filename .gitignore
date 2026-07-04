@@ -5,3 +5,4 @@ data/
 *.apk
 mnemos-prototype.html
 public/setup-reading.html
+.claude/
