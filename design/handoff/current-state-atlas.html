@@ -1063,7 +1063,7 @@ html, body {
     （屏名 / 路由 / 展示狀態）。按模組分組：记忆 / 练习 / 阅读 / 系统。
     這不是像素級複製，也不是重新設計的底稿——僅呈現目前的 UX 結構。
   </p>
-  <div class="atlas-meta">COMMIT 2 OF 3 · 记忆 + 练习 + 阅读 modules · 16 frames · tokens inlined from src/styles/tokens.css</div>
+  <div class="atlas-meta">COMMIT 2 OF 3 · 记忆 + 练习 + 阅读 modules · 17 frames · tokens inlined from src/styles/tokens.css</div>
 </header>
 
 <!-- ═══════════════════════════════════════════════════════════════
@@ -1690,6 +1690,7 @@ html, body {
             <span class="chip">顺序</span>
             <span class="chip">仅未做</span>
             <span class="chip">错题</span>
+            <span class="chip">已標星</span>
           </div>
 
           <div class="rv-progress"><div class="bar" style="width:20%"></div></div>
@@ -1742,7 +1743,9 @@ html, body {
           <div class="mode-chips">
             <span class="chip on">随机</span>
             <span class="chip">顺序</span>
+            <span class="chip">仅未做</span>
             <span class="chip">错题</span>
+            <span class="chip">已標星</span>
           </div>
 
           <div class="rv-progress"><div class="bar" style="width:24%"></div></div>
@@ -1954,13 +1957,16 @@ html, body {
             <p>若以抑菌圈半径 <span class="latex-placeholder">$r$</span> 与药物浓度 <span class="latex-placeholder">$C$</span> 的关系建模，早期文献常用如下近似：<span class="latex-placeholder">$r \propto \log(C / C_0)$</span>，其中 <span class="latex-placeholder">$C_0$</span> 为最低有效浓度阈值。</p>
             <p>这段历史提示我们：许多重大发现最初都源于「反常现象」而非预设假说 —— 培养皿污染本是实验失败的标志，却在弗莱明手中转化为关键证据。</p>
           </div>
-          <div class="reader-progress-bottom"><div class="bar" style="width:62%"></div></div>
+          <!-- Bottom progress bar has no opacity binding to barHidden removed here —
+               matches the real Reader.jsx: only the TOP bar (no opacity binding, always
+               visible) survives in the immersive state; the bottom bar's opacity is
+               `barHidden ? 0 : 1` and is genuinely gone when chrome is hidden. -->
         </div>
       </div>
       <div class="frame-caption">
         <span class="name">Reader <span class="state-tag">沉浸态（chrome 隐藏）</span></span>
         <span class="route">/reading/doc/:id</span>
-        <span class="states">Topbar and bottom function bar both hidden (opacity 0 + translateY off-screen, toggled by tapping content); only the 2px top and 3px bottom accent progress bars remain visible. LaTeX shown as raw placeholder text, not rendered — e.g. <code style="font-family:var(--font-mono)">$r \propto \log(C/C_0)$</code>.</span>
+        <span class="states">Topbar, bottom function bar, AND the bottom accent progress bar are all hidden (opacity 0 / translateY off-screen, toggled by tapping content) — only the 2px TOP accent progress bar has no such binding and remains visible in every state. LaTeX shown as raw placeholder text, not rendered — e.g. <code style="font-family:var(--font-mono)">$r \propto \log(C/C_0)$</code>.</span>
       </div>
     </div>
 
@@ -2022,8 +2028,10 @@ html, body {
               <div class="panel-hl-text">弗洛里与钱恩等人系统化验证，最终促成青霉素的工业化量产</div>
               <div class="panel-hl-meta"><span>2026/7/1</span><span class="del">删除</span></div>
             </div>
-            <div class="panel-footer-action">+ 生成闪卡</div>
-            <div class="panel-footer-action">↓ 导出高亮</div>
+            <!-- HighlightsPanel (ReaderPanels.jsx lines 28-59) has ONLY a header +
+                 per-highlight rows — no footer actions. 生成闪卡/导出高亮 belong to
+                 BookmarksPanel instead (see the dedicated Bookmarks frame after this
+                 one) — do not fold them back in here. -->
           </div>
           <div class="reader-content" style="opacity:0.35;">
             <h2>第三章 · 磺胺药与青霉素的发现</h2>
@@ -2035,7 +2043,52 @@ html, body {
       <div class="frame-caption">
         <span class="name">高亮面板 (HighlightsPanel)</span>
         <span class="route">/reading/doc/:id (activePanel='highlights')</span>
-        <span class="states">Slide-in panel (280px, left-anchored) listing saved highlights with date + 删除 action per row, footer actions 生成闪卡 (only when highlights exist) and 导出高亮; content dimmed behind the backdrop.</span>
+        <span class="states">Slide-in panel (280px, left-anchored) listing saved highlights with date + 删除 action per row; header-only otherwise — no footer actions in this panel (生成闪卡/导出高亮 live in Bookmarks instead, see next frame). Content dimmed behind the backdrop.</span>
+      </div>
+    </div>
+
+    <!-- FRAME 17 — 书签面板 (BookmarksPanel) -->
+    <div class="frame">
+      <div class="phone-frame">
+        <div class="phone-screen" style="position:relative;">
+          <div class="reader-progress-top"><div class="bar" style="width:62%"></div></div>
+          <div class="reader-panel-shell">
+            <div class="panel-header">书签 · 2</div>
+            <div class="panel-footer-action">+ 添加书签</div>
+            <div class="panel-hl-row" style="cursor:pointer;">
+              <div style="display:flex; align-items:center; justify-content:space-between;">
+                <div>
+                  <div style="font-family:var(--font-zh); font-size:13px; color:var(--ink);">第二章 · 磺胺药的早期争议</div>
+                  <div style="font-family:var(--font-mono); font-size:10px; color:var(--ink-3);">34%</div>
+                </div>
+                <span style="font-family:var(--font-ui); font-size:11px; color:var(--ink-3); flex-shrink:0;">删除</span>
+              </div>
+            </div>
+            <div class="panel-hl-row" style="cursor:pointer;">
+              <div style="display:flex; align-items:center; justify-content:space-between;">
+                <div>
+                  <div style="font-family:var(--font-zh); font-size:13px; color:var(--ink);">第三章 · 磺胺药与青霉素的发现</div>
+                  <div style="font-family:var(--font-mono); font-size:10px; color:var(--ink-3);">62%</div>
+                </div>
+                <span style="font-family:var(--font-ui); font-size:11px; color:var(--ink-3); flex-shrink:0;">删除</span>
+              </div>
+            </div>
+            <div style="margin-top:auto; border-top:1px solid var(--border-soft);">
+              <div class="panel-footer-action">+ 生成闪卡</div>
+              <div class="panel-footer-action">↓ 导出高亮</div>
+            </div>
+          </div>
+          <div class="reader-content" style="opacity:0.35;">
+            <h2>第三章 · 磺胺药与青霉素的发现</h2>
+            <p>1932 年，多马克在研究染料化合物的抗菌性质时，意外发现百浪多息对链球菌感染有显著疗效。</p>
+          </div>
+          <div class="reader-progress-bottom"><div class="bar" style="width:62%"></div></div>
+        </div>
+      </div>
+      <div class="frame-caption">
+        <span class="name">书签面板 (BookmarksPanel)</span>
+        <span class="route">/reading/doc/:id (activePanel='bookmarks')</span>
+        <span class="states">+ 添加书签 row at the top (saves current scroll position), bookmark rows with title + scroll % + 删除, and — this is where 生成闪卡/导出高亮 actually live (gated on highlights.length &gt; 0), not in the Highlights panel.</span>
       </div>
     </div>
 
