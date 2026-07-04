@@ -1318,7 +1318,7 @@ html, body {
 
           <div class="bottom-actions">
             <button class="btn btn-ghost">⇧ 导入</button>
-            <button class="btn btn-primary">+ 新牌组</button>
+            <button class="btn btn-primary">+ 新建卡组</button>
           </div>
 
           <!-- FloatingBar is only shown on detail screens (DeckDetail/Review) in
@@ -1674,7 +1674,7 @@ html, body {
 
           <div class="bottom-actions">
             <button class="btn btn-ghost">⇧ 导入</button>
-            <button class="btn btn-primary">+ 新题库</button>
+            <button class="btn btn-primary">+ 新建题库</button>
           </div>
         </div>
       </div>
@@ -2768,13 +2768,20 @@ html, body {
             </button>
 
             <div class="pg-code">
-<span class="ln">01</span><span class="h">## ROLE</span>
-<span class="ln">02</span>You are a flashcard-generation assistant...
-<span class="ln">03</span>
-<span class="ln">04</span><span class="h">## OUTPUT FORMAT</span>
-<span class="ln">05</span>Return a Markdown list, one card per bullet...
-<span class="ln">06</span>Front: concise question, real terminology
-<span class="ln">07</span>Back: complete answer, no filler
+<span class="ln">01</span>你是一个知识结构化助手。请将我提供的笔记内容转换为以下格式：
+<span class="ln">02</span>
+<span class="ln">03</span># [科目名]
+<span class="ln">04</span><span class="h">## [大章节名]</span>
+<span class="ln">05</span><span class="h">### [小节名]</span>
+<span class="ln">06</span>* [知识点标题]
+<span class="ln">07</span>  [对该知识点的释义或解释，1-3 句话]
+<span class="ln">08</span>* [下一个知识点标题]
+<span class="ln">09</span>  [释义]
+<span class="ln">10</span>  * [补充说明或子知识点，归入父级]
+<span class="ln">11</span>
+<span class="ln">12</span><span class="h">## 规则</span>
+<span class="ln">13</span>
+<span class="ln">14</span><span class="h">### 标题层级</span>
             </div>
 
             <div style="text-align:center; font-family:var(--font-zh); font-size:var(--text-xs); color:var(--ink-3); letter-spacing:0.04em;">
@@ -2786,7 +2793,7 @@ html, body {
       <div class="frame-caption">
         <span class="name">PromptGuide <span class="state-tag">首屏</span></span>
         <span class="route">/prompt-guide</span>
-        <span class="states">Entry screen only (this is a long-form guide — not atlased in full): intro copy, an Anki-import note card, a 通用知识/单词制卡 template-seg toggle, 复制 Prompt action, and the numbered/syntax-highlighted (## headings only) prompt-template code block.</span>
+        <span class="states">Entry screen only (this is a long-form guide — not atlased in full): intro copy, an Anki-import note card, a 通用知识/单词制卡 template-seg toggle, 复制 Prompt action, and the numbered/syntax-highlighted (## and ### headings, per line.startsWith('##')) prompt-template code block — showing the real PROMPT_TEMPLATE's opening 14 lines verbatim from src/lib/formatSpec.js (general/通用知识 tab; truncated before the 「## 规则」section's remaining sub-rules, not the full ~40-line template).</span>
       </div>
     </div>
 
