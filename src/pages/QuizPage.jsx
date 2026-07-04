@@ -9,14 +9,15 @@ import { addReviewEntry } from '../lib/reviewLog'
 import { useBackButton } from '../lib/useBackButton'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 import { hapticLight, hapticWarning, hapticSuccess } from '../lib/haptics'
+import { S } from '../lib/strings'
 import '../styles/markdown.css'
 
 const MODES = [
-  { key: 'random', label: '随机' },
-  { key: 'sequential', label: '顺序' },
-  { key: 'new', label: '未做' },
-  { key: 'wrong', label: '错题' },
-  { key: 'starred', label: '收藏' },
+  { key: 'random', label: S.quiz.modeRandom },
+  { key: 'sequential', label: S.quiz.modeSequential },
+  { key: 'new', label: S.quiz.modeNew },
+  { key: 'wrong', label: S.quiz.modeWrong },
+  { key: 'starred', label: S.quiz.modeStarred },
 ]
 
 export default function Quiz() {
@@ -130,7 +131,7 @@ export default function Quiz() {
   const handleDeleteQuestion = async () => {
     if (!currentQuestion) return
     setShowMenu(false)
-    const ok = await confirm({ title: '删除题目', message: '删除这道题目？此操作不可撤销。', confirmLabel: '确认删除' })
+    const ok = await confirm({ title: S.quiz.deleteQuestionTitle, message: S.quiz.deleteQuestionMessage, confirmLabel: S.quiz.confirmDelete })
     if (!ok) return
     const idToDelete = currentQuestion.id
     deleteQuestion(idToDelete)
@@ -158,21 +159,21 @@ export default function Quiz() {
         <div className="page-scroll">
           <div className="done-wrap">
             <div className="done-mark"><CheckIcon size={32} /></div>
-            <div className="done-title">一组练毕</div>
+            <div className="done-title">{S.quiz.doneTitle}</div>
             <div className="done-stats">
-              <span>已练 <span className="v">{results.length}</span></span>
-              <span>正确率 <span className="v">{results.length > 0 ? Math.round(correct / results.length * 100) : 0}%</span></span>
+              <span>{S.quiz.practicedLabel} <span className="v">{results.length}</span></span>
+              <span>{S.quiz.correctRateLabel} <span className="v">{results.length > 0 ? Math.round(correct / results.length * 100) : 0}%</span></span>
             </div>
             <div className="done-grid two">
-              <div className="cell good"><span className="num">{correct}</span><span>正确</span></div>
-              <div className="cell again"><span className="num">{results.length - correct}</span><span>错误</span></div>
+              <div className="cell good"><span className="num">{correct}</span><span>{S.quiz.correctLabel}</span></div>
+              <div className="cell again"><span className="num">{results.length - correct}</span><span>{S.quiz.wrongLabel}</span></div>
             </div>
             <div className="flex gap-2 w-full mt-2">
-              <button className="btn btn-ghost btn-block" onClick={() => goBack()}>返回</button>
+              <button className="btn btn-ghost btn-block" onClick={() => goBack()}>{S.quiz.backAction}</button>
               {results.some(r => !r.correct) && (
-                <button className="btn btn-accent btn-block" onClick={() => { setMode('wrong'); load('wrong') }}>错题回顾</button>
+                <button className="btn btn-accent btn-block" onClick={() => { setMode('wrong'); load('wrong') }}>{S.quiz.wrongReviewAction}</button>
               )}
-              <button className="btn btn-primary btn-block" onClick={() => load(mode)}>再来一组</button>
+              <button className="btn btn-primary btn-block" onClick={() => load(mode)}>{S.quiz.anotherRoundAction}</button>
             </div>
           </div>
         </div>
@@ -186,13 +187,13 @@ export default function Quiz() {
       <div className="page-fixed" style={{ background: 'var(--bg)' }}>
         <div className="topbar">
           <button className="tb-btn" onClick={() => goBack()} aria-label="Back"><BackIcon /></button>
-          <h1 className="zh" style={{ flex: 1, paddingLeft: 4 }}>{chapter || getSubjectDisplayName(subject)} · 选择题</h1>
+          <h1 className="zh" style={{ flex: 1, paddingLeft: 4 }}>{chapter || getSubjectDisplayName(subject)}{S.quizPage.subjectHeadingSuffix}</h1>
         </div>
         <div className="page-scroll">
           <div className="empty">
             <div className="glyph">?</div>
-            <div className="msg">暂无题目</div>
-            <div className="motto-zh">请更换筛选条件</div>
+            <div className="msg">{S.quiz.noQuestions}</div>
+            <div className="motto-zh">{S.quizPage.filterHint}</div>
           </div>
         </div>
       </div>
@@ -227,7 +228,7 @@ export default function Quiz() {
                   style={{ border: '1px solid var(--border-soft)' }}>
                   <button onClick={handleDeleteQuestion}
                     className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-body text-danger hover:bg-bg-raised transition-colors" role="menuitem">
-                    <TrashIcon size={15} /> 删除题目
+                    <TrashIcon size={15} /> {S.quiz.deleteQuestion}
                   </button>
                 </div>
               </>
@@ -254,7 +255,7 @@ export default function Quiz() {
       {/* Meta */}
       <div className="rv-meta">
         <span className="crumb">
-          <span className="q-tag choice">选择{isMultiAnswer(currentQuestion) && ' · 多选'}</span>
+          <span className="q-tag choice">{S.quizPage.choiceLabel}{isMultiAnswer(currentQuestion) && S.quizPage.multiAnswerSuffix}</span>
           {currentQuestion.chapter}
         </span>
         <span className="pos">
@@ -268,7 +269,7 @@ export default function Quiz() {
         <div className="qa-card">
           <span className="corner">
             <span className="num">{String(currentIndex + 1).padStart(2, '0')}</span>
-            <span>选择 · CHOICE{isMultiAnswer(currentQuestion) && <span style={{ marginLeft: 6, fontSize: 10, background: 'var(--accent-soft)', color: 'var(--accent)', padding: '1px 5px', borderRadius: 4 }}>多选</span>}</span>
+            <span>{S.quizPage.choiceLabel} · {S.quizPage.choiceKeyLabel}{isMultiAnswer(currentQuestion) && <span style={{ marginLeft: 6, fontSize: 10, background: 'var(--accent-soft)', color: 'var(--accent)', padding: '1px 5px', borderRadius: 4 }}>{S.quizPage.multiAnswerBadge}</span>}</span>
           </span>
           <div className="qa-stem" style={{ maxHeight: '22dvh', overflowY: 'auto' }}>
             <RenderMarkdown content={currentQuestion.question} />
@@ -316,7 +317,7 @@ export default function Quiz() {
           {submitted && result && result.explanation && (
             <div className="qa-explain">
               <button className="qa-explain-toggle" onClick={() => setExplainOpen(v => !v)}>
-                <span className="qa-explain-h">解析 · WHY</span>
+                <span className="qa-explain-h">{S.quizPage.explainHeading}</span>
                 <span className={`qa-explain-caret ${explainOpen ? 'open' : ''}`}>›</span>
               </button>
               {explainOpen && (
@@ -328,8 +329,8 @@ export default function Quiz() {
           )}
           {submitted && result && !result.explanation && (
             <div className="qa-explain">
-              <div className="qa-explain-h">解析 · WHY</div>
-              <p>{result.correct ? '回答正确。' : '回答错误。'}</p>
+              <div className="qa-explain-h">{S.quizPage.explainHeading}</div>
+              <p>{result.correct ? S.quizPage.correctFeedback : S.quizPage.wrongFeedback}</p>
             </div>
           )}
           <div className="ornament" />
@@ -342,11 +343,11 @@ export default function Quiz() {
           <button onClick={handleSubmit}
             disabled={isMultiAnswer(currentQuestion) ? !(selectedAnswer instanceof Set && selectedAnswer.size > 0) : !selectedAnswer}
             className="btn btn-primary btn-block disabled:opacity-40">
-            提交
+            {S.quizPage.submit}
           </button>
         ) : (
           <button onClick={handleNext} className="btn btn-primary btn-block">
-            {currentIndex < questions.length - 1 ? '下一题' : `完成 (${results.filter(r => r.correct).length}/${results.length})`}
+            {currentIndex < questions.length - 1 ? S.quizPage.nextQuestion : S.quizPage.finishLabel(results.filter(r => r.correct).length, results.length)}
           </button>
         )}
       </div>

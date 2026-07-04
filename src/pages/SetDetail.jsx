@@ -9,6 +9,7 @@ import { tierCountsForQuestions } from '../quiz/lib/questionStats'
 import StructureTree from '../components/StructureTree'
 import { useBackButton } from '../lib/useBackButton'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
+import { S } from '../lib/strings'
 
 export default function SetDetail() {
   const { subject } = useParams()
@@ -22,7 +23,7 @@ export default function SetDetail() {
 
   const handleDeleteSubject = async () => {
     setShowMenu(false)
-    const ok = await confirm({ title: '删除科目', message: `删除科目「${getSubjectDisplayName(subject)}」及其全部题目与进度？此操作不可撤销。`, confirmLabel: '确认删除' })
+    const ok = await confirm({ title: S.setDetail.deleteSubjectTitle, message: S.setDetail.deleteSubjectMessage(getSubjectDisplayName(subject)), confirmLabel: S.setDetail.confirmDelete })
     if (ok) {
       deleteSubject(subject)
       navigate('/')
@@ -31,7 +32,7 @@ export default function SetDetail() {
 
   const handleResetProgress = async () => {
     setShowMenu(false)
-    const ok = await confirm({ title: '重置进度', message: `重置「${getSubjectDisplayName(subject)}」的练习进度？已收藏的题目会保留。`, confirmLabel: '确认重置', destructive: false })
+    const ok = await confirm({ title: S.setDetail.resetProgressTitle, message: S.setDetail.resetProgressMessage(getSubjectDisplayName(subject)), confirmLabel: S.setDetail.confirmReset, destructive: false })
     if (ok) {
       clearSubjectProgress(subject)
     }
@@ -54,7 +55,7 @@ export default function SetDetail() {
   )
   const starredCount = questions.filter(q => starredIds.has(q.id)).length
   const starredByChapter = questions.reduce((map, q) => {
-    if (starredIds.has(q.id)) map[q.chapter || '未分类'] = (map[q.chapter || '未分类'] || 0) + 1
+    if (starredIds.has(q.id)) map[q.chapter || S.setDetail.uncategorized] = (map[q.chapter || S.setDetail.uncategorized] || 0) + 1
     return map
   }, {})
 
@@ -63,7 +64,7 @@ export default function SetDetail() {
   const treeNodes = (() => {
     const chapterMap = new Map()
     for (const q of questions) {
-      const ch = q.chapter || '未分类'
+      const ch = q.chapter || S.setDetail.uncategorized
       if (!chapterMap.has(ch)) chapterMap.set(ch, new Map())
       const secMap = chapterMap.get(ch)
       const sec = q.section || ''
@@ -88,7 +89,7 @@ export default function SetDetail() {
         return { id: ch, label: ch, count: chQs.length, tiers: chTiers, chapter: ch, section: '' }
       }
       if (noSecQs.length > 0) {
-        children.unshift({ id: `${ch}::`, label: '未分类', count: noSecQs.length, tiers: tierCountsForQuestions(noSecQs, progress), chapter: ch, section: '' })
+        children.unshift({ id: `${ch}::`, label: S.setDetail.uncategorized, count: noSecQs.length, tiers: tierCountsForQuestions(noSecQs, progress), chapter: ch, section: '' })
       }
       return { id: ch, label: ch, count: chQs.length, tiers: chTiers, children }
     })
@@ -131,11 +132,11 @@ export default function SetDetail() {
                   style={{ border: '1px solid var(--border-soft)' }}>
                   <button onClick={handleResetProgress}
                     className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">
-                    <RefreshIcon size={15} /> 重置进度
+                    <RefreshIcon size={15} /> {S.setDetail.resetProgressAction}
                   </button>
                   <button onClick={handleDeleteSubject}
                     className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-body text-danger hover:bg-bg-raised transition-colors" role="menuitem">
-                    <TrashIcon size={15} /> 删除科目
+                    <TrashIcon size={15} /> {S.setDetail.deleteSubjectAction}
                   </button>
                 </div>
               </>
@@ -149,9 +150,9 @@ export default function SetDetail() {
         <div style={{ padding: '14px 0 0' }}>
           <div className="dd-head">
             <div className="dd-meta">
-              <span>{stats.total} 题</span><span className="sep">/</span>
-              {typeCounts.choice > 0 && <><span>选择 {typeCounts.choice}</span><span className="sep">/</span></>}
-              {typeCounts.review > 0 && <><span>解答 {typeCounts.review}</span><span className="sep">/</span></>}
+              <span>{stats.total}{S.setDetail.totalSuffix}</span><span className="sep">/</span>
+              {typeCounts.choice > 0 && <><span>{S.setDetail.choicePrefix}{typeCounts.choice}</span><span className="sep">/</span></>}
+              {typeCounts.review > 0 && <><span>{S.setDetail.reviewPrefix}{typeCounts.review}</span><span className="sep">/</span></>}
               <span style={{ color: accuracy < 60 ? 'var(--danger)' : 'var(--good)' }}>{accuracy}%</span>
             </div>
             <div className="dd-progress">
@@ -168,21 +169,21 @@ export default function SetDetail() {
         <div style={{ padding: '10px 0 0' }}>
           <div className="filters">
             <button onClick={() => setFilter('all')} className={`chip ${filter === 'all' ? 'on' : ''}`}>
-              全部 · {stats.total}
+              {S.setDetail.allFilterPrefix}{stats.total}
             </button>
             {typeCounts.choice > 0 && (
               <button onClick={() => setFilter('choice')} className={`chip ${filter === 'choice' ? 'on' : ''}`}>
-                选择 · {typeCounts.choice}
+                {S.setDetail.choiceFilterPrefix}{typeCounts.choice}
               </button>
             )}
             {typeCounts.review > 0 && (
               <button onClick={() => setFilter('review')} className={`chip ${filter === 'review' ? 'on' : ''}`}>
-                解答 · {typeCounts.review}
+                {S.setDetail.reviewFilterPrefix}{typeCounts.review}
               </button>
             )}
             <button onClick={() => setFilter('starred')} className={`chip ${filter === 'starred' ? 'on' : ''}`}>
               <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l2.7 5.9 6.3.6-4.8 4.5 1.5 6.5L12 17l-5.7 3.5 1.5-6.5L3 9.5l6.3-.6z" /></svg>
-              收藏 · {starredCount}
+              {S.setDetail.starredFilterPrefix}{starredCount}
             </button>
           </div>
         </div>
@@ -190,8 +191,8 @@ export default function SetDetail() {
         {/* View toggle */}
         <div style={{ padding: '6px 18px' }}>
           <div className="seg" style={{ maxWidth: 160 }}>
-            <button onClick={() => setViewMode('list')} className={viewMode === 'list' ? 'on' : ''}>列表</button>
-            <button onClick={() => setViewMode('tree')} className={viewMode === 'tree' ? 'on' : ''}>结构</button>
+            <button onClick={() => setViewMode('list')} className={viewMode === 'list' ? 'on' : ''}>{S.setDetail.listView}</button>
+            <button onClick={() => setViewMode('tree')} className={viewMode === 'tree' ? 'on' : ''}>{S.setDetail.treeView}</button>
           </div>
         </div>
 
@@ -223,10 +224,10 @@ export default function SetDetail() {
                     <span className={`ch-caret ${isOpen ? 'open' : ''}`} style={{ position: 'absolute', left: 8 }}>›</span>
                     <span className="front" style={{ fontWeight: 500, paddingLeft: 8 }}>{ch.name}</span>
                     <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--ink-3)' }}>
-                      {ch.total}题
-                      {ch.choice > 0 && <span style={{ marginLeft: 6 }}>选{ch.choice}</span>}
-                      {ch.review > 0 && <span style={{ marginLeft: 6 }}>答{ch.review}</span>}
-                      {ch.wrong > 0 && <span style={{ color: 'var(--danger)', marginLeft: 6 }}>{ch.wrong}错</span>}
+                      {ch.total}{S.setDetail.countSuffix}
+                      {ch.choice > 0 && <span style={{ marginLeft: 6 }}>{S.setDetail.choicePrefixShort}{ch.choice}</span>}
+                      {ch.review > 0 && <span style={{ marginLeft: 6 }}>{S.setDetail.reviewPrefixShort}{ch.review}</span>}
+                      {ch.wrong > 0 && <span style={{ color: 'var(--danger)', marginLeft: 6 }}>{ch.wrong}{S.setDetail.wrongSuffix}</span>}
                       {chStarred > 0 && <span style={{ color: 'var(--accent)', marginLeft: 6 }}>{chStarred}★</span>}
                     </span>
                   </div>
@@ -235,16 +236,16 @@ export default function SetDetail() {
                       {ch.choice > 0 && (
                         <Link to={`/quiz/${subject}?chapter=${encodeURIComponent(ch.name)}`}
                           className="card-row">
-                          <span className="q-tag-mini choice">选</span>
-                          <span className="front" style={{ fontSize: 13 }}>选择题 ({ch.choice}题)</span>
+                          <span className="q-tag-mini choice">{S.setDetail.choiceTagMini}</span>
+                          <span className="front" style={{ fontSize: 13 }}>{S.setDetail.choiceLabelWithCount(ch.choice)}</span>
                           <ArrowRIcon size={12} style={{ color: 'var(--ink-3)' }} />
                         </Link>
                       )}
                       {ch.review > 0 && (
                         <Link to={`/quiz-review/${subject}?chapter=${encodeURIComponent(ch.name)}`}
                           className="card-row">
-                          <span className="q-tag-mini review">答</span>
-                          <span className="front" style={{ fontSize: 13 }}>解答题 ({ch.review}题)</span>
+                          <span className="q-tag-mini review">{S.setDetail.reviewTagMini}</span>
+                          <span className="front" style={{ fontSize: 13 }}>{S.setDetail.reviewLabelWithCount(ch.review)}</span>
                           <ArrowRIcon size={12} style={{ color: 'var(--ink-3)' }} />
                         </Link>
                       )}
@@ -255,7 +256,7 @@ export default function SetDetail() {
             })}
             {filteredChapters.length === 0 && (
               <div style={{ padding: '24px', textAlign: 'center', color: 'var(--ink-3)', fontSize: 13 }}>
-                {filter === 'starred' ? '暂无收藏章节' : '暂无章节数据'}
+                {filter === 'starred' ? S.setDetail.emptyStarredChapters : S.setDetail.emptyChapters}
               </div>
             )}
           </div>
@@ -269,36 +270,36 @@ export default function SetDetail() {
           {typeCounts.choice > 0 ? (
             <button className="dd-cta-main teal" onClick={() => navigate(`/quiz/${subject}`)}>
               <div className="left">
-                <span className="lead"><span className="num">{typeCounts.choice + typeCounts.review}</span>题</span>
-                <span className="sub">BEGIN · 开始练习</span>
+                <span className="lead"><span className="num">{typeCounts.choice + typeCounts.review}</span>{S.setDetail.countSuffix}</span>
+                <span className="sub">{S.setDetail.beginPracticeLabel}</span>
               </div>
               <span className="arr">→</span>
             </button>
           ) : typeCounts.review > 0 ? (
             <button className="dd-cta-main teal" onClick={() => navigate(`/quiz-review/${subject}`)}>
               <div className="left">
-                <span className="lead"><span className="num">{typeCounts.review}</span>题</span>
-                <span className="sub">BEGIN · 开始练习</span>
+                <span className="lead"><span className="num">{typeCounts.review}</span>{S.setDetail.countSuffix}</span>
+                <span className="sub">{S.setDetail.beginPracticeLabel}</span>
               </div>
               <span className="arr">→</span>
             </button>
           ) : (
             <div className="dd-cta-main teal" style={{ opacity: 0.5, cursor: 'default' }}>
               <div className="left">
-                <span className="lead">暂无题目</span>
-                <span className="sub">IMPORT · 请先导入</span>
+                <span className="lead">{S.setDetail.noQuestions}</span>
+                <span className="sub">{S.setDetail.importFirstLabel}</span>
               </div>
             </div>
           )}
         </div>
         <div className="dd-secondary" style={{ margin: 0 }}>
           <Link to={`/wrong?subject=${subject}`} className="dd-action">
-            <RefreshIcon size={18} /><span className="lab">错题</span>
+            <RefreshIcon size={18} /><span className="lab">{S.setDetail.wrongAction}</span>
           </Link>
           <Link to={`/starred?subject=${subject}`} className="dd-action">
-            <StarIcon size={18} /><span className="lab">收藏</span>
+            <StarIcon size={18} /><span className="lab">{S.setDetail.starredAction}</span>
           </Link>
-          <Link to="/import?tab=json" className="dd-action"><UploadIcon size={18} /><span className="lab">导入</span></Link>
+          <Link to="/import?tab=json" className="dd-action"><UploadIcon size={18} /><span className="lab">{S.setDetail.importAction}</span></Link>
         </div>
       </FloatingBar>
       <ConfirmSheet state={confirmState} />
