@@ -896,20 +896,21 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
     width: 100%;
   }
 }
-.bottom-tabs-mark {
-  display: flex;
-  justify-content: center;
-  color: var(--ink);
-  line-height: 1;
-}
 .bottom-tabs-row {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 2px;
 }
+.bottom-tabs-indicator {
+  width: 120px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--ink);
+  opacity: 0.16;
+  margin: 0 auto;
+}
 .bottom-tab {
   min-width: 0;
-  min-height: 48px;
   display: flex;
   flex-direction: column;
   align-items: center;

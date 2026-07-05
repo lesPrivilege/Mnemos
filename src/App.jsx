@@ -19,7 +19,7 @@ import Activity from './pages/Activity'
 import SetDetail from './pages/SetDetail'
 import Reader from './reading/pages/Reader'
 import CollectionDetail from './reading/pages/CollectionDetail'
-import { MnemosMark, Icon } from './components/Icons'
+import { Icon } from './components/Icons'
 import { S } from './lib/strings'
 
 const bottomTabs = [
@@ -56,9 +56,6 @@ function AppShell() {
       </Routes>
       {showBottomTabs && (
         <nav className="bottom-tabs" aria-label="主导航">
-          <div className="bottom-tabs-mark" aria-hidden="true">
-            <MnemosMark size={16} accent="var(--accent)" />
-          </div>
           <div className="bottom-tabs-row">
             {bottomTabs.map((tab) => (
               <Link
@@ -72,6 +69,7 @@ function AppShell() {
               </Link>
             ))}
           </div>
+          <div className="bottom-tabs-indicator" aria-hidden="true" />
         </nav>
       )}
     </>
