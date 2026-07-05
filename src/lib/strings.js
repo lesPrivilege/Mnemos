@@ -35,7 +35,6 @@ import { readerPanels } from './strings/readerPanels'
 import { reader } from './strings/reader'
 import { readingHome } from './strings/readingHome'
 import { readingHomeBody } from './strings/readingHomeBody'
-import { readingHomePage } from './strings/readingHomePage'
 import { readingHomeContent } from './strings/readingHomeContent'
 import { collectionDetail } from './strings/collectionDetail'
 import { bookmarks } from './strings/bookmarks'
@@ -76,7 +75,6 @@ export const S = {
   reader,
   readingHome,
   readingHomeBody,
-  readingHomePage,
   readingHomeContent,
   collectionDetail,
   bookmarks,

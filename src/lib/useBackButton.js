@@ -17,7 +17,6 @@ const ROUTES = [
 
   ['/reading/doc/:id',     '/collection/:id'],
   ['/collection/:id',      '/'],
-  ['/reading',             '/?tab=reading'],
 
   ['/prompt-guide',        '/import'],
   ['/import',              '/'],
