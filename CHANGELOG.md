@@ -1,5 +1,47 @@
 # Changelog
 
+## v1.4.0 — 2026-07-05
+
+Phase B 視覺重定調：token 系統換血、AppShell 底部 tab bar、三模塊首頁與核心頁
+restyle。取代兩個月前「打開即 Demo」的舊語彙。
+
+### Token 系統
+
+- 色彩全值改：硃砂 accent（hue 38）與洋緋 danger（hue 15）雙管分色，accent 退出
+  評分行/錯題/警示等一切語義場景，只留鈐印身份、due/進度/streak 數字、active tab
+- 字體軸改「內容 vs chrome」：`--font-zh` 內容宋體、`--font-ui` 全部 chrome 不分
+  文種（換 Noto Sans SC）、`--font-disp` 換 Source Serif 4；Inter/Instrument Serif
+  退場
+- 評分行統一：重來=洋緋、困難=赭黃、記住=墨底紙字、容易=綠
+- 新增 `--motion-slow`（420ms，翻卡/圖表/進度）；圓角收窄一檔
+- 三層 surface token（`--surface-chrome-*`/`--surface-raised`/`--surface-overlay`）
+  正式落地，AppShell 底部 tab bar 已消費
+
+### AppShell
+
+- 底部 tab bar 取代頂部分段 tab；L0 常駐 / L1 push 隱 tab / L2 會話全屏接管
+- L2 會話內容直排 `--bg`，去卡套卡；「答」硃印替代 ANSWER 角標
+- 記憶/練習/閱讀首頁 hero 卡片點擊統一導向活動總覽；streak/正確率改純 mono
+  文字行（去圖標徽章）
+
+### 清理
+
+- Home/Activity/DeckDetail/SetDetail/Reader 遺留英文標籤（DUE/DONE/TOTAL/
+  PROGRESS/ACCURACY/TOC 等）全部清理為純中文
+- 移除死路由 `/reading`、死 CSS（舊頂部 tab 殘留）、HeroSection 未渲染的死屬性
+- Settings 新增「載入示例內容包」入口（自撰中性學術示例：deck/題庫/文檔各一份）
+
+### 修復
+
+- 底部 tab bar 曾比設計稿厚近 30%（多餘 logo 行 + 強制 min-height）
+- 錯題本/收藏/解答自評頁的類型徽章與按鈕配色遷移不完整
+- 長標題/長麵包屑導致頂欄換行、頁碼計數器擠壓換行
+- Hero 卡片點擊一度只在練習 tab 生效
+
+### 數據說明
+
+- 無存儲層改動、無新增字段
+
 ## v1.3.0 — 2026-07-02
 
 五個功能閉環：自動備份、Anki 導入、SRS 學習步驟、每日提醒、錯題/高亮→閃卡。
