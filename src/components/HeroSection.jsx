@@ -4,7 +4,7 @@
  * Props:
  *   label     – string, e.g. "今日 · TODAY"
  *   right     – array of { icon, text } for the streak/star area
- *   metrics   – array of { value, label, zhLabel, accent? }
+ *   metrics   – array of { value, zhLabel, accent? }
  *   chartData – array of { count, isToday, label }
  *   chartColor – "" | "teal" | "good"
  *   cta       – optional { to, label, count } primary action

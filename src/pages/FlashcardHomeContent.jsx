@@ -129,14 +129,14 @@ export function FlashcardHomeContent() {
           ]}
           metrics={isEmptyLibrary
             ? [
-                { value: decks.length, label: 'DECKS', zhLabel: S.flashcardHome.decksZh, accent: true },
-                { value: totalDue, label: 'DUE', zhLabel: S.flashcardHome.dueZh },
-                { value: totalCards, label: 'CARDS', zhLabel: S.flashcardHome.cardsZh },
+                { value: decks.length, zhLabel: S.flashcardHome.decksZh, accent: true },
+                { value: totalDue, zhLabel: S.flashcardHome.dueZh },
+                { value: totalCards, zhLabel: S.flashcardHome.cardsZh },
               ]
             : [
-                { value: totalDue, label: 'DUE', zhLabel: S.flashcardHome.dueZh, accent: true },
-                { value: reviewedToday, label: 'DONE', zhLabel: S.flashcardHome.todayZh },
-                { value: totalCards, label: 'TOTAL', zhLabel: S.flashcardHome.totalZh },
+                { value: totalDue, zhLabel: S.flashcardHome.dueZh, accent: true },
+                { value: reviewedToday, zhLabel: S.flashcardHome.todayZh },
+                { value: totalCards, zhLabel: S.flashcardHome.totalZh },
               ]}
           chartData={weekChart.map(d => ({ count: d.count, isToday: d.isToday, label: DAY_LABELS[d.dow] }))}
           chartColor=""

@@ -195,14 +195,14 @@ export function QuizHomeContent() {
           : [{ icon: <SparkIcon size={14} />, text: S.quizHome.correctRatePrefix(weekStats.correctRate), warn: true }]}
         metrics={isEmptyLibrary
           ? [
-              { value: subjects.length, label: 'SETS', zhLabel: S.quizHome.setsZhLabel, accent: true },
-              { value: wrongCount, label: 'WRONG', zhLabel: S.quizHome.wrongZhLabel },
-              { value: totalQs, label: 'QUEST', zhLabel: S.quizHome.questZhLabel },
+              { value: subjects.length, zhLabel: S.quizHome.setsZhLabel, accent: true },
+              { value: wrongCount, zhLabel: S.quizHome.wrongZhLabel },
+              { value: totalQs, zhLabel: S.quizHome.questZhLabel },
             ]
           : [
-              { value: wrongCount, label: 'WRONG', zhLabel: S.quizHome.wrongZhLabel, accent: true },
-              { value: weekStats.doneThisWeek, label: 'DONE', zhLabel: S.quizHome.doneZhLabel },
-              { value: totalQs, label: 'TOTAL', zhLabel: S.quizHome.totalZhLabel },
+              { value: wrongCount, zhLabel: S.quizHome.wrongZhLabel, accent: true },
+              { value: weekStats.doneThisWeek, zhLabel: S.quizHome.doneZhLabel },
+              { value: totalQs, zhLabel: S.quizHome.totalZhLabel },
             ]}
         chartData={weekStats.chart.map(d => ({ count: d.n, isToday: d.today, label: d.d }))}
         chartColor="teal"
