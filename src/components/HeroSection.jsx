@@ -7,9 +7,9 @@
  *   metrics   – array of { value, zhLabel, accent? }
  *   chartData – array of { count, isToday, label }
  *   chartColor – "" | "teal" | "good"
- *   cta       – optional { to, label, count } primary action
+ *   cta       – optional { to?, onClick?, label, count } primary action
  */
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 function HeroMetrics({ metrics }) {
   return (
@@ -42,8 +42,8 @@ function HeroChart({ data, color, chartMax }) {
 }
 
 export function HeroSection({ label, right, metrics, chartData, chartColor, chartMax, to, cta }) {
+  const navigate = useNavigate()
   const Root = to ? Link : 'div'
-  const CtaRoot = cta?.to ? Link : 'button'
   return (
     <Root className={`hero ${to ? 'hero-link' : ''}`} {...(to ? { to } : {})}>
       <div className="hero-head">
@@ -53,10 +53,17 @@ export function HeroSection({ label, right, metrics, chartData, chartColor, char
       <HeroMetrics metrics={metrics} />
       <HeroChart data={chartData} color={chartColor} chartMax={chartMax} />
       {cta && (
-        <CtaRoot className="hero-cta" {...(cta.to ? { to: cta.to } : { type: 'button', onClick: cta.onClick })}>
+        <button type="button" className="hero-cta" onClick={(e) => {
+          // Hero itself may also be a Link (`to`); stop the tap from
+          // bubbling into it so the CTA's own destination wins.
+          e.stopPropagation()
+          e.preventDefault()
+          if (cta.to) navigate(cta.to)
+          else cta.onClick?.()
+        }}>
           <span>{cta.label}</span>
           {cta.count != null && <span className="hero-cta-count">{cta.count}</span>}
-        </CtaRoot>
+        </button>
       )}
     </Root>
   )

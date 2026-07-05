@@ -3,7 +3,7 @@
 import { useNavigate, Link } from 'react-router-dom'
 import { getDocumentsByCollection } from '../lib/storage'
 import { getWeeklyMinutes } from '../lib/stats'
-import { PlusIcon, UploadIcon, LayersIcon, SparkIcon } from '../../components/Icons'
+import { PlusIcon, UploadIcon, LayersIcon } from '../../components/Icons'
 import { HeroSection } from '../../components/HeroSection'
 import EmptyState from '../../components/EmptyState'
 import { S } from '../../lib/strings'
@@ -47,22 +47,23 @@ export default function ReadingHomeBody({ h }) {
               <HeroSection
                 label={isEmptyLibrary ? S.readingHomeBody.readyLabel : S.readingHomeBody.thisWeekLabel}
                 right={isEmptyLibrary
-                  ? [{ icon: <UploadIcon size={14} />, text: S.readingHomeBody.pendingImport }]
-                  : [{ icon: <SparkIcon size={14} />, text: S.readingHomeBody.minutesSuffix(weekly.totalThisWeek), warn: true }]}
+                  ? { text: S.readingHomeBody.pendingImport }
+                  : { text: S.readingHomeBody.minutesSuffix(weekly.totalThisWeek), color: 'var(--good)' }}
                 metrics={isEmptyLibrary
                   ? [
-                      { value: h.collections.length, label: 'COLS', zhLabel: S.readingHomeBody.colsZhLabel, accent: true },
-                      { value: weekly.totalThisWeek, label: 'MIN', zhLabel: S.readingHomeBody.minZhLabel },
-                      { value: docCount, label: 'DOCS', zhLabel: S.readingHomeBody.docsZhLabel },
+                      { value: h.collections.length, zhLabel: S.readingHomeBody.colsZhLabel, accent: true },
+                      { value: weekly.totalThisWeek, zhLabel: S.readingHomeBody.minZhLabel },
+                      { value: docCount, zhLabel: S.readingHomeBody.docsZhLabel },
                     ]
                   : [
-                      { value: weekly.totalThisWeek, label: 'MIN', zhLabel: S.readingHomeBody.minZhLabel, accent: true },
-                      { value: h.stats.docsCompleted, label: 'DONE', zhLabel: S.readingHomeBody.doneZhLabel },
-                      { value: docCount, label: 'DOCS', zhLabel: S.readingHomeBody.docsZhLabel },
+                      { value: weekly.totalThisWeek, zhLabel: S.readingHomeBody.minZhLabel, accent: true },
+                      { value: h.stats.docsCompleted, zhLabel: S.readingHomeBody.doneZhLabel },
+                      { value: docCount, zhLabel: S.readingHomeBody.docsZhLabel },
                     ]}
                 chartData={weekly.chart}
                 chartColor="good"
                 chartMax={maxCount}
+                to="/activity"
                 cta={firstDoc ? {
                   to: `/reading/doc/${firstDoc.id}?col=${firstDoc.collectionId}`,
                   label: S.readingHomeBody.startReadingAction,

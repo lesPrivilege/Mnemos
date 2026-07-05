@@ -144,6 +144,7 @@ export function FlashcardHomeContent() {
           chartData={weekChart.map(d => ({ count: d.count, isToday: d.isToday, label: DAY_LABELS[d.dow] }))}
           chartColor=""
           chartMax={maxCount}
+          to="/activity"
           cta={primaryDeck ? {
             to: `/review/${primaryDeck.id}${primaryDeck.dueCount > 0 ? '' : '?all=true'}`,
             label: S.flashcardHome.startReviewAction,
