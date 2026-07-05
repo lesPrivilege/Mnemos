@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { PlusIcon, UploadIcon, FlameIcon, StarIcon, PinIcon, MnemosMark } from '../components/Icons'
+import { PlusIcon, UploadIcon, FlameIcon, StarIcon, MnemosMark } from '../components/Icons'
 import { getAllDeckStats } from '../lib/scheduler'
-import { addDeck, deleteDecks, togglePin, loadData } from '../lib/storage'
+import { addDeck, deleteDecks, loadData } from '../lib/storage'
 import { localToday, isoToLocalDate, localDow, formatLocalDate } from '../lib/dateUtils'
 import { HeroSection } from '../components/HeroSection'
 import { loadReviewSession, clearReviewSession } from '../lib/reviewSession'
@@ -82,6 +82,7 @@ export function FlashcardHomeContent() {
   const reviewedToday = decks.reduce((sum, d) => sum + d.reviewedToday, 0)
   const totalCards = decks.reduce((sum, d) => sum + d.totalCards, 0)
   const isEmptyLibrary = decks.length === 0
+  const primaryDeck = sorted.find((deck) => deck.dueCount > 0) || sorted[0]
 
   const futureDistribution = decks.reduce((merged, deck) => {
     if (merged.length === 0) return deck.futureDistribution.map((d) => ({ ...d }))
@@ -140,7 +141,11 @@ export function FlashcardHomeContent() {
           chartData={weekChart.map(d => ({ count: d.count, isToday: d.isToday, label: DAY_LABELS[d.dow] }))}
           chartColor=""
           chartMax={maxCount}
-          to="/activity"
+          cta={primaryDeck ? {
+            to: `/review/${primaryDeck.id}${primaryDeck.dueCount > 0 ? '' : '?all=true'}`,
+            label: S.flashcardHome.startReviewAction,
+            count: totalDue > 0 ? totalDue : totalCards,
+          } : null}
         />
       )}
 
@@ -228,21 +233,6 @@ export function FlashcardHomeContent() {
                     </div>
                   </div>
                   <div className="deck-cta" style={{ gap: 6 }}>
-                    <button
-                      className="inline-flex items-center justify-center w-7 h-7 rounded-md text-ink-3 opacity-40 hover:opacity-100 hover:text-accent hover:bg-accent-soft transition-colors flex-shrink-0"
-                      onClick={(e) => { e.stopPropagation(); e.preventDefault(); togglePin(deck.id); refresh() }}
-                      title={deck.pinned ? S.flashcardHome.unpinDeck : S.flashcardHome.pinDeck}
-                      aria-label={deck.pinned ? S.flashcardHome.unpinDeck : S.flashcardHome.pinDeck}>
-                      <PinIcon size={15} filled={deck.pinned} />
-                    </button>
-                    <button
-                      className="inline-flex items-center justify-center w-7 h-7 rounded-md text-ink-3 opacity-40 hover:opacity-100 hover:text-danger hover:bg-danger-soft transition-colors flex-shrink-0"
-                      onClick={(e) => { e.stopPropagation(); e.preventDefault(); confirm({ title: S.flashcardHome.deleteDeckTitle, message: S.flashcardHome.deleteDeckMessage(deck.name), confirmLabel: S.flashcardHome.confirmDelete }).then(ok => { if (ok) { deleteDecks([deck.id]); refresh() } }) }}
-                      title={S.flashcardHome.deleteDeckMenu}>
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />
-                      </svg>
-                    </button>
                     {deck.dueCount > 0 ? (
                       <button className="cta-pill" onClick={(e) => { e.stopPropagation(); e.preventDefault(); navigate(`/review/${deck.id}`) }}>
                         {S.flashcardHome.reviewAction}<span className="arr">→</span>

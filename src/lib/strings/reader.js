@@ -1,4 +1,5 @@
 export const reader = {
+  tocTab: '目录',
   highlightsTab: '高亮',
   bookmarksTab: '书签',
   savedHighlightToast: '已保存高亮',

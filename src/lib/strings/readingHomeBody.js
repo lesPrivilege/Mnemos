@@ -20,6 +20,7 @@ export const readingHomeBody = {
   pinCollection: '置顶集合',
   deleteCollection: '删除集合',
   readAction: '阅读',
+  startReadingAction: '开始阅读',
   newDocHeading: '新建文档',
   docTitlePlaceholder: '文档标题',
   docContentPlaceholder: '文档内容（Markdown）',

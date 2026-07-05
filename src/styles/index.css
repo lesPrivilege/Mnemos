@@ -299,6 +299,10 @@ a { color: inherit; text-decoration: none; }
   background: var(--warn);
   color: var(--bg);
 }
+.settings-action-btn.neutral {
+  background: var(--ink);
+  color: var(--bg);
+}
 .settings-subject-row {
   display: flex;
   align-items: center;
@@ -486,10 +490,10 @@ a { color: inherit; text-decoration: none; }
 }
 .rv-card .corner {
   position: absolute; top: 14px; left: 16px;
-  font-size: 9px;
-  letter-spacing: 0.18em;
+  font-size: 10px;
+  letter-spacing: 0.1em;
   color: var(--ink-3);
-  text-transform: uppercase;
+  font-family: var(--font-ui);
   display: flex; gap: 6px; align-items: center;
 }
 .rv-card .corner .num {
@@ -532,8 +536,6 @@ a { color: inherit; text-decoration: none; }
 .rv-card .divider-srs {
   width: 100%; padding: 0 8px;
   display: flex; align-items: center; gap: 10px;
-  font-family: var(--font-ui); font-size: 9px;
-  color: var(--ink-3); letter-spacing: 0.18em; text-transform: uppercase;
 }
 .rv-card .divider-srs::before, .rv-card .divider-srs::after {
   content:""; flex: 1; height: 1px; background: var(--border-soft);
@@ -565,13 +567,13 @@ a { color: inherit; text-decoration: none; }
 
 /* ─────── Rate buttons ─────── */
 .rate {
-  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px;
   padding: 0 18px 18px;
 }
 .rate-btn {
-  display: flex; align-items: center; justify-content: center; gap: 6px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
   min-width: 0;
-  padding: 14px 12px;
+  padding: 12px 6px;
   border-radius: var(--r-md);
   border: 1px solid;
   font-family: var(--font-ui);
@@ -865,6 +867,63 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
    DESIGN MIGRATION — tabs · hero · dd · qa
    ═══════════════════════════════════════════════════ */
 
+/* ─────── App shell / L0 bottom tabs ─────── */
+.bottom-tabs {
+  position: fixed;
+  left: 50%;
+  right: auto;
+  bottom: 0;
+  z-index: 20;
+  width: min(100%, 480px);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 9px 0 calc(8px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--surface-chrome-border);
+  background: var(--surface-chrome-bg);
+  backdrop-filter: var(--surface-chrome-blur);
+  -webkit-backdrop-filter: var(--surface-chrome-blur);
+}
+@media (min-width: 720px) and (orientation: portrait) {
+  .bottom-tabs {
+    width: 100%;
+  }
+}
+.bottom-tabs-mark {
+  display: flex;
+  justify-content: center;
+  color: var(--ink);
+  line-height: 1;
+}
+.bottom-tabs-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2px;
+}
+.bottom-tab {
+  min-width: 0;
+  min-height: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: var(--ink-3);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  transition: color var(--motion-quick), transform var(--motion-quick);
+}
+.bottom-tab:active { transform: scale(0.96); }
+.bottom-tab svg {
+  width: 20px;
+  height: 20px;
+}
+.bottom-tab.on {
+  color: var(--accent);
+}
+
 /* ─────── Tab system ─────── */
 .tabs-head {
   display: flex; position: relative;
@@ -889,7 +948,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   background: var(--bg-card);
   box-shadow: var(--shadow-sm);
 }
-.tabs-tab .zh { font-family: var(--font-zh); font-size: 14px; letter-spacing: 0.04em; }
+.tabs-tab .zh { font-family: var(--font-ui); font-size: 14px; letter-spacing: 0.04em; }
 .tabs-tab .en {
   font-family: var(--font-ui); font-size: 9px;
   letter-spacing: 0.14em; text-transform: uppercase;
@@ -902,7 +961,12 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   display: flex; height: 100%;
   transition: transform 360ms cubic-bezier(.2,.8,.2,1);
 }
-.tab-pane { flex: 1 0 100%; overflow-y: auto; height: 100%; }
+.tab-pane {
+  flex: 1 0 100%;
+  overflow-y: auto;
+  height: 100%;
+  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+}
 
 /* ─────── Hero ─────── */
 .hero {
@@ -929,7 +993,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   flex-shrink: 0;
 }
 .hero .lbl {
-  font-family: var(--font-zh); font-size: 10px;
+  font-family: var(--font-ui); font-size: 10px;
   letter-spacing: 0.16em;
   color: var(--ink-3);
   font-weight: 500;
@@ -958,16 +1022,9 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   max-width: 100%;
 }
 .hero .num.accent { color: var(--accent); }
-.hero .label {
-  font-family: var(--font-ui); font-size: 10px;
-  letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--ink-3);
-  font-weight: 500;
-}
 .hero .zh-label {
-  font-family: var(--font-zh); font-size: 11px;
-  color: var(--ink-2);
-  letter-spacing: 0.02em;
+  font-family: var(--font-ui); font-size: 12px;
+  color: var(--ink-3);
 }
 .hero-divider {
   width: 1px; height: 52px;
@@ -993,7 +1050,10 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   transition: height 400ms cubic-bezier(.2,.8,.2,1);
 }
 .hero-bar.teal .b { background: var(--teal); }
+.hero-bar.good .b { background: var(--good); }
 .hero-bar.today .b { background: var(--accent); }
+.hero-bar.teal.today .b { background: var(--teal); }
+.hero-bar.good.today .b { background: var(--good); }
 .hero-bar.empty .b { background: var(--border); }
 .hero-bar .day {
   position: absolute; bottom: 0; left: 0; right: 0;
@@ -1003,6 +1063,32 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   color: var(--ink-3);
 }
 .hero-bar.today .day { color: var(--accent); font-weight: 600; }
+.hero-bar.teal.today .day { color: var(--teal); }
+.hero-bar.good.today .day { color: var(--good); }
+.hero-cta {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px;
+  border-radius: var(--r-md);
+  background: var(--ink);
+  color: var(--bg);
+  font-family: var(--font-ui);
+  font-size: 14.5px;
+  font-weight: 650;
+  line-height: 1;
+  transition: transform var(--motion-quick), background var(--motion-quick);
+}
+.hero-cta:active { transform: scale(0.98); }
+.hero-cta:hover { background: var(--ink-2); }
+.hero-cta-count {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.82;
+}
 
 /* ─────── Activity dashboard ─────── */
 .activity-content {
@@ -1054,13 +1140,8 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   line-height: 1; color: var(--ink);
 }
 .activity-hero .num.accent { color: var(--accent); }
-.activity-hero .label {
-  font-family: var(--font-ui); font-size: 9px;
-  letter-spacing: 0.12em; color: var(--ink-3);
-  text-align: center;
-}
 .activity-hero .zh-label {
-  font-family: var(--font-zh); font-size: 11px;
+  font-family: var(--font-ui); font-size: 11px;
   color: var(--ink-2);
 }
 .activity-section {
@@ -1102,12 +1183,8 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   font-family: var(--font-mono); font-size: 11px;
   color: var(--ink-3); margin-left: 2px;
 }
-.activity-ring-stats .lab {
-  font-family: var(--font-ui); font-size: 9px;
-  letter-spacing: 0.14em; color: var(--ink-3);
-}
 .activity-ring-stats .zh {
-  font-family: var(--font-zh); font-size: 11px;
+  font-family: var(--font-ui); font-size: 11px;
   color: var(--ink-2); text-align: center;
 }
 .activity-calendar {
@@ -1245,14 +1322,14 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   transition: width 400ms;
 }
 .dd-progress .bar.teal { background: var(--teal); }
+.dd-progress .bar.good { background: var(--good); }
 .dd-progress-row {
   display: flex; justify-content: space-between;
   font-family: var(--font-mono); font-size: 10px;
   color: var(--ink-3);
   letter-spacing: 0.1em;
 }
-/* Bare label span (PROGRESS/ACCURACY) is chrome, not data — discriminate by
-   position so a future call site doesn't need its own per-element override. */
+/* The leading progress label is chrome, not data. */
 .dd-progress-row > span:first-child { font-family: var(--font-ui); }
 .dd-cta { margin: 0 18px; }
 .dd-cta-main {
@@ -1299,8 +1376,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
 }
 .dd-action:hover { background: var(--bg-raised); color: var(--ink); }
 .dd-action .lab {
-  font-family: var(--font-zh); font-size: 11px; font-weight: 500;
-  letter-spacing: 0.02em;
+  font-family: var(--font-ui); font-size: 11px; font-weight: 600;
 }
 
 /* ─────── Deck list additions ─────── */
@@ -1310,8 +1386,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   padding: 7px 13px;
   border-radius: 999px;
   background: var(--ink); color: var(--bg);
-  font-family: var(--font-zh); font-size: 12px; font-weight: 500;
-  letter-spacing: 0.02em;
+  font-family: var(--font-ui); font-size: 12px; font-weight: 600;
   transition: opacity var(--motion-quick), transform var(--motion-quick);
 }
 .cta-pill:active { transform: scale(0.96); }
@@ -1387,7 +1462,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
 }
 .qa-opt:hover:not(:disabled) { border-color: var(--border-strong); }
 .qa-opt:disabled { cursor: default; }
-.qa-opt.picked { border-color: var(--accent); background: var(--accent-soft); }
+.qa-opt.picked { border-color: var(--ink); background: var(--bg-raised); }
 .qa-opt.correct { border-color: var(--good); background: var(--good-soft); }
 .qa-opt.wrong { border-color: var(--danger); background: var(--danger-soft); }
 .qa-opt.faded { opacity: 0.5; }
@@ -1398,7 +1473,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   font-family: var(--font-mono); font-size: 12px; font-weight: 600;
   color: var(--ink-2); flex-shrink: 0;
 }
-.qa-opt.picked .qa-mark { border-color: var(--accent); color: var(--accent); background: var(--bg-card); }
+.qa-opt.picked .qa-mark { border-color: var(--ink); color: var(--ink); background: var(--bg-card); }
 .qa-opt.correct .qa-mark { border-color: var(--good); color: var(--good); background: var(--bg-card); }
 .qa-opt.wrong .qa-mark { border-color: var(--danger); color: var(--danger); background: var(--bg-card); }
 .qa-text {
@@ -1450,7 +1525,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
 /* ─────── Rate additions ─────── */
 .rate-again { background: var(--danger-soft); color: var(--danger); border-color: color-mix(in oklch, var(--danger) 22%, transparent); }
 .rate-hard { background: var(--rate-hard-soft); color: var(--rate-hard); border-color: color-mix(in oklch, var(--rate-hard) 22%, transparent); }
-.rate-good { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-line); }
+.rate-good { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .rate-easy { background: var(--good-soft); color: var(--good); border-color: color-mix(in oklch, var(--good) 22%, transparent); }
 /* Review.jsx's real SM-2 interval-day prediction keeps this mono; QuizReview.jsx
    overrides its two literal-English usages (MISSED/GOT IT) to --font-ui inline —

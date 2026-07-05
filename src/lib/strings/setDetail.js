@@ -30,6 +30,7 @@ export const setDetail = {
   emptyChapters: '暂无章节数据',
   beginPracticeLabel: '开始练习',
   noQuestions: '暂无题目',
+  accuracyLabel: '正确率',
   importFirstLabel: '请先导入',
   wrongAction: '错题',
   starredAction: '收藏',

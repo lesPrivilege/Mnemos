@@ -16,6 +16,7 @@ export const quizHome = {
   confirmDelete: '确认删除',
   deleteSubjectAction: '删除科目',
   practiceAction: '练习',
+  startPracticeAction: '开始练习',
   dayLabels: ['日', '一', '二', '三', '四', '五', '六'],
   readyLabel: '准备',
   thisWeekLabel: '本周',

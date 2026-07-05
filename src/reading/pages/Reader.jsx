@@ -17,7 +17,7 @@ import '../../styles/markdown.css'
 import '../styles/reader.css'
 
 const BOTTOM_BTNS = [
-  { key: 'toc',        label: 'TOC' },
+  { key: 'toc',        label: S.reader.tocTab },
   { key: 'highlights', label: S.reader.highlightsTab },
   { key: 'bookmarks',  label: S.reader.bookmarksTab },
 ]
@@ -236,7 +236,7 @@ export default function Reader() {
       back += S.reader.flashcardSourceAttribution(doc.title)
       return { front, back, type: 'recall', chapter: doc.title || '', section: '' }
     })
-    navigate('/import', { state: { prefillCards: cards, prefillDeckName: `${S.reader.flashcardDeckNamePrefix}${doc.title}` } })
+    navigate('/import?tab=md', { state: { prefillCards: cards, prefillDeckName: `${S.reader.flashcardDeckNamePrefix}${doc.title}` } })
   }
 
   if (!doc) return null
@@ -368,14 +368,14 @@ export default function Reader() {
               onClick={() => togglePanel(b.key)}
               className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md transition-colors"
               style={{ color: activePanel === b.key ? 'var(--accent)' : 'var(--ink-3)' }}>
-              <span className="font-zh text-[13px]">{b.label}</span>
+              <span className="font-body text-[13px]">{b.label}</span>
             </button>
           ))}
           <div style={{ width: 1, height: 24, background: 'var(--border-soft)' }} />
           <button onClick={() => { setSettingsOpen(v => !v); setActivePanel(null) }}
             className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md transition-colors"
             style={{ color: settingsOpen ? 'var(--accent)' : 'var(--ink-3)' }}>
-            <span className="font-zh text-[13px]">{S.reader.settings}</span>
+            <span className="font-body text-[13px]">{S.reader.settings}</span>
           </button>
         </div>
       </div>

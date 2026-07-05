@@ -1,4 +1,7 @@
 export const browse = {
+  title: '浏览卡片',
+  frontLabel: '问',
+  backLabel: '答',
   empty: '暂无卡片',
   emptyHint: '导入或新建卡片',
   restore: '恢复',

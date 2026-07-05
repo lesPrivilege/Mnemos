@@ -28,6 +28,7 @@ import { discardQuarantined, getQuarantinedRaw, listQuarantined } from '../lib/q
 import { isNative } from '../lib/platform'
 import { getAutoBackupConfig, setEnabled, runBackupNow } from '../lib/autoBackup'
 import { isEnabled, getReminderTime, setReminderTime, enableReminders, disableReminders, resyncReminders } from '../lib/reminders'
+import { seedDemoContent } from '../lib/demoContent'
 import { useToast, Toast } from '../components/Toast'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 import { S } from '../lib/strings'
@@ -234,7 +235,7 @@ export default function Settings() {
       setDailyLimit('')
       setShowConfirm(null)
       refresh()
-      navigate('/')
+      navigate('/?tab=flashcard')
     } else {
       setShowConfirm('flashcards')
     }
@@ -246,7 +247,7 @@ export default function Settings() {
       clearAllProgress()
       setShowConfirm(null)
       refresh()
-      navigate('/')
+      navigate('/?tab=quiz')
     } else {
       setShowConfirm('questions')
     }
@@ -272,6 +273,12 @@ export default function Settings() {
     }
   }
 
+  const handleSeedDemoContent = () => {
+    const result = seedDemoContent()
+    refresh()
+    showToast(S.settings.demoContentAddedToast(result.total))
+  }
+
   return (
     <div className="page-fill">
       {/* Topbar */}
@@ -295,6 +302,17 @@ export default function Settings() {
             </button>
           </div>
         </div>
+
+        <section className="settings-card settings-module">
+          <div className="lbl">{S.settings.demoContentHeading}</div>
+          <ActionRow
+            title={S.settings.demoContentTitle}
+            detail={S.settings.demoContentDetail}
+            action={S.settings.demoContentAction}
+            tone="neutral"
+            onClick={handleSeedDemoContent}
+          />
+        </section>
 
         {/* Recall module */}
         <section className="settings-card settings-module">
@@ -679,7 +697,7 @@ export default function Settings() {
           </div>
           <div className="kv-row">
             <span className="k">{S.settings.displayFontLabel}</span>
-            <span className="v">Instrument · Noto Serif SC</span>
+            <span className="v">{S.settings.displayFontValue}</span>
           </div>
         </div>
       </main>

@@ -1,9 +1,9 @@
 // Shared body for ReadingHome and ReadingHomeContent
 // Accepts h (useReadingHome return) as props so both wrappers share one hook instance
 import { useNavigate, Link } from 'react-router-dom'
-import { getDocumentsByCollection, toggleCollectionPin } from '../lib/storage'
+import { getDocumentsByCollection } from '../lib/storage'
 import { getWeeklyMinutes } from '../lib/stats'
-import { PlusIcon, UploadIcon, LayersIcon, SparkIcon, PinIcon } from '../../components/Icons'
+import { PlusIcon, UploadIcon, LayersIcon, SparkIcon } from '../../components/Icons'
 import { HeroSection } from '../../components/HeroSection'
 import EmptyState from '../../components/EmptyState'
 import { S } from '../../lib/strings'
@@ -12,6 +12,9 @@ export default function ReadingHomeBody({ h }) {
   const navigate = useNavigate()
   const docCount = h.collections.reduce((sum, c) => sum + getDocumentsByCollection(c.id).length, 0)
   const isEmptyLibrary = h.collections.length === 0
+  const firstDoc = h.continueDoc || h.collections
+    .flatMap((collection) => getDocumentsByCollection(collection.id))
+    .find(Boolean)
 
   return (
     <>
@@ -58,9 +61,13 @@ export default function ReadingHomeBody({ h }) {
                       { value: docCount, label: 'DOCS', zhLabel: S.readingHomeBody.docsZhLabel },
                     ]}
                 chartData={weekly.chart}
-                chartColor="teal"
+                chartColor="good"
                 chartMax={maxCount}
-                to="/activity"
+                cta={firstDoc ? {
+                  to: `/reading/doc/${firstDoc.id}?col=${firstDoc.collectionId}`,
+                  label: S.readingHomeBody.startReadingAction,
+                  count: docCount,
+                } : null}
               />
             )
           })()}
@@ -132,21 +139,6 @@ export default function ReadingHomeBody({ h }) {
                   </div>
                 </div>
                 <div className="deck-cta" style={{ gap: 6 }}>
-                  <button
-                    className="inline-flex items-center justify-center w-7 h-7 rounded-md text-ink-3 opacity-40 hover:opacity-100 hover:text-accent hover:bg-accent-soft transition-colors flex-shrink-0"
-                    onClick={(e) => { e.stopPropagation(); toggleCollectionPin(col.id); h.refresh() }}
-                    title={col.pinned ? S.readingHomeBody.unpinCollection : S.readingHomeBody.pinCollection}
-                    aria-label={col.pinned ? S.readingHomeBody.unpinCollection : S.readingHomeBody.pinCollection}>
-                    <PinIcon size={15} filled={col.pinned} />
-                  </button>
-                  <button
-                    className="inline-flex items-center justify-center w-7 h-7 rounded-md text-ink-3 opacity-40 hover:opacity-100 hover:text-danger hover:bg-danger-soft transition-colors flex-shrink-0"
-                    onClick={(e) => { e.stopPropagation(); h.handleDeleteCollection(col.id, col.name) }}
-                    title={S.readingHomeBody.deleteCollection}>
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />
-                    </svg>
-                  </button>
                   {docs.length > 0 && (
                     <button className="cta-pill" onClick={(e) => {
                       e.stopPropagation()

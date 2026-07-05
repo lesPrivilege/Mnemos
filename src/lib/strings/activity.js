@@ -1,6 +1,7 @@
 export const activity = {
   todayTitle: '今日',
   todayCompletionAria: (percentValue) => `今日完成度 ${percentValue}%`,
+  percentLabel: '完成度',
   recallRingLabel: '记忆 · ',
   practiceRingLabel: '练习 · ',
   readingRingLabel: '阅读 · ',

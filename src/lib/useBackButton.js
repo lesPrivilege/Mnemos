@@ -17,7 +17,7 @@ const ROUTES = [
 
   ['/reading/doc/:id',     '/collection/:id'],
   ['/collection/:id',      '/'],
-  ['/reading',             '/'],
+  ['/reading',             '/?tab=reading'],
 
   ['/prompt-guide',        '/import'],
   ['/import',              '/'],
@@ -57,7 +57,7 @@ function getParent(pathname, searchParams) {
     // Special: /reading/doc/:id parent is /collection/:id — resolve from ?col= param
     if (parent === '/collection/:id') {
       const colId = searchParams.get('col')
-      resolved = colId ? `/collection/${colId}` : '/reading'
+      resolved = colId ? `/collection/${colId}` : '/?tab=reading'
     }
 
     // Special: /import?deckId=X → parent is /deck/X, not /

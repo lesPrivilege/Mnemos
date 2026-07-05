@@ -26,7 +26,7 @@ export default function SetDetail() {
     const ok = await confirm({ title: S.setDetail.deleteSubjectTitle, message: S.setDetail.deleteSubjectMessage(getSubjectDisplayName(subject)), confirmLabel: S.setDetail.confirmDelete })
     if (ok) {
       deleteSubject(subject)
-      navigate('/')
+      navigate('/?tab=quiz')
     }
   }
 
@@ -159,7 +159,7 @@ export default function SetDetail() {
               <div className="bar teal" style={{ width: `${accuracy}%` }} />
             </div>
             <div className="dd-progress-row">
-              <span>ACCURACY</span>
+              <span>{S.setDetail.accuracyLabel}</span>
               <span>{accuracy}%</span>
             </div>
           </div>

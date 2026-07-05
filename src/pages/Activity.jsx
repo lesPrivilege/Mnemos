@@ -55,13 +55,13 @@ function ActivityRings({ today, targets }) {
           {ringPath(practice, 66, 'var(--teal)')}
           {ringPath(reading, 46, 'var(--good)')}
           <text x="100" y="96" textAnchor="middle" fontFamily="var(--font-disp)" fontSize="38" fill="var(--ink)">{percentValue}</text>
-          <text x="100" y="116" textAnchor="middle" fontFamily="var(--font-ui)" fontSize="9" fill="var(--ink-3)" letterSpacing="2">PERCENT</text>
+          <text x="100" y="116" textAnchor="middle" fontFamily="var(--font-ui)" fontSize="10" fill="var(--ink-3)" letterSpacing="1">{S.activity.percentLabel}</text>
         </svg>
       </div>
       <div className="activity-ring-stats">
-        <div className="col"><span className="dot recall" /><span className="num">{today.recall}</span><span className="lab">RECALL</span><span className="zh">{S.activity.recallRingLabel}{targets.recall}</span></div>
-        <div className="col"><span className="dot practice" /><span className="num">{today.practice}</span><span className="lab">PRACTICE</span><span className="zh">{S.activity.practiceRingLabel}{targets.practice}</span></div>
-        <div className="col"><span className="dot read" /><span className="num">{today.reading}<span>m</span></span><span className="lab">READING</span><span className="zh">{S.activity.readingRingLabel}{targets.reading}</span></div>
+        <div className="col"><span className="dot recall" /><span className="num">{today.recall}</span><span className="zh">{S.activity.recallRingLabel}{targets.recall}</span></div>
+        <div className="col"><span className="dot practice" /><span className="num">{today.practice}</span><span className="zh">{S.activity.practiceRingLabel}{targets.practice}</span></div>
+        <div className="col"><span className="dot read" /><span className="num">{today.reading}<span>m</span></span><span className="zh">{S.activity.readingRingLabel}{targets.reading}</span></div>
       </div>
     </section>
   )
@@ -231,17 +231,14 @@ export default function Activity() {
           <div className="activity-hero-grid">
             <div>
               <span className="num accent">{data.activeDays}</span>
-              <span className="label">ACTIVE DAYS</span>
               <span className="zh-label">{S.activity.activeDaysLabel}</span>
             </div>
             <div>
               <span className="num">{data.weekTotals.total}</span>
-              <span className="label">THIS WEEK</span>
               <span className="zh-label">{S.activity.thisWeekLabel}</span>
             </div>
             <div>
               <span className="num">{data.totals.total}</span>
-              <span className="label">TOTAL</span>
               <span className="zh-label">{S.activity.totalLabel}</span>
             </div>
           </div>

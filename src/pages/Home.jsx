@@ -1,14 +1,19 @@
-import { useState, useRef, useCallback } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useRef, useCallback, useEffect } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { FlashcardHomeContent } from './FlashcardHomeContent'
 import { QuizHomeContent } from './QuizHomeContent'
 import ReadingHomeContent from '../reading/pages/ReadingHomeContent'
 import { SearchIcon, SettingsIcon, MnemosMark } from '../components/Icons'
 import { S } from '../lib/strings'
 
+const homeTabKeys = ['quiz', 'flashcard', 'reading']
+
 export default function Home() {
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [tab, setTab] = useState(() => {
-    const saved = sessionStorage.getItem('mnemos-home-tab')
+    const queryTab = new URLSearchParams(window.location.hash.split('?')[1] || '').get('tab')
+    const saved = queryTab || sessionStorage.getItem('mnemos-home-tab')
     if (saved === 'flashcard') return 1
     if (saved === 'reading') return 2
     if (saved === 'quiz') return 0
@@ -17,10 +22,21 @@ export default function Home() {
   const [drag, setDrag] = useState(null)
   const tabsRef = useRef(null)
 
+  useEffect(() => {
+    const queryTab = searchParams.get('tab')
+    if (!queryTab) return
+    const next = homeTabKeys.indexOf(queryTab)
+    if (next >= 0) {
+      setTab(next)
+      sessionStorage.setItem('mnemos-home-tab', queryTab)
+    }
+  }, [searchParams])
+
   const switchTab = (t) => {
     setTab(t)
     setDrag(null)
-    sessionStorage.setItem('mnemos-home-tab', ['quiz', 'flashcard', 'reading'][t])
+    sessionStorage.setItem('mnemos-home-tab', homeTabKeys[t])
+    navigate(`/?tab=${homeTabKeys[t]}`, { replace: true })
   }
 
   const onPanStart = useCallback((e) => {
@@ -74,24 +90,6 @@ export default function Home() {
           <Link to="/settings" className="tb-btn" aria-label={S.home.settings}><SettingsIcon size={18} /></Link>
         </div>
       </header>
-
-      {/* Segmented tab header */}
-      <div style={{ padding: '12px 0 0' }}>
-        <div className="tabs-head">
-          <button className={`tabs-tab ${tab === 0 ? 'on' : ''}`} onClick={() => switchTab(0)}>
-            <span className="zh">{S.home.practiceZh}</span>
-            <span className="en">PRACTICE</span>
-          </button>
-          <button className={`tabs-tab ${tab === 1 ? 'on' : ''}`} onClick={() => switchTab(1)}>
-            <span className="zh">{S.home.recallZh}</span>
-            <span className="en">RECALL</span>
-          </button>
-          <button className={`tabs-tab ${tab === 2 ? 'on' : ''}`} onClick={() => switchTab(2)}>
-            <span className="zh">{S.home.readingZh}</span>
-            <span className="en">READING</span>
-          </button>
-        </div>
-      </div>
 
       {/* Slideable tab panes */}
       <div className="tabs-viewport"

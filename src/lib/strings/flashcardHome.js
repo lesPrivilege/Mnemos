@@ -26,6 +26,7 @@ export const flashcardHome = {
   deleteDeckMessage: (deckName) => `删除卡组「${deckName}」？此操作不可撤销。`,
   deleteDeckMenu: '删除卡组',
   reviewAction: '复习',
+  startReviewAction: '开始复习',
   batchDeleteLabel: (count) => `删除 (${count})`,
   deleteAllTitle: '全部删除',
   deleteAllMessage: (count) => `删除全部 ${count} 个卡组及其所有卡片？此操作不可撤销。`,

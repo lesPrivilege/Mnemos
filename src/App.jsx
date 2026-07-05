@@ -1,4 +1,4 @@
-import { HashRouter, Routes, Route } from 'react-router-dom'
+import { HashRouter, Link, Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import ErrorBoundary from './components/ErrorBoundary'
 import { maybeRunAutoBackup } from './lib/autoBackup'
@@ -20,17 +20,23 @@ import SetDetail from './pages/SetDetail'
 import ReadingHome from './reading/pages/ReadingHome'
 import Reader from './reading/pages/Reader'
 import CollectionDetail from './reading/pages/CollectionDetail'
+import { MnemosMark, Icon } from './components/Icons'
+import { S } from './lib/strings'
 
-export default function App() {
-  useEffect(() => {
-    maybeRunAutoBackup()
-    const cleanup = initReminders()
-    return cleanup
-  }, [])
+const bottomTabs = [
+  { key: 'quiz', label: S.home.practiceZh, to: '/?tab=quiz', icon: <Icon d="M5 5h5v5H5zM14 5h5v5h-5zM5 14h5v5H5zM14 14h5v5h-5z" /> },
+  { key: 'flashcard', label: S.home.recallZh, to: '/?tab=flashcard', icon: <Icon d="M7 5h10a2 2 0 012 2v10M5 7h10a2 2 0 012 2v10H7a2 2 0 01-2-2z" /> },
+  { key: 'reading', label: S.home.readingZh, to: '/?tab=reading', icon: <Icon d="M5 5h7a3 3 0 013 3v11a3 3 0 00-3-3H5zM19 5h-4a3 3 0 00-3 3" /> },
+]
+
+function AppShell() {
+  const location = useLocation()
+  const params = new URLSearchParams(location.search)
+  const activeTab = params.get('tab') || sessionStorage.getItem('mnemos-home-tab') || 'flashcard'
+  const showBottomTabs = location.pathname === '/'
 
   return (
-    <HashRouter>
-      <ErrorBoundary>
+    <>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/deck/:id" element={<DeckDetail />} />
@@ -50,6 +56,41 @@ export default function App() {
         <Route path="/reading/doc/:id" element={<Reader />} />
         <Route path="/collection/:id" element={<CollectionDetail />} />
       </Routes>
+      {showBottomTabs && (
+        <nav className="bottom-tabs" aria-label="主导航">
+          <div className="bottom-tabs-mark" aria-hidden="true">
+            <MnemosMark size={16} accent="var(--accent)" />
+          </div>
+          <div className="bottom-tabs-row">
+            {bottomTabs.map((tab) => (
+              <Link
+                key={tab.key}
+                to={tab.to}
+                className={`bottom-tab ${activeTab === tab.key ? 'on' : ''}`}
+                aria-current={activeTab === tab.key ? 'page' : undefined}
+              >
+                {tab.icon}
+                <span>{tab.label}</span>
+              </Link>
+            ))}
+          </div>
+        </nav>
+      )}
+    </>
+  )
+}
+
+export default function App() {
+  useEffect(() => {
+    maybeRunAutoBackup()
+    const cleanup = initReminders()
+    return cleanup
+  }, [])
+
+  return (
+    <HashRouter>
+      <ErrorBoundary>
+        <AppShell />
       </ErrorBoundary>
     </HashRouter>
   )

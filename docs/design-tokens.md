@@ -24,40 +24,40 @@ once, not overridden in `:root.dark`).
 
 | Name | Role | Light | Dark |
 |---|---|---|---|
-| `--bg` | Page background | `oklch(96.5% 0.012 80)` | `oklch(16% 0.014 250)` |
-| `--bg-card` | Card / panel surface | `oklch(99% 0.006 80)` | `oklch(20% 0.016 250)` |
-| `--bg-raised` | Raised surface (hover states, progress tracks) | `oklch(94% 0.016 80)` | `oklch(24% 0.018 250)` |
-| `--bg-sunken` | Recessed background (body wrapper) | `oklch(92.5% 0.018 80)` | `oklch(13% 0.012 250)` |
-| `--border` | Default border | `oklch(86% 0.018 80)` | `oklch(30% 0.018 250)` |
-| `--border-soft` | Subtle border (dividers, card edges) | `oklch(91% 0.015 80)` | `oklch(26% 0.014 250)` |
-| `--border-strong` | Emphasized border | `oklch(72% 0.025 80)` | `oklch(42% 0.022 250)` |
-| `--ink` | Primary text | `oklch(22% 0.022 80)` | `oklch(95% 0.008 250)` |
-| `--ink-2` | Secondary text | `oklch(48% 0.020 80)` | `oklch(76% 0.012 250)` |
-| `--ink-3` | Tertiary text (labels, captions) | `oklch(66% 0.014 80)` | `oklch(58% 0.014 250)` |
-| `--ink-4` | Quaternary text (faintest, disabled-adjacent) | `oklch(78% 0.012 80)` | `oklch(42% 0.016 250)` |
-| `--accent` | Primary accent (ochre) | `oklch(56% 0.13 60)` | `oklch(74% 0.13 65)` |
-| `--accent-soft` | Accent tint background | `oklch(94% 0.038 60)` | `oklch(28% 0.06 50)` |
-| `--accent-line` | Accent border/underline weight | `oklch(78% 0.07 60)` | `oklch(44% 0.10 60)` |
-| `--teal` | Answer / reading semantic color | `oklch(50% 0.09 195)` | `oklch(74% 0.10 195)` |
-| `--teal-soft` | Teal tint background | `oklch(94% 0.025 195)` | `oklch(26% 0.05 195)` |
-| `--teal-line` | Teal border/underline weight | `oklch(78% 0.06 195)` | `oklch(44% 0.08 195)` |
-| `--good` | Success semantic | `oklch(54% 0.11 155)` | `oklch(74% 0.13 155)` |
-| `--good-soft` | Success tint background | `oklch(94% 0.030 155)` | `oklch(24% 0.05 155)` |
-| `--warn` | Warning semantic | `oklch(58% 0.13 70)` | `oklch(76% 0.13 75)` |
-| `--warn-soft` | Warning tint background | `oklch(94% 0.035 70)` | `oklch(26% 0.05 75)` |
-| `--danger` | Error/destructive semantic | `oklch(54% 0.16 28)` | `oklch(72% 0.15 28)` |
-| `--danger-soft` | Error tint background | `oklch(94% 0.030 28)` | `oklch(26% 0.06 28)` |
-| `--plum` | SM-2 "hard" rating accent | `oklch(48% 0.10 320)` | `oklch(72% 0.12 320)` |
-| `--rate-hard` | SM-2 "hard" rating text | `oklch(48% 0.12 100)` | `oklch(66% 0.12 100)` |
-| `--rate-hard-soft` | SM-2 "hard" rating tint background | `oklch(93% 0.035 100)` | `oklch(26% 0.05 100)` |
+| `--bg` | Page background | `oklch(96.8% 0.005 90)` | `oklch(15.5% 0.008 75)` |
+| `--bg-card` | Card / panel surface | `oklch(98.6% 0.004 90)` | `oklch(19% 0.009 75)` |
+| `--bg-raised` | Raised surface (hover states, progress tracks) | `oklch(94.5% 0.006 90)` | `oklch(23% 0.010 75)` |
+| `--bg-sunken` | Recessed background (body wrapper) | `oklch(93% 0.006 90)` | `oklch(12.5% 0.007 75)` |
+| `--border` | Default border | `oklch(85% 0.008 85)` | `oklch(30% 0.010 75)` |
+| `--border-soft` | Subtle border (dividers, card edges) | `oklch(90.5% 0.006 85)` | `oklch(25.5% 0.009 75)` |
+| `--border-strong` | Emphasized border | `oklch(68% 0.012 80)` | `oklch(42% 0.012 75)` |
+| `--ink` | Primary text | `oklch(20% 0.012 70)` | `oklch(92% 0.007 85)` |
+| `--ink-2` | Secondary text | `oklch(44% 0.012 75)` | `oklch(74% 0.009 85)` |
+| `--ink-3` | Tertiary text (labels, captions) | `oklch(60% 0.010 80)` | `oklch(57% 0.010 80)` |
+| `--ink-4` | Quaternary text (faintest, disabled-adjacent) | `oklch(76% 0.008 85)` | `oklch(41% 0.010 78)` |
+| `--accent` | Cinnabar accent (identity, due numbers, active tab) | `oklch(52% 0.16 38)` | `oklch(71% 0.14 42)` |
+| `--accent-soft` | Accent tint background | `oklch(94.5% 0.03 38)` | `oklch(27% 0.055 38)` |
+| `--accent-line` | Accent border/underline weight | `oklch(79% 0.075 38)` | `oklch(45% 0.10 38)` |
+| `--teal` | Legacy teal token, no longer reading module semantic | `oklch(45% 0.062 215)` | `oklch(73% 0.07 215)` |
+| `--teal-soft` | Teal tint background | `oklch(94% 0.018 215)` | `oklch(25% 0.035 215)` |
+| `--teal-line` | Teal border/underline weight | `oklch(79% 0.04 215)` | `oklch(43% 0.055 215)` |
+| `--good` | Success / easy / reading semantic | `oklch(51% 0.10 150)` | `oklch(73% 0.11 150)` |
+| `--good-soft` | Success tint background | `oklch(94% 0.028 150)` | `oklch(24% 0.05 150)` |
+| `--warn` | Warning semantic | `oklch(52% 0.12 78)` | `oklch(76% 0.11 78)` |
+| `--warn-soft` | Warning tint background | `oklch(94% 0.03 78)` | `oklch(25% 0.05 78)` |
+| `--danger` | Error/destructive/again semantic | `oklch(48% 0.17 15)` | `oklch(69% 0.15 15)` |
+| `--danger-soft` | Error tint background | `oklch(94% 0.028 12)` | `oklch(25% 0.05 12)` |
+| `--plum` | Reserved legacy accent | `oklch(46% 0.09 320)` | `oklch(72% 0.10 320)` |
+| `--rate-hard` | SM-2 "hard" rating text | `oklch(48% 0.10 95)` | `oklch(68% 0.10 95)` |
+| `--rate-hard-soft` | SM-2 "hard" rating tint background | `oklch(93.5% 0.03 95)` | `oklch(25% 0.045 95)` |
 
 ### Shadows
 
 | Name | Role | Light | Dark |
 |---|---|---|---|
-| `--shadow-sm` | Minimal lift (buttons, chips) | `0 1px 2px oklch(22% 0.02 80 / 0.04)` | `0 1px 2px #0008` |
-| `--shadow-md` | Card-level lift | `0 1px 2px oklch(22% 0.02 80 / 0.04), 0 8px 28px oklch(22% 0.02 80 / 0.045)` | `0 1px 3px #0008, 0 6px 24px #0006` |
-| `--shadow-lg` | Overlay/floating-bar lift | `0 2px 6px oklch(22% 0.02 80 / 0.06), 0 20px 48px oklch(22% 0.02 80 / 0.07)` | `0 4px 12px #000a, 0 16px 40px #0008` |
+| `--shadow-sm` | Minimal lift (buttons, chips) | `0 1px 2px oklch(20% 0.012 70 / 0.05)` | `0 1px 2px #0008` |
+| `--shadow-md` | Card-level lift | `0 1px 2px oklch(20% 0.012 70 / 0.05), 0 6px 16px oklch(20% 0.012 70 / 0.05)` | `0 1px 3px #0008, 0 6px 24px #0006` |
+| `--shadow-lg` | Overlay/floating-bar lift | `0 4px 10px oklch(20% 0.012 70 / 0.07), 0 20px 48px oklch(20% 0.012 70 / 0.08)` | `0 4px 12px #000a, 0 16px 40px #0008` |
 
 Dark-mode shadows intentionally use flat hex-alpha (`#0008` etc.), not oklch
 — existing pre-token-era values, left as-is rather than force-converted for
@@ -71,31 +71,31 @@ do not repurpose these for chrome.
 
 | Name | Role | Light | Dark |
 |---|---|---|---|
-| `--code-bg` | Code block background | `oklch(95% 0.012 80)` | `oklch(13% 0.012 250)` |
-| `--code-border` | Code block border | `oklch(89% 0.014 80)` | `oklch(26% 0.014 250)` |
-| `--tk-key` | Syntax: keys/keywords | `oklch(48% 0.14 320)` | `oklch(74% 0.14 320)` |
-| `--tk-str` | Syntax: strings | `oklch(48% 0.11 155)` | `oklch(74% 0.11 155)` |
-| `--tk-num` | Syntax: numbers | `oklch(48% 0.08 65)` | `oklch(76% 0.13 60)` |
-| `--tk-com` | Syntax: comments | `oklch(58% 0.04 80)` | `oklch(54% 0.014 250)` |
-| `--tk-fn` | Syntax: functions | `oklch(48% 0.13 195)` | `oklch(74% 0.11 240)` |
-| `--tk-op` | Syntax: operators | `oklch(48% 0.06 80)` | `oklch(85% 0.010 250)` |
+| `--code-bg` | Code block background | `oklch(94.5% 0.006 90)` | `oklch(12.5% 0.007 75)` |
+| `--code-border` | Code block border | `oklch(89% 0.008 85)` | `oklch(25.5% 0.009 75)` |
+| `--tk-key` | Syntax: keys/keywords | `oklch(46% 0.13 320)` | `oklch(74% 0.13 320)` |
+| `--tk-str` | Syntax: strings | `oklch(48% 0.10 150)` | `oklch(72% 0.10 150)` |
+| `--tk-num` | Syntax: numbers | `oklch(50% 0.09 78)` | `oklch(76% 0.11 78)` |
+| `--tk-com` | Syntax: comments | `oklch(58% 0.02 80)` | `oklch(54% 0.01 80)` |
+| `--tk-fn` | Syntax: functions | `oklch(46% 0.09 215)` | `oklch(72% 0.09 215)` |
+| `--tk-op` | Syntax: operators | `oklch(46% 0.05 80)` | `oklch(84% 0.01 85)` |
 
 ### Radii
 
 | Name | Role | Value (both themes) |
 |---|---|---|
-| `--r-sm` | Small radius (chips, tags) | `8px` |
-| `--r-md` | Default radius (buttons, cards, rows) | `12px` |
-| `--r-lg` | Large radius (sheets, larger cards) | `16px` |
-| `--r-xl` | Extra-large radius (floating bar) | `22px` |
+| `--r-sm` | Small radius (chips, tags) | `4px` |
+| `--r-md` | Default radius (buttons, cards, rows) | `8px` |
+| `--r-lg` | Large radius (sheets, larger cards) | `12px` |
+| `--r-xl` | Extra-large radius (floating bar) | `16px` |
 
 ### Fonts
 
 | Name | Role | Value (both themes) |
 |---|---|---|
-| `--font-zh` | Chinese body/UI text | `'Noto Serif SC', 'Songti SC', Georgia, serif` |
-| `--font-disp` | Display/wordmark serif (topbar `h1`, non-`.zh` variant) | `'Instrument Serif', 'Noto Serif SC', Georgia, serif` |
-| `--font-ui` | Latin UI chrome (labels, buttons, nav) | `'Inter', system-ui, -apple-system, sans-serif` |
+| `--font-zh` | Content serif (cards, answers, prose, deck/doc/chapter names) | `'Noto Serif SC', 'Songti SC', Georgia, serif` |
+| `--font-disp` | Wordmark and display numbers | `'Source Serif 4', 'Noto Serif SC', Georgia, serif` |
+| `--font-ui` | All chrome, regardless of language | `-apple-system, system-ui, 'Noto Sans SC', sans-serif` |
 | `--font-mono` | True data only — numbers/dates/counts/percentages/code | `'JetBrains Mono', ui-monospace, monospace` |
 
 These four are the **entire** font palette. See section 6 for the
@@ -149,6 +149,7 @@ codebase's hand-picked px values.
 |---|---|---|
 | `--motion-quick` | `120ms cubic-bezier(0.2, 0, 0, 1)` | Micro-interactions (100-200ms range) |
 | `--motion-gentle` | `240ms cubic-bezier(0.2, 0, 0, 1)` | Sheet/panel movements (240ms+ range) |
+| `--motion-slow` | `420ms cubic-bezier(0.2, 0, 0, 1)` | Flip cards, charts, and progress transitions |
 
 Shared ease matches the iOS/Material "standard decelerate" curve already
 implied by the hand-picked cubic-beziers elsewhere in `index.css`. See
@@ -159,8 +160,8 @@ hardcoded outside them.
 
 | Name | Role | Light | Dark |
 |---|---|---|---|
-| `--surface-chrome-bg` | Translucent bar background (FloatingBar) | `color-mix(in oklch, var(--bg-card) 85%, transparent)` | Same expression, resolves against dark's own `--bg-card` |
-| `--surface-chrome-blur` | Backdrop blur for chrome bars | `blur(8px)` | Same |
+| `--surface-chrome-bg` | Translucent bar background (FloatingBar) | `color-mix(in oklch, var(--bg-card) 88%, transparent)` | Same expression, resolves against dark's own `--bg-card` |
+| `--surface-chrome-blur` | Backdrop blur for chrome bars | `blur(12px)` | Same |
 | `--surface-chrome-border` | Border for chrome bars | `var(--border-soft)` | Same (theme-relative via the primitive) |
 | `--surface-raised` | Raised-surface alias | `var(--bg-raised)` | Same (theme-relative via the primitive) |
 | `--surface-overlay` | Overlay/sheet-surface alias | `var(--bg-card)` | Same (theme-relative via the primitive) |
@@ -211,11 +212,11 @@ background with a soft border.
 
 **These values are load-bearing, not placeholders.** `--surface-chrome-bg`
 and `--surface-chrome-blur` were recalibrated in Commit 2 of this token
-series specifically to match `FloatingBar.jsx`'s real, already-shipped
-production values — `85%` alpha over `--bg-card`, `blur(8px)` — after an
-earlier guess (`--bg` at 78% alpha + `blur(16px)`) was found to not match the
-actual component once there was a real call site to check against. The
-`color-mix(in oklch, var(--bg-card) 85%, transparent)` expression exists
+series specifically to match the Phase B ruling: `88%` alpha over
+`--bg-card`, `blur(12px)`. An earlier token-series calibration used 85% /
+8px to match the then-current component; Phase B intentionally tightens the
+chrome while keeping the same semantic surface contract. The
+`color-mix(in oklch, var(--bg-card) 88%, transparent)` expression exists
 specifically so the token stays *derived from* `--bg-card` as its single
 source of truth, rather than duplicating a hardcoded oklch-alpha literal that
 could drift out of sync with `--bg-card` later. If you change `--bg-card`,
@@ -385,19 +386,28 @@ accessibility-label language.
 
 ### Mono-font retreat (Commits `d326a9e` + `7f23bdb`)
 
-Policy applied: `--font-mono` retreats to true data only — numbers, dates,
-counts, percentages, code. A short all-caps English category label sitting
-next to a number (DUE/TOTAL/PROGRESS/etc.) is chrome describing the data, not
-the data itself: the label converts away from mono, the adjacent number
-stays mono.
+Policy applied: the font axis is now **content vs chrome**, plus display and
+data. `--font-zh` is content serif only: card fronts/backs, reader prose,
+deck names, document names, and chapter names. `--font-ui` is all chrome
+regardless of language: labels, buttons, tabs, segmented controls, chips,
+panel titles, and other operational UI. `--font-disp` is reserved for the
+Mnemos wordmark and display numbers. `--font-mono` retreats to true data
+only — numbers, dates, counts, percentages, code, storage paths, and compact
+machine-ish labels such as `LEECH` when used as a data badge.
+
+A short all-caps English category label sitting next to a number
+(DUE/TOTAL/PROGRESS/etc.) is chrome describing the data, not the data itself:
+the label converts away from mono, the adjacent number stays mono. Phase B
+also resolves the previous Chinese/Latin split: Chinese chrome no longer
+chooses `--font-zh` merely because it is Chinese.
 
 **Actual result across 96 grepped sites** (42 CSS declarations in
 `src/styles/index.css` + 54 inline JSX/JS sites): 53 sites kept mono (24 CSS
 + 29 JSX/JS — genuine data: position counters, percentages, SM-2 interval
 predictions, version numbers, technical values like storage paths), 43
-converted (18 CSS + 25 JSX/JS) to `--font-ui` (Latin chrome) or `--font-zh`
-(Chinese chrome) depending on
-the actual language of that specific piece of text. Highest-visibility
+converted (18 CSS + 25 JSX/JS) to `--font-ui` for chrome or `--font-zh`
+for content depending on the role of that specific piece of text.
+Highest-visibility
 changes: the Home tab bar's English labels (PRACTICE/RECALL/READING) and
 `HeroSection`'s English metric labels (SETS/DUE/TOTAL/etc., ~19 call sites)
 both lost their monospace treatment and now render in `--font-ui`.
@@ -405,7 +415,7 @@ both lost their monospace treatment and now render in `--font-ui`.
 Several shared CSS classes held mixed-language or mixed-role content across
 different call sites and needed per-element (not per-class) treatment — e.g.
 `.rv-card .corner` / `.qa-card .corner` needed a JSX-level split so the
-Chinese half of a mixed label renders `--font-zh` while the English half
+content half of a mixed label renders `--font-zh` while the chrome half
 inherits the new `--font-ui` ambient, rather than one blanket class change.
 A follow-up commit (`7f23bdb`) replaced two remaining inline
 `style={{fontFamily: ...}}` overrides (`DeckDetail.jsx`'s "PROGRESS",
@@ -489,11 +499,11 @@ tables.** No new colors — every color used in a prototype must be one of the
 named color/shadow/code-syntax tokens above, referenced by variable name, not
 a new hex/oklch literal. No new fonts — the font palette is exactly
 `--font-zh` / `--font-disp` / `--font-ui` / `--font-mono`, and which one
-applies to a given piece of text follows the classification policy actually
-applied in Commit 4 (section 6 above): true data (numbers/dates/counts/
-percentages/code) gets `--font-mono`; Chinese chrome gets `--font-zh`; Latin
-chrome gets `--font-ui`; `--font-disp` is reserved for the topbar's non-`.zh`
-display heading. No reintroducing a bilingual label that was dropped in
+applies to a given piece of text follows the Phase B classification policy
+in section 6 above: content text gets `--font-zh`; all chrome, regardless of
+language, gets `--font-ui`; true data (numbers/dates/counts/percentages/code)
+gets `--font-mono`; `--font-disp` is reserved for the wordmark and display
+numbers. No reintroducing a bilingual label that was dropped in
 Commit 3 without written rationale specific to that label — if a specific
 reintroduction is proposed, the reviewer's reference for "what was dropped
 and why" is `fe6c698`'s full commit message (the complete before/after list

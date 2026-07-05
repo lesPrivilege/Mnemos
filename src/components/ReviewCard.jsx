@@ -19,7 +19,7 @@ export default function ReviewCard({ card, index, flipped, onFlip, swipeOffset }
           <div className="flip-face">
             <span className="corner">
               <span className="num">{pos}</span>
-              <span>QUESTION</span>
+              <span>问</span>
             </span>
             <div className="body">
               <div className="front-q card-content" style={{ maxHeight: '40vh', overflowY: 'auto' }}
@@ -28,18 +28,16 @@ export default function ReviewCard({ card, index, flipped, onFlip, swipeOffset }
             <div className="ornament" />
           </div>
 
-          {/* BACK — REVERSO pattern: echo front, divider, then answer */}
+          {/* Back keeps the prompt above the answer without exposing pattern labels. */}
           <div className="flip-face flip-back-face">
             <span className="corner">
               <span className="num">{pos}</span>
-              <span>ANSWER</span>
+              <span>答</span>
             </span>
             <div className="body back">
               <div className="card-content font-zh text-[16px] text-ink-2" style={{ maxHeight: '20vh', overflowY: 'auto' }}
                 dangerouslySetInnerHTML={{ __html: frontHtml }} />
-              <div className="divider-srs">
-                <span>REVERSO</span>
-              </div>
+              <div className="divider-srs" aria-hidden="true" />
               <div className="back-a card-content" style={{ maxHeight: '35vh', overflowY: 'auto' }}
                 dangerouslySetInnerHTML={{ __html: backHtml }} />
             </div>
@@ -62,10 +60,10 @@ export default function ReviewCard({ card, index, flipped, onFlip, swipeOffset }
           <div style={{
             position: 'absolute', inset: 0, display: 'flex', alignItems: 'center',
             justifyContent: 'flex-end', paddingRight: 24, borderRadius: 'var(--r-lg)',
-            background: `color-mix(in oklch, var(--accent) ${Math.round(labelOpacity * 15)}%, transparent)`,
+            background: `color-mix(in oklch, var(--ink) ${Math.round(labelOpacity * 10)}%, transparent)`,
             pointerEvents: 'none', zIndex: 10,
           }}>
-            <span style={{ color: 'var(--accent)', fontWeight: 600, fontSize: 18, opacity: labelOpacity }}>{S.review.remember}</span>
+            <span style={{ color: 'var(--ink)', fontWeight: 600, fontSize: 18, opacity: labelOpacity }}>{S.review.remember}</span>
           </div>
         )}
       </div>

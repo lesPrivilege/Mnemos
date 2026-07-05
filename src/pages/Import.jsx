@@ -225,7 +225,7 @@ export default function Import() {
       showToast(S.import.importSummary(result.added, result.duplicates))
     }
     reset()
-    navigate('/')
+    navigate('/?tab=quiz')
   }
 
   // ---- MD handlers (flashcard) ----
@@ -269,7 +269,7 @@ export default function Import() {
     }
     showToast(S.import.importedDeckSummary(deck.name, cardsToImport.length, skipDup && dedup.count > 0 ? S.import.skippedDuplicatesSuffix(dedup.count) : ''))
     reset()
-    navigate(mdTargetDeck ? `/deck/${mdTargetDeck.id}` : '/')
+    navigate(mdTargetDeck ? `/deck/${mdTargetDeck.id}` : '/?tab=flashcard')
   }
 
   const handleConfirmJsonBackup = async () => {
@@ -296,7 +296,7 @@ export default function Import() {
       }
     }
     reset()
-    navigate('/')
+    navigate('/?tab=flashcard')
   }
 
   // ---- Reading handlers ----
@@ -341,7 +341,7 @@ export default function Import() {
     addDocument(colId, readingPreview.title, readingPreview.content, readingPreview.format)
     showToast(S.import.importedDocSummary(readingPreview.title, readingPreview.format.toUpperCase()))
     reset()
-    navigate('/reading')
+    navigate('/?tab=reading')
   }
 
   // ---- Preview mode: JSON quiz ----

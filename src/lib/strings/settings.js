@@ -6,6 +6,11 @@ export const settings = {
   quarantineDiscarded: '已丢弃隔离数据',
   title: '设置',
   appearanceHeading: '外观',
+  demoContentHeading: '示例内容',
+  demoContentTitle: '载入示例内容包',
+  demoContentDetail: '加入一组自撰记忆卡、练习题和阅读文档，用来预览完整流程',
+  demoContentAction: '载入',
+  demoContentAddedToast: (count) => count > 0 ? `已载入 ${count} 项示例内容` : '示例内容已存在',
   recallHeading: '记忆',
   decksLabel: '卡组',
   cardsLabel: '卡片',
@@ -88,4 +93,5 @@ export const settings = {
   aboutHeading: '关于',
   intervalAlgorithmLabel: '间隔算法',
   displayFontLabel: '显示字体',
+  displayFontValue: 'Source Serif · Noto Sans SC',
 }

@@ -94,7 +94,7 @@ export default function CollectionDetail() {
     const ok = await confirm({ title: S.collectionDetail.deleteCollectionTitle, message: S.collectionDetail.deleteCollectionMessage(col?.name), confirmLabel: S.collectionDetail.confirmDelete })
     if (!ok) return
     deleteCollection(id)
-    navigate('/')
+    navigate('/?tab=reading')
   }
 
   // ── Not found ──────────────────────────────────────

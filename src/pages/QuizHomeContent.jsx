@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { getSubjectStats, getSubjectList, getChapterList, loadLastSession, loadQuestions, loadProgress, deleteSubject, addQuestions, clearLastSession } from '../quiz/lib/storage'
+import { getSubjectStats, getSubjectList, getChapterList, loadLastSession, loadQuestions, loadProgress, addQuestions, clearLastSession } from '../quiz/lib/storage'
 import { isInWrongBook } from '../quiz/lib/quizEngine'
 import { parseQuestionsJson } from '../quiz/lib/questionParser'
 import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
@@ -9,7 +9,6 @@ import { UploadIcon, SparkIcon, PlusIcon, PasteIcon } from '../components/Icons'
 import { HeroSection } from '../components/HeroSection'
 import EmptyState from '../components/EmptyState'
 import { useToast, Toast } from '../components/Toast'
-import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 import { S } from '../lib/strings'
 
 function getTimeAgo(ts) {
@@ -56,7 +55,7 @@ function ContinueCard({ subjects, onDismiss }) {
   )
 }
 
-function SubjectCard({ subject, onChange, confirm }) {
+function SubjectCard({ subject }) {
   const navigate = useNavigate()
   const stats = getSubjectStats(subject)
   const hue = SUBJECT_HUE[subject] || 0
@@ -98,21 +97,6 @@ function SubjectCard({ subject, onChange, confirm }) {
         </div>
       </div>
       <div className="deck-cta" style={{ gap: 6 }}>
-        <button
-          className="inline-flex items-center justify-center w-7 h-7 rounded-md text-ink-3 opacity-40 hover:opacity-100 hover:text-danger hover:bg-danger-soft transition-colors flex-shrink-0"
-          onClick={async (e) => {
-            e.stopPropagation()
-            const ok = await confirm({ title: S.quizHome.deleteSubjectTitle, message: S.quizHome.deleteSubjectMessage(getSubjectDisplayName(subject)), confirmLabel: S.quizHome.confirmDelete })
-            if (ok) {
-              deleteSubject(subject)
-              onChange?.()
-            }
-          }}
-          title={S.quizHome.deleteSubjectAction}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />
-          </svg>
-        </button>
         {stats.total > 0 && (
           <button className="cta-pill" onClick={(e) => {
             e.stopPropagation()
@@ -170,7 +154,11 @@ export function QuizHomeContent() {
   const [newSubjectJson, setNewSubjectJson] = useState('')
   const isEmptyLibrary = subjects.length === 0
   const { toast, showToast } = useToast()
-  const { confirmState, confirm } = useConfirm()
+  const firstPracticeSubject = subjects.find(s => getSubjectStats(s).total > 0)
+  const firstPracticeCounts = firstPracticeSubject ? getChapterList(firstPracticeSubject).reduce((acc, ch) => ({
+    choice: acc.choice + ch.choice,
+    review: acc.review + ch.review,
+  }), { choice: 0, review: 0 }) : null
 
   const refresh = () => {
     setSubjects(getSubjectList())
@@ -223,7 +211,11 @@ export function QuizHomeContent() {
             ]}
         chartData={weekStats.chart.map(d => ({ count: d.n, isToday: d.today, label: d.d }))}
         chartColor="teal"
-        to="/activity"
+        cta={firstPracticeSubject ? {
+          to: firstPracticeCounts?.choice > 0 ? `/quiz/${firstPracticeSubject}` : `/quiz-review/${firstPracticeSubject}`,
+          label: S.quizHome.startPracticeAction,
+          count: totalQs,
+        } : null}
       />
 
       {/* Continue card */}
@@ -245,7 +237,7 @@ export function QuizHomeContent() {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {subjects.map(s => (
-            <SubjectCard key={s} subject={s} onChange={refresh} confirm={confirm} />
+            <SubjectCard key={s} subject={s} />
           ))}
         </div>
       )}
@@ -280,7 +272,6 @@ export function QuizHomeContent() {
         )}
       </div>
       <Toast message={toast} />
-      <ConfirmSheet state={confirmState} />
     </div>
   )
 }

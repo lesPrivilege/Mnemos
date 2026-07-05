@@ -111,7 +111,7 @@ export default function DeckDetail() {
     const ok = await confirm({ title: S.deckDetail.deleteDeckTitle, message: S.deckDetail.deleteDeckMessage, confirmLabel: S.deckDetail.confirmDelete })
     if (!ok) return
     deleteDeck(id)
-    navigate('/')
+    navigate('/?tab=flashcard')
   }
 
   const toggleSelect = (cardId) => {
@@ -290,7 +290,7 @@ export default function DeckDetail() {
               <div className="bar" style={{ width: `${total > 0 ? (learned / total) * 100 : 0}%` }} />
             </div>
             <div className="dd-progress-row">
-              <span>PROGRESS</span>
+              <span>{S.deckDetail.progressLabel}</span>
               <span>{total > 0 ? Math.round((learned / total) * 100) : 0}%</span>
             </div>
           </div>
@@ -480,9 +480,9 @@ export default function DeckDetail() {
       {previewCard && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6" style={{ background: 'rgba(0,0,0,0.5)' }} onClick={() => setPreviewCard(null)}>
           <div className="bg-bg-card rounded-lg p-5 max-w-sm w-full shadow-lg" style={{ border: '1px solid var(--border-soft)' }} onClick={e => e.stopPropagation()}>
-            <div className="font-body text-[10px] text-ink-3 mb-2 tracking-wider">FRONT</div>
+            <div className="font-body text-[10px] text-ink-3 mb-2 tracking-wider">{S.deckDetail.previewFrontLabel}</div>
             <div className="font-zh text-[15px] text-ink mb-3 max-h-40 overflow-y-auto"><PreviewContent text={previewCard.front} /></div>
-            <div className="font-body text-[10px] text-ink-3 mb-2 tracking-wider">BACK</div>
+            <div className="font-body text-[10px] text-ink-3 mb-2 tracking-wider">{S.deckDetail.previewBackLabel}</div>
             <div className="font-zh text-[14px] card-content max-h-48 overflow-y-auto" style={{ color: 'var(--teal)' }}><PreviewContent text={previewCard.back} /></div>
             <button onClick={() => setPreviewCard(null)} className="mt-4 w-full py-2 rounded-md text-sm font-body text-ink-2 border" style={{ borderColor: 'var(--border)' }}>{S.deckDetail.close}</button>
           </div>

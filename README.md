@@ -77,7 +77,7 @@ Mnemos/
 ├── docs/                         # roadmap、implementation prompts、backup 格式契约
 ├── design/                       # hi-fi 原型
 ├── android/                      # Capacitor Android wrapper
-└── assets/screenshots/           # 真机截图
+└── assets/screenshots/           # 界面截图
 ```
 
 ## 数据存储
@@ -95,7 +95,7 @@ Mnemos/
 - **题库**：`questions.json`（choice + review 题型）
 - **阅读**：`.md` / `.tex` / `.txt`
 
-## 附录：真机截图
+## 附录：界面截图
 
 <p align="center">
   <img src="assets/screenshots/overview-dark.jpg" width="86%" alt="Mnemos dark mode screenshot overview" />

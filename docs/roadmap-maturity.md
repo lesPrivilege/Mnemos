@@ -13,7 +13,15 @@ Demo 和成熟產品的差別不在功能量，在邊界是否存在。下面每
 
 ---
 
-## M1 — 設計語言解耦：token 三層
+## M1 — 設計語言解耦：token 三層 ✅ 完成（2026-07-04，feat/design-tokens，含減法審計）
+
+## M1b 進度 ✅ 回遷完成（2026-07-05，feat/redesign-migration）
+
+Phase A 三方向板 → gate 選定「玄墨為基、儀器殼、素白 L2 容器紀律」雜交 →
+Phase B 全量稿定案（五裁決 + 三 rider）→ 真組件棧回遷完成。交付物：
+`design/handoff/phase-b-full.html`、Phase B token/font policy、底部 AppShell、
+三模塊首頁與核心頁 restyle、Settings 示例內容入口、README 雙主題總覽圖。
+Migration prompt 已歸檔至 `docs/archive/prompts/feature-redesign-migration-prompt.md`。
 
 現有 CSS 變量（`--bg-raised`、`--danger`）只有一層。正式化為：
 
@@ -69,6 +77,10 @@ token 表）。啟動前提：功能盤完（P2 導圖、R4+1 等在跑事項收
 
 原則：**路由是唯一事實源，Home 排版只是殼之一。**
 
+狀態（2026-07-05）：手機 L0 shell 已落地為底部 tab；三個 Home 模式走
+`/?tab=quiz|flashcard|reading`，L1/L2 push 頁隱藏底欄；`useBackButton` 已把三模塊
+根路由對回對應 Home tab。iPad sidebar 仍只保留在 Phase B 設計資產中，未實作。
+
 - tab bar / FloatingBar / 頂欄收斂為 AppShell 層；頁面組件不感知殼的存在。
   未來 iOS 換原生 tab bar、iPad 換 sidebar、bar 懸浮半透明——只動殼。
 - 驗收標準：**每個頁面可從 URL 冷啟動直達且狀態完整。** 這是 widget、通知 action、
@@ -82,6 +94,8 @@ token 表）。啟動前提：功能盤完（P2 導圖、R4+1 等在跑事項收
 - **內容分發包**：一個 deck / 題庫 / 文檔集的自包含文件（`.mnemos` 或帶 manifest
   的 zip），version + 類型 + 元信息。三個用途：示例內容包（onboarding）、用戶間
   分享、未來線上內容索引的載體。備份格式（roadmap-long-term Phase 1.3）是其子集。
+  2026-07-05 已先落一個 Settings 入口的自撰示例內容包雛形；正式 `.mnemos` manifest
+  與內容包瀏覽頁仍屬後續輪次。
 - **URL scheme 正式契約**：`mnemos://review/:deckId`、`mnemos://import?src=...`。
   通知「直接開始複習」、widget 點擊、外部工具喚起全靠它。
 - **事件流 schema 化**：reviewLog/activity 已是雛形；定義正式 event schema 後，

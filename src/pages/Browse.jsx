@@ -13,12 +13,12 @@ function CardFace({ card }) {
 
   return (
     <>
-      {/* FRONT */}
+      {/* Front */}
       <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden' }}>
         <div className="h-full relative flex flex-col"
           style={{ padding: '22px 20px 20px' }}>
-          <div className="absolute top-[14px] left-4 font-body text-[9px] tracking-[0.18em] text-ink-3 uppercase flex gap-1.5 items-center">
-            <span style={{ color: 'var(--accent)', fontWeight: 600, letterSpacing: '0.02em', fontFamily: 'var(--font-mono)' }}>Q</span><span>FRONT</span>
+          <div className="absolute top-[14px] left-4 font-body text-[10px] tracking-[0.1em] text-ink-3 flex gap-1.5 items-center">
+            <span style={{ color: 'var(--accent)', fontWeight: 600, letterSpacing: '0.02em', fontFamily: 'var(--font-mono)' }}>Q</span><span>{S.browse.frontLabel}</span>
           </div>
           <div className="flex-1 flex flex-col items-stretch justify-start text-left gap-3.5 p-2 pt-8 pb-6">
             <div className="card-content font-zh text-[18px] font-medium leading-relaxed tracking-wide"
@@ -29,20 +29,19 @@ function CardFace({ card }) {
             style={{ background: 'linear-gradient(90deg, transparent, var(--ink-4), transparent)' }} />
         </div>
       </div>
-      {/* BACK */}
+      {/* Back */}
       <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
         <div className="h-full relative flex flex-col"
           style={{ padding: '22px 20px 20px' }}>
-          <div className="absolute top-[14px] left-4 font-body text-[9px] tracking-[0.18em] text-ink-3 uppercase flex gap-1.5 items-center">
-            <span style={{ color: 'var(--accent)', fontWeight: 600, letterSpacing: '0.02em', fontFamily: 'var(--font-mono)' }}>A</span><span>BACK</span>
+          <div className="absolute top-[14px] left-4 font-body text-[10px] tracking-[0.1em] text-ink-3 flex gap-1.5 items-center">
+            <span style={{ color: 'var(--accent)', fontWeight: 600, letterSpacing: '0.02em', fontFamily: 'var(--font-mono)' }}>A</span><span>{S.browse.backLabel}</span>
           </div>
               <div className="flex-1 flex flex-col items-stretch justify-start text-left gap-3.5 p-2 pt-8 pb-6">
             <div className="card-content font-zh text-[16px] text-ink-2"
               style={{ maxHeight: '20vh', overflowY: 'auto' }}
               dangerouslySetInnerHTML={{ __html: frontHtml }} />
-            <div className="w-full px-2 flex items-center gap-2.5 font-body text-[9px] text-ink-3 tracking-[0.18em] uppercase">
+            <div className="w-full px-2 flex items-center gap-2.5" aria-hidden="true">
               <span className="flex-1 h-px" style={{ background: 'var(--border-soft)' }} />
-              REVERSO
               <span className="flex-1 h-px" style={{ background: 'var(--border-soft)' }} />
             </div>
             <div className="card-content font-zh text-base leading-[1.85] text-teal text-left self-stretch tracking-wide"
@@ -127,7 +126,7 @@ export default function Browse() {
           <button onClick={goBack} className="tb-btn">
             <BackIcon />
           </button>
-          <h1 className="flex-1 font-zh text-[17px] font-medium text-ink pl-1">Browse</h1>
+          <h1 className="flex-1 font-zh text-[17px] font-medium text-ink pl-1">{S.browse.title}</h1>
         </header>
         <div className="empty">
           <div className="glyph">∅</div>

@@ -33,8 +33,8 @@ export default {
         danger: { DEFAULT: 'var(--danger)', soft: 'var(--danger-soft)' },
       },
       fontFamily: {
-        display: ['"Instrument Serif"', '"Noto Serif SC"', 'Georgia', 'serif'],
-        body: ['"Inter"', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['"Source Serif 4"', '"Noto Serif SC"', 'Georgia', 'serif'],
+        body: ['-apple-system', 'system-ui', '"Noto Sans SC"', 'sans-serif'],
         zh: ['"Noto Serif SC"', '"Songti SC"', 'Georgia', 'serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },

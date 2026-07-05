@@ -6,7 +6,8 @@
  *   right     – array of { icon, text } for the streak/star area
  *   metrics   – array of { value, label, zhLabel, accent? }
  *   chartData – array of { count, isToday, label }
- *   chartColor – "" | "teal"
+ *   chartColor – "" | "teal" | "good"
+ *   cta       – optional { to, label, count } primary action
  */
 import { Link } from 'react-router-dom'
 
@@ -18,7 +19,6 @@ function HeroMetrics({ metrics }) {
           {i > 0 && <div className="hero-divider" />}
           <div className="hero-col">
             <span className={`num ${m.accent ? 'accent' : ''}`}>{m.value}</span>
-            <span className="label">{m.label}</span>
             <span className="zh-label">{m.zhLabel}</span>
           </div>
         </div>
@@ -41,9 +41,10 @@ function HeroChart({ data, color, chartMax }) {
   )
 }
 
-export function HeroSection({ label, right, metrics, chartData, chartColor, chartMax, to }) {
+export function HeroSection({ label, right, metrics, chartData, chartColor, chartMax, to, cta }) {
   if (!right) right = []
   const Root = to ? Link : 'div'
+  const CtaRoot = cta?.to ? Link : 'button'
   return (
     <Root className={`hero ${to ? 'hero-link' : ''}`} {...(to ? { to } : {})}>
       <div className="hero-head">
@@ -59,6 +60,12 @@ export function HeroSection({ label, right, metrics, chartData, chartColor, char
       </div>
       <HeroMetrics metrics={metrics} />
       <HeroChart data={chartData} color={chartColor} chartMax={chartMax} />
+      {cta && (
+        <CtaRoot className="hero-cta" {...(cta.to ? { to: cta.to } : { type: 'button', onClick: cta.onClick })}>
+          <span>{cta.label}</span>
+          {cta.count != null && <span className="hero-cta-count">{cta.count}</span>}
+        </CtaRoot>
+      )}
     </Root>
   )
 }
