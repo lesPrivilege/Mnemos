@@ -5,7 +5,7 @@ import { isInWrongBook } from '../quiz/lib/quizEngine'
 import { parseQuestionsJson } from '../quiz/lib/questionParser'
 import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
 import { SUBJECT_HUE, SUBJECT_GLYPH } from '../quiz/lib/subjectMeta'
-import { UploadIcon, SparkIcon, PlusIcon, PasteIcon } from '../components/Icons'
+import { UploadIcon, PlusIcon, PasteIcon } from '../components/Icons'
 import { HeroSection } from '../components/HeroSection'
 import EmptyState from '../components/EmptyState'
 import { useToast, Toast } from '../components/Toast'
@@ -191,8 +191,8 @@ export function QuizHomeContent() {
       <HeroSection
         label={isEmptyLibrary ? S.quizHome.readyLabel : S.quizHome.thisWeekLabel}
         right={isEmptyLibrary
-          ? [{ icon: <UploadIcon size={14} />, text: S.quizHome.pendingImport }]
-          : [{ icon: <SparkIcon size={14} />, text: S.quizHome.correctRatePrefix(weekStats.correctRate), warn: true }]}
+          ? { text: S.quizHome.pendingImport }
+          : { text: S.quizHome.correctRatePrefix(weekStats.correctRate), color: 'var(--teal)' }}
         metrics={isEmptyLibrary
           ? [
               { value: subjects.length, zhLabel: S.quizHome.setsZhLabel, accent: true },

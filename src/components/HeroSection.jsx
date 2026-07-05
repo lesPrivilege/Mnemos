@@ -2,8 +2,8 @@
  * HeroSection — shared dashboard hero used by both flashcard and quiz tabs.
  *
  * Props:
- *   label     – string, e.g. "今日 · TODAY"
- *   right     – array of { icon, text } for the streak/star area
+ *   label     – string
+ *   right     – optional { text, color } for the streak/accuracy line
  *   metrics   – array of { value, zhLabel, accent? }
  *   chartData – array of { count, isToday, label }
  *   chartColor – "" | "teal" | "good"
@@ -42,21 +42,13 @@ function HeroChart({ data, color, chartMax }) {
 }
 
 export function HeroSection({ label, right, metrics, chartData, chartColor, chartMax, to, cta }) {
-  if (!right) right = []
   const Root = to ? Link : 'div'
   const CtaRoot = cta?.to ? Link : 'button'
   return (
     <Root className={`hero ${to ? 'hero-link' : ''}`} {...(to ? { to } : {})}>
       <div className="hero-head">
         <span className="lbl">{label}</span>
-        <div className="hero-head-right">
-          {right.map((r, i) => (
-            <span key={i} className={`streak ${r.warn ? 'warn' : ''}`}>
-              {r.icon}
-              <span>{r.text}</span>
-            </span>
-          ))}
-        </div>
+        {right && <span className="streak" style={{ color: right.color }}>{right.text}</span>}
       </div>
       <HeroMetrics metrics={metrics} />
       <HeroChart data={chartData} color={chartColor} chartMax={chartMax} />

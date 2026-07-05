@@ -964,10 +964,6 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   display: flex; align-items: center; justify-content: space-between;
   gap: 8px;
 }
-.hero-head-right {
-  display: inline-flex; align-items: center; gap: 8px;
-  flex-shrink: 0;
-}
 .hero .lbl {
   font-family: var(--font-ui); font-size: 10px;
   letter-spacing: 0.16em;
@@ -975,11 +971,10 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   font-weight: 500;
 }
 .hero .streak {
-  display: inline-flex; align-items: center; gap: 4px;
+  flex-shrink: 0;
   font-family: var(--font-mono); font-size: 11px;
   color: var(--accent); font-weight: 500;
 }
-.hero .streak.warn { color: var(--warn); }
 .hero-row {
   display: flex; align-items: flex-start; justify-content: space-around;
   gap: 4px;

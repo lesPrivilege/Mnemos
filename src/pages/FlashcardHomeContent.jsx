@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { PlusIcon, UploadIcon, FlameIcon, StarIcon, MnemosMark } from '../components/Icons'
+import { PlusIcon, UploadIcon, MnemosMark } from '../components/Icons'
 import { getAllDeckStats } from '../lib/scheduler'
 import { addDeck, deleteDecks, loadData } from '../lib/storage'
 import { localToday, isoToLocalDate, localDow, formatLocalDate } from '../lib/dateUtils'
@@ -114,6 +114,13 @@ export function FlashcardHomeContent() {
   const [reviewSession, setReviewSession] = useState(() => loadReviewSession())
   const dismissReviewSession = () => { clearReviewSession(); setReviewSession(null) }
 
+  const streakParts = []
+  if (streak > 0) streakParts.push(S.flashcardHome.streakLabel(streak))
+  if (starredCount > 0) streakParts.push(S.flashcardHome.starredCountLabel(starredCount))
+  const heroRight = isEmptyLibrary
+    ? { text: S.flashcardHome.pendingImport }
+    : streakParts.length > 0 ? { text: streakParts.join(' · ') } : null
+
   const DECK_COLORS = ['h0', 'h1', 'h2', 'h3']
 
   return (
@@ -122,11 +129,7 @@ export function FlashcardHomeContent() {
       {!editing && (
         <HeroSection
           label={isEmptyLibrary ? S.flashcardHome.readyLabel : S.flashcardHome.todayLabel}
-          right={[
-            ...(isEmptyLibrary ? [{ icon: <UploadIcon size={14} />, text: S.flashcardHome.pendingImport }] : []),
-            ...(!isEmptyLibrary && streak > 0 ? [{ icon: <FlameIcon size={14} />, text: `${streak}${S.flashcardHome.streakSuffix}` }] : []),
-            ...(!isEmptyLibrary && starredCount > 0 ? [{ icon: <StarIcon size={14} />, text: String(starredCount) }] : []),
-          ]}
+          right={heroRight}
           metrics={isEmptyLibrary
             ? [
                 { value: decks.length, zhLabel: S.flashcardHome.decksZh, accent: true },
