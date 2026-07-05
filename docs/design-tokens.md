@@ -410,7 +410,9 @@ for content depending on the role of that specific piece of text.
 Highest-visibility
 changes: the Home tab bar's English labels (PRACTICE/RECALL/READING) and
 `HeroSection`'s English metric labels (SETS/DUE/TOTAL/etc., ~19 call sites)
-both lost their monospace treatment and now render in `--font-ui`.
+both lost their monospace treatment and now render in `--font-ui`. (Both
+were later deleted outright during the Phase B redesign rather than kept
+in `--font-ui` — see §7 items 1 and 2 for the current state.)
 
 Several shared CSS classes held mixed-language or mixed-role content across
 different call sites and needed per-element (not per-class) treatment — e.g.
@@ -430,65 +432,54 @@ metrics left more headroom, not less.
 
 ---
 
-## 7. Known gap — bilingual-adjacent patterns NOT yet addressed
+## 7. Bilingual-adjacent patterns — resolved during the Phase B migration
 
-**This section exists because a prior code review of Commit 3 flagged that
-omitting it would make the subtraction audit read as more complete than it
-actually is. Do not skip it when reading this document — it is the single
-most important thing for Claude Design to know before starting the
-redesign.**
+**Originally written as a known gap ahead of the redesign (see history
+below); all four items are now resolved as of the `feat/redesign-migration`
+branch (2026-07-05).** Left in place, past tense, as the record of what
+the redesign actually did to each site — useful if a future subtraction
+round wants precedent for how "English chrome next to Chinese content"
+gets judged.
+
+**This section originally existed because a prior code review of Commit 3
+flagged that omitting it would make the subtraction audit read as more
+complete than it actually was — the four items below were NOT yet
+addressed at token-migration time and were named as the starting scope for
+Claude Design's redesign or a future subtraction round.**
 
 The Commit 3/4 subtraction audits above reached exactly **one** structural
 pattern: the `"中文 · ENGLISH"` combined-string pattern living in
 `src/lib/strings/`, findable by grepping for that literal string shape.
-There are at least four other locations where an English label sits visually
-adjacent to Chinese content in a way that reads the same way to a user, but
-is structurally invisible to that grep because the English and Chinese
-pieces are two separate JSX elements/props rather than one combined string.
-**None of these have been touched by M1 or M1b.** They are explicitly named
-here as candidates for a future subtraction round, or for Claude Design's own
-judgment call during the redesign — not silently carried forward as if they
-don't exist.
+There were at least four other locations where an English label sat
+visually adjacent to Chinese content in a way that read the same way to a
+user, but was structurally invisible to that grep because the English and
+Chinese pieces were two separate JSX elements/props rather than one
+combined string. All four are now resolved:
 
-1. **`src/components/HeroSection.jsx`'s `metrics` prop shape** —
-   `{ value, label, zhLabel, accent? }`. The `label` field (English, e.g.
-   `SETS`/`DUE`/`TOTAL`/`DECKS`/`CARDS`/`COLS`/`MIN`/`DOCS`) renders in its
-   own `<span className="label">` sitting immediately next to
-   `<span className="zh-label">{zhLabel}</span>` — visually the same
-   "English next to Chinese" pattern as the strings that got dropped in
-   Commit 3, just not implemented as one combined string. Consumed by
-   `QuizHomeContent.jsx`, `FlashcardHomeContent.jsx`,
-   `src/reading/pages/ReadingHomeBody.jsx`, plus `Settings.jsx`'s own
-   separate `.settings-metrics` blocks (not routed through `HeroSection` at
-   all — a parallel implementation of the same visual idea). Roughly 19
-   sites total, but the `HeroSection`/`QuizHomeContent`/
-   `FlashcardHomeContent`/`ReadingHomeBody` sites all funnel through one
-   shared component — deciding whether `label` should exist going forward
-   (drop it, keep it, restyle it) in `HeroSection.jsx` itself would resolve
-   the majority of this gap in one place, not 19 separate edits.
-2. **`src/pages/Home.jsx`'s tab bar** — `.tabs-tab .en` spans render
-   `PRACTICE`/`RECALL`/`READING` next to each tab's Chinese label. This is
-   the app's primary, always-visible navigation — three instances of the
-   pattern are on screen simultaneously on every single visit to Home, which
-   makes it higher-stakes than most of what Commit 3 did touch.
-3. **`src/pages/Activity.jsx`'s own separate stat-row labels** — e.g.
-   `ACTIVE DAYS`, `THIS WEEK`, `TOTAL`, and the ring-stat labels `RECALL`/
-   `PRACTICE`/`READING` (paired with their own `.zh` spans), roughly 6 more
-   sites, not routed through `HeroSection` either.
-4. **`src/reading/pages/Reader.jsx`'s TOC tab label** — the panel-tab array
-   includes `{ key: 'toc', label: 'TOC' }` rendered next to Chinese panel
-   chrome. Worth a specific double-check because this one may simply have
-   been missed by the *original* string-externalization round (the one that
-   predates this token series), not just skipped by this audit's narrower
-   scope — i.e. it's possible this is a leftover from an earlier gap, not a
-   new one.
+1. **`src/components/HeroSection.jsx`'s `metrics` prop shape** — RESOLVED
+   (`ffb5b26`, 2026-07-05). The `label` field (`SETS`/`DUE`/`TOTAL`/
+   `DECKS`/`CARDS`/`COLS`/`MIN`/`DOCS`) is gone from the shape entirely —
+   not restyled, dropped. `metrics` is now `{ value, zhLabel, accent? }`.
+   Callers (`QuizHomeContent.jsx`, `FlashcardHomeContent.jsx`,
+   `ReadingHomeBody.jsx`) no longer compute or pass it. `Settings.jsx`'s
+   separate `.settings-metrics` blocks were not part of this component and
+   weren't touched — check those separately if auditing this pattern again.
+2. **`src/pages/Home.jsx`'s tab bar** — RESOLVED (`57177e9`). The whole top
+   segmented tab bar (and its `.en` PRACTICE/RECALL/READING spans) was
+   replaced by AppShell's bottom tab bar, which renders Chinese-only labels
+   (练习/记忆/阅读) with icons, no English at all. The dead `.tabs-head`/
+   `.tabs-tab*` CSS this left behind was cleaned up later in `49c0ea0`.
+3. **`src/pages/Activity.jsx`'s own separate stat-row labels** — RESOLVED
+   (`57177e9`). `ACTIVE DAYS`/`THIS WEEK`/`TOTAL` and the ring-stat labels
+   `RECALL`/`PRACTICE`/`READING` were all deleted; the Chinese `.zh` labels
+   next to them now stand alone.
+4. **`src/reading/pages/Reader.jsx`'s TOC tab label** — RESOLVED (`57177e9`).
+   `label: 'TOC'` is now `label: S.reader.tocTab` → `'目录'`.
 
-If you are Claude Design and the redesign naturally resolves some or all of
-these (e.g. by deciding `HeroSection` labels should disappear entirely, or
-render differently), that is a legitimate design decision to make in the
-prototype — but make it a decision, documented as such, not a silent
-omission. If you are a future CLI/human session running another subtraction
-round, this list is the starting scope.
+If a future subtraction round finds a *new* instance of this pattern (a
+future page adding its own English-next-to-Chinese chrome label instead of
+routing through the already-cleaned shared components above), this section
+is the precedent for how it was judged and where to look first.
 
 ---
 

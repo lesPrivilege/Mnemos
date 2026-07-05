@@ -3,13 +3,18 @@
 > 定位：個人長期使用為主，保留對外發布（含 iOS）的可能性。體量不是瓶頸，數據安全與可維護性是。
 > 本文檔是後續迭代的 prompt 源：每輪迭代從這裡取一個條目，展開成 feature prompt（沿用 docs/feature-*-prompt.md 的模式）。
 
-## 現狀快照（2026-07，v1.3.0）
+## 現狀快照（2026-07，v1.3.0，寫於 Phase 1 之前——下方 Phase 1-2 已完成，此快照僅存檔對照用）
 
 - ~11k 行 JS/JSX，112 commits，三模塊（flashcard / quiz / reading）邊界清晰
 - 存儲：三套獨立的 localStorage 封裝（`mnemos-*` / `examprep-*` / `reading-*`）+ IndexedDB（僅 reading bodies）
 - 測試：僅 `ankiParser.test.js` 一個文件，且 package.json 無 test script
 - 無 TypeScript、無 lint、無 CI
 - 已有優勢：外部化 LLM 邊界（見 mnemos-review-2026-05-18.md）、formatSpec 單一事實源、逐層防禦的 parser
+
+**現狀（2026-07-05，Phase 1-2 完成後）**：~13.8k 行，183 commits；vitest 14
+個測試文件 91 個用例 + eslint + `npm run check` 三件套齊全；`src/lib/store.js`
+共享存儲層已抽出（R3）；quiz questions 已遷移 IndexedDB（R4，bigStore
+hydrate-cache）。上面的快照數字已過時，留檔只為對照「地基前」是什麼樣子。
 
 ## 指導原則
 
