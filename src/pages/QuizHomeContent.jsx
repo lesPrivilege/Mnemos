@@ -154,11 +154,6 @@ export function QuizHomeContent() {
   const [newSubjectJson, setNewSubjectJson] = useState('')
   const isEmptyLibrary = subjects.length === 0
   const { toast, showToast } = useToast()
-  const firstPracticeSubject = subjects.find(s => getSubjectStats(s).total > 0)
-  const firstPracticeCounts = firstPracticeSubject ? getChapterList(firstPracticeSubject).reduce((acc, ch) => ({
-    choice: acc.choice + ch.choice,
-    review: acc.review + ch.review,
-  }), { choice: 0, review: 0 }) : null
 
   const refresh = () => {
     setSubjects(getSubjectList())
@@ -211,11 +206,7 @@ export function QuizHomeContent() {
             ]}
         chartData={weekStats.chart.map(d => ({ count: d.n, isToday: d.today, label: d.d }))}
         chartColor="teal"
-        cta={firstPracticeSubject ? {
-          to: firstPracticeCounts?.choice > 0 ? `/quiz/${firstPracticeSubject}` : `/quiz-review/${firstPracticeSubject}`,
-          label: S.quizHome.startPracticeAction,
-          count: totalQs,
-        } : null}
+        to="/activity"
       />
 
       {/* Continue card */}
