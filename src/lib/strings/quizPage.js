@@ -5,7 +5,6 @@ export const quizPage = {
   filterHint: '请更换筛选条件',
   choiceLabel: '选择',
   multiAnswerSuffix: ' · 多选',
-  choiceKeyLabel: 'CHOICE',
   multiAnswerBadge: '多选',
   explainHeading: '解析',
   correctFeedback: '回答正确。',

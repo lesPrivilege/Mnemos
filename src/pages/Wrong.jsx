@@ -94,7 +94,7 @@ export default function Wrong() {
             <div key={q.id} className="bg-bg-card rounded-lg p-4 border group" style={{ borderColor: 'var(--border-soft)' }}>
               <div className="flex items-start justify-between gap-2 mb-2">
                 <div className="text-xs text-ink-3 font-zh">{getSubjectDisplayName(q.subject)} · {q.chapter}</div>
-                <span className="px-2 py-0.5 rounded text-xs" style={{ background: 'var(--danger-soft)', color: 'var(--danger)' }}>{q.type}</span>
+                <span className="px-2 py-0.5 rounded text-xs font-zh" style={{ border: '1px solid var(--border)', color: 'var(--ink-3)' }}>{q.type === 'choice' ? S.quizPage.choiceLabel : S.quizReview.reviewTagLabel}</span>
               </div>
               <div className="text-sm text-ink mb-2 card-content"><RenderMarkdown content={q.question || q.id} /></div>
               <div className="flex items-center justify-between">
@@ -110,7 +110,7 @@ export default function Wrong() {
                     <TrashIcon size={14} />
                   </button>
                   <button onClick={() => navigate(q.type === 'choice' ? `/quiz/${q.subject}?mode=wrong&qid=${q.id}` : `/quiz-review/${q.subject}?mode=wrong&qid=${q.id}`)}
-                    className="px-3 py-1 rounded text-xs font-medium" style={{ background: 'var(--accent-soft)', color: 'var(--accent)' }}>{S.wrong.redo}</button>
+                    className="px-3 py-1 rounded-full text-xs font-medium" style={{ border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--ink)' }}>{S.wrong.redo}</button>
                 </div>
               </div>
             </div>
