@@ -64,6 +64,8 @@ a { color: inherit; text-decoration: none; }
   font-size: 13px; color: var(--ink-2); font-family: var(--font-zh);
   padding: 0 6px;
   letter-spacing: 0.02em;
+  min-width: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
 /* ─────── Buttons ─────── */
@@ -465,9 +467,13 @@ a { color: inherit; text-decoration: none; }
   color: var(--ink-2);
   font-size: 12px;
   display: flex; align-items: center; gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
-.rv-meta .crumb .div { color: var(--ink-4); }
-.rv-meta .pos { letter-spacing: 0.06em; }
+.rv-meta .crumb .div { color: var(--ink-4); flex-shrink: 0; }
+.rv-meta .pos { letter-spacing: 0.06em; flex-shrink: 0; white-space: nowrap; }
 .rv-meta .pos .now { color: var(--ink); font-weight: 600; }
 
 /* ─────── Review card ─────── */
