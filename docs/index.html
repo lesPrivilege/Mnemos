@@ -1743,13 +1743,19 @@
         <div data-screen-label="Onboarding" style="width:390px; height:780px; border-radius:28px; border:1px solid var(--desk-line); box-shadow:0 24px 64px rgb(0 0 0 / 0.10); overflow:hidden; position:relative; background:var(--bg); display:flex; flex-direction:column;">
           <div style="flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; padding:56px 28px 24px; gap:0;">
             <svg width="64" height="64" viewBox="0 0 256 256" fill="none" role="img" aria-label="Mnemos icon" style="margin-bottom:20px;">
-              <rect x="0" y="0" width="256" height="256" rx="57" fill="var(--bg-card)"></rect>
-              <rect x="14" y="14" width="228" height="228" rx="50" fill="none" stroke="var(--border)" stroke-width="1.5"></rect>
+              <defs>
+                <linearGradient id="bg-light" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#faf9f6"/>
+                  <stop offset="1" stop-color="#f0ede6"/>
+                </linearGradient>
+              </defs>
+              <rect x="0" y="0" width="256" height="256" rx="57" fill="url(#bg-light)"/>
+              <rect x="14" y="14" width="228" height="228" rx="50" fill="none" stroke="#2d2a26" stroke-opacity="0.08" stroke-width="1.5"/>
               <g transform="translate(40, 56)">
-                <path d="M0 144 L0 0 L36 0 L88 64 L140 0 L176 0 L176 144" stroke="var(--ink)" stroke-width="18" stroke-linecap="square" stroke-linejoin="miter" fill="none"></path>
-                <path d="M40 36 L88 92 L136 36" stroke="var(--accent)" stroke-width="12" stroke-linecap="square" stroke-linejoin="miter" fill="none"></path>
-                <rect x="-14" y="138" width="42" height="14" fill="var(--ink)"></rect>
-                <rect x="148" y="138" width="42" height="14" fill="var(--ink)"></rect>
+                <path d="M0 144 L0 0 L36 0 L88 64 L140 0 L176 0 L176 144" stroke="#2d2a26" stroke-width="18" stroke-linecap="square" stroke-linejoin="miter" fill="none"/>
+                <path d="M40 36 L88 92 L136 3" stroke="#c98a3a" stroke-width="12" stroke-linecap="square" stroke-linejoin="miter" fill="none"/>
+                <rect x="-14" y="138" width="42" height="14" fill="#2d2a26"/>
+                <rect x="148" y="138" width="42" height="14" fill="#2d2a26"/>
               </g>
             </svg>
             <span style="font-family:var(--font-disp); font-size:30px; color:var(--ink); line-height:1.2;">Mnemos</span>
