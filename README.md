@@ -5,7 +5,7 @@
 [Download APK](https://github.com/lesPrivilege/Mnemos/releases)
 
 <p align="center">
-  <img src="assets/screenshots/overview-dark.jpg" width="86%" alt="Mnemos 界面总览" />
+  <img src="assets/screenshots/home-light.png" width="420" alt="Mnemos 首页：今日复习、卡组与模块导航" />
 </p>
 
 React 18 · Vite 6 · Tailwind 3 · Capacitor 8 · marked + KaTeX + DOMPurify
