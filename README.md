@@ -5,9 +5,9 @@
 [Download APK](https://github.com/lesPrivilege/Mnemos/releases)
 
 <p align="center">
-  <img src="assets/screenshots/phase-b/practice-home.png" width="30%" alt="Mnemos 练习首页" />
-  <img src="assets/screenshots/phase-b/memory-home.png" width="30%" alt="Mnemos 记忆首页" />
-  <img src="assets/screenshots/phase-b/reading-home.png" width="30%" alt="Mnemos 阅读首页" />
+  <img src="assets/screenshots/polished/home.png" width="30%" alt="Mnemos 记忆首页" />
+  <img src="assets/screenshots/polished/review-answer.png" width="30%" alt="Mnemos 闪卡答案与评分" />
+  <img src="assets/screenshots/polished/reader.png" width="30%" alt="Mnemos 沉浸阅读" />
 </p>
 
 React 18 · Vite 6 · Tailwind 3 · Capacitor 8 · marked + KaTeX + DOMPurify
@@ -100,12 +100,11 @@ Mnemos/
 ## 附录：界面截图
 
 <p align="center">
-  <img src="assets/screenshots/phase-b/practice-home.png" width="30%" alt="练习模块" />
-  <img src="assets/screenshots/phase-b/memory-home.png" width="30%" alt="记忆模块" />
-  <img src="assets/screenshots/phase-b/reading-home.png" width="30%" alt="阅读模块" />
+  <img src="assets/screenshots/polished/quiz-result.png" width="30%" alt="练习解析状态" />
+  <img src="assets/screenshots/polished/deck-detail.png" width="30%" alt="卡组结构与操作栏" />
+  <img src="assets/screenshots/polished/activity.png" width="30%" alt="跨模块活动统计" />
 </p>
 
 <p align="center">
-  <img src="assets/screenshots/phase-b/activity.png" width="38%" alt="活动统计" />
-  <img src="assets/screenshots/phase-b/settings.png" width="38%" alt="设置与数据管理" />
+  <sub>铜棕品牌锚点 · 冷中性工作面 · 内容 serif / chrome sans · 扁平列表与原生 SVG</sub>
 </p>

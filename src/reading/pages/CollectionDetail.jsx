@@ -121,7 +121,7 @@ export default function CollectionDetail() {
             {showMenu && (
               <>
                 <button className="fixed inset-0 z-10 cursor-default" onClick={() => setShowMenu(false)} aria-label={S.collectionDetail.closeMenu} />
-                <div className="absolute right-0 top-9 z-20 min-w-[168px] rounded-md bg-bg-card shadow-lg overflow-hidden"
+                <div className="absolute right-0 top-9 z-20 min-w-[168px] rounded-md bg-bg-card border border-border-soft overflow-hidden"
                   role="menu" style={{ border: '1px solid var(--border-soft)' }}>
                   <button onClick={handleTogglePin}
                     className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">

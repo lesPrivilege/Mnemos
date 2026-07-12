@@ -40,7 +40,7 @@
 
 .card-content th {
   background: var(--bg-raised);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .card-content ul,
@@ -77,7 +77,7 @@
 }
 
 .card-content strong {
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .card-content em {
@@ -92,7 +92,7 @@
 .card-content h1,
 .card-content h2,
 .card-content h3 {
-  font-weight: 600;
+  font-weight: 500;
   margin: 20px 0 10px;
 }
 

@@ -298,7 +298,7 @@ export default function Reader() {
       {selection && (
         <button
           onClick={handleSaveHighlight}
-          className="fixed z-50 px-3.5 py-1.5 rounded-md font-zh text-[13px] font-medium shadow-lg"
+          className="fixed z-50 px-3.5 py-1.5 rounded-md font-zh text-[13px] font-medium border border-border-soft"
           style={{
             background: 'var(--ink)', color: 'var(--bg)',
             border: '1px solid var(--border-strong)',

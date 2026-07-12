@@ -34,7 +34,7 @@ function Toolbar({ textareaRef, value, onChange }) {
   return (
     <div className="flex items-center gap-1 flex-wrap">
       <button type="button" onClick={() => insert('**', '**')}
-        className="px-2 py-1 rounded text-xs font-bold bg-bg-raised text-ink-2 hover:text-ink border border-border-soft">
+        className="px-2 py-1 rounded text-xs font-medium bg-bg-raised text-ink-2 hover:text-ink border border-border-soft">
         B
       </button>
       <button type="button" onClick={() => insert('*', '*')}

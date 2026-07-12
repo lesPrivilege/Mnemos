@@ -206,7 +206,7 @@ export default function ReviewQuestion() {
       <div className="topbar">
         <button className="tb-btn" onClick={() => goBack()} aria-label={S.quizReview.back}><BackIcon /></button>
         <span className="font-mono text-[11px]">
-          <span style={{ color: 'var(--ink)', fontWeight: 600 }}>{String(currentIndex + 1).padStart(2, '0')}</span>
+          <span style={{ color: 'var(--ink)', fontWeight: 500 }}>{String(currentIndex + 1).padStart(2, '0')}</span>
           <span style={{ color: 'var(--ink-3)' }}> / {String(questions.length).padStart(2, '0')}</span>
         </span>
         <div className="tb-actions">
@@ -221,7 +221,7 @@ export default function ReviewQuestion() {
             {showMenu && (
               <>
                 <button className="fixed inset-0 z-10 cursor-default" onClick={() => setShowMenu(false)} aria-label={S.quizReview.closeMenu} />
-                <div className="absolute right-0 top-9 z-20 min-w-[160px] rounded-md bg-bg-card shadow-lg overflow-hidden"
+                <div className="absolute right-0 top-9 z-20 min-w-[160px] rounded-md bg-bg-card border border-border-soft overflow-hidden"
                   role="menu"
                   style={{ border: '1px solid var(--border-soft)' }}>
                   <button onClick={handleDeleteQuestion}

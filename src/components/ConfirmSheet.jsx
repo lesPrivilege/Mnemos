@@ -27,7 +27,7 @@ export function ConfirmSheet({ state }) {
     <>
       <div className="confirm-backdrop" onClick={() => onResult(false)} />
       <div className="confirm-sheet" role="dialog" aria-modal="true" aria-labelledby="confirm-sheet-title">
-        <div id="confirm-sheet-title" style={{ fontFamily: 'var(--font-zh)', fontSize: 15, fontWeight: 600, color: 'var(--ink)', marginBottom: 4 }}>
+        <div id="confirm-sheet-title" style={{ fontFamily: 'var(--font-zh)', fontSize: 15, fontWeight: 500, color: 'var(--ink)', marginBottom: 4 }}>
           {title}
         </div>
         {message && (
@@ -43,7 +43,7 @@ export function ConfirmSheet({ state }) {
           }}>{cancelLabel}</button>
           <button onClick={() => onResult(true)} style={{
             flex: 1, padding: '10px 0', borderRadius: 8, border: 'none',
-            background: destructive ? 'var(--danger, #ef4444)' : 'var(--accent)',
+            background: destructive ? 'var(--danger)' : 'var(--accent)',
             color: '#fff', fontFamily: 'var(--font-zh)', fontSize: 14, fontWeight: 500,
           }}>{confirmLabel}</button>
         </div>

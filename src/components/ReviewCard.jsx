@@ -53,7 +53,7 @@ export default function ReviewCard({ card, index, flipped, onFlip, swipeOffset }
             background: `color-mix(in oklch, var(--danger) ${Math.round(labelOpacity * 15)}%, transparent)`,
             pointerEvents: 'none', zIndex: 10,
           }}>
-            <span style={{ color: 'var(--danger)', fontWeight: 600, fontSize: 18, opacity: labelOpacity }}>{S.review.again}</span>
+            <span style={{ color: 'var(--danger)', fontWeight: 500, fontSize: 18, opacity: labelOpacity }}>{S.review.again}</span>
           </div>
         )}
         {showLabel && swipeOffset > 0 && (
@@ -63,7 +63,7 @@ export default function ReviewCard({ card, index, flipped, onFlip, swipeOffset }
             background: `color-mix(in oklch, var(--ink) ${Math.round(labelOpacity * 10)}%, transparent)`,
             pointerEvents: 'none', zIndex: 10,
           }}>
-            <span style={{ color: 'var(--ink)', fontWeight: 600, fontSize: 18, opacity: labelOpacity }}>{S.review.remember}</span>
+            <span style={{ color: 'var(--ink)', fontWeight: 500, fontSize: 18, opacity: labelOpacity }}>{S.review.remember}</span>
           </div>
         )}
       </div>

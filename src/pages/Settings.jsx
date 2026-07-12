@@ -66,6 +66,19 @@ function BackupButton({ primary, children, onClick }) {
   )
 }
 
+function Switch({ checked, onChange, label }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      className="settings-switch"
+      onClick={() => onChange(!checked)}
+    />
+  )
+}
+
 function formatBytes(bytes) {
   if (bytes < 1024) return `${bytes} B`
   return `${(bytes / 1024).toFixed(1)} KB`
@@ -366,8 +379,8 @@ export default function Settings() {
                 <span className="settings-action-title">{S.settings.dailyReminderTitle}</span>
                 <span className="settings-action-detail">{S.settings.dailyReminderDetail}</span>
               </div>
-              <button type="button" onClick={async () => {
-                if (reminderOn) {
+              <Switch checked={reminderOn} label={S.settings.dailyReminderTitle} onChange={async (next) => {
+                if (!next) {
                   await disableReminders()
                   setReminderOn(false)
                   setNextReminder(null)
@@ -382,11 +395,7 @@ export default function Settings() {
                     setReminderError(S.settings.notificationDenied)
                   }
                 }
-              }}
-                className={`settings-action-btn ${reminderOn ? 'confirm' : ''}`}
-                style={reminderOn ? { background: 'var(--accent)', color: '#fff', border: 'none' } : {}}>
-                {reminderOn ? S.settings.on : S.settings.off}
-              </button>
+              }} />
             </div>
             {reminderOn && (
               <div className="settings-field">
@@ -586,14 +595,10 @@ export default function Settings() {
                   <span className="settings-action-title">{S.settings.dailyAutoBackupTitle}</span>
                   <span className="settings-action-detail">{S.settings.dailyAutoBackupDetail}</span>
                 </div>
-                <button type="button" onClick={() => {
-                  setEnabled(!autoBackup.enabled)
-                  setAutoBackup(prev => ({ ...prev, enabled: !prev.enabled }))
-                }}
-                  className={`settings-action-btn ${autoBackup.enabled ? 'confirm' : ''}`}
-                  style={autoBackup.enabled ? { background: 'var(--accent)', color: '#fff', border: 'none' } : {}}>
-                  {autoBackup.enabled ? S.settings.on : S.settings.off}
-                </button>
+                <Switch checked={autoBackup.enabled} label={S.settings.dailyAutoBackupTitle} onChange={(next) => {
+                  setEnabled(next)
+                  setAutoBackup(prev => ({ ...prev, enabled: next }))
+                }} />
               </div>
               {autoBackup.status && (
                 <div className="kv-row">

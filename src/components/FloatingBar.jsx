@@ -1,10 +1,12 @@
 // FloatingBar — fixed overlay action bar for detail screens.
-// Renders children in a pill-shaped bar anchored to the bottom of the viewport.
+// Renders children in a compact raised bar anchored to the app shell.
 export default function FloatingBar({ children }) {
   return (
     <div
-      className="fixed left-3 right-3 z-30 flex flex-col gap-2"
+      className="fixed left-1/2 z-30 flex flex-col gap-2"
       style={{
+        width: 'min(calc(100% - 24px), 456px)',
+        transform: 'translateX(-50%)',
         bottom: 'max(12px, env(safe-area-inset-bottom))',
         padding: '12px 14px',
         borderRadius: 'var(--r-xl)',
@@ -12,7 +14,7 @@ export default function FloatingBar({ children }) {
         backdropFilter: 'var(--surface-chrome-blur)',
         WebkitBackdropFilter: 'var(--surface-chrome-blur)',
         border: '1px solid var(--border-soft)',
-        boxShadow: 'var(--shadow-lg)',
+        boxShadow: 'none',
       }}
     >
       {children}

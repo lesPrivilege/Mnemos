@@ -456,7 +456,7 @@ export default function Import() {
             </div>
             <div className="kv-row">
               <span className="k">{S.import.importedCardsLabel}</span>
-              <span className="v" style={{ color: 'var(--accent)', fontWeight: 600 }}>{importedCards}</span>
+              <span className="v" style={{ color: 'var(--accent)', fontWeight: 500 }}>{importedCards}</span>
             </div>
             {jsonMode === 'replace' && (
               <div className="rounded-md p-3 font-zh text-xs leading-relaxed"
@@ -569,7 +569,7 @@ export default function Import() {
                 </div>
               </>
             )}
-            <div className="kv-row"><span className="k">{S.import.willImportLabel}</span><span className="v" style={{ color: 'var(--accent)', fontWeight: 600 }}>{skipDup ? dedup.filtered.length : mdPreview.cards.length}</span></div>
+            <div className="kv-row"><span className="k">{S.import.willImportLabel}</span><span className="v" style={{ color: 'var(--accent)', fontWeight: 500 }}>{skipDup ? dedup.filtered.length : mdPreview.cards.length}</span></div>
           </div>
           <div className="settings-card">
             <div className="lbl">{S.import.cardPreviewHeading}</div>

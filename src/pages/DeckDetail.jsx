@@ -228,7 +228,7 @@ export default function DeckDetail() {
             {showDeckMenu && (
               <>
                 <button className="fixed inset-0 z-10 cursor-default" onClick={() => setShowDeckMenu(false)} aria-label={S.deckDetail.closeMenu} />
-                <div className="absolute right-0 top-9 z-20 min-w-[168px] rounded-md bg-bg-card shadow-lg overflow-hidden"
+                <div className="absolute right-0 top-9 z-20 min-w-[168px] rounded-md bg-bg-card border border-border-soft overflow-hidden"
                   role="menu"
                   style={{ border: '1px solid var(--border-soft)' }}>
                   <button onClick={() => { setShowDeckMenu(false); setEditingName(true); setNameInput(deck.name) }}
@@ -276,7 +276,7 @@ export default function DeckDetail() {
               <span>{total}{S.deckDetail.countSuffix}</span><span className="sep">·</span>
               <span style={{ color: 'var(--accent)' }}>{dueCount}{S.deckDetail.dueSuffix}</span><span className="sep">·</span>
               <span>{learned}{S.deckDetail.learnedSuffix}</span>
-              {suspendedCount > 0 && <><span className="sep">·</span><span style={{ color: 'var(--warn, #d97706)' }}>{S.deckDetail.pausedPrefix}{suspendedCount}</span></>}
+              {suspendedCount > 0 && <><span className="sep">·</span><span style={{ color: 'var(--warn)' }}>{S.deckDetail.pausedPrefix}{suspendedCount}</span></>}
             </div>
             <div className="dd-meta" style={{ marginTop: 4 }}>
               <span className="font-mono text-[10px]" style={{ color: 'var(--danger)' }}>{S.deckDetail.weakPrefix}{tiers.weak}</span>
@@ -479,7 +479,7 @@ export default function DeckDetail() {
       </FloatingBar>
       {previewCard && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6" style={{ background: 'rgba(0,0,0,0.5)' }} onClick={() => setPreviewCard(null)}>
-          <div className="bg-bg-card rounded-lg p-5 max-w-sm w-full shadow-lg" style={{ border: '1px solid var(--border-soft)' }} onClick={e => e.stopPropagation()}>
+          <div className="bg-bg-card rounded-lg p-5 max-w-sm w-full border border-border-soft" style={{ border: '1px solid var(--border-soft)' }} onClick={e => e.stopPropagation()}>
             <div className="font-body text-[10px] text-ink-3 mb-2 tracking-wider">{S.deckDetail.previewFrontLabel}</div>
             <div className="font-zh text-[15px] text-ink mb-3 max-h-40 overflow-y-auto"><PreviewContent text={previewCard.front} /></div>
             <div className="font-body text-[10px] text-ink-3 mb-2 tracking-wider">{S.deckDetail.previewBackLabel}</div>

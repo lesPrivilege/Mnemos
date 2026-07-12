@@ -7,36 +7,17 @@ import { useBackButton } from '../lib/useBackButton'
 import { S } from '../lib/strings'
 import '../styles/markdown.css'
 
-function CardFace({ card }) {
+function CardFace({ card, flipped }) {
   const frontHtml = useRenderedMarkdown(card.front)
   const backHtml = useRenderedMarkdown(card.back)
 
-  return (
-    <>
-      {/* Front */}
-      <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden' }}>
-        <div className="h-full relative flex flex-col"
-          style={{ padding: '22px 20px 20px' }}>
+  return flipped ? (
+      <div className="absolute inset-0">
+        <div className="h-full relative flex flex-col" style={{ padding: '22px 20px 20px' }}>
           <div className="absolute top-[14px] left-4 font-body text-[10px] tracking-[0.1em] text-ink-3 flex gap-1.5 items-center">
-            <span style={{ color: 'var(--accent)', fontWeight: 600, letterSpacing: '0.02em', fontFamily: 'var(--font-mono)' }}>Q</span><span>{S.browse.frontLabel}</span>
+            <span style={{ color: 'var(--accent)', fontWeight: 500, letterSpacing: '0.02em', fontFamily: 'var(--font-mono)' }}>A</span><span>{S.browse.backLabel}</span>
           </div>
           <div className="flex-1 flex flex-col items-stretch justify-start text-left gap-3.5 p-2 pt-8 pb-6">
-            <div className="card-content font-zh text-[18px] font-medium leading-relaxed tracking-wide"
-              style={{ color: 'var(--ink)' }}
-              dangerouslySetInnerHTML={{ __html: frontHtml }} />
-          </div>
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-8 h-px"
-            style={{ background: 'linear-gradient(90deg, transparent, var(--ink-4), transparent)' }} />
-        </div>
-      </div>
-      {/* Back */}
-      <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
-        <div className="h-full relative flex flex-col"
-          style={{ padding: '22px 20px 20px' }}>
-          <div className="absolute top-[14px] left-4 font-body text-[10px] tracking-[0.1em] text-ink-3 flex gap-1.5 items-center">
-            <span style={{ color: 'var(--accent)', fontWeight: 600, letterSpacing: '0.02em', fontFamily: 'var(--font-mono)' }}>A</span><span>{S.browse.backLabel}</span>
-          </div>
-              <div className="flex-1 flex flex-col items-stretch justify-start text-left gap-3.5 p-2 pt-8 pb-6">
             <div className="card-content font-zh text-[16px] text-ink-2"
               style={{ maxHeight: '20vh', overflowY: 'auto' }}
               dangerouslySetInnerHTML={{ __html: frontHtml }} />
@@ -48,11 +29,25 @@ function CardFace({ card }) {
               style={{ maxHeight: '35vh', overflowY: 'auto' }}
               dangerouslySetInnerHTML={{ __html: backHtml }} />
           </div>
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-8 h-px"
-            style={{ background: 'linear-gradient(90deg, transparent, var(--ink-4), transparent)' }} />
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-8 h-px" style={{ background: 'var(--border)' }} />
         </div>
       </div>
-    </>
+  ) : (
+      <div className="absolute inset-0">
+        <div className="h-full relative flex flex-col"
+          style={{ padding: '22px 20px 20px' }}>
+          <div className="absolute top-[14px] left-4 font-body text-[10px] tracking-[0.1em] text-ink-3 flex gap-1.5 items-center">
+            <span style={{ color: 'var(--accent)', fontWeight: 500, letterSpacing: '0.02em', fontFamily: 'var(--font-mono)' }}>Q</span><span>{S.browse.frontLabel}</span>
+          </div>
+          <div className="flex-1 flex flex-col items-stretch justify-start text-left gap-3.5 p-2 pt-8 pb-6">
+            <div className="card-content font-zh text-[18px] font-medium leading-relaxed tracking-wide"
+              style={{ color: 'var(--ink)' }}
+              dangerouslySetInnerHTML={{ __html: frontHtml }} />
+          </div>
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-8 h-px"
+            style={{ background: 'var(--border)' }} />
+        </div>
+      </div>
   )
 }
 
@@ -147,7 +142,7 @@ export default function Browse() {
           <BackIcon />
         </button>
         <span className="font-mono text-[11px]">
-          <span className="text-ink font-semibold">{currentIndex + 1}</span>
+          <span className="text-ink font-medium">{currentIndex + 1}</span>
           <span className="text-ink-3"> / {cards.length}</span>
         </span>
         <button onClick={() => {
@@ -175,7 +170,7 @@ export default function Browse() {
         <div className="px-[18px] pt-3 flex items-center justify-between font-body text-[11px] text-ink-3">
           <span className="font-zh text-ink-2 text-xs flex items-center gap-1.5">
             {card.chapter}{card.section && <><span className="text-ink-4 mx-1">›</span>{card.section}</>}
-            {card.suspended && <span className="px-1.5 py-0.5 rounded text-[9px] font-medium" style={{ background: 'var(--warn-soft, #fef3c7)', color: 'var(--warn, #d97706)' }}>{S.browse.paused}</span>}
+            {card.suspended && <span className="px-1.5 py-0.5 rounded text-[9px] font-medium" style={{ background: 'var(--warn-soft)', color: 'var(--warn)' }}>{S.browse.paused}</span>}
             {/* font-body here fixes a pre-existing mismatch: this literal was inheriting
                 --font-zh from the wrapper span below, caught as a byproduct of this
                 commit's font-family audit rather than something newly introduced. */}
@@ -198,15 +193,8 @@ export default function Browse() {
             boxShadow: 'var(--shadow-md)',
             opacity: card.suspended ? 0.5 : 1,
           }}>
-          <div style={{ perspective: 1400 }} className="w-full h-full">
-            <div className="w-full h-full relative transition-transform duration-[480ms]"
-              style={{
-                transformStyle: 'preserve-3d',
-                transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
-                transitionTimingFunction: 'cubic-bezier(.4,.2,.2,1)',
-              }}>
-              <CardFace card={card} />
-            </div>
+          <div className="w-full h-full relative">
+            <CardFace card={card} flipped={flipped} />
           </div>
         </div>
       </div>
@@ -214,12 +202,12 @@ export default function Browse() {
       {/* Navigation */}
       <div className="grid grid-cols-2 gap-2 px-[18px] pb-[18px]">
         <button onClick={goPrev} disabled={currentIndex === 0}
-          className="inline-flex items-center justify-center gap-1.5 py-3 rounded-md font-medium text-sm font-body border text-ink-2 active:scale-[0.97] transition-all disabled:opacity-30"
+          className="inline-flex items-center justify-center gap-1.5 py-3 rounded-md font-medium text-sm font-body border text-ink-2 active:scale-[0.97] transition-transform disabled:opacity-30"
           style={{ borderColor: 'var(--border)' }}>
           <ArrowLIcon size={16} /> {S.browse.prevCard}
         </button>
         <button onClick={goNext} disabled={currentIndex >= cards.length - 1}
-          className="inline-flex items-center justify-center gap-1.5 py-3 rounded-md font-medium text-sm font-body border text-ink-2 active:scale-[0.97] transition-all disabled:opacity-30"
+          className="inline-flex items-center justify-center gap-1.5 py-3 rounded-md font-medium text-sm font-body border text-ink-2 active:scale-[0.97] transition-transform disabled:opacity-30"
           style={{ borderColor: 'var(--border)' }}>
           {S.browse.nextCard} <ArrowRIcon size={16} />
         </button>

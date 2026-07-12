@@ -6,21 +6,24 @@
    ═══════════════════════════════════════════════════ */
 
 :root {
-  /* Light · Phase B parchment */
-  --bg:            oklch(96.8% 0.005 90);
-  --bg-card:       oklch(98.6% 0.004 90);
-  --bg-raised:     oklch(94.5% 0.006 90);
-  --bg-sunken:     oklch(93% 0.006 90);
-  --border:        oklch(85% 0.008 85);
-  --border-soft:   oklch(90.5% 0.006 85);
-  --border-strong: oklch(68% 0.012 80);
-  --ink:           oklch(20% 0.012 70);
-  --ink-2:         oklch(44% 0.012 75);
-  --ink-3:         oklch(60% 0.010 80);
-  --ink-4:         oklch(76% 0.008 85);
-  --accent:        oklch(52% 0.16 38);
-  --accent-soft:   oklch(94.5% 0.03 38);
-  --accent-line:   oklch(79% 0.075 38);
+  /* Light · archival neutral. Deliberately avoids the cream/terracotta
+     pairing that became a generic AI-product default. */
+  --bg:            oklch(98.2% 0.002 250);
+  --bg-card:       oklch(100% 0 0);
+  --bg-raised:     oklch(96.2% 0.004 250);
+  --bg-sunken:     oklch(94.8% 0.005 250);
+  --border:        oklch(84.5% 0.008 250);
+  --border-soft:   oklch(90.5% 0.006 250);
+  --border-strong: oklch(63% 0.014 250);
+  --ink:           oklch(19% 0.012 250);
+  --ink-2:         oklch(42% 0.014 250);
+  --ink-3:         oklch(58% 0.012 250);
+  --ink-4:         oklch(74% 0.009 250);
+  /* Brand copper from the launcher icon. It is an identity token, not a
+     decorative palette: use for the mark, current position and recall. */
+  --accent:        #B86A30;
+  --accent-soft:   oklch(95% 0.025 55);
+  --accent-line:   oklch(77% 0.065 55);
   --teal:          oklch(45% 0.062 215);
   --teal-soft:     oklch(94% 0.018 215);
   --teal-line:     oklch(79% 0.04 215);
@@ -34,9 +37,9 @@
   --rate-hard:     oklch(48% 0.10 95);
   --rate-hard-soft: oklch(93.5% 0.03 95);
 
-  --shadow-sm:     0 1px 2px oklch(20% 0.012 70 / 0.05);
-  --shadow-md:     0 1px 2px oklch(20% 0.012 70 / 0.05), 0 6px 16px oklch(20% 0.012 70 / 0.05);
-  --shadow-lg:     0 4px 10px oklch(20% 0.012 70 / 0.07), 0 20px 48px oklch(20% 0.012 70 / 0.08);
+  --shadow-sm:     none;
+  --shadow-md:     none;
+  --shadow-lg:     none;
 
   /* Code syntax — light */
   --code-bg:       oklch(94.5% 0.006 90);
@@ -48,7 +51,7 @@
   --tk-fn:         oklch(46% 0.09 215);
   --tk-op:         oklch(46% 0.05 80);
 
-  --r-sm: 4px; --r-md: 8px; --r-lg: 12px; --r-xl: 16px;
+  --r-sm: 2px; --r-md: 4px; --r-lg: 6px; --r-xl: 10px;
 
   --font-zh:    'Noto Serif SC', 'Songti SC', Georgia, serif;
   --font-disp:  'Source Serif 4', 'Noto Serif SC', Georgia, serif;
@@ -121,21 +124,21 @@
 }
 
 :root.dark {
-  /* Dark · Phase B graphite */
-  --bg:            oklch(15.5% 0.008 75);
-  --bg-card:       oklch(19% 0.009 75);
-  --bg-raised:     oklch(23% 0.010 75);
-  --bg-sunken:     oklch(12.5% 0.007 75);
-  --border:        oklch(30% 0.010 75);
-  --border-soft:   oklch(25.5% 0.009 75);
-  --border-strong: oklch(42% 0.012 75);
-  --ink:           oklch(92% 0.007 85);
-  --ink-2:         oklch(74% 0.009 85);
-  --ink-3:         oklch(57% 0.010 80);
-  --ink-4:         oklch(41% 0.010 78);
-  --accent:        oklch(71% 0.14 42);
-  --accent-soft:   oklch(27% 0.055 38);
-  --accent-line:   oklch(45% 0.10 38);
+  /* Dark · neutral graphite */
+  --bg:            oklch(16% 0.008 250);
+  --bg-card:       oklch(19% 0.009 250);
+  --bg-raised:     oklch(23% 0.010 250);
+  --bg-sunken:     oklch(12.5% 0.007 250);
+  --border:        oklch(30% 0.010 250);
+  --border-soft:   oklch(25.5% 0.009 250);
+  --border-strong: oklch(43% 0.014 250);
+  --ink:           oklch(92% 0.007 250);
+  --ink-2:         oklch(74% 0.009 250);
+  --ink-3:         oklch(57% 0.010 250);
+  --ink-4:         oklch(41% 0.010 250);
+  --accent:        #D9945E;
+  --accent-soft:   oklch(27% 0.04 55);
+  --accent-line:   oklch(47% 0.08 55);
   --teal:          oklch(73% 0.07 215);
   --teal-soft:     oklch(25% 0.035 215);
   --teal-line:     oklch(43% 0.055 215);
@@ -148,9 +151,9 @@
   --plum:          oklch(72% 0.10 320);
   --rate-hard:     oklch(68% 0.10 95);
   --rate-hard-soft: oklch(25% 0.045 95);
-  --shadow-sm:     0 1px 2px #0008;
-  --shadow-md:     0 1px 3px #0008, 0 6px 24px #0006;
-  --shadow-lg:     0 4px 12px #000a, 0 16px 40px #0008;
+  --shadow-sm:     none;
+  --shadow-md:     none;
+  --shadow-lg:     none;
 
   /* Code syntax — dark */
   --code-bg:       oklch(12.5% 0.007 75);

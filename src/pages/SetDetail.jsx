@@ -127,7 +127,7 @@ export default function SetDetail() {
             {showMenu && (
               <>
                 <button className="fixed inset-0 z-10 cursor-default" onClick={() => setShowMenu(false)} aria-label={S.setDetail.closeMenu} />
-                <div className="absolute right-0 top-9 z-20 min-w-[176px] rounded-md bg-bg-card shadow-lg overflow-hidden"
+                <div className="absolute right-0 top-9 z-20 min-w-[176px] rounded-md bg-bg-card border border-border-soft overflow-hidden"
                   role="menu"
                   style={{ border: '1px solid var(--border-soft)' }}>
                   <button onClick={handleResetProgress}
