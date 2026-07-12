@@ -25,17 +25,9 @@ export function ConfirmSheet({ state }) {
   const { title, message, confirmLabel, cancelLabel, destructive, onResult } = state
   return (
     <>
-      <div onClick={() => onResult(false)} style={{
-        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 100,
-      }} />
-      <div style={{
-        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 101,
-        background: 'var(--surface-overlay, var(--bg))', borderTopLeftRadius: 16, borderTopRightRadius: 16,
-        padding: '20px 18px max(20px, env(safe-area-inset-bottom))',
-        boxShadow: '0 -4px 20px rgba(0,0,0,0.15)',
-        animation: 'sheetUp 200ms ease-out',
-      }}>
-        <div style={{ fontFamily: 'var(--font-zh)', fontSize: 15, fontWeight: 600, color: 'var(--ink)', marginBottom: 4 }}>
+      <div className="confirm-backdrop" onClick={() => onResult(false)} />
+      <div className="confirm-sheet" role="dialog" aria-modal="true" aria-labelledby="confirm-sheet-title">
+        <div id="confirm-sheet-title" style={{ fontFamily: 'var(--font-zh)', fontSize: 15, fontWeight: 600, color: 'var(--ink)', marginBottom: 4 }}>
           {title}
         </div>
         {message && (
@@ -56,7 +48,6 @@ export function ConfirmSheet({ state }) {
           }}>{confirmLabel}</button>
         </div>
       </div>
-      <style>{`@keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }`}</style>
     </>
   )
 }

@@ -179,7 +179,8 @@ function HeatmapGrid() {
                         width: 14, height: 14, borderRadius: 3,
                         background: HEATMAP_LEVELS[lv],
                         cursor: 'pointer',
-                        border: selected?.date === day.date ? '1.5px solid var(--ink)' : '1px solid var(--border-soft)',
+                        border: selected?.date === day.date ? '1px solid var(--ink)' : '1px solid var(--border-soft)',
+                        boxShadow: selected?.date === day.date ? '0 0 0 1px var(--bg), 0 0 0 2px var(--ink)' : 'none',
                       }}
                       title={`${day.date}: ${day.total}`}
                     />

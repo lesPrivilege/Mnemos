@@ -59,7 +59,7 @@ a { color: inherit; text-decoration: none; }
   color: var(--ink-2);
   transition: background var(--motion-quick), color var(--motion-quick);
 }
-.tb-btn:hover { background: var(--bg-raised); color: var(--ink); }
+.tb-btn:active { transform: scale(0.97); }
 .tb-text {
   font-size: 13px; color: var(--ink-2); font-family: var(--font-zh);
   padding: 0 6px;
@@ -100,10 +100,10 @@ a { color: inherit; text-decoration: none; }
   font-size: 12px;
   color: var(--ink-2);
   font-family: var(--font-ui);
-  transition: all var(--motion-quick);
+  transition: background-color var(--motion-quick), border-color var(--motion-quick), color var(--motion-quick), transform var(--motion-quick);
 }
 .chip.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
-.chip:hover:not(.on) { border-color: var(--border-strong); color: var(--ink); }
+.chip:active { transform: scale(0.97); }
 
 /* ─────── Search ─────── */
 .search {
@@ -133,8 +133,60 @@ a { color: inherit; text-decoration: none; }
   background: var(--bg);
   transition: border-color 140ms, background 140ms;
 }
-.dropzone:hover { border-color: var(--accent-line); background: var(--accent-soft); }
 .dropzone.dragging { border-color: var(--accent); background: var(--accent-soft); border-style: solid; }
+
+@media (hover: hover) and (pointer: fine) {
+  .tb-btn:hover { background: var(--bg-raised); color: var(--ink); }
+  .chip:hover:not(.on) { border-color: var(--border-strong); color: var(--ink); }
+  .dropzone:hover { border-color: var(--accent-line); background: var(--accent-soft); }
+}
+
+/* ─────── Transient overlays ─────── */
+.confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgb(0 0 0 / 0.35);
+  opacity: 1;
+  transition: opacity 160ms cubic-bezier(0.23, 1, 0.32, 1);
+  @starting-style { opacity: 0; }
+}
+.confirm-sheet {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 101;
+  padding: 20px 18px max(20px, env(safe-area-inset-bottom));
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  background: var(--surface-overlay, var(--bg));
+  box-shadow: 0 -4px 20px rgb(0 0 0 / 0.15);
+  transform: translateY(0);
+  transition: transform 220ms cubic-bezier(0.32, 0.72, 0, 1);
+  @starting-style { transform: translateY(100%); }
+}
+.toast {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  z-index: 50;
+  max-width: 80vw;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--ink);
+  box-shadow: var(--shadow-md);
+  color: var(--bg);
+  font-family: var(--font-zh);
+  font-size: 12px;
+  text-align: center;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  transition: opacity 150ms cubic-bezier(0.23, 1, 0.32, 1), transform 150ms cubic-bezier(0.23, 1, 0.32, 1);
+  @starting-style {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px);
+  }
+}
 .dropzone .icon {
   width: 36px; height: 36px; border-radius: 50%;
   background: var(--bg-card); border: 1px solid var(--border);
