@@ -5,7 +5,9 @@
 [Download APK](https://github.com/lesPrivilege/Mnemos/releases)
 
 <p align="center">
-  <img src="assets/screenshots/overview-dark.jpg" width="86%" alt="Mnemos 界面总览" />
+  <img src="assets/screenshots/phase-b/practice-home.png" width="30%" alt="Mnemos 练习首页" />
+  <img src="assets/screenshots/phase-b/memory-home.png" width="30%" alt="Mnemos 记忆首页" />
+  <img src="assets/screenshots/phase-b/reading-home.png" width="30%" alt="Mnemos 阅读首页" />
 </p>
 
 React 18 · Vite 6 · Tailwind 3 · Capacitor 8 · marked + KaTeX + DOMPurify
@@ -98,9 +100,12 @@ Mnemos/
 ## 附录：界面截图
 
 <p align="center">
-  <img src="assets/screenshots/overview-dark.jpg" width="86%" alt="Mnemos dark mode screenshot overview" />
+  <img src="assets/screenshots/phase-b/practice-home.png" width="30%" alt="练习模块" />
+  <img src="assets/screenshots/phase-b/memory-home.png" width="30%" alt="记忆模块" />
+  <img src="assets/screenshots/phase-b/reading-home.png" width="30%" alt="阅读模块" />
 </p>
 
 <p align="center">
-  <img src="assets/screenshots/overview-light.jpg" width="86%" alt="Mnemos light mode screenshot overview" />
+  <img src="assets/screenshots/phase-b/activity.png" width="38%" alt="活动统计" />
+  <img src="assets/screenshots/phase-b/settings.png" width="38%" alt="设置与数据管理" />
 </p>
