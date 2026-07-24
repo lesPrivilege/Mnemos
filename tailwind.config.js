@@ -33,10 +33,11 @@ export default {
         danger: { DEFAULT: 'var(--danger)', soft: 'var(--danger-soft)' },
       },
       fontFamily: {
-        display: ['"Source Serif 4"', '"Noto Serif SC"', 'Georgia', 'serif'],
-        body: ['-apple-system', 'system-ui', '"Noto Sans SC"', 'sans-serif'],
-        zh: ['"Noto Serif SC"', '"Songti SC"', 'Georgia', 'serif'],
-        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+        /* 唯一底本在 tokens.css；此处只准引用变量（判例七、记-10） */
+        display: ['var(--font-disp)'],
+        body: ['var(--font-ui)'],
+        zh: ['var(--font-zh)'],
+        mono: ['var(--font-mono)'],
       },
       fontSize: {
         xs: ['11px', '1.4'],
