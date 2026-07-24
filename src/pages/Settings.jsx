@@ -32,7 +32,6 @@ import { seedDemoContent } from '../lib/demoContent'
 import { useToast, Toast } from '../components/Toast'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 import { S } from '../lib/strings'
-import pkg from '../../package.json'
 
 function ActionRow({ title, detail, action, tone = 'danger', confirm, onClick, disabled }) {
   return (
@@ -694,7 +693,10 @@ export default function Settings() {
           <div className="flex flex-col items-center gap-2 py-3.5">
             <MnemosMark size={36} accent="var(--accent)" />
             <div className="font-display text-[26px] tracking-wide text-ink">Mnemos</div>
-            <div className="font-body text-[10px] text-ink-3 tracking-[0.18em]">VERSION <span className="font-mono">{pkg.version}</span></div>
+            {/* 牌记：版本 · 提交 · 构建日（刊例第六条；数据用 mono，判例三） */}
+            <div className="font-mono text-[10px] text-ink-3">
+              v{__MNEMOS_BUILD__.version} · {__MNEMOS_BUILD__.commit} · {__MNEMOS_BUILD__.builtAt}
+            </div>
           </div>
           <div className="kv-row">
             <span className="k">{S.settings.intervalAlgorithmLabel}</span>

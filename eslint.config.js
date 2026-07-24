@@ -21,6 +21,7 @@ export default [
         ...globals.browser,
         ...globals.node,
         ...globals.es2024,
+        __MNEMOS_BUILD__: 'readonly',
       },
     },
     plugins: {
