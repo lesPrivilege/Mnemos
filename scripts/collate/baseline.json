@@ -1,40 +1,5 @@
 [
   {
-    "gate": "contrast",
-    "file": "styles/tokens.css",
-    "match": "light:ink-3/bg"
-  },
-  {
-    "gate": "contrast",
-    "file": "styles/tokens.css",
-    "match": "light:ink-3/bg-card"
-  },
-  {
-    "gate": "contrast",
-    "file": "styles/tokens.css",
-    "match": "light:accent/bg"
-  },
-  {
-    "gate": "contrast",
-    "file": "styles/tokens.css",
-    "match": "light:accent/bg-card"
-  },
-  {
-    "gate": "contrast",
-    "file": "styles/tokens.css",
-    "match": "light:accent/accent-soft"
-  },
-  {
-    "gate": "contrast",
-    "file": "styles/tokens.css",
-    "match": "dark:ink-3/bg"
-  },
-  {
-    "gate": "contrast",
-    "file": "styles/tokens.css",
-    "match": "dark:ink-3/bg-card"
-  },
-  {
     "gate": "source-single",
     "file": "components/ConfirmSheet.jsx",
     "match": "flex: 1, padding: '10px 0', borderRadius: 8, border: '1px solid var(--border)',"

@@ -17,11 +17,14 @@
   --border-strong: oklch(63% 0.014 250);
   --ink:           oklch(19% 0.012 250);
   --ink-2:         oklch(42% 0.014 250);
-  --ink-3:         oklch(58% 0.012 250);
+  --ink-3:         oklch(54% 0.012 250);
   --ink-4:         oklch(74% 0.009 250);
-  /* Brand copper from the launcher icon. It is an identity token, not a
-     decorative palette: use for the mark, current position and recall. */
-  --accent:        #B86A30;
+  /* Brand copper, anchored to the launcher icon's hue. Light value sits
+     one step deeper than the icon's #B86A30: copper renders as small text
+     (due counts, streak, position marks), and 刊例第五条 rules that a
+     one-value-many-consumers token takes the strictest consumer — 4.5:1
+     on --bg-card. The icon raster keeps its own copper untouched. */
+  --accent:        oklch(50% 0.122 55);
   --accent-soft:   oklch(95% 0.025 55);
   --accent-line:   oklch(77% 0.065 55);
   --teal:          oklch(45% 0.062 215);
@@ -29,12 +32,12 @@
   --teal-line:     oklch(79% 0.04 215);
   --good:          oklch(51% 0.10 150);
   --good-soft:     oklch(94% 0.028 150);
-  --warn:          oklch(52% 0.12 78);
+  --warn:          oklch(52% 0.104 78);
   --warn-soft:     oklch(94% 0.03 78);
   --danger:        oklch(48% 0.17 15);
   --danger-soft:   oklch(94% 0.028 12);
   --plum:          oklch(46% 0.09 320);
-  --rate-hard:     oklch(48% 0.10 95);
+  --rate-hard:     oklch(48% 0.098 95);
   --rate-hard-soft: oklch(93.5% 0.03 95);
 
   --shadow-sm:     none;
@@ -137,7 +140,7 @@
   --border-strong: oklch(43% 0.014 250);
   --ink:           oklch(92% 0.007 250);
   --ink-2:         oklch(74% 0.009 250);
-  --ink-3:         oklch(57% 0.010 250);
+  --ink-3:         oklch(61% 0.010 250);
   --ink-4:         oklch(41% 0.010 250);
   --accent:        #D9945E;
   --accent-soft:   oklch(27% 0.04 55);
