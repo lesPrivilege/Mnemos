@@ -48,6 +48,8 @@ Local-first，两层持久化：大记录（卡片数据、题库）经内存缓
 
 - **Spec-as-prompt**：每轮迭代先产出自包含的 implementation prompt（[docs/](docs/) 下的 `feature-*-prompt.md`），再交由 CLI agent 分支实现，双重 review（spec 合规 + 代码质量）后合并。git 历史可验证 spec 先于实现
 - **质量弧线**：零测试的 11k 行原型 → vitest + lint + `npm run check` 门禁 → 核心纯函数全覆盖（调度、解析、引擎），每轮迭代测试数只增不减
+- **设计有底本，且可机检**：色、字号、圆角、缓动、时长的唯一来源是 `src/styles/tokens.css`；组件内字面量由 `npm run collate` 四门拦下（底本单源、避讳字面、双主题对比度、构建牌记），各门自带阴性对照证其能红，基线只减不增。约束与裁定分别记在 [docs/design-kanli.md](docs/design-kanli.md)（宗、讳表、行款、声部）与 [docs/design-collation.md](docs/design-collation.md)（校勘记与判例，含「不采」之裁定）
+- **实施者不自验**：每轮交付前由未参与实施的 agent 独立审校，逐项给证据与判定；三轮下来它抓出的真缺陷包括一处已上线的行高回归、一处「碰巧命中」的假修复，以及本轮自身引入的状态残留
 - **路线图公开**：[docs/roadmap-long-term.md](docs/roadmap-long-term.md)（地基/存储/重构）与 [docs/roadmap-maturity.md](docs/roadmap-maturity.md)（解耦/设计语言/发布路径），完成项标注轮次，取舍理由写在条目里
 
 克制说明：以上不是方法论宣言，只是这个仓库实际的工作方式；判断其成色的方式是读 commit 历史和 docs 目录，而非本节文字。
@@ -57,7 +59,8 @@ Local-first，两层持久化：大记录（卡片数据、题库）经内存缓
 ```bash
 npm install
 npm run dev          # http://localhost:5173
-npm run check        # lint + vitest + build（提交门禁）
+npm run check        # lint + vitest + collate（设计死校）+ build（提交门禁）
+npm run collate      # 单跑死校四门；--self-test 验各探测器能红
 ```
 
 ## 打包 APK
@@ -77,9 +80,12 @@ Mnemos/
 │   ├── quiz/                     # quiz 引擎、题目解析、storage
 │   ├── reading/                  # 阅读器：renderDoc, highlights, bookmarks, importer
 │   ├── pages/ · components/      # 页面与共享组件
-│   └── styles/                   # OKLCH token 设计系统
-├── docs/                         # roadmap、implementation prompts、backup 格式契约
-├── design/                       # hi-fi 原型
+│   └── styles/                   # tokens.css＝设计唯一底本（OKLCH 色、rem 字阶、
+│                                 #   动效、表面材质）＋ 自带子集的朱雀仿宋
+├── scripts/collate/              # 设计死校四门与其阴性对照、字号门回归测试
+├── docs/                         # 设计常法（kanli/collation）、roadmap、
+│                                 #   backup 格式契约、对比度实测表、历轮 prompts
+├── design/                       # 历轮原型，归档史料（无约束力，现行以底本为准）
 ├── android/                      # Capacitor Android wrapper
 └── assets/screenshots/           # 界面截图
 ```
@@ -92,6 +98,7 @@ Mnemos/
 | IndexedDB `mnemos/reading-doc-bodies` | 阅读文档正文 |
 | `mnemos-*` / `examprep-*` / `reading-*` (localStorage) | 进度、收藏、日志、设置等小记录 |
 | `mnemos-quarantine::*` | 损坏数据隔离区 |
+| `mnemos-theme` / `mnemos-content-font` | 主题与正文字体偏好（首帧前上类，冷启动不闪） |
 
 ## 导入格式
 
