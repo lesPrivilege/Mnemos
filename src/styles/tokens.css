@@ -89,12 +89,15 @@
   --sp-8: 64px;
 
   /* ─────── Motion ───────
-     Two durations covering this app's existing transition range
-     (100-200ms micro-interactions -> --motion-quick; 240ms+
-     sheet/panel movements -> --motion-gentle). Shared ease matches
-     iOS/Material "standard decelerate" curves already implied by
-     the hand-picked cubic-beziers elsewhere in index.css. */
+     Four durations, one standard-decelerate curve. quick = tap
+     feedback & micro color shifts; mid = hover/background state
+     shifts & small reveals (added 2026-07-24 to absorb the 140-200ms
+     hardcoded band recorded in docs/design-collation.md 记-03);
+     gentle = sheet/panel movement; slow = flip cards, charts,
+     progress. Spring physics are reserved for gesture-following
+     JS interactions only (家讳6) and never live in this file. */
   --motion-quick:  120ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-mid:    180ms cubic-bezier(0.2, 0, 0, 1);
   --motion-gentle: 240ms cubic-bezier(0.2, 0, 0, 1);
   --motion-slow:   420ms cubic-bezier(0.2, 0, 0, 1);
 
