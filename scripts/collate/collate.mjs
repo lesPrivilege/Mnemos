@@ -114,6 +114,9 @@ const CUBIC_BEZIER_CALL_RE =
 const RADIUS_CSS_RE = /\bborder-radius\s*:\s*([^;}]+)(?=[;}])/g
 const RADIUS_JS_KEY_RE = /\bborderRadius\s*:\s*/g
 const DURATION_PROP_RE = /\b(?:transition|animation)(?:-duration|Duration)?\s*:/g
+const FONTSIZE_CSS_RE = /\bfont-size\s*:\s*([^;}]+)(?=[;}])/g
+const FONTSIZE_ARBITRARY_RE = /\btext-\[\d+(?:\.\d+)?(?:px|rem|em)\]/g
+const FONTSIZE_JS_KEY_RE = /\bfontSize\s*:\s*/g
 
 function isShapeIdiom(tok) {
   // 形状习语非圆角语言（款2 管角，不管形）：正圆 50%、胶囊 ≥999。
@@ -201,6 +204,58 @@ function detectRadius(rootDir, filePath, text) {
   return out
 }
 
+function isOffendingFontSizeValue(raw) {
+  let value = raw.trim()
+  const quoteMatch = /^(['"`])([\s\S]*)\1$/.exec(value)
+  if (quoteMatch) value = quoteMatch[2].trim()
+  if (value === '') return false
+  // 流体展示号（hero 数字）为记录在案的例外（记-16）
+  if (/clamp\(/.test(value)) return false
+  if (/var\(\s*--text-/.test(value)) return false
+  // 唯纯字面量入罪：表达式（Math.max(14, …)、settings.fontSize）是算出来的，
+  // 不是硬写的样式值——用户字号偏好之上下限即此类（记-17）。
+  // em 为相对尺，随上下文缩放、顺从字阶且利 Dynamic Type，不治；
+  // px/rem 为绝对值，逃出九档即讹。
+  return /^-?\d+(?:\.\d+)?(?:px|rem)?$/.test(value)
+}
+
+function detectFontSizeLiteral(rootDir, filePath, text) {
+  const out = []
+  for (const m of text.matchAll(FONTSIZE_CSS_RE)) {
+    if (isOffendingFontSizeValue(m[1])) {
+      out.push(makeViolation('source-single', 'g1-fontsize', rootDir, filePath, text, m.index, m[0].length))
+    }
+  }
+  // Tailwind 任意值 text-[Npx]
+  for (const m of text.matchAll(FONTSIZE_ARBITRARY_RE)) {
+    out.push(makeViolation('source-single', 'g1-fontsize', rootDir, filePath, text, m.index, m[0].length))
+  }
+  // 内联 style fontSize —— 唯 .jsx 渲染层受此约束；.js 属数据层，
+  // 用户偏好默认值（如阅读器字号 14–24 可调）非样式字面量，不入此门。
+  if (filePath.endsWith('.jsx')) {
+    for (const m of text.matchAll(FONTSIZE_JS_KEY_RE)) {
+      const afterIdx = m.index + m[0].length
+      let region = restOfLine(text, afterIdx)
+      const stop = /[,}]/.exec(region)
+      if (stop) region = region.slice(0, stop.index)
+      if (isOffendingFontSizeValue(region)) {
+        out.push(
+          makeViolation(
+            'source-single',
+            'g1-fontsize',
+            rootDir,
+            filePath,
+            text,
+            m.index,
+            m[0].length + region.length
+          )
+        )
+      }
+    }
+  }
+  return out
+}
+
 function detectDurationLiteral(rootDir, filePath, text) {
   const out = []
   for (const m of text.matchAll(DURATION_PROP_RE)) {
@@ -227,7 +282,8 @@ export function scanSourceSingle(files, rootDir) {
       ...detectColorFn(rootDir, filePath, text),
       ...detectRadius(rootDir, filePath, text),
       ...detectCubicBezierPresence(rootDir, filePath, text),
-      ...detectDurationLiteral(rootDir, filePath, text)
+      ...detectDurationLiteral(rootDir, filePath, text),
+      ...detectFontSizeLiteral(rootDir, filePath, text)
     )
   }
   return out
@@ -708,6 +764,7 @@ const ALL_DETECTOR_IDS = [
   'g1-radius',
   'g1-cubic-bezier',
   'g1-duration',
+  'g1-fontsize',
   'g2-gradient',
   'g2-bgcliptext',
   'g2-backdropfilter',

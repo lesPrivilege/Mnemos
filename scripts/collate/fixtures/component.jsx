@@ -11,7 +11,9 @@ export function FixtureWidget() {
         transition: 'width 150ms, height 150ms',
         backdropFilter: 'blur(12px)',
         animationName: 'elasticPopFixture',
+        fontSize: 13,
       }}
+      className="text-[13px]"
     >
       fixture
     </div>

@@ -52,3 +52,8 @@
 .g2-layout-fixture {
   transition: width 200ms, height 200ms, max-height 200ms;
 }
+
+/* 阴性对照：字号字面量（记-16 门） */
+.fixture-fontsize-literal {
+  font-size: 13px;
+}
