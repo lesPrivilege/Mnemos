@@ -163,7 +163,6 @@ export default function CollectionDetail() {
         <div style={{ padding: '8px 0 24px' }}>
           {docs.length === 0 ? (
             <div className="empty">
-              <div className="glyph"><LayersIcon size={32} style={{ color: 'var(--ink-4)' }} /></div>
               <div className="msg">{S.collectionDetail.emptyDocs}</div>
               <div className="motto-zh">{S.collectionDetail.emptyDocsHint}</div>
             </div>

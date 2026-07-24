@@ -124,7 +124,6 @@ export default function Browse() {
           <h1 className="flex-1 font-zh text-[17px] font-medium text-ink pl-1">{S.browse.title}</h1>
         </header>
         <div className="empty">
-          <div className="glyph">∅</div>
           <div className="msg">{S.browse.empty}</div>
           <div className="motto-zh">{S.browse.emptyHint}</div>
         </div>

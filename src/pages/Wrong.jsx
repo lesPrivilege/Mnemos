@@ -85,7 +85,6 @@ export default function Wrong() {
       <main className="flex-1 overflow-y-auto p-[18px] flex flex-col gap-3">
         {wrongQuestions.length === 0 ? (
           <div className="empty">
-            <div className="glyph">✓</div>
             <div className="msg">{S.wrong.empty}</div>
             <div className="motto-zh">{S.wrong.emptyHint}</div>
           </div>

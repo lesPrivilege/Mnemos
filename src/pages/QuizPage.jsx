@@ -191,7 +191,6 @@ export default function Quiz() {
         </div>
         <div className="page-scroll">
           <div className="empty">
-            <div className="glyph">?</div>
             <div className="msg">{S.quiz.noQuestions}</div>
             <div className="motto-zh">{S.quizPage.filterHint}</div>
           </div>
