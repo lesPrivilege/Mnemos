@@ -9,7 +9,7 @@
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "check": "npm run lint && npm run test && npm run build",
+    "check": "npm run lint && npm run test && npm run collate && npm run build",
     "preview": "vite preview",
     "subset:font": "node scripts/subset-ui-font.mjs",
     "collate": "node scripts/collate/collate.mjs",

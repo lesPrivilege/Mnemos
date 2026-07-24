@@ -1,11 +1,6 @@
 [
   {
     "gate": "source-single",
-    "file": "pages/DeckDetail.jsx",
-    "match": "<span style={{ width: 6, height: 6, borderRadius: '50%', background: tierColor, flexShrink: 0, marginLeft: 2 }"
-  },
-  {
-    "gate": "source-single",
     "file": "pages/Home.jsx",
     "match": "tion: drag?.locked === 'x' ? 'none' : 'transform 360ms cubic-bezier(.2,.8,.2,1)',"
   },
@@ -21,67 +16,7 @@
   },
   {
     "gate": "source-single",
-    "file": "pages/Review.jsx",
-    "match": "padding: '8px 16px', borderRadius: 999, fontSize: 12,"
-  },
-  {
-    "gate": "source-single",
     "file": "pages/Settings.jsx",
     "match": "background: `oklch(60% 0.10 ${60 + hue * 55})`,"
-  },
-  {
-    "gate": "source-single",
-    "file": "reading/pages/Reader.jsx",
-    "match": "padding: '8px 16px', borderRadius: 999, fontSize: 12,"
-  },
-  {
-    "gate": "source-single",
-    "file": "styles/index.css",
-    "match": "border-radius: 999px;"
-  },
-  {
-    "gate": "source-single",
-    "file": "styles/index.css",
-    "match": "background: rgb(0 0 0 / 0.35);"
-  },
-  {
-    "gate": "source-single",
-    "file": "styles/index.css",
-    "match": "border-radius: 999px;"
-  },
-  {
-    "gate": "source-single",
-    "file": "styles/index.css",
-    "match": "width: 36px; height: 36px; border-radius: 50%;"
-  },
-  {
-    "gate": "source-single",
-    "file": "styles/index.css",
-    "match": "border-radius: 999px;"
-  },
-  {
-    "gate": "source-single",
-    "file": "styles/index.css",
-    "match": "border-radius: 50%;"
-  },
-  {
-    "gate": "source-single",
-    "file": "styles/index.css",
-    "match": "border-radius: 50%;"
-  },
-  {
-    "gate": "source-single",
-    "file": "styles/index.css",
-    "match": "width: 8px; height: 8px; border-radius: 50%;"
-  },
-  {
-    "gate": "source-single",
-    "file": "styles/index.css",
-    "match": "width: 4px; height: 4px; border-radius: 50%;"
-  },
-  {
-    "gate": "source-single",
-    "file": "styles/index.css",
-    "match": "width: 26px; height: 26px; border-radius: 50%;"
   }
 ]

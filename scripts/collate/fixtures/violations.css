@@ -17,7 +17,7 @@
   border-radius: 8px;
 }
 .g1-radius-pill-fixture {
-  border-radius: 999px; /* pill literal — flagged too, per brief ("flag pill literals too") */
+  border-radius: 999px; /* 胶囊为形状习语，门已放行（记-12）——本行留作阴性之阴性 */
 }
 .g1-cubicbezier-fixture {
   transition: opacity 200ms cubic-bezier(0.4, 0, 0.2, 1); /* also trips g1-duration */

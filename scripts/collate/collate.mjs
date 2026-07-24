@@ -115,16 +115,27 @@ const RADIUS_CSS_RE = /\bborder-radius\s*:\s*([^;}]+)(?=[;}])/g
 const RADIUS_JS_KEY_RE = /\bborderRadius\s*:\s*/g
 const DURATION_PROP_RE = /\b(?:transition|animation)(?:-duration|Duration)?\s*:/g
 
+function isShapeIdiom(tok) {
+  // 形状习语非圆角语言（款2 管角，不管形）：正圆 50%、胶囊 ≥999。
+  if (tok === '50%') return true
+  const n = /^(\d+(?:\.\d+)?)(?:px)?$/.exec(tok)
+  return n !== null && parseFloat(n[1]) >= 999
+}
+
 function isOffendingRadiusValue(raw) {
   let value = raw.trim()
   const quoteMatch = /^(['"`])([\s\S]*)\1$/.exec(value)
   if (quoteMatch) value = quoteMatch[2].trim()
   if (value === '') return false
+  if (isShapeIdiom(value)) return false
   if (/^-?\d+(?:\.\d+)?$/.test(value)) return parseFloat(value) !== 0 // React unitless == px
   const stripped = value.replace(/var\(\s*--r-[\w-]*\s*(?:,[^)]*)?\)/g, ' ')
   const tokens = stripped.trim().split(/\s+/).filter(Boolean)
   return tokens.some(
-    (tok) => /^\d+(?:\.\d+)?(?:px|rem|%)?$/.test(tok) && !/^0(?:\.0+)?(?:px|rem|%)?$/.test(tok)
+    (tok) =>
+      !isShapeIdiom(tok) &&
+      /^\d+(?:\.\d+)?(?:px|rem|%)?$/.test(tok) &&
+      !/^0(?:\.0+)?(?:px|rem|%)?$/.test(tok)
   )
 }
 
