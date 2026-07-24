@@ -67,17 +67,27 @@
   --font-mono:  'JetBrains Mono', ui-monospace, monospace;
 
   /* ─────── Type scale (Dynamic Type-ready) ───────
-     Ratio ≈1.2 (minor third) stepping from --text-base: 1rem.
-     rem units so the whole scale responds to the user's root
-     font-size / OS text-size setting. Not yet wired into any
-     component — named steps for Claude Design + later rounds. */
-  --text-xs:   0.694rem;  /* ~11.1px */
-  --text-sm:   0.833rem;  /* ~13.3px */
-  --text-base: 1rem;      /* 16px */
-  --text-lg:   1.2rem;    /* ~19.2px */
-  --text-xl:   1.44rem;   /* ~23px */
-  --text-2xl:  1.728rem;  /* ~27.6px */
-  --text-3xl:  2.074rem;  /* ~33.2px */
+     Re-derived 2026-07-25 (记-16) from the app's real, measured type
+     vocabulary rather than a borrowed minor-third ladder. Mnemos is a
+     compact information tool: chrome text clusters at 9-14px (13px is
+     the workhorse, 49 sites), content reads at 16px, display is sparse.
+     A constant 1.2 ratio can't hold that fine low end, so steps are
+     tight below the reading anchor and widen into display. Hierarchy
+     jumps (body 13 → title 19 = 1.46; content 16 → micro 10 = 1.6) all
+     clear ≥1.2; adjacent fine-steps within a tier may sit below it by
+     design. rem-based so the OS text-size setting scales the whole app
+     (this is what makes Dynamic Type, M4, possible). xl = 1rem is the
+     content-reading anchor. Hero display numbers stay on their own
+     fluid clamp() (a recorded display exception, not on this ladder). */
+  --text-2xs:  0.625rem;    /* 10px — 微标：kicker / tag / mono-mini */
+  --text-xs:   0.6875rem;   /* 11px — 元信息 / caption */
+  --text-sm:   0.75rem;     /* 12px — 次要文字 */
+  --text-md:   0.8125rem;   /* 13px — chrome 正文（工作字号） */
+  --text-lg:   0.875rem;    /* 14px — chrome 强调 / 列表主项 */
+  --text-xl:   1rem;        /* 16px — 内容阅读锚（Dynamic Type base） */
+  --text-2xl:  1.1875rem;   /* 19px — 题 / 卡问 / 顶栏 */
+  --text-3xl:  1.5rem;      /* 24px — 大标题 */
+  --text-4xl:  2.0625rem;   /* 33px — 展示 / 完成屏 */
 
   --leading-tight:  1.2;
   --leading-normal: 1.5;
