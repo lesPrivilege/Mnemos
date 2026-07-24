@@ -711,7 +711,8 @@ a { color: inherit; text-decoration: none; }
 .deck-spine .glyph {
   position: absolute; inset: 0;
   display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-mono);
+  /* 字首徽记取自内容名，归文轨（mono 的 CJK 回退会露黑体） */
+  font-family: var(--font-zh);
   font-size: 16px;
   color: var(--ink-2);
   font-weight: 500;

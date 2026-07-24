@@ -56,9 +56,13 @@
 
   --r-sm: 2px; --r-md: 4px; --r-lg: 6px; --r-xl: 10px;
 
-  --font-zh:    'Noto Serif SC', 'Songti SC', Georgia, serif;
-  --font-disp:  'Source Serif 4', 'Noto Serif SC', Georgia, serif;
-  --font-ui:    -apple-system, system-ui, 'Noto Sans SC', sans-serif;
+  /* 字轨四声（记-07，主令 2026-07-24）——
+     文：多字重宋，拉丁与数字前置 Times（Android 无 Times，降级至系统衬线拉丁，记-09）；
+     器：仿宋承注疏声（朱雀子集 368KB，见 src/styles/fonts.css 牌记），黑体只存栈底兜底；
+     展示：Times 系（Source Serif 4 已退役入账）；数据：mono 唯真数据。 */
+  --font-zh:    'Times New Roman', 'Noto Serif SC', 'Songti SC', Georgia, serif;
+  --font-disp:  'Times New Roman', 'Noto Serif SC', Georgia, serif;
+  --font-ui:    'Zhuque Fangsong (technical preview)', 'FangSong', 'STFangsong', system-ui, sans-serif;
   --font-mono:  'JetBrains Mono', ui-monospace, monospace;
 
   /* ─────── Type scale (Dynamic Type-ready) ───────
