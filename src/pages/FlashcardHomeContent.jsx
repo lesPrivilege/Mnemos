@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { PlusIcon, UploadIcon, MnemosMark } from '../components/Icons'
+import { PlusIcon, UploadIcon } from '../components/Icons'
 import { getAllDeckStats } from '../lib/scheduler'
 import { addDeck, deleteDecks, loadData } from '../lib/storage'
 import { localToday, isoToLocalDate, localDow, formatLocalDate } from '../lib/dateUtils'
@@ -183,7 +183,6 @@ export function FlashcardHomeContent() {
       {/* Deck list */}
       {decks.length === 0 ? (
         <EmptyState
-          icon={<MnemosMark size={48} accent="var(--accent)" />}
           title={S.flashcardHome.emptyDecksTitle}
           hint={S.flashcardHome.emptyDecksHint}
         />

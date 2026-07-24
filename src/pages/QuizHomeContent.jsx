@@ -5,7 +5,7 @@ import { isInWrongBook } from '../quiz/lib/quizEngine'
 import { parseQuestionsJson } from '../quiz/lib/questionParser'
 import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
 import { SUBJECT_HUE, SUBJECT_GLYPH } from '../quiz/lib/subjectMeta'
-import { UploadIcon, PlusIcon, PasteIcon } from '../components/Icons'
+import { UploadIcon, PlusIcon } from '../components/Icons'
 import { HeroSection } from '../components/HeroSection'
 import EmptyState from '../components/EmptyState'
 import { useToast, Toast } from '../components/Toast'
@@ -221,7 +221,6 @@ export function QuizHomeContent() {
       {/* Subject list */}
       {subjects.length === 0 ? (
         <EmptyState
-          icon={<PasteIcon size={48} />}
           title={S.quizHome.emptySubjectsTitle}
           hint={S.quizHome.emptySubjectsHint}
         />

@@ -9,8 +9,4 @@ export const readerPanels = {
   bookmarksEmpty: '暂无书签',
   generateFlashcards: '生成闪卡',
   exportHighlightsAction: '导出高亮',
-  settingsHeader: '设置',
-  fontSizeLabel: '字号',
-  lineHeightLabel: '行距',
-  marginsLabel: '边距',
 }

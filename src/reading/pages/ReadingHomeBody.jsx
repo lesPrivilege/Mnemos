@@ -3,7 +3,7 @@
 import { useNavigate, Link } from 'react-router-dom'
 import { getDocumentsByCollection } from '../lib/storage'
 import { getWeeklyMinutes } from '../lib/stats'
-import { PlusIcon, UploadIcon, LayersIcon } from '../../components/Icons'
+import { PlusIcon, UploadIcon } from '../../components/Icons'
 import { HeroSection } from '../../components/HeroSection'
 import EmptyState from '../../components/EmptyState'
 import { S } from '../../lib/strings'
@@ -110,7 +110,6 @@ export default function ReadingHomeBody({ h }) {
 
           {h.sorted.length === 0 && !h.showNewCol && (
             <EmptyState
-              icon={<LayersIcon size={48} />}
               title={S.readingHomeBody.emptyCollectionsTitle}
               hint={S.readingHomeBody.emptyCollectionsHint}
             />
