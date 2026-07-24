@@ -988,17 +988,23 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
        ——活动页在任何浏览器都裁切，反较修前更劣。故改由自定义属性择级：
        特异性只作用于变量赋值（`.page-fixed:has(X)` 自然胜 `.page-fixed`），
        消费处唯一，override 之争从根上消失。 */
+    /* 两容器同权：`.page-fill` 与 `.page-fixed` 皆须择级，否则前者日后若
+       含标记类将静默停在列表之度（雠所指结构不对称，记-24）。
+       下列三档书写顺序即优先序，同页多命中时由后者胜——会话 < 阅读 < 活动，
+       此序为明示所定，非行序偶然。 */
     .page-fill,
     .page-fixed { --col-current: var(--col-list); }
     /* L2 会话（复习卡／题卡／完成屏）——较列表略宽以容长题干；完成屏无卡片
        容器故须单列，否则会话终了瞬间由 560 缩回 480（记-22 之五）。 */
-    .page-fixed:has(.rv-card-wrap),
-    .page-fixed:has(.qa-card),
-    .page-fixed:has(.done-wrap) { --col-current: var(--col-session); }
+    .page-fill:has(.rv-card-wrap), .page-fixed:has(.rv-card-wrap),
+    .page-fill:has(.qa-card), .page-fixed:has(.qa-card),
+    .page-fill:has(.done-wrap), .page-fixed:has(.done-wrap) { --col-current: var(--col-session); }
     /* 阅读页守自身 measure。钩子取 `.reader-panel`（阅读页独有）而非
        `.card-content`——后者复习卡内亦有三处，会反压会话之度（实测证）。 */
+    .page-fill:has(.reader-panel),
     .page-fixed:has(.reader-panel) { --col-current: var(--col-read); }
     /* 活动页为仪表盘，双栏须整幅（其自有 1120 上限） */
+    .page-fill:has(.activity-content),
     .page-fixed:has(.activity-content) { --col-current: 100%; }
 
     /* 唯一消费处。幕不入收束——其职在遮蔽身后全部，须铺满视口（记-22 之三）；
@@ -1015,6 +1021,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
       padding-inline: max(var(--sp-7), calc((100% - var(--col-current)) / 2));
     }
     /* 仪表盘之顶栏随其栅格天地，不随栏度（--col-current 为 100% 时上式得 sp-7） */
+    .page-fill:has(.activity-content) .topbar,
     .page-fixed:has(.activity-content) .topbar { padding-inline: var(--sp-8); }
   }
 }
