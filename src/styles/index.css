@@ -962,31 +962,62 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
     width: 100%;
     max-width: calc(var(--col-read) + var(--gutter-wide) * 2);
   }
-  /* L0/L1 内容守列表之度；chrome（顶栏/底栏）随外框，其内容内缩与栏对齐
-     ——上下 chrome 同宽方统，故顶栏不入此收。 */
-  .page-fill > *:not(.topbar),
-  .page-fixed > *:not(.topbar) {
-    width: 100%;
-    max-width: var(--col-list);
+  /* 确认沿从其页之栏宽（由下方各级规则给出）并居中——沿属其页，不属视口；
+     原铺满 1200 而栏止于 776，栏之幻象即破（记-22 之三）。
+     幕则相反：其职在遮蔽身后全部，须铺满视口，故排除于收束之外。 */
+  .confirm-sheet {
+    left: 50%;
+    right: auto;
     margin-inline: auto;
+    transform: translateX(-50%) translateY(0);
+    @starting-style { transform: translateX(-50%) translateY(100%); }
   }
-  .topbar {
-    padding-inline: max(var(--sp-7), calc((100% - var(--col-list)) / 2));
+}
+
+/* 各级守度须 `:has()` 方可分辨页别；若浏览器不识（Chrome &lt;105），整块规则
+   作废——故收束与解除必须同存亡，否则活动页会落回列表之度而其双栏栅格
+   仍索 732px，`.page-fixed` 之 overflow:hidden 静默裁去 86px 且无滚可及
+   （雠实测，记-22 之二：前记所称「退化为收窄，不破」为假）。
+   置于 @supports 内则无 `:has()` 时全块不生效，退回本轮之前的满幅行为
+   ——不编排，但不破。 */
+@supports selector(:has(*)) {
+  @media (min-width: 720px) and (orientation: portrait) {
+    /* L0/L1 内容守列表之度；chrome（顶栏/底栏）随外框，其内容内缩与栏对齐
+       ——上下 chrome 同宽方统，故顶栏不入此收。 */
+    /* 幕不入收束——其职在遮蔽身后全部（记-22 之三） */
+    .page-fill > *:not(.topbar):not(.confirm-backdrop),
+    .page-fixed > *:not(.topbar):not(.confirm-backdrop) {
+      width: 100%;
+      max-width: var(--col-list);
+      margin-inline: auto;
+    }
+    .topbar {
+      padding-inline: max(var(--sp-7), calc((100% - var(--col-list)) / 2));
+    }
+    /* L2 会话（复习卡／题卡／完成屏）守会话之度——较列表略宽以容长题干。
+       完成屏无卡片容器，须单列，否则会话终了瞬间由 560 缩回 480（记-22 之五）。 */
+    .page-fixed:has(.rv-card-wrap) > *:not(.topbar),
+    .page-fixed:has(.qa-card) > *:not(.topbar),
+    .page-fixed:has(.done-wrap) > *:not(.topbar) {
+      max-width: var(--col-session);
+    }
+    .page-fixed:has(.rv-card-wrap) .topbar,
+    .page-fixed:has(.qa-card) .topbar,
+    .page-fixed:has(.done-wrap) .topbar {
+      padding-inline: max(var(--sp-7), calc((100% - var(--col-session)) / 2));
+    }
+    /* 解除一：活动页为仪表盘，双栏须整幅（其自有 1120 上限）；
+       其顶栏随栅格之天地（--sp-8），不随列表之度（记-22 之四）。 */
+    .page-fixed:has(.activity-content) > * { max-width: none; }
+    .page-fixed:has(.activity-content) .topbar { padding-inline: var(--sp-8); }
+    /* 解除二：阅读页守自身 measure（680）。钩子取 `.reader-panel`（阅读页独有）
+       而非 `.card-content`——后者复习卡内亦有三处，会反压会话之度（实测证）。
+       其顶栏亦须按 measure 内缩，否则返回键较正文左沿偏出 100px（记-22 之一）。 */
+    .page-fixed:has(.reader-panel) > * { max-width: none; }
+    .page-fixed:has(.reader-panel) .topbar {
+      padding-inline: max(var(--sp-7), calc((100% - var(--col-read)) / 2));
+    }
   }
-  /* L2 会话（复习卡／题卡）守会话之度——较列表略宽以容长题干 */
-  .page-fixed:has(.rv-card-wrap) > *:not(.topbar),
-  .page-fixed:has(.qa-card) > *:not(.topbar) {
-    max-width: var(--col-session);
-  }
-  .page-fixed:has(.rv-card-wrap) .topbar,
-  .page-fixed:has(.qa-card) .topbar {
-    padding-inline: max(var(--sp-7), calc((100% - var(--col-session)) / 2));
-  }
-  /* 解除一：活动页为仪表盘，双栏须整幅（其自有 1120 上限） */
-  .page-fixed:has(.activity-content) > * { max-width: none; }
-  /* 解除二：阅读页守自身 measure（680）。钩子取 `.reader-panel`（阅读页独有）
-     而非 `.card-content`——后者复习卡内亦有三处，会反压会话之度（实测证）。 */
-  .page-fixed:has(.reader-panel) > * { max-width: none; }
 }
 
 /* ═══════════════════════════════════════════════════
@@ -1000,7 +1031,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   right: auto;
   bottom: 0;
   z-index: 20;
-  width: min(100%, 480px);
+  width: min(100%, var(--col-list));
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
@@ -1370,7 +1401,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
       "rings calendar"
       "modules recent";
     gap: 18px;
-    padding: 22px;
+    padding: var(--sp-8);
   }
   .activity-hero,
   .activity-section { margin: 0; }
