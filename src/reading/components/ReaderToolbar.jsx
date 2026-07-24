@@ -5,7 +5,7 @@ import { BackIcon } from '../../components/Icons'
 export default function ReaderToolbar({ title, showBars, onBack }) {
   return (
     <div className="topbar" style={{
-      transition: 'opacity 200ms, transform 200ms',
+      transition: 'opacity var(--motion-mid), transform var(--motion-mid)',
       opacity: showBars ? 1 : 0,
       transform: showBars ? 'translateY(0)' : 'translateY(-100%)',
       pointerEvents: showBars ? 'auto' : 'none',

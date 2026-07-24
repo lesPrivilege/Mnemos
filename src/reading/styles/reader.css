@@ -12,7 +12,7 @@
   box-shadow: var(--shadow-lg);
   overflow-y: auto;
   transform: translateX(-100%);
-  transition: transform 250ms cubic-bezier(.4, .2, .2, 1);
+  transition: transform var(--motion-gentle);
 }
 
 .reader-panel.open {
@@ -57,7 +57,7 @@
 
 .reader-backdrop {
   opacity: 0;
-  transition: opacity 200ms;
+  transition: opacity var(--motion-mid);
   pointer-events: none;
 }
 

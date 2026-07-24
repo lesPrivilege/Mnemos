@@ -2,7 +2,7 @@
 // Uses textOffset/length (primary) or selectedText occurrence (fallback)
 
 const MARK_SELECTOR = 'mark[data-hl-id]'
-const MARK_CSS = 'background:var(--accent-soft);border-radius:2px;padding:0 1px'
+const MARK_CSS = 'background:var(--accent-soft);border-radius:var(--r-sm);padding:0 1px'
 
 /**
  * Remove all existing highlight marks from the container (unwrap, keep text).

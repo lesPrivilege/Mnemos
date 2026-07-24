@@ -478,7 +478,7 @@ export default function DeckDetail() {
         </div>
       </FloatingBar>
       {previewCard && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6" style={{ background: 'rgba(0,0,0,0.5)' }} onClick={() => setPreviewCard(null)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6" style={{ background: 'color-mix(in oklch, var(--border-strong) 50%, transparent)' }} onClick={() => setPreviewCard(null)}>
           <div className="bg-bg-card rounded-lg p-5 max-w-sm w-full border border-border-soft" style={{ border: '1px solid var(--border-soft)' }} onClick={e => e.stopPropagation()}>
             <div className="font-body text-[10px] text-ink-3 mb-2 tracking-wider">{S.deckDetail.previewFrontLabel}</div>
             <div className="font-zh text-[15px] text-ink mb-3 max-h-40 overflow-y-auto"><PreviewContent text={previewCard.front} /></div>

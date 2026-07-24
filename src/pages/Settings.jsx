@@ -306,11 +306,11 @@ export default function Settings() {
         <div className="settings-card">
           <div className="lbl">{S.settings.appearanceHeading}</div>
           <div className="seg">
-            <button onClick={() => setDark(false)} className={!dark ? 'on' : ''}>
-              <SunIcon size={16} /> Light
+            <button onClick={() => setDark(false)} className={!dark ? 'on' : ''} aria-label={S.settings.themeLight}>
+              <SunIcon size={16} /> {S.settings.themeLight}
             </button>
-            <button onClick={() => setDark(true)} className={dark ? 'on' : ''}>
-              <MoonIcon size={16} /> Dark
+            <button onClick={() => setDark(true)} className={dark ? 'on' : ''} aria-label={S.settings.themeDark}>
+              <MoonIcon size={16} /> {S.settings.themeDark}
             </button>
           </div>
         </div>
@@ -453,7 +453,7 @@ export default function Settings() {
                 return (
                   <div key={subject} className="settings-subject-row">
                     <div style={{
-                      width: 4, height: 36, borderRadius: 2,
+                      width: 4, height: 36, borderRadius: 'var(--r-sm)',
                       background: `oklch(60% 0.10 ${60 + hue * 55})`,
                       flexShrink: 0,
                     }} />

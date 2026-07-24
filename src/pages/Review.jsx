@@ -454,7 +454,7 @@ export default function Review() {
             padding: '8px 16px', borderRadius: 999, fontSize: 12,
             fontFamily: 'var(--font-zh)', cursor: 'pointer',
             boxShadow: 'var(--shadow-md)', zIndex: 50,
-            animation: 'fadeIn 150ms ease-out',
+            animation: 'fadeIn var(--motion-mid)',
           }}>
           {toast} <span style={{ opacity: 0.6, marginLeft: 6 }}>{S.review.undoToastLabel}</span>
         </div>

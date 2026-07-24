@@ -38,13 +38,13 @@ export function ConfirmSheet({ state }) {
         {!message && <div style={{ height: 12 }} />}
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={() => onResult(false)} style={{
-            flex: 1, padding: '10px 0', borderRadius: 8, border: '1px solid var(--border)',
+            flex: 1, padding: '10px 0', borderRadius: 'var(--r-lg)', border: '1px solid var(--border)',
             background: 'var(--bg)', color: 'var(--ink)', fontFamily: 'var(--font-zh)', fontSize: 14, fontWeight: 500,
           }}>{cancelLabel}</button>
           <button onClick={() => onResult(true)} style={{
-            flex: 1, padding: '10px 0', borderRadius: 8, border: 'none',
+            flex: 1, padding: '10px 0', borderRadius: 'var(--r-lg)', border: 'none',
             background: destructive ? 'var(--danger)' : 'var(--accent)',
-            color: '#fff', fontFamily: 'var(--font-zh)', fontSize: 14, fontWeight: 500,
+            color: 'var(--bg)', fontFamily: 'var(--font-zh)', fontSize: 14, fontWeight: 500,
           }}>{confirmLabel}</button>
         </div>
       </div>

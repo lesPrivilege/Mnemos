@@ -176,7 +176,7 @@ function HeatmapGrid() {
                     <div key={di}
                       onClick={() => setSelected(selected?.date === day.date ? null : day)}
                       style={{
-                        width: 14, height: 14, borderRadius: 3,
+                        width: 14, height: 14, borderRadius: 'var(--r-md)',
                         background: HEATMAP_LEVELS[lv],
                         cursor: 'pointer',
                         border: selected?.date === day.date ? '1px solid var(--ink)' : '1px solid var(--border-soft)',

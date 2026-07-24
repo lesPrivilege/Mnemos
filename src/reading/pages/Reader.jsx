@@ -273,7 +273,7 @@ export default function Reader() {
       {/* Backdrop to close panels */}
       <div
         className={`reader-backdrop ${activePanel ? 'visible' : ''}`}
-        style={{ position: 'fixed', inset: 0, zIndex: 14, background: 'rgba(0,0,0,0.15)' }}
+        style={{ position: 'fixed', inset: 0, zIndex: 14, background: 'color-mix(in oklch, var(--border-strong) 15%, transparent)' }}
         onClick={() => setActivePanel(null)}
       />
 
@@ -304,7 +304,7 @@ export default function Reader() {
             border: '1px solid var(--border-strong)',
             left: Math.max(8, Math.min(selection.rect.left, window.innerWidth - 130)),
             top: Math.min(selection.rect.bottom + 8, window.innerHeight - 60),
-            animation: 'fadeIn 150ms ease-out',
+            animation: 'fadeIn var(--motion-mid)',
           }}>
           {S.reader.saveHighlight}
         </button>
@@ -313,7 +313,7 @@ export default function Reader() {
       {/* Bottom bar — toggles with topbar */}
       <div className="reader-bottom" style={{
         flexShrink: 0,
-        transition: 'opacity 200ms, transform 200ms',
+        transition: 'opacity var(--motion-mid), transform var(--motion-mid)',
         opacity: barHidden ? 0 : 1,
         transform: barHidden ? 'translateY(100%)' : 'translateY(0)',
         pointerEvents: barHidden ? 'none' : 'auto',
@@ -383,7 +383,7 @@ export default function Reader() {
       {/* Bottom progress bar */}
       <div style={{
         position: 'absolute', bottom: 0, left: 0, right: 0, height: 3,
-        background: 'var(--bg-raised)', transition: 'opacity 200ms',
+        background: 'var(--bg-raised)', transition: 'opacity var(--motion-mid)',
         opacity: barHidden ? 0 : 1, zIndex: 5,
       }}>
         <div style={{ height: '100%', background: 'var(--accent)', width: `${scrollPct}%`, transition: 'width 200ms' }} />
@@ -396,7 +396,7 @@ export default function Reader() {
           background: 'var(--ink)', color: 'var(--bg)',
           padding: '8px 16px', borderRadius: 999, fontSize: 12,
           fontFamily: 'var(--font-zh)', boxShadow: 'var(--shadow-md)', zIndex: 50,
-          animation: 'fadeIn 150ms ease-out',
+          animation: 'fadeIn var(--motion-mid)',
         }}>
           {toast}
         </div>

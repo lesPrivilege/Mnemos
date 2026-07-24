@@ -8,7 +8,7 @@ function TierBar({ tiers }) {
   const p = (n) => `${(n / total) * 100}%`
   return (
     <div style={{
-      display: 'flex', height: 3, borderRadius: 2, overflow: 'hidden',
+      display: 'flex', height: 3, borderRadius: 'var(--r-sm)', overflow: 'hidden',
       width: 48, flexShrink: 0, background: 'var(--bg-raised)',
     }}>
       {tiers.weak > 0 && <span style={{ width: p(tiers.weak), background: 'var(--danger)' }} />}
