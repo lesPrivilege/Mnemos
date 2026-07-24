@@ -247,7 +247,7 @@ export default function Reader() {
     <div className="page-fixed" style={{ background: 'var(--bg)', maxWidth: 'none' }}>
       {/* Top progress bar */}
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'var(--bg-raised)', zIndex: 10 }}>
-        <div style={{ height: '100%', background: 'var(--accent)', width: `${scrollPct}%`, transition: 'width 150ms' }} />
+        <div style={{ width: '100%', height: '100%', background: 'var(--accent)', transformOrigin: 'left', transform: `scaleX(${scrollPct / 100})`, transition: 'transform var(--motion-gentle)' }} />
       </div>
 
       <ReaderToolbar title={doc.title} showBars={showBars} onBack={goBack} />
@@ -386,7 +386,7 @@ export default function Reader() {
         background: 'var(--bg-raised)', transition: 'opacity var(--motion-mid)',
         opacity: barHidden ? 0 : 1, zIndex: 5,
       }}>
-        <div style={{ height: '100%', background: 'var(--accent)', width: `${scrollPct}%`, transition: 'width 200ms' }} />
+        <div style={{ width: '100%', height: '100%', background: 'var(--accent)', transformOrigin: 'left', transform: `scaleX(${scrollPct / 100})`, transition: 'transform var(--motion-gentle)' }} />
       </div>
 
       {/* Toast */}
