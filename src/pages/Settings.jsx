@@ -117,6 +117,15 @@ export default function Settings() {
     localStorage.setItem('mnemos-theme', dark ? 'dark' : 'light')
   }, [dark])
 
+  // 同版异纸（记-10）：内容纸切换只动 root class，组件零分支
+  const [contentSong, setContentSong] = useState(
+    () => localStorage.getItem('mnemos-content-font') === 'song'
+  )
+  useEffect(() => {
+    document.documentElement.classList.toggle('content-song', contentSong)
+    localStorage.setItem('mnemos-content-font', contentSong ? 'song' : 'fangsong')
+  }, [contentSong])
+
   // Flashcard state
   const [flashcardStats, setFlashcardStats] = useState(null)
   const [readingInfo, setReadingInfo] = useState(null)
@@ -298,7 +307,7 @@ export default function Settings() {
         <button onClick={goBack} className="tb-btn">
           <BackIcon />
         </button>
-        <h1 className="flex-1 font-zh text-[17px] font-medium text-ink pl-1">{S.settings.title}</h1>
+        <h1 className="flex-1 font-body text-[17px] font-semibold text-ink pl-1">{S.settings.title}</h1>
       </header>
 
       <main className="flex-1 overflow-y-auto p-[18px] flex flex-col gap-4">
@@ -311,6 +320,15 @@ export default function Settings() {
             </button>
             <button onClick={() => setDark(true)} className={dark ? 'on' : ''} aria-label={S.settings.themeDark}>
               <MoonIcon size={16} /> {S.settings.themeDark}
+            </button>
+          </div>
+          <div className="lbl" style={{ marginTop: 6 }}>{S.settings.contentFontLabel}</div>
+          <div className="seg">
+            <button onClick={() => setContentSong(false)} className={!contentSong ? 'on' : ''} aria-label={S.settings.contentFontFangsong}>
+              {S.settings.contentFontFangsong}
+            </button>
+            <button onClick={() => setContentSong(true)} className={contentSong ? 'on' : ''} aria-label={S.settings.contentFontSong}>
+              {S.settings.contentFontSong}
             </button>
           </div>
         </div>

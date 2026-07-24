@@ -8,6 +8,9 @@ export const settings = {
   appearanceHeading: '外观',
   themeLight: '浅色',
   themeDark: '深色',
+  contentFontLabel: '正文字体',
+  contentFontFangsong: '仿宋',
+  contentFontSong: '宋体',
   demoContentHeading: '示例内容',
   demoContentTitle: '载入示例内容包',
   demoContentDetail: '加入一组自撰记忆卡、练习题和阅读文档，用来预览完整流程',
@@ -95,5 +98,5 @@ export const settings = {
   aboutHeading: '关于',
   intervalAlgorithmLabel: '间隔算法',
   displayFontLabel: '显示字体',
-  displayFontValue: 'Source Serif · Noto Sans SC',
+  displayFontValue: '宋 · 仿宋 · Times · Mono',
 }
