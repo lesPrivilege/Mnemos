@@ -15,6 +15,7 @@ body {
   color: var(--ink);
   font-family: var(--font-ui);
   font-feature-settings: "ss01", "cv11", "tnum";
+  font-synthesis: none;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -40,17 +41,18 @@ a { color: inherit; text-decoration: none; }
   gap: 8px;
 }
 .topbar h1 {
-  font-family: var(--font-ui);
-  font-weight: 500;
-  font-size: 19px;
-  letter-spacing: -0.01em;
+  /* 标题归宋（记-07）：页面题与内容名同族，重与大者为题 */
+  font-family: var(--font-zh);
+  font-weight: 600;
+  font-size: 17px;
+  letter-spacing: 0;
   color: var(--ink);
   display: flex; align-items: center; gap: 10px;
   font-feature-settings: "liga", "dlig";
   min-width: 0;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.topbar h1.zh { font-family: var(--font-zh); font-weight: 500; font-size: 17px; letter-spacing: 0; }
+.topbar h1.zh { font-weight: 500; }
 .tb-actions { display: flex; gap: 4px; align-items: center; flex-shrink: 0; }
 .tb-btn {
   width: 32px; height: 32px;
@@ -61,7 +63,7 @@ a { color: inherit; text-decoration: none; }
 }
 .tb-btn:active { transform: scale(0.97); }
 .tb-text {
-  font-size: 13px; color: var(--ink-2); font-family: var(--font-zh);
+  font-size: 13px; color: var(--ink-2); font-family: var(--font-ui);
   padding: 0 6px;
   letter-spacing: 0.02em;
   min-width: 0;
@@ -177,7 +179,7 @@ a { color: inherit; text-decoration: none; }
   background: var(--ink);
   box-shadow: var(--shadow-md);
   color: var(--bg);
-  font-family: var(--font-zh);
+  font-family: var(--font-ui);
   font-size: 12px;
   text-align: center;
   opacity: 1;
@@ -195,7 +197,7 @@ a { color: inherit; text-decoration: none; }
   color: var(--ink-2);
 }
 .dropzone .label {
-  font-family: var(--font-zh); font-size: 13px; color: var(--ink);
+  font-family: var(--font-ui); font-size: 13px; color: var(--ink);
 }
 .dropzone .ext {
   font-family: var(--font-mono); font-size: 10px; color: var(--ink-3);
@@ -212,7 +214,7 @@ a { color: inherit; text-decoration: none; }
   display: flex; flex-direction: column; gap: 10px;
 }
 .settings-card .lbl {
-  font-family: var(--font-zh); font-size: 10px;
+  font-family: var(--font-ui); font-size: 10px;
   letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3);
   font-weight: 500;
 }
@@ -259,14 +261,14 @@ a { color: inherit; text-decoration: none; }
 }
 .settings-field-title {
   display: block;
-  font-family: var(--font-zh);
+  font-family: var(--font-ui);
   font-size: 13px;
   color: var(--ink);
 }
 .settings-field-hint {
   display: block;
   margin-top: 3px;
-  font-family: var(--font-zh);
+  font-family: var(--font-ui);
   font-size: 11px;
   color: var(--ink-3);
 }
@@ -295,7 +297,7 @@ a { color: inherit; text-decoration: none; }
   border-top: 1px dashed var(--border-soft);
 }
 .settings-action-group-title {
-  font-family: var(--font-zh);
+  font-family: var(--font-ui);
   font-size: 10px;
   letter-spacing: 0.12em;
   color: var(--ink-3);
@@ -315,12 +317,12 @@ a { color: inherit; text-decoration: none; }
   gap: 3px;
 }
 .settings-action-title {
-  font-family: var(--font-zh);
+  font-family: var(--font-ui);
   font-size: 13px;
   color: var(--ink);
 }
 .settings-action-detail {
-  font-family: var(--font-zh);
+  font-family: var(--font-ui);
   font-size: 11px;
   line-height: 1.45;
   color: var(--ink-3);
@@ -427,7 +429,7 @@ a { color: inherit; text-decoration: none; }
 }
 .settings-empty-note {
   padding: 10px 0;
-  font-family: var(--font-zh);
+  font-family: var(--font-ui);
   font-size: 12px;
   color: var(--ink-3);
 }
@@ -437,7 +439,7 @@ a { color: inherit; text-decoration: none; }
   border-radius: var(--r-sm);
   background: var(--danger-soft);
   color: var(--danger);
-  font-family: var(--font-zh);
+  font-family: var(--font-ui);
   font-size: 12px;
   line-height: 1.5;
 }
@@ -459,7 +461,7 @@ a { color: inherit; text-decoration: none; }
   align-items: center;
   justify-content: center;
   gap: 8px;
-  font-family: var(--font-zh);
+  font-family: var(--font-ui);
   font-size: 13px;
   font-weight: 500;
   transition: transform var(--motion-quick), border-color var(--motion-quick), background var(--motion-quick);
@@ -477,14 +479,14 @@ a { color: inherit; text-decoration: none; }
   background: var(--danger-soft);
 }
 .settings-quarantine-title {
-  font-family: var(--font-zh);
+  font-family: var(--font-ui);
   font-size: 13px;
   font-weight: 500;
   color: var(--danger);
 }
 .settings-quarantine-detail {
   margin-top: 3px;
-  font-family: var(--font-zh);
+  font-family: var(--font-ui);
   font-size: 11px;
   line-height: 1.45;
   color: color-mix(in oklch, var(--danger) 72%, var(--ink-2));
@@ -510,7 +512,7 @@ a { color: inherit; text-decoration: none; }
   overflow-wrap: anywhere;
 }
 .settings-quarantine-copy em {
-  font-family: var(--font-zh);
+  font-family: var(--font-ui);
   font-size: 11px;
   font-style: normal;
   color: var(--ink-3);
@@ -529,7 +531,7 @@ a { color: inherit; text-decoration: none; }
   font-size: 13px;
 }
 .kv-row:last-child { border-bottom: 0; }
-.kv-row .k { color: var(--ink-2); font-family: var(--font-zh); font-size: 12px; }
+.kv-row .k { color: var(--ink-2); font-family: var(--font-ui); font-size: 12px; }
 .kv-row .v { color: var(--ink); font-family: var(--font-mono); font-size: 12px; }
 
 /* ─────── Review progress ─────── */
@@ -638,7 +640,7 @@ a { color: inherit; text-decoration: none; }
 }
 .rv-flip-hint {
   text-align: center;
-  font-family: var(--font-zh);
+  font-family: var(--font-ui);
   font-size: 10px;
   color: var(--ink-3);
   letter-spacing: 0.14em;
@@ -809,11 +811,11 @@ a { color: inherit; text-decoration: none; }
   display: none;
 }
 .empty .msg {
-  font-family: var(--font-zh); font-size: 14px;
+  font-family: var(--font-ui); font-size: 14px;
   letter-spacing: 0.02em;
 }
 .empty .motto-zh {
-  font-family: var(--font-zh); font-size: 12px;
+  font-family: var(--font-ui); font-size: 12px;
   color: var(--ink-3);
   letter-spacing: 0.04em;
 }
@@ -843,7 +845,7 @@ a { color: inherit; text-decoration: none; }
   font-feature-settings: "liga", "dlig";
 }
 .done-zh {
-  font-family: var(--font-zh);
+  font-family: var(--font-ui);
   font-size: 13px;
   color: var(--ink-3);
   letter-spacing: 0.04em;
@@ -851,7 +853,7 @@ a { color: inherit; text-decoration: none; }
 }
 .done-stats {
   display: flex; gap: 18px;
-  font-family: var(--font-zh); font-size: 12px;
+  font-family: var(--font-ui); font-size: 12px;
   color: var(--ink-3);
   margin-top: 4px;
 }
@@ -1056,12 +1058,13 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   flex: 1 1 0; min-width: 0;
 }
 .hero .num {
-  font-family: var(--font-mono);
+  /* 展示数字归 disp 轨（判例三本旨；mono 点心零退出展示位） */
+  font-family: var(--font-disp);
   font-size: clamp(32px, 9.5vw, 40px);
   font-weight: 400; line-height: 1;
   color: var(--ink);
   font-feature-settings: "lnum", "tnum";
-  letter-spacing: -0.005em;
+  letter-spacing: 0;
   max-width: 100%;
 }
 .hero .num.accent { color: var(--accent); }
@@ -1101,7 +1104,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
 .hero-bar .day {
   position: absolute; bottom: 0; left: 0; right: 0;
   text-align: center;
-  font-family: var(--font-zh); font-size: 10px;
+  font-family: var(--font-ui); font-size: 10px;
   line-height: 1.2;
   color: var(--ink-3);
 }
@@ -1120,7 +1123,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   color: var(--bg);
   font-family: var(--font-ui);
   font-size: 14.5px;
-  font-weight: 650;
+  font-weight: 600;
   line-height: 1;
   transition: transform var(--motion-quick), background var(--motion-quick);
 }
@@ -1157,7 +1160,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   display: flex; align-items: center; justify-content: space-between; gap: 10px;
 }
 .activity-hero-head .lbl {
-  font-family: var(--font-zh); font-size: 10px;
+  font-family: var(--font-ui); font-size: 10px;
   letter-spacing: 0.16em;
   color: var(--ink-3); font-weight: 500;
 }
@@ -1179,9 +1182,10 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   padding: 0 4px;
 }
 .activity-hero .num {
-  font-family: var(--font-mono);
+  font-family: var(--font-disp);
   font-size: clamp(30px, 9vw, 39px);
   line-height: 1; color: var(--ink);
+  font-feature-settings: "lnum", "tnum";
 }
 .activity-hero .num.accent { color: var(--accent); }
 .activity-hero .zh-label {
@@ -1257,7 +1261,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   align-items: center; gap: 10px;
 }
 .activity-module-name {
-  font-family: var(--font-zh); font-size: 14px;
+  font-family: var(--font-ui); font-size: 14px;
   color: var(--ink);
 }
 .activity-module-meta,
@@ -1389,7 +1393,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
 }
 .dd-cta-main .lead {
-  font-family: var(--font-zh); font-size: 15px; font-weight: 500;
+  font-family: var(--font-ui); font-size: 15px; font-weight: 500;
   letter-spacing: 0.02em;
 }
 .dd-cta-main .lead .num {
@@ -1398,7 +1402,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   font-feature-settings: "lnum", "tnum";
 }
 .dd-cta-main .sub {
-  font-family: var(--font-zh); font-size: 10px;
+  font-family: var(--font-ui); font-size: 10px;
   letter-spacing: 0.14em; opacity: 0.7;
   font-weight: 500;
 }
@@ -1533,7 +1537,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   border: 1px solid var(--border-soft);
 }
 .qa-explain-h {
-  font-family: var(--font-zh); font-size: 10px;
+  font-family: var(--font-ui); font-size: 10px;
   letter-spacing: 0.14em;
   color: var(--ink-3); margin-bottom: 8px;
 }
@@ -1557,7 +1561,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   font-family: var(--font-mono);
 }
 .done-grid .cell span:last-child {
-  font-family: var(--font-zh); font-size: 10px;
+  font-family: var(--font-ui); font-size: 10px;
   letter-spacing: 0.1em;
 }
 .done-grid .cell.again { background: var(--danger-soft); color: var(--danger); }
@@ -1587,7 +1591,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
 
 /* ─────── Question type tag ─────── */
 .q-tag {
-  font-family: var(--font-zh); font-size: 9px;
+  font-family: var(--font-ui); font-size: 9px;
   letter-spacing: 0.1em;
   padding: 2px 7px; border-radius: 4px;
   border: 1px solid var(--border);
@@ -1596,7 +1600,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
 .q-tag.choice { color: var(--accent); border-color: var(--accent-line); }
 .q-tag.review { color: var(--teal); border-color: color-mix(in oklch, var(--teal) 40%, transparent); }
 .q-tag-mini {
-  font-family: var(--font-zh); font-size: 9px;
+  font-family: var(--font-ui); font-size: 9px;
   padding: 1px 5px; border-radius: 3px;
   border: 1px solid var(--border);
   color: var(--ink-3); flex-shrink: 0;
