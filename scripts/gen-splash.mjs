@@ -6,7 +6,10 @@ import { fileURLToPath } from 'url'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ANDROID_RES = join(__dirname, '..', 'android/app/src/main/res')
 
-const BG = '#FAF8F5'
+/* 牌记：BG 影刻自 src/styles/tokens.css --bg（light, oklch(98.2% 0.002 250)）
+   的 sRGB 折算值——splash 与首帧同底，冷启动无闪变（记-04）。底本改则此值随改，
+   并重跑本脚本。INK/ACCENT 为品牌 icon 实物之色，不随底本（icon 经主认可）。 */
+const BG = '#F8F9FA'
 const INK = '#2D2920'
 const ACCENT = '#B86A30'
 
