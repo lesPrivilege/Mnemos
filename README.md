@@ -10,7 +10,9 @@
   <img src="assets/screenshots/polished/reader.png" width="30%" alt="Mnemos 沉浸阅读" />
 </p>
 
-React 18 · Vite 6 · Tailwind 3 · Capacitor 8 · marked + KaTeX + DOMPurify
+<p align="center"><sub>书影著录：v1.4.0 旧影（暖调）。v1.5.0 已转冷中性并改字轨（UI 宋 / 正文仿宋），重摄随真机验证批出。</sub></p>
+
+React 18 · Vite 6 · Tailwind 3 · Capacitor 8 · marked + KaTeX + DOMPurify · 朱雀仿宋（OFL）
 
 ## 三个模块
 
@@ -106,5 +108,5 @@ Mnemos/
 </p>
 
 <p align="center">
-  <sub>铜棕品牌锚点 · 冷中性工作面 · 内容 serif / chrome sans · 扁平列表与原生 SVG</sub>
+  <sub>冷中性工作面 · 铜唯鈐印与人裁 · UI 宋（多字重）/ 正文仿宋（可切宋）· 拉丁 Times · 界行两档 · 全书无影 · 静为常，动为仪式</sub>
 </p>
