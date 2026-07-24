@@ -22,6 +22,8 @@ hydrate-cache）。上面的快照數字已過時，留檔只為對照「地基�
 2. **不推翻已驗證的邊界。** 應用層不集成 LLM API 的決策保持不變；重構只發生在應用層內部。
 3. **每輪迭代可獨立交付。** 沿用現有工作流：一個 prompt → 一個分支 → build 過 → 提交。不做跨數週的長分支。
 4. **重構跟著功能走。** 除 Phase 1 的基建外，不做純重構專項；改到哪個文件順手還哪裡的債。
+5. **例先於版（2026-07-24 起）。** 界面工作從 `docs/design-kanli.md`：新頁面開工前過四問（聲部預算、行款可著錄、記號攜義、態俱全）；`npm run collate` 死校守底本單源；活校改動入 `docs/design-collation.md`。
+6. **派發工作法（2026-07-24 起）。** 本文檔條目寫成自包含可派發單元（目標、涉及文件、驗收判準三件俱全），日常由 Sonnet 級 agent 執行；架構師立例、審書（刊例附錄乙）、把關合併——實施者不自驗。
 
 ---
 
@@ -71,10 +73,11 @@ hydrate-cache）。上面的快照數字已過時，留檔只為對照「地基�
 
 1. **性能基線**：卡片 / 題目量增長後（>5k 卡）列表頁虛擬化（Browse / SetDetail 先做）；React.lazy 按模塊分包（reading 的 KaTeX 已 lazy，路由級也拆）
 2. **統一組件語彙**：Toast / ConfirmSheet / EmptyState 已有，梳理各頁面自行實現的 loading / error 態，收斂到共享組件
-3. **可達性**：評分按鈕 / FloatingBar 的觸控目標 ≥44px 覆核；深色模式對比度過一遍
+3. **可達性**：評分按鈕 / FloatingBar 的觸控目標 ≥44px 覆核；~~深色模式對比度過一遍~~ ✅ 對比度雙主題入死校（v1.5.0，`docs/contrast-table.md` 隨構建再生；全局 `:focus-visible` 同輪落地）
 4. **iPad / 橫屏**：reading 已做 max-width 適配，flashcard 複習頁和 quiz 頁補齊
 5. **交互一致性**：三模塊的返回手勢、長按、滑動語彙統一（useBackButton 已共享，手勢層面對齊）
-6. **空狀態 → 引導**：EmptyState 加「怎麼獲得內容」的入口（指向 PromptGuide / Import）——這同時是未來 onboarding 的雛形
+6. **空狀態 → 引導**：EmptyState 加「怎麼獲得內容」的入口（指向 PromptGuide / Import / 示例內容包）——這同時是未來 onboarding 的雛形。派發單元：三個 Home 空態各加一行入口鏈；驗收：空庫冷啟動 10 秒內可走到第一份內容
+7. **字階與間距接線**（v1.5.0 後首推）：`--text-*`/`--sp-*` 兩檔 scale 已在底本而未接線；按屏逐步把 px 字號/間距歸檔（nearest-step，偏離者記入校勘記）。派發單元：一屏一筆；驗收：collate 基線只減不增、真機無截斷
 
 ## Phase 5 — 發布路徑（有意願時啟動，前置依賴 Phase 1-2）
 
@@ -107,7 +110,8 @@ hydrate-cache）。上面的快照數字已過時，留檔只為對照「地基�
 | ~~R2~~ ✅ | Phase 1.3 | 隔離區 + schema version + backup-format.md（74 用例） |
 | ~~R3~~ ✅ | Phase 2 存儲共享層 | store.js 統一六處實現（79 用例） |
 | ~~R4~~ ✅ | Phase 2 IndexedDB 遷移（quiz 先行） | bigStore hydrate-cache（86 用例）；**雙寫移除留 R4+1**（bigStore.js TODO 標記） |
-| R5+ | Phase 3/4 穿插，跟功能走 | 每輪 1-2 條 polish |
+| ~~R5~~ ✅ | 刊例採用輪（2026-07-24，v1.5.0） | 例、簿、死校四門、七浪刻版遞修、字轨四聲、splash 同底、構建牌記；詳見 roadmap-maturity M1c 與 CHANGELOG |
+| R6+ | Phase 3/4 穿插，跟功能走；條目按「派發單元」粒度出 prompt 交 Sonnet | 每輪 1-2 條 polish |
 | 待定 | Phase 5 | 有發布意願時展開 |
 
 每輪照舊：從本文檔取條目 → 寫 feature prompt → 分支開發 → `npm run check` → 合併。完成的條目在本文檔劃掉並註明版本號。
