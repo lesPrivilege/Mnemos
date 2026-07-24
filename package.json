@@ -11,7 +11,7 @@
     "format": "prettier --write .",
     "check": "npm run lint && npm run test && npm run collate && npm run build",
     "preview": "vite preview",
-    "subset:font": "node scripts/subset-ui-font.mjs",
+    "subset:font": "node scripts/subset-content-font.mjs",
     "collate": "node scripts/collate/collate.mjs",
     "collate:selftest": "node scripts/collate/collate.mjs --self-test"
   },

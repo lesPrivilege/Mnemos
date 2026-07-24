@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════
-   牌记 — 朱雀仿宋（Zhuque Fangsong），器轨 webfont 注册
+   牌记 — 朱雀仿宋（Zhuque Fangsong），内容正文轨（记-10）webfont 注册
    ═══════════════════════════════════════════════════
    源：https://github.com/TrionesType/zhuque (原 TypeIsBeautiful/zhuque，
        组织已更名，旧地址 404；许可证经 GitHub API 与仓库内 LICENSE.txt 双重确认)
@@ -7,19 +7,23 @@
        sha256 bb8b661a7643d2296a72d9d10530a00949419c4e527fb61783f73c2ba1a8c062）
    许可：SIL Open Font License 1.1 — 全文见同目录 fonts/OFL.txt（OFL 第二条要求随字体
        一并发行本许可证文本）
-   子集：由 scripts/subset-ui-font.mjs 生成，字表 = src/lib/strings 目录下所有 .js 文件的
-       全量字符 ∪ ASCII 可打印 ∪ CJK 标点 ∪ 数字 ∪ 固定补充字 ∪ 最常用 1000 CJK 字安全余量；
-       产物 fonts/zhuque-fangsong-ui.woff2（构建不依赖网络，源字体按需拉取，见脚本注释）
-   立于 2026-07-24（docs/design-kanli.md §字轨四声；docs/design-collation.md 记-07）
+   子集：由 scripts/subset-content-font.mjs 生成，字表 = 通用规范汉字表一级+二级字表
+       （常用+次常用，6500 字）∪ src/lib/strings 目录下所有 .js 文件的全量字符 ∪
+       ASCII 可打印 ∪ CJK 标点 ∪ 数字 ∪ 固定补充字；产物 fonts/zhuque-fangsong.woff2
+       （构建不依赖网络，源字体按需拉取，见脚本注释）
+   职务：记-10（2026-07-24）改判——由器轨（UI chrome）转治内容正文（卡面、答文、
+       阅读正文、题干）；UI 层改由宋（Noto Serif SC）承担。前身见 git 史记-09。
+   立于 2026-07-24（docs/design-kanli.md §字轨四声，现行为记-10 之制；
+       docs/design-collation.md 记-10）
 
    font-family 取字体 name 表内部真实值（platform 3 / Windows / en-US，nameID 1），
-   非文件名或包名臆测——见 scripts/subset-ui-font.mjs 的 EXPECTED_FONT_FAMILY_NAME。
-   本文件只注册 @font-face；--font-ui 的字轨栈由 src/styles/tokens.css 持有，
-   何时切换由架构师视觉复核后决定，不在本文件改动范围。 */
+   非文件名或包名臆测——见 scripts/subset-content-font.mjs 的 EXPECTED_FONT_FAMILY_NAME。
+   本文件只注册 @font-face；内容字体栈（含仿宋⇄宋切换）由 src/styles/tokens.css
+   持有，何时切换、切换入口如何呈现由架构师决定，不在本文件改动范围。 */
 
 @font-face {
   font-family: 'Zhuque Fangsong (technical preview)';
-  src: url('./fonts/zhuque-fangsong-ui.woff2') format('woff2');
+  src: url('./fonts/zhuque-fangsong.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
