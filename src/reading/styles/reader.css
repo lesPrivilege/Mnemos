@@ -37,7 +37,8 @@
 
 .panel-header {
   padding: 8px 12px;
-  font-family: var(--font-mono);
+  /* 面板题为 chrome，归器轨（判例三之轴；mono 唯真数据） */
+  font-family: var(--font-ui);
   font-size: 10px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
