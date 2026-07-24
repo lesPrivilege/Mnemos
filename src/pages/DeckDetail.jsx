@@ -548,7 +548,8 @@ function CardRow({ card, editing, selected, onToggleSelect, onEdit, onDelete, is
 
   return (
       <div className="card-row group" style={{ paddingRight: 12 }}
-        onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd} onTouchCancel={handleTouchEnd}>
+        onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd} onTouchCancel={handleTouchEnd}
+        {...pressable(() => onPreview?.(card))}>
         <span className="dot-bullet" style={{ left: 8 }} />
         {isRecall(card) && (
           <span style={{ width: 6, height: 6, borderRadius: '50%', background: tierColor, flexShrink: 0, marginLeft: 2 }} />
