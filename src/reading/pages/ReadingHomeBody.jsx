@@ -122,7 +122,8 @@ export default function ReadingHomeBody({ h }) {
               : null
             const COLORS = ['h0', 'h1', 'h2', 'h3']
             const hueClass = COLORS[Math.abs(col.name.charCodeAt(0)) % 4]
-            const glyph = col.name.charAt(0)
+            // 本校：同义同形 — default 📖 has no signal, fall back to deck-spine's first-char glyph; a real custom icon (if ever set) still renders as-is
+            const glyph = col.icon && col.icon !== '📖' ? col.icon : col.name.charAt(0)
 
             return (
               <div key={col.id} className="deck group" onClick={() => navigate(`/collection/${col.id}`)}>

@@ -6,6 +6,8 @@ export const settings = {
   quarantineDiscarded: '已丢弃隔离数据',
   title: '设置',
   appearanceHeading: '外观',
+  themeLight: '浅色',
+  themeDark: '深色',
   demoContentHeading: '示例内容',
   demoContentTitle: '载入示例内容包',
   demoContentDetail: '加入一组自撰记忆卡、练习题和阅读文档，用来预览完整流程',

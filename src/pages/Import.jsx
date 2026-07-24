@@ -627,7 +627,7 @@ export default function Import() {
               style={{ borderColor: 'var(--border)' }}>
               <option value="">{S.import.selectCollectionPlaceholder}</option>
               {readingCollections.map(c => (
-                <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
+                <option key={c.id} value={c.id}>{c.icon === '📖' ? c.name.charAt(0) : c.icon} {c.name}</option>
               ))}
             </select>
             <div className="mt-2 flex items-center gap-2">
