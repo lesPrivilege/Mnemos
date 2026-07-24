@@ -93,18 +93,27 @@
   --leading-normal: 1.5;
   --leading-relaxed: 1.7;
 
-  /* ─────── Spacing (4/8 grid) ───────
-     8-step scale from 4px to 64px. Mostly-4/8 multiples with a
-     12px half-step at --sp-3 for the tight in-between cases that
-     show up constantly in this codebase's existing px values. */
-  --sp-1: 4px;
-  --sp-2: 8px;
-  --sp-3: 12px;
-  --sp-4: 16px;
-  --sp-5: 24px;
-  --sp-6: 32px;
-  --sp-7: 48px;
-  --sp-8: 64px;
+  /* ─────── Spacing (2px lattice) ───────
+     Re-derived 2026-07-25 (记-18) from what the app actually measures:
+     a hand-tuned 2px-granular lattice (6px and 10px are the two most
+     used gaps, with 2/3/5/7/9/11/13 all present), NOT the 4/8 grid the
+     previous ladder assumed — that ladder had zero consumers, an
+     aspirational scale describing nothing. These steps are a vocabulary
+     for new code; existing hand-tuned values are deliberate density
+     decisions and are NOT swept onto the lattice (记-18 拒: no competing
+     source to unify, no Dynamic Type payoff — a11y needs text to scale,
+     not gaps — and forcing them would be lossy). No death-check gate
+     polices spacing, by the same ruling. */
+  --sp-1: 2px;
+  --sp-2: 4px;
+  --sp-3: 6px;
+  --sp-4: 8px;
+  --sp-5: 10px;
+  --sp-6: 12px;
+  --sp-7: 16px;
+  --sp-8: 24px;
+  --sp-9: 32px;
+  --sp-10: 48px;
 
   /* ─────── Motion ───────
      Four durations, one standard-decelerate curve. quick = tap
