@@ -192,7 +192,7 @@ export function QuizHomeContent() {
         label={isEmptyLibrary ? S.quizHome.readyLabel : S.quizHome.thisWeekLabel}
         right={isEmptyLibrary
           ? { text: S.quizHome.pendingImport }
-          : { text: S.quizHome.correctRatePrefix(weekStats.correctRate), color: 'var(--teal)' }}
+          : { text: S.quizHome.correctRatePrefix(weekStats.correctRate), color: 'var(--accent)' }}
         metrics={isEmptyLibrary
           ? [
               { value: subjects.length, zhLabel: S.quizHome.setsZhLabel, accent: true },
@@ -205,7 +205,7 @@ export function QuizHomeContent() {
               { value: totalQs, zhLabel: S.quizHome.totalZhLabel },
             ]}
         chartData={weekStats.chart.map(d => ({ count: d.n, isToday: d.today, label: d.d }))}
-        chartColor="teal"
+        chartColor=""
         to="/activity"
       />
 

@@ -6,7 +6,7 @@
  *   right     – optional { text, color } for the streak/accuracy line
  *   metrics   – array of { value, zhLabel, accent? }
  *   chartData – array of { count, isToday, label }
- *   chartColor – "" | "teal" | "good"
+ *   chartColor – ""（accent 单色；模块三色只存在于跨模块对比图，见 docs/design-kanli.md 声部登记）
  *   cta       – optional { to?, onClick?, label, count } primary action
  */
 import { Link, useNavigate } from 'react-router-dom'

@@ -61,7 +61,7 @@ export default function ReadingHomeBody({ h }) {
                       { value: docCount, zhLabel: S.readingHomeBody.docsZhLabel },
                     ]}
                 chartData={weekly.chart}
-                chartColor="good"
+                chartColor=""
                 chartMax={maxCount}
                 to="/activity"
                 cta={firstDoc ? {

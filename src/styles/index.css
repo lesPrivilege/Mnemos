@@ -625,7 +625,7 @@ a { color: inherit; text-decoration: none; }
   font-family: var(--font-zh);
   font-size: 16px;
   line-height: 1.85;
-  color: var(--teal);
+  color: var(--ink);
   text-align: left;
   letter-spacing: 0.01em;
   align-self: stretch;
@@ -866,7 +866,7 @@ a { color: inherit; text-decoration: none; }
 .preview-list .it {
   display: flex; gap: 8px;
   padding: 7px 10px;
-  border-left: 2px solid var(--accent-line);
+  border-left: 2px solid var(--border-strong);
   background: var(--bg);
   border-radius: 0 var(--r-lg) var(--r-lg) 0;
   font-family: var(--font-zh);
@@ -1097,11 +1097,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   min-height: 2px;
   transition: none;
 }
-.hero-bar.teal .b { background: var(--teal); }
-.hero-bar.good .b { background: var(--good); }
 .hero-bar.today .b { background: var(--accent); }
-.hero-bar.teal.today .b { background: var(--teal); }
-.hero-bar.good.today .b { background: var(--good); }
 .hero-bar.empty .b { background: var(--border); }
 .hero-bar .day {
   position: absolute; bottom: 0; left: 0; right: 0;
@@ -1111,8 +1107,6 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   color: var(--ink-3);
 }
 .hero-bar.today .day { color: var(--accent); font-weight: 500; }
-.hero-bar.teal.today .day { color: var(--teal); }
-.hero-bar.good.today .day { color: var(--good); }
 .hero-cta {
   width: 100%;
   display: inline-flex;
@@ -1390,7 +1384,6 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   transition: transform var(--motion-quick), opacity var(--motion-quick);
 }
 .dd-cta-main:active { transform: scale(0.98); }
-.dd-cta-main.teal { background: var(--teal); }
 .dd-cta-main .left {
   display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
 }
@@ -1568,7 +1561,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
 }
 .done-grid .cell.again { background: var(--danger-soft); color: var(--danger); }
 .done-grid .cell.hard { background: var(--warn-soft); color: var(--warn); }
-.done-grid .cell.good { background: var(--accent-soft); color: var(--accent); }
+.done-grid .cell.good { background: var(--bg-raised); color: var(--ink); }
 .done-grid .cell.easy { background: var(--good-soft); color: var(--good); }
 
 /* ─────── Rate additions ─────── */
@@ -1599,8 +1592,8 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   border: 1px solid var(--border);
   color: var(--ink-3);
 }
-.q-tag.choice { color: var(--accent); border-color: var(--accent-line); }
-.q-tag.review { color: var(--teal); border-color: color-mix(in oklch, var(--teal) 40%, transparent); }
+/* 类型标签为分类 chrome，不占声部预算（判例四）；类别由文字承担 */
+.q-tag.choice, .q-tag.review { color: var(--ink-2); border-color: var(--border-strong); }
 .q-tag-mini {
   font-family: var(--font-ui); font-size: 9px;
   padding: 1px 5px; border-radius: var(--r-sm);
@@ -1610,8 +1603,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
 .q-tag-mini:not(.choice):not(.review) {
   font-family: var(--font-ui); letter-spacing: 0.06em; text-transform: uppercase;
 }
-.q-tag-mini.choice { color: var(--accent); border-color: var(--accent-line); }
-.q-tag-mini.review { color: var(--teal); border-color: color-mix(in oklch, var(--teal) 40%, transparent); }
+.q-tag-mini.choice, .q-tag-mini.review { color: var(--ink-2); border-color: var(--border-strong); }
 
 /* ─────── Misc ─────── */
 .sep { color: var(--ink-4); }

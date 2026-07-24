@@ -156,7 +156,7 @@ export default function SetDetail() {
               <span style={{ color: accuracy < 60 ? 'var(--danger)' : 'var(--good)' }}>{accuracy}%</span>
             </div>
             <div className="dd-progress">
-              <div className="bar teal" style={{ transform: `scaleX(${(accuracy || 0) / 100})` }} />
+              <div className="bar" style={{ transform: `scaleX(${(accuracy || 0) / 100})` }} />
             </div>
             <div className="dd-progress-row">
               <span>{S.setDetail.accuracyLabel}</span>
@@ -268,7 +268,7 @@ export default function SetDetail() {
       <FloatingBar>
         <div className="dd-cta" style={{ margin: 0 }}>
           {typeCounts.choice > 0 ? (
-            <button className="dd-cta-main teal" onClick={() => navigate(`/quiz/${subject}`)}>
+            <button className="dd-cta-main" onClick={() => navigate(`/quiz/${subject}`)}>
               <div className="left">
                 <span className="lead"><span className="num">{typeCounts.choice + typeCounts.review}</span>{S.setDetail.countSuffix}</span>
                 <span className="sub">{S.setDetail.beginPracticeLabel}</span>
@@ -276,7 +276,7 @@ export default function SetDetail() {
               <span className="arr">→</span>
             </button>
           ) : typeCounts.review > 0 ? (
-            <button className="dd-cta-main teal" onClick={() => navigate(`/quiz-review/${subject}`)}>
+            <button className="dd-cta-main" onClick={() => navigate(`/quiz-review/${subject}`)}>
               <div className="left">
                 <span className="lead"><span className="num">{typeCounts.review}</span>{S.setDetail.countSuffix}</span>
                 <span className="sub">{S.setDetail.beginPracticeLabel}</span>
@@ -284,7 +284,7 @@ export default function SetDetail() {
               <span className="arr">→</span>
             </button>
           ) : (
-            <div className="dd-cta-main teal" style={{ opacity: 0.5, cursor: 'default' }}>
+            <div className="dd-cta-main" style={{ opacity: 0.5, cursor: 'default' }}>
               <div className="left">
                 <span className="lead">{S.setDetail.noQuestions}</span>
                 <span className="sub">{S.setDetail.importFirstLabel}</span>
