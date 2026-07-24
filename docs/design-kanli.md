@@ -76,7 +76,7 @@ Mnemos 以版本学治一部随身递修之书：形取古籍刻本之版式纪�
   - `docs/design-tokens.md` — 曾为约束单，已漂移（记暖调 hue 90、有影、宽圆角；底本现为冷中性 hue 250、无影、窄圆角）。本轮降格为指针件，史料见 git 史（判例七）。
   - `design/handoff/*.html`、`design/archive/*` — Phase B 及更早原型，归档史料，无约束力；现行文本引之只可引称。
   - `assets/screenshots/polished/*.png`、`docs/index.html` — 书影，行世须携著录项（版本、提交哈希、视口、主题）。
-- **底本已知缺口**（本轮递修对象，非新发现）：`index.css` 十七处 transition 字面量；`Home.jsx`/`Review.jsx` 内联 360/180ms；type/spacing 两档 scale 未接线；`--plum` 闲置、`--teal` 声部待考。
+- **缺口现状**（v1.5.0 写定时）：时长字面量已清零归源（余三处手势域内联，基线在册）；`--teal` 已定司、`--plum` 退役候选存账（记-05）；type/spacing 两档 scale 仍未接线——列 roadmap Phase 4.7 派发单元，非本轮遗漏。
 
 ## 五、行款著录语
 
