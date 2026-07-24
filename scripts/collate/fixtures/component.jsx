@@ -13,8 +13,11 @@ export function FixtureWidget() {
         animationName: 'elasticPopFixture',
         fontSize: 13,
       }}
-      className="text-[13px]"
+      className="text-[13px] text-[.8rem]"
     >
+      {/* 阴性对照：模板串内联样式无尾分号（记-19 洞二）、SVG 属性式（洞三） */}
+      <svg><text fontSize="38">fixture</text></svg>
+      <div dangerouslySetInnerHTML={{ __html: `<pre style="font-size: 14px">x</pre>` }} />
       fixture
     </div>
   )

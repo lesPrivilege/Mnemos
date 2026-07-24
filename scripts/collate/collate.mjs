@@ -114,9 +114,17 @@ const CUBIC_BEZIER_CALL_RE =
 const RADIUS_CSS_RE = /\bborder-radius\s*:\s*([^;}]+)(?=[;}])/g
 const RADIUS_JS_KEY_RE = /\bborderRadius\s*:\s*/g
 const DURATION_PROP_RE = /\b(?:transition|animation)(?:-duration|Duration)?\s*:/g
-const FONTSIZE_CSS_RE = /\bfont-size\s*:\s*([^;}]+)(?=[;}])/g
-const FONTSIZE_ARBITRARY_RE = /\btext-\[\d+(?:\.\d+)?(?:px|rem|em)\]/g
+/* 值边界须含引号：HTML 字符串内联样式（模板串里的 style="font-size: 14px"）
+   若只以 [;}] 收尾，会越过引号一路吞到文件中下一个 `;`/`}`，捕获值不再是纯
+   字面量而逃过判定——记-19 之一。 */
+const FONTSIZE_CSS_RE = /\bfont-size\s*:\s*([^;}"'`]+)(?=[;}"'`]|$)/gm
+/* font 简写亦载字号（font: 13px/1.5 serif） */
+const FONT_SHORTHAND_RE = /\bfont\s*:\s*(?!inherit\b)([^;}"'`]*\d[^;}"'`]*)(?=[;}"'`]|$)/gm
+/* 小数可无前导零：text-[.8rem] */
+const FONTSIZE_ARBITRARY_RE = /\btext-\[(?:\d+(?:\.\d+)?|\.\d+)(?:px|rem|em)\]/g
 const FONTSIZE_JS_KEY_RE = /\bfontSize\s*:\s*/g
+/* SVG/JSX 属性式：fontSize="38"——无冒号，前二式皆不能见（记-19 之二） */
+const FONTSIZE_ATTR_RE = /\bfontSize\s*=\s*["']?(-?\d[\d.]*(?:px|rem)?)["']?/g
 
 function isShapeIdiom(tok) {
   // 形状习语非圆角语言（款2 管角，不管形）：正圆 50%、胶囊 ≥999。
@@ -226,9 +234,21 @@ function detectFontSizeLiteral(rootDir, filePath, text) {
       out.push(makeViolation('source-single', 'g1-fontsize', rootDir, filePath, text, m.index, m[0].length))
     }
   }
+  // font 简写内的字号
+  for (const m of text.matchAll(FONT_SHORTHAND_RE)) {
+    if (/(?:^|[\s/])-?\d+(?:\.\d+)?(?:px|rem|em)?(?:\s*\/|\s|$)/.test(m[1]) && !/var\(\s*--text-/.test(m[1])) {
+      out.push(makeViolation('source-single', 'g1-fontsize', rootDir, filePath, text, m.index, m[0].length))
+    }
+  }
   // Tailwind 任意值 text-[Npx]
   for (const m of text.matchAll(FONTSIZE_ARBITRARY_RE)) {
     out.push(makeViolation('source-single', 'g1-fontsize', rootDir, filePath, text, m.index, m[0].length))
+  }
+  // SVG/JSX 属性式 fontSize="N"（数据层 .js 同样豁免，见下）
+  if (!filePath.endsWith('.test.js')) {
+    for (const m of text.matchAll(FONTSIZE_ATTR_RE)) {
+      out.push(makeViolation('source-single', 'g1-fontsize', rootDir, filePath, text, m.index, m[0].length))
+    }
   }
   // 内联 style fontSize —— 唯 .jsx 渲染层受此约束；.js 属数据层，
   // 用户偏好默认值（如阅读器字号 14–24 可调）非样式字面量，不入此门。

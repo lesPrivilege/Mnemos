@@ -57,3 +57,8 @@
 .fixture-fontsize-literal {
   font-size: 13px;
 }
+
+/* 阴性对照：font 简写载字号（记-19 之洞一） */
+.fixture-font-shorthand {
+  font: 13px/1.5 serif;
+}
