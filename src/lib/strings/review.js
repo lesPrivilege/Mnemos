@@ -14,7 +14,7 @@ export const review = {
   browseCards: '浏览卡片',
   leechToast: '卡片已标记为顽固卡并暂停',
   ratedToastPrefix: '已評分 · ',
-  undoToast: '已撤銷',
+  undoToast: '已撤销',
   undoToastLabel: '撤销',
   learningPrefix: '学习中 · ',
 }

@@ -29,7 +29,7 @@ export default function ReadingHomeBody({ h }) {
               <div key={doc.id} className="bg-bg-card rounded-lg p-3 border cursor-pointer hover:border-accent transition-colors"
                 style={{ borderColor: 'var(--border-soft)' }}
                 onClick={() => navigate(`/reading/doc/${doc.id}?col=${doc.collectionId}`)}>
-                <div className="font-zh text-[14px] text-ink font-medium truncate">{doc.title}</div>
+                <div className="font-body text-[14px] text-ink font-medium truncate">{doc.title}</div>
                 {snippet && <div className="font-zh text-[11px] text-ink-3 mt-1 line-clamp-2">{snippet}</div>}
               </div>
             ))}
@@ -48,7 +48,7 @@ export default function ReadingHomeBody({ h }) {
                 label={isEmptyLibrary ? S.readingHomeBody.readyLabel : S.readingHomeBody.thisWeekLabel}
                 right={isEmptyLibrary
                   ? { text: S.readingHomeBody.pendingImport }
-                  : { text: S.readingHomeBody.minutesSuffix(weekly.totalThisWeek), color: 'var(--good)' }}
+                  : { text: S.readingHomeBody.minutesSuffix(weekly.totalThisWeek), color: 'var(--accent)' }}
                 metrics={isEmptyLibrary
                   ? [
                       { value: h.collections.length, zhLabel: S.readingHomeBody.colsZhLabel, accent: true },
@@ -81,7 +81,7 @@ export default function ReadingHomeBody({ h }) {
               <div className="deck-meta">
                 <div className="deck-name">{h.continueDoc.title}</div>
                 <div className="deck-stats">
-                  <span className="due" style={{ fontFamily: 'var(--font-zh)' }}>{S.readingHomeBody.continueReading}</span>
+                  <span className="due" style={{ fontFamily: 'var(--font-ui)' }}>{S.readingHomeBody.continueReading}</span>
                   <span className="dot">·</span>
                   <span>{h.continueDoc.scrollPct}%</span>
                 </div>

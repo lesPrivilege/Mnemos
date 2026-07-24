@@ -172,7 +172,7 @@ export default function CollectionDetail() {
                 <div key={doc.id} className="card-row group"
                   onClick={() => navigate(`/reading/doc/${doc.id}?col=${id}`)}>
                   <span className="dot-bullet" />
-                  <span className="front">{doc.title}</span>
+                  <span className="front" style={{ fontFamily: 'var(--font-ui)' }}>{doc.title}</span>
                   <span className="font-body text-[10px] text-ink-3 shrink-0">{doc.format.toUpperCase()}</span>
                   <button onClick={(e) => { e.stopPropagation(); handleDeleteDocument(doc.id) }}
                     className="hidden group-hover:inline-flex items-center justify-center w-6 h-6 rounded text-ink-3 hover:text-danger transition-colors">
