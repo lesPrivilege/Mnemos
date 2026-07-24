@@ -277,7 +277,6 @@ export default function ReviewQuestion() {
                   <RenderMarkdown content={frontContent} />
                 </div>
               </div>
-              <div className="ornament" />
             </div>
 
             {/* BACK */}
@@ -291,7 +290,6 @@ export default function ReviewQuestion() {
                   <RenderMarkdown content={backContent} />
                 </div>
               </div>
-              <div className="ornament" />
             </div>
           </div>
         </div>

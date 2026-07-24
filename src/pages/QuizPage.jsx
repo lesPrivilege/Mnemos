@@ -333,7 +333,6 @@ export default function Quiz() {
               <p>{result.correct ? S.quizPage.correctFeedback : S.quizPage.wrongFeedback}</p>
             </div>
           )}
-          <div className="ornament" />
         </div>
       </main>
 

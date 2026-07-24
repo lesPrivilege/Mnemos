@@ -25,7 +25,6 @@ export default function ReviewCard({ card, index, flipped, onFlip, swipeOffset }
               <div className="front-q card-content" style={{ maxHeight: '40vh', overflowY: 'auto' }}
                 dangerouslySetInnerHTML={{ __html: frontHtml }} />
             </div>
-            <div className="ornament" />
           </div>
 
           {/* Back keeps the prompt above the answer without exposing pattern labels. */}
@@ -41,7 +40,6 @@ export default function ReviewCard({ card, index, flipped, onFlip, swipeOffset }
               <div className="back-a card-content" style={{ maxHeight: '35vh', overflowY: 'auto' }}
                 dangerouslySetInnerHTML={{ __html: backHtml }} />
             </div>
-            <div className="ornament" />
           </div>
         </div>
 
