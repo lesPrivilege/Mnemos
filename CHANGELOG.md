@@ -1,5 +1,43 @@
 # Changelog
 
+## v1.5.0 — 2026-07-24
+
+刊例採用輪：設計治理立常法，七浪刻版遞修，字軌四聲定制，跨層同底。此後新功能自例而生，roadmap 條目按派發單元逐個實施。
+
+### 治理
+
+- 採用 deswrit-kit《刊例》：`docs/design-kanli.md`（宗、諱表、善本三部著錄、行款著錄語、記號譜、聲部登記、槽位預留）、`docs/design-collation.md`（判例七則升格、校勘記十三則）；`docs/design-tokens.md` 降格為指針件（影刻漂移，判例七）
+- 死校四門並入 `npm run check`：底本單源、避諱字面、對比度雙主題、牌記完整；陰性對照 13/13 能紅；基線只減不增（45 → 4，餘為手勢域與數據編碼）
+
+### 字軌四聲（記-07 / 記-10）
+
+- UI 層歸宋（Noto Serif SC 400–700 立層級），UI 拉丁 Times；內容正文歸朱雀仿宋 v0.212（OFL，《通用規範漢字表》一二級 6,614 字子集，woff2 2.36MB），題宋文仿；代碼與公式仍 mono / KaTeX
+- 「正文字體」同版異紙切換（仿宋 ⇄ 宋，root class 切於底本層，組件零分支）；啟動着紙——暗色偏好冷啟動失色之脫修
+- 黑體退出一切可見路徑（tailwind `font-body` 硬編碼舊棧封死、mono 之 CJK 回退堵）；Source Serif 4 與 Noto Sans SC webfont 退役入賬
+
+### 刻版遞修
+
+- 讹歸源：19 處時長字面量歸 motion 底本（新增 `--motion-mid` 180ms），quint 曲線歸一；五處進度條 width→scaleX（諱2）
+- 界行兩檔：主界 `--border`／次界 `--border-soft`，虛線退場，圓角盡歸四檔
+- 聲部收束：答文歸墨（teal 雙重編碼刪）、記住格歸墨、類型標籤讓彩、CTA 一律墨底、模組三色僅存活動頁對比圖；`--scrim` 幕布入底本
+- 態與衛：全局 `:focus-visible` 焦點環（脫補）；未見答不評（記-08，Review 與 QuizReview 同形）；完成屏立全書唯一編排入場（卅二條）
+- 衍刪：ornament 飾線、被壓制的空態死 DOM 六處、SettingsPanel 死出口、空態死參數
+- 對比度：ink-3 雙主題、light 文字銅（第五條：一值多面以最嚴面為準）、warn / rate-hard 入 sRGB 域——七對全過 AA；`docs/contrast-table.md` 隨死校再生，即 Phase B 遺留 Rider 1 交付
+
+### 跨層
+
+- splash 十一張隨底本冷值 `#F8F9FA` 重生成，冷啟動無先暖後冷閃變（launcher 圓底暖白屬品牌實物，不動）
+- 構建牌記 `__MNEMOS_BUILD__`（版本 · 提交哈希 · 構建日）入 Settings 關於區；android versionCode 2 / versionName 1.5.0 與 package.json 對齊
+
+### 文檔
+
+- roadmap 兩冊遞修：M1c 入檔、「Claude Design 接力協議」存檔、品味清單改派發單元粒度、豎向多級縮放編排立項（橫向明拒）
+- README 書影註明為 v1.4.0 舊影，重攝列入真機驗證批
+
+### 數據說明
+
+- 無存儲層改動、無新增字段；`mnemos-content-font` 為新增 localStorage 偏好鍵
+
 ## v1.4.0 — 2026-07-05
 
 Phase B 視覺重定調：token 系統換血、AppShell 底部 tab bar、三模塊首頁與核心頁
