@@ -945,17 +945,38 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   #root {
     height: 100%;
     background: var(--bg);
-    max-width: 480px;
+    max-width: var(--col-list);
     margin: 0 auto;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
-  @media (min-width: 720px) and (orientation: portrait) {
-    #root {
-      width: 100%;
-      max-width: none;
-    }
+}
+
+/* ─────── 竖向缩放谱（记-21；横向已拒）───────
+   宽屏不再放满——原规则令 iPad 竖屏单栏横铺 768pt，行首行尾遥望、分隔线
+   长如表格。改为：#root 只给外框与天地，各级内容各守其度（列表 480 /
+   会话 560 / 阅读 680）；外框取最宽者（阅读 measure）加天地，故三级皆容。
+   此块不入 @layer base——层内优先级低于未分层规则，`.topbar` 之内缩会被吞。 */
+@media (min-width: 720px) and (orientation: portrait) {
+  #root {
+    width: 100%;
+    max-width: calc(var(--col-read) + var(--gutter-wide) * 2);
   }
+  /* L0/L1 内容守列表之度；chrome（顶栏/底栏）随外框，其内容内缩与栏对齐
+     ——上下 chrome 同宽方统，故顶栏不入此收。 */
+  .page-fill > *:not(.topbar),
+  .page-fixed > *:not(.topbar) {
+    width: 100%;
+    max-width: var(--col-list);
+    margin-inline: auto;
+  }
+  .topbar {
+    padding-inline: max(var(--sp-7), calc((100% - var(--col-list)) / 2));
+  }
+  /* 解除一：活动页为仪表盘，双栏须整幅（其自有 1120 上限） */
+  .page-fixed:has(.activity-content) > * { max-width: none; }
+  /* 解除二：阅读页守自身 measure（680），不受列表之度 */
+  .page-fixed:has(.card-content) > * { max-width: none; }
 }
 
 /* ═══════════════════════════════════════════════════
@@ -981,8 +1002,9 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   -webkit-backdrop-filter: var(--surface-chrome-blur);
 }
 @media (min-width: 720px) and (orientation: portrait) {
+  /* 底栏随外框，不随视口——与 #root 同度（记-21） */
   .bottom-tabs {
-    width: 100%;
+    width: min(100%, calc(var(--col-read) + var(--gutter-wide) * 2));
   }
 }
 .bottom-tabs-row {
