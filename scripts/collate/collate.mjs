@@ -117,14 +117,14 @@ const DURATION_PROP_RE = /\b(?:transition|animation)(?:-duration|Duration)?\s*:/
 /* 值边界须含引号：HTML 字符串内联样式（模板串里的 style="font-size: 14px"）
    若只以 [;}] 收尾，会越过引号一路吞到文件中下一个 `;`/`}`，捕获值不再是纯
    字面量而逃过判定——记-19 之一。 */
-const FONTSIZE_CSS_RE = /\bfont-size\s*:\s*([^;}"'`]+)(?=[;}"'`]|$)/gm
+const FONTSIZE_CSS_RE = /\bfont-size\s*:\s*([^;}"'`]+)(?=[;}"'`]|$)/gim
 /* font 简写亦载字号（font: 13px/1.5 serif） */
-const FONT_SHORTHAND_RE = /\bfont\s*:\s*(?!inherit\b)([^;}"'`]*\d[^;}"'`]*)(?=[;}"'`]|$)/gm
+const FONT_SHORTHAND_RE = /\bfont\s*:\s*(?!inherit\b)([^;}"'`]*\d[^;}"'`]*)(?=[;}"'`]|$)/gim
 /* 小数可无前导零：text-[.8rem] */
 const FONTSIZE_ARBITRARY_RE = /\btext-\[(?:\d+(?:\.\d+)?|\.\d+)(?:px|rem|em)\]/g
-const FONTSIZE_JS_KEY_RE = /\bfontSize\s*:\s*/g
+const FONTSIZE_JS_KEY_RE = /\bfontSize\s*:\s*/gi
 /* SVG/JSX 属性式：fontSize="38"——无冒号，前二式皆不能见（记-19 之二） */
-const FONTSIZE_ATTR_RE = /\bfontSize\s*=\s*["']?(-?\d[\d.]*(?:px|rem)?)["']?/g
+const FONTSIZE_ATTR_RE = /\bfontSize\s*=\s*["']?(-?\d[\d.]*(?:px|rem)?)["']?/gi
 
 function isShapeIdiom(tok) {
   // 形状习语非圆角语言（款2 管角，不管形）：正圆 50%、胶囊 ≥999。
@@ -217,14 +217,15 @@ function isOffendingFontSizeValue(raw) {
   const quoteMatch = /^(['"`])([\s\S]*)\1$/.exec(value)
   if (quoteMatch) value = quoteMatch[2].trim()
   if (value === '') return false
-  // 流体展示号（hero 数字）为记录在案的例外（记-16）
-  if (/clamp\(/.test(value)) return false
-  if (/var\(\s*--text-/.test(value)) return false
+  // 函数包裹之值皆属「算出」，与记-17 之表达式豁免同理：
+  // clamp 为流体展示号之记录例外（记-16），calc/min/max 同其性质（记-20）。
+  if (/\b(?:clamp|calc|min|max)\s*\(/i.test(value)) return false
+  if (/var\(\s*--text-/i.test(value)) return false
   // 唯纯字面量入罪：表达式（Math.max(14, …)、settings.fontSize）是算出来的，
   // 不是硬写的样式值——用户字号偏好之上下限即此类（记-17）。
   // em 为相对尺，随上下文缩放、顺从字阶且利 Dynamic Type，不治；
   // px/rem 为绝对值，逃出九档即讹。
-  return /^-?\d+(?:\.\d+)?(?:px|rem)?$/.test(value)
+  return /^-?\d+(?:\.\d+)?(?:px|rem)?$/i.test(value)
 }
 
 function detectFontSizeLiteral(rootDir, filePath, text) {
