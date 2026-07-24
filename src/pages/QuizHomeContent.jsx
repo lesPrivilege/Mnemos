@@ -243,10 +243,10 @@ export function QuizHomeContent() {
               style={{ borderColor: 'var(--border)', minHeight: 80 }} autoFocus />
             <div className="flex gap-2">
               <button type="button" onClick={() => { setShowNewSubject(false); setNewSubjectJson('') }}
-                className="flex-1 py-2.5 rounded-md font-body text-sm border text-ink-2 active:scale-[0.97] transition-transform"
+                className="flex-1 py-2.5 rounded-md font-body text-md border text-ink-2 active:scale-[0.97] transition-transform"
                 style={{ borderColor: 'var(--border)' }}>{S.quizHome.cancel}</button>
               <button type="submit" disabled={!newSubjectJson.trim()}
-                className="flex-1 py-2.5 rounded-md font-medium text-sm font-body bg-ink text-bg active:scale-[0.97] transition-transform disabled:opacity-40">
+                className="flex-1 py-2.5 rounded-md font-medium text-md font-body bg-ink text-bg active:scale-[0.97] transition-transform disabled:opacity-40">
                 {S.quizHome.importAction}
               </button>
             </div>

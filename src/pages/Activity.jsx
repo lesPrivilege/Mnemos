@@ -54,7 +54,7 @@ function ActivityRings({ today, targets }) {
           {ringPath(recall, 86, 'var(--accent)')}
           {ringPath(practice, 66, 'var(--teal)')}
           {ringPath(reading, 46, 'var(--good)')}
-          <text x="100" y="96" textAnchor="middle" fontFamily="var(--font-disp)" fontSize="38" fill="var(--ink)">{percentValue}</text>
+          <text x="100" y="96" textAnchor="middle" fontFamily="var(--font-disp)" fontSize="var(--text-4xl)" fill="var(--ink)">{percentValue}</text>
           <text x="100" y="116" textAnchor="middle" fontFamily="var(--font-ui)" fontSize="var(--text-2xs)" fill="var(--ink-3)" letterSpacing="1">{S.activity.percentLabel}</text>
         </svg>
       </div>
