@@ -1,0 +1,15 @@
+/* 阴性对照 (刊例第四十三条) — minimal tokens.css shape with a deliberately
+   failing contrast pair (ink/bg, both themes). Only --bg and --ink are
+   defined: every OTHER pair in collate.mjs's REQUIRED_PAIRS/INFO_PAIRS
+   references tokens not present here, so those rows resolve to SKIP rather
+   than crashing — runContrastGate() is written to tolerate that. This file
+   is consumed only by `--self-test`; it is never read as the real tokens
+   source (that is always src/styles/tokens.css). */
+:root {
+  --bg: oklch(50% 0.01 250);
+  --ink: oklch(55% 0.01 250);
+}
+:root.dark {
+  --bg: oklch(50% 0.01 250);
+  --ink: oklch(55% 0.01 250);
+}

@@ -10,7 +10,9 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "check": "npm run lint && npm run test && npm run build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "collate": "node scripts/collate/collate.mjs",
+    "collate:selftest": "node scripts/collate/collate.mjs --self-test"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.1",

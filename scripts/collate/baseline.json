@@ -1,0 +1,262 @@
+[
+  {
+    "gate": "contrast",
+    "file": "styles/tokens.css",
+    "match": "light:ink-3/bg"
+  },
+  {
+    "gate": "contrast",
+    "file": "styles/tokens.css",
+    "match": "light:ink-3/bg-card"
+  },
+  {
+    "gate": "contrast",
+    "file": "styles/tokens.css",
+    "match": "light:accent/bg"
+  },
+  {
+    "gate": "contrast",
+    "file": "styles/tokens.css",
+    "match": "light:accent/bg-card"
+  },
+  {
+    "gate": "contrast",
+    "file": "styles/tokens.css",
+    "match": "light:accent/accent-soft"
+  },
+  {
+    "gate": "contrast",
+    "file": "styles/tokens.css",
+    "match": "dark:ink-3/bg"
+  },
+  {
+    "gate": "contrast",
+    "file": "styles/tokens.css",
+    "match": "dark:ink-3/bg-card"
+  },
+  {
+    "gate": "source-single",
+    "file": "components/ConfirmSheet.jsx",
+    "match": "flex: 1, padding: '10px 0', borderRadius: 8, border: '1px solid var(--border)',"
+  },
+  {
+    "gate": "source-single",
+    "file": "components/ConfirmSheet.jsx",
+    "match": "flex: 1, padding: '10px 0', borderRadius: 8, border: 'none',"
+  },
+  {
+    "gate": "source-single",
+    "file": "components/ConfirmSheet.jsx",
+    "match": "color: '#fff', fontFamily: 'var(--font-zh)', fontSize: 14, fontWeig"
+  },
+  {
+    "gate": "source-single",
+    "file": "components/ErrorBoundary.jsx",
+    "match": "padding: '10px 24px', borderRadius: 8, fontSize: 14,"
+  },
+  {
+    "gate": "source-single",
+    "file": "components/StructureTree.jsx",
+    "match": "display: 'flex', height: 3, borderRadius: 2, overflow: 'hidden',"
+  },
+  {
+    "gate": "source-single",
+    "file": "pages/Activity.jsx",
+    "match": "width: 14, height: 14, borderRadius: 3,"
+  },
+  {
+    "gate": "source-single",
+    "file": "pages/DeckDetail.jsx",
+    "match": "items-center justify-center p-6\" style={{ background: 'rgba(0,0,0,0.5)' }} onClick={() => setPreviewCard(null)}>"
+  },
+  {
+    "gate": "source-single",
+    "file": "pages/DeckDetail.jsx",
+    "match": "<span style={{ width: 6, height: 6, borderRadius: '50%', background: tierColor, flexShrink: 0, marginLeft: 2 }"
+  },
+  {
+    "gate": "source-single",
+    "file": "pages/Home.jsx",
+    "match": "tion: drag?.locked === 'x' ? 'none' : 'transform 360ms cubic-bezier(.2,.8,.2,1)',"
+  },
+  {
+    "gate": "source-single",
+    "file": "pages/Home.jsx",
+    "match": "transition: drag?.locked === 'x' ? 'none' : 'transform 360ms cubic-bezier(.2,.8,.2,1)',"
+  },
+  {
+    "gate": "source-single",
+    "file": "pages/QuizPage.jsx",
+    "match": "nt-soft)', color: 'var(--accent)', padding: '1px 5px', borderRadius: 4 }}>{S.quizPage.multiAnswerBadge}</span>}</span>"
+  },
+  {
+    "gate": "source-single",
+    "file": "pages/Review.jsx",
+    "match": "transition: swipeRef.current.committed ? 'transform 180ms ease-out' : (Math.abs(swipeOffset) < 5 ? 'transform 15"
+  },
+  {
+    "gate": "source-single",
+    "file": "pages/Review.jsx",
+    "match": "padding: '8px 16px', borderRadius: 999, fontSize: 12,"
+  },
+  {
+    "gate": "source-single",
+    "file": "pages/Review.jsx",
+    "match": "animation: 'fadeIn 150ms ease-out',"
+  },
+  {
+    "gate": "source-single",
+    "file": "pages/Settings.jsx",
+    "match": "width: 4, height: 36, borderRadius: 2,"
+  },
+  {
+    "gate": "source-single",
+    "file": "pages/Settings.jsx",
+    "match": "background: `oklch(60% 0.10 ${60 + hue * 55})`,"
+  },
+  {
+    "gate": "source-single",
+    "file": "reading/components/ReaderToolbar.jsx",
+    "match": "transition: 'opacity 200ms, transform 200ms',"
+  },
+  {
+    "gate": "source-single",
+    "file": "reading/lib/highlightAnchor.js",
+    "match": "const MARK_CSS = 'background:var(--accent-soft);border-radius:2px;padding:0 1px'"
+  },
+  {
+    "gate": "source-single",
+    "file": "reading/pages/Reader.jsx",
+    "match": "--accent)', width: `${scrollPct}%`, transition: 'width 150ms' }} />"
+  },
+  {
+    "gate": "source-single",
+    "file": "reading/pages/Reader.jsx",
+    "match": "position: 'fixed', inset: 0, zIndex: 14, background: 'rgba(0,0,0,0.15)' }}"
+  },
+  {
+    "gate": "source-single",
+    "file": "reading/pages/Reader.jsx",
+    "match": "animation: 'fadeIn 150ms ease-out',"
+  },
+  {
+    "gate": "source-single",
+    "file": "reading/pages/Reader.jsx",
+    "match": "transition: 'opacity 200ms, transform 200ms',"
+  },
+  {
+    "gate": "source-single",
+    "file": "reading/pages/Reader.jsx",
+    "match": "background: 'var(--bg-raised)', transition: 'opacity 200ms',"
+  },
+  {
+    "gate": "source-single",
+    "file": "reading/pages/Reader.jsx",
+    "match": "--accent)', width: `${scrollPct}%`, transition: 'width 200ms' }} />"
+  },
+  {
+    "gate": "source-single",
+    "file": "reading/pages/Reader.jsx",
+    "match": "animation: 'fadeIn 150ms ease-out',"
+  },
+  {
+    "gate": "source-single",
+    "file": "reading/pages/Reader.jsx",
+    "match": "padding: '8px 16px', borderRadius: 999, fontSize: 12,"
+  },
+  {
+    "gate": "source-single",
+    "file": "reading/styles/reader.css",
+    "match": "transition: transform 250ms cubic-bezier(.4, .2, .2, 1);"
+  },
+  {
+    "gate": "source-single",
+    "file": "reading/styles/reader.css",
+    "match": "transition: transform 250ms cubic-bezier(.4, .2, .2, 1);"
+  },
+  {
+    "gate": "source-single",
+    "file": "reading/styles/reader.css",
+    "match": "transition: opacity 200ms;"
+  },
+  {
+    "gate": "source-single",
+    "file": "styles/index.css",
+    "match": "border-radius: 999px;"
+  },
+  {
+    "gate": "source-single",
+    "file": "styles/index.css",
+    "match": "background: rgb(0 0 0 / 0.35);"
+  },
+  {
+    "gate": "source-single",
+    "file": "styles/index.css",
+    "match": "border-radius: 999px;"
+  },
+  {
+    "gate": "source-single",
+    "file": "styles/index.css",
+    "match": "width: 36px; height: 36px; border-radius: 50%;"
+  },
+  {
+    "gate": "source-single",
+    "file": "styles/index.css",
+    "match": "border-radius: 999px;"
+  },
+  {
+    "gate": "source-single",
+    "file": "styles/index.css",
+    "match": "border-radius: 50%;"
+  },
+  {
+    "gate": "source-single",
+    "file": "styles/index.css",
+    "match": "border-radius: 50%;"
+  },
+  {
+    "gate": "source-single",
+    "file": "styles/index.css",
+    "match": "transition: transform 180ms cubic-bezier(0.23, 1, 0.32, 1);"
+  },
+  {
+    "gate": "source-single",
+    "file": "styles/index.css",
+    "match": "transition: transform 180ms cubic-bezier(0.23, 1, 0.32, 1);"
+  },
+  {
+    "gate": "source-single",
+    "file": "styles/index.css",
+    "match": "width: 8px; height: 8px; border-radius: 50%;"
+  },
+  {
+    "gate": "source-single",
+    "file": "styles/index.css",
+    "match": "width: 4px; height: 4px; border-radius: 50%;"
+  },
+  {
+    "gate": "source-single",
+    "file": "styles/index.css",
+    "match": "width: 26px; height: 26px; border-radius: 50%;"
+  },
+  {
+    "gate": "source-single",
+    "file": "styles/markdown.css",
+    "match": "border-radius: 4px;"
+  },
+  {
+    "gate": "source-single",
+    "file": "styles/markdown.css",
+    "match": "border-radius: 6px;"
+  },
+  {
+    "gate": "taboo",
+    "file": "reading/pages/Reader.jsx",
+    "match": ", background: 'var(--accent)', width: `${scrollPct}%`, transition: 'width 150ms' }} />"
+  },
+  {
+    "gate": "taboo",
+    "file": "reading/pages/Reader.jsx",
+    "match": ", background: 'var(--accent)', width: `${scrollPct}%`, transition: 'width 200ms' }} />"
+  }
+]

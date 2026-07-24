@@ -1,0 +1,54 @@
+/* 阴性对照 (刊例第四十三条) — deliberately violates every collate detector
+   listed in docs/design-kanli.md §九. Consumed ONLY by
+   `node scripts/collate/collate.mjs --self-test`; scanRootFiles(SRC_DIR, …)
+   never walks this directory in a normal run because its root is src/, not
+   scripts/collate/fixtures/. Do not "fix" anything in this file. */
+
+/* Gate 1 · 对校·底本单源 */
+.g1-hex-fixture {
+  color: #ff00aa;
+  border: 1px solid #abc;
+}
+.g1-colorfn-fixture {
+  background: rgb(10, 20, 30);
+  color: oklch(50% 0.1 200);
+}
+.g1-radius-fixture {
+  border-radius: 8px;
+}
+.g1-radius-pill-fixture {
+  border-radius: 999px; /* pill literal — flagged too, per brief ("flag pill literals too") */
+}
+.g1-cubicbezier-fixture {
+  transition: opacity 200ms cubic-bezier(0.4, 0, 0.2, 1); /* also trips g1-duration */
+}
+
+/* Gate 2 · 避讳·字面 */
+.g2-gradient-fixture {
+  background: linear-gradient(90deg, #fff, #000);
+}
+.g2-bgcliptext-fixture {
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+.g2-backdropfilter-fixture {
+  backdrop-filter: blur(20px); /* anything other than var(--surface-chrome-blur) */
+  -webkit-backdrop-filter: blur(20px);
+}
+.g2-overshoot-fixture {
+  transition: transform 300ms cubic-bezier(0.68, -0.55, 0.265, 1.55); /* "back" overshoot easing */
+}
+@keyframes bounceInFixture {
+  0% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.g2-bounce-fixture {
+  animation: bounceInFixture 400ms;
+}
+.g2-layout-fixture {
+  transition: width 200ms, height 200ms, max-height 200ms;
+}
