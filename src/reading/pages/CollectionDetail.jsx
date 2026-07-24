@@ -110,7 +110,7 @@ export default function CollectionDetail() {
       {/* Topbar */}
       <header className="topbar">
         <button onClick={goBack} className="tb-btn"><BackIcon /></button>
-        <h1 className="flex-1 font-zh text-[17px] font-medium text-ink truncate pl-1">{col.name}</h1>
+        <h1 className="flex-1 font-zh text-xl font-medium text-ink truncate pl-1">{col.name}</h1>
         <div className="tb-actions">
           <div className="relative">
             <button onClick={() => setShowMenu(o => !o)} className="tb-btn" aria-haspopup="menu" aria-expanded={showMenu}>
@@ -122,11 +122,11 @@ export default function CollectionDetail() {
                 <div className="absolute right-0 top-9 z-20 min-w-[168px] rounded-md bg-bg-card border border-border-soft overflow-hidden"
                   role="menu" style={{ border: '1px solid var(--border-soft)' }}>
                   <button onClick={handleTogglePin}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">
+                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">
                     <PinIcon size={15} /> {col.pinned ? S.collectionDetail.unpinCollection : S.collectionDetail.pinCollection}
                   </button>
                   <button onClick={handleDeleteCollection}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-body text-danger hover:bg-bg-raised transition-colors" role="menuitem">
+                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-danger hover:bg-bg-raised transition-colors" role="menuitem">
                     <TrashIcon size={15} /> {S.collectionDetail.deleteCollection}
                   </button>
                 </div>
@@ -172,7 +172,7 @@ export default function CollectionDetail() {
                   {...pressable(() => navigate(`/reading/doc/${doc.id}?col=${id}`))}>
                   <span className="dot-bullet" />
                   <span className="front" style={{ fontFamily: 'var(--font-ui)' }}>{doc.title}</span>
-                  <span className="font-body text-[10px] text-ink-3 shrink-0">{doc.format.toUpperCase()}</span>
+                  <span className="font-body text-2xs text-ink-3 shrink-0">{doc.format.toUpperCase()}</span>
                   <button onClick={(e) => { e.stopPropagation(); handleDeleteDocument(doc.id) }}
                     className="hidden group-hover:inline-flex group-focus-within:inline-flex items-center justify-center w-6 h-6 rounded text-ink-3 hover:text-danger transition-colors">
                     <TrashIcon size={14} />
@@ -187,14 +187,14 @@ export default function CollectionDetail() {
         {showNewDoc && (
           <div className="mx-[18px] mb-4 p-4 rounded-md border bg-bg-card flex flex-col gap-3"
             style={{ borderColor: 'var(--border-soft)' }}>
-            <div className="font-zh text-[10px] text-ink-3 tracking-wider">{S.collectionDetail.newDocHeading}</div>
+            <div className="font-zh text-2xs text-ink-3 tracking-wider">{S.collectionDetail.newDocHeading}</div>
             <input value={newDocTitle} onChange={e => setNewDocTitle(e.target.value)}
               placeholder={S.collectionDetail.docTitlePlaceholder} autoFocus
-              className="w-full py-[9px] px-3 rounded-md border bg-bg text-ink font-zh text-sm outline-none focus:border-accent"
+              className="w-full py-[9px] px-3 rounded-md border bg-bg text-ink font-zh text-md outline-none focus:border-accent"
               style={{ borderColor: 'var(--border)' }} />
             <textarea value={newDocContent} onChange={e => setNewDocContent(e.target.value)}
               placeholder={S.collectionDetail.docContentPlaceholder} rows={6}
-              className="w-full p-3 rounded-md border bg-bg text-ink font-zh text-sm outline-none focus:border-accent resize-none"
+              className="w-full p-3 rounded-md border bg-bg text-ink font-zh text-md outline-none focus:border-accent resize-none"
               style={{ borderColor: 'var(--border)' }} />
             <div className="flex gap-2 justify-end">
               <button type="button" onClick={() => setShowNewDoc(false)} className="btn btn-ghost">{S.collectionDetail.cancel}</button>

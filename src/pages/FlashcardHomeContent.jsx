@@ -209,8 +209,8 @@ export function FlashcardHomeContent() {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-zh text-[15px] font-medium text-ink truncate">{deck.name}</div>
-                    <div className="font-mono text-[11px] text-ink-3 mt-1">
+                    <div className="font-zh text-lg font-medium text-ink truncate">{deck.name}</div>
+                    <div className="font-mono text-xs text-ink-3 mt-1">
                       {deck.dueCount} due · {deck.totalCards} total
                     </div>
                   </div>
@@ -254,7 +254,7 @@ export function FlashcardHomeContent() {
         <div className="flex gap-2 mt-2">
           {selected.size > 0 && (
             <button onClick={handleBatchDelete}
-              className="flex-1 py-2.5 rounded-md font-body text-sm text-danger border active:scale-[0.97] transition-transform"
+              className="flex-1 py-2.5 rounded-md font-body text-md text-danger border active:scale-[0.97] transition-transform"
               style={{ borderColor: 'color-mix(in oklch, var(--danger) 30%, transparent)' }}>
               {S.flashcardHome.batchDeleteLabel(selected.size)}
             </button>
@@ -267,7 +267,7 @@ export function FlashcardHomeContent() {
             setEditing(false)
             refresh()
           }}
-            className="flex-1 py-2.5 rounded-md font-body text-sm text-danger border active:scale-[0.97] transition-transform"
+            className="flex-1 py-2.5 rounded-md font-body text-md text-danger border active:scale-[0.97] transition-transform"
             style={{ borderColor: 'color-mix(in oklch, var(--danger) 30%, transparent)' }}>
               {S.flashcardHome.deleteAllButton}
           </button>
@@ -281,14 +281,14 @@ export function FlashcardHomeContent() {
             <form onSubmit={handleAddDeck} className="col-span-2 flex gap-2">
               <input value={newDeckName} onChange={(e) => setNewDeckName(e.target.value)}
                 placeholder={S.flashcardHome.deckNamePlaceholder} autoFocus
-                className="flex-1 px-3 py-2.5 rounded-md border bg-bg-card text-ink font-body text-sm placeholder:text-ink-3 focus:outline-none focus:border-accent"
+                className="flex-1 px-3 py-2.5 rounded-md border bg-bg-card text-ink font-body text-md placeholder:text-ink-3 focus:outline-none focus:border-accent"
                 style={{ borderColor: 'var(--border)' }} />
               <button type="submit" disabled={!newDeckName.trim()}
-                className="px-4 py-2.5 rounded-md font-medium text-sm font-body bg-ink text-bg active:scale-[0.97] transition-transform disabled:opacity-40">
+                className="px-4 py-2.5 rounded-md font-medium text-md font-body bg-ink text-bg active:scale-[0.97] transition-transform disabled:opacity-40">
                 {S.flashcardHome.add}
               </button>
               <button type="button" onClick={() => { setShowNewDeck(false); setNewDeckName('') }}
-                className="px-4 py-2.5 rounded-md font-body text-sm border text-ink-2 active:scale-[0.97] transition-transform"
+                className="px-4 py-2.5 rounded-md font-body text-md border text-ink-2 active:scale-[0.97] transition-transform"
                 style={{ borderColor: 'var(--border)' }}>
                 {S.flashcardHome.cancel}
               </button>

@@ -307,7 +307,7 @@ export default function Reader() {
             fontSize: settings.fontSize, lineHeight: settings.lineHeight,
           }} dangerouslySetInnerHTML={{ __html: html }} />
         ) : (
-          <div className="flex items-center justify-center h-full text-ink-3 font-zh text-sm tracking-[0.04em]">
+          <div className="flex items-center justify-center h-full text-ink-3 font-zh text-md tracking-[0.04em]">
             {S.reader.loading}
           </div>
         )}
@@ -317,7 +317,7 @@ export default function Reader() {
       {selection && (
         <button
           onClick={handleSaveHighlight}
-          className="fixed z-50 px-3.5 py-1.5 rounded-md font-zh text-[13px] font-medium border border-border-soft"
+          className="fixed z-50 px-3.5 py-1.5 rounded-md font-zh text-md font-medium border border-border-soft"
           style={{
             background: 'var(--ink)', color: 'var(--bg)',
             border: '1px solid var(--border-strong)',
@@ -345,7 +345,7 @@ export default function Reader() {
             background: 'var(--bg)', borderTop: '1px solid var(--border-soft)',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span className="font-mono text-[9px] text-ink-3 w-5 text-right">{settings.fontSize}</span>
+              <span className="font-mono text-2xs text-ink-3 w-5 text-right">{settings.fontSize}</span>
               <button onClick={() => handleUpdateSettings({ fontSize: Math.max(14, settings.fontSize - 1) })}
                 className="w-6 h-6 rounded flex items-center justify-center text-ink-3 hover:text-ink text-xs border"
                 style={{ borderColor: 'var(--border)' }}>A-</button>
@@ -355,7 +355,7 @@ export default function Reader() {
             </div>
             <div style={{ width: 1, height: 20, background: 'var(--border-soft)' }} />
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span className="font-mono text-[9px] text-ink-3 w-5 text-right">{settings.lineHeight.toFixed(1)}</span>
+              <span className="font-mono text-2xs text-ink-3 w-5 text-right">{settings.lineHeight.toFixed(1)}</span>
               <button onClick={() => handleUpdateSettings({ lineHeight: Math.max(1.4, +(settings.lineHeight - 0.1).toFixed(1)) })}
                 className="w-6 h-6 rounded flex items-center justify-center text-ink-3 hover:text-ink text-xs border"
                 style={{ borderColor: 'var(--border)' }}>-</button>
@@ -365,7 +365,7 @@ export default function Reader() {
             </div>
             <div style={{ width: 1, height: 20, background: 'var(--border-soft)' }} />
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span className="font-mono text-[9px] text-ink-3 w-5 text-right">{settings.margins}</span>
+              <span className="font-mono text-2xs text-ink-3 w-5 text-right">{settings.margins}</span>
               <button onClick={() => handleUpdateSettings({ margins: Math.max(12, settings.margins - 4) })}
                 className="w-6 h-6 rounded flex items-center justify-center text-ink-3 hover:text-ink text-xs border"
                 style={{ borderColor: 'var(--border)' }}>-</button>
@@ -387,14 +387,14 @@ export default function Reader() {
               onClick={() => togglePanel(b.key)}
               className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md transition-colors"
               style={{ color: activePanel === b.key ? 'var(--accent)' : 'var(--ink-3)' }}>
-              <span className="font-body text-[13px]">{b.label}</span>
+              <span className="font-body text-md">{b.label}</span>
             </button>
           ))}
           <div style={{ width: 1, height: 24, background: 'var(--border-soft)' }} />
           <button onClick={() => { setSettingsOpen(v => !v); setActivePanel(null) }}
             className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md transition-colors"
             style={{ color: settingsOpen ? 'var(--accent)' : 'var(--ink-3)' }}>
-            <span className="font-body text-[13px]">{S.reader.settings}</span>
+            <span className="font-body text-md">{S.reader.settings}</span>
           </button>
         </div>
       </div>
@@ -413,7 +413,7 @@ export default function Reader() {
         <div style={{
           position: 'fixed', bottom: 100, left: '50%', transform: 'translateX(-50%)',
           background: 'var(--ink)', color: 'var(--bg)',
-          padding: '8px 16px', borderRadius: 999, fontSize: 12,
+          padding: '8px 16px', borderRadius: 999, fontSize: 'var(--text-sm)',
           fontFamily: 'var(--font-zh)', boxShadow: 'var(--shadow-md)', zIndex: 50,
           animation: 'fadeIn var(--motion-mid)',
         }}>

@@ -77,7 +77,7 @@ export default function Search() {
         {/* Quiz results */}
         {quizResults.length > 0 && (
           <div className="mb-4">
-            <div className="section-title" style={{ marginBottom: 10 }}>{S.search.quizTitle} <span className="ml-1 text-ink-2" style={{ fontSize: 11, letterSpacing: 0 }}>{quizResults.length}</span></div>
+            <div className="section-title" style={{ marginBottom: 10 }}>{S.search.quizTitle} <span className="ml-1 text-ink-2" style={{ fontSize: 'var(--text-xs)', letterSpacing: 0 }}>{quizResults.length}</span></div>
             {Object.values(quizGrouped).map(group => (
               <div key={`q-${group.subject}|||${group.chapter}`} className="mb-3">
                 <div className="text-xs text-ink-3 font-zh mb-1.5">
@@ -87,7 +87,7 @@ export default function Search() {
                   {group.items.map(q => (
                     <div key={q.id} className="bg-bg-card rounded-lg p-3 border cursor-pointer" style={{ borderColor: 'var(--border-soft)' }}
                       onClick={() => navigate(q.type === 'choice' ? `/quiz/${q.subject}?chapter=${encodeURIComponent(q.chapter)}` : `/quiz-review/${q.subject}?chapter=${encodeURIComponent(q.chapter)}`)}>
-                      <div className="text-sm text-ink card-content line-clamp-2"><RenderMarkdown content={q.question || q.id} /></div>
+                      <div className="text-md text-ink card-content line-clamp-2"><RenderMarkdown content={q.question || q.id} /></div>
                     </div>
                   ))}
                 </div>
@@ -99,13 +99,13 @@ export default function Search() {
         {/* Flashcard results */}
         {flashcardResults.length > 0 && (
           <div className="mb-4">
-            <div className="section-title" style={{ marginBottom: 10 }}>{S.search.flashcardTitle} <span className="ml-1 text-ink-2" style={{ fontSize: 11, letterSpacing: 0 }}>{flashcardResults.length}</span></div>
+            <div className="section-title" style={{ marginBottom: 10 }}>{S.search.flashcardTitle} <span className="ml-1 text-ink-2" style={{ fontSize: 'var(--text-xs)', letterSpacing: 0 }}>{flashcardResults.length}</span></div>
             <div className="flex flex-col gap-1.5">
               {flashcardResults.map(card => (
                 <div key={card.id} className="bg-bg-card rounded-lg p-3 border cursor-pointer" style={{ borderColor: 'var(--border-soft)' }}
                   onClick={() => navigate(`/deck/${card.deckId}`)}>
                   <div className="text-xs text-ink-3 font-zh mb-1">{card.deckName}</div>
-                  <div className="text-sm text-ink card-content line-clamp-1">{card.front}</div>
+                  <div className="text-md text-ink card-content line-clamp-1">{card.front}</div>
                 </div>
               ))}
             </div>
@@ -114,7 +114,7 @@ export default function Search() {
 
         {!query.trim() && (
           <div className="text-center text-ink-3 py-8">
-            <div className="text-sm">{S.search.promptTitle}</div>
+            <div className="text-md">{S.search.promptTitle}</div>
             <div className="text-xs mt-1 text-ink-4">{S.search.promptHint}</div>
           </div>
         )}

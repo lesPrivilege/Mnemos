@@ -128,11 +128,11 @@ export default function SetDetail() {
                   role="menu"
                   style={{ border: '1px solid var(--border-soft)' }}>
                   <button onClick={handleResetProgress}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">
+                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">
                     <RefreshIcon size={15} /> {S.setDetail.resetProgressAction}
                   </button>
                   <button onClick={handleDeleteSubject}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-body text-danger hover:bg-bg-raised transition-colors" role="menuitem">
+                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-danger hover:bg-bg-raised transition-colors" role="menuitem">
                     <TrashIcon size={15} /> {S.setDetail.deleteSubjectAction}
                   </button>
                 </div>
@@ -220,7 +220,7 @@ export default function SetDetail() {
                     style={{ fontWeight: 500 }}>
                     <span className={`ch-caret ${isOpen ? 'open' : ''}`} style={{ position: 'absolute', left: 8 }}>›</span>
                     <span className="front" style={{ fontWeight: 500, paddingLeft: 8 }}>{ch.name}</span>
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--ink-3)' }}>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-2xs)', color: 'var(--ink-3)' }}>
                       {ch.total}{S.setDetail.countSuffix}
                       {ch.choice > 0 && <span style={{ marginLeft: 6 }}>{S.setDetail.choicePrefixShort}{ch.choice}</span>}
                       {ch.review > 0 && <span style={{ marginLeft: 6 }}>{S.setDetail.reviewPrefixShort}{ch.review}</span>}
@@ -234,7 +234,7 @@ export default function SetDetail() {
                         <Link to={`/quiz/${subject}?chapter=${encodeURIComponent(ch.name)}`}
                           className="card-row">
                           <span className="q-tag-mini choice">{S.setDetail.choiceTagMini}</span>
-                          <span className="front" style={{ fontSize: 13 }}>{S.setDetail.choiceLabelWithCount(ch.choice)}</span>
+                          <span className="front" style={{ fontSize: 'var(--text-md)' }}>{S.setDetail.choiceLabelWithCount(ch.choice)}</span>
                           <ArrowRIcon size={12} style={{ color: 'var(--ink-3)' }} />
                         </Link>
                       )}
@@ -242,7 +242,7 @@ export default function SetDetail() {
                         <Link to={`/quiz-review/${subject}?chapter=${encodeURIComponent(ch.name)}`}
                           className="card-row">
                           <span className="q-tag-mini review">{S.setDetail.reviewTagMini}</span>
-                          <span className="front" style={{ fontSize: 13 }}>{S.setDetail.reviewLabelWithCount(ch.review)}</span>
+                          <span className="front" style={{ fontSize: 'var(--text-md)' }}>{S.setDetail.reviewLabelWithCount(ch.review)}</span>
                           <ArrowRIcon size={12} style={{ color: 'var(--ink-3)' }} />
                         </Link>
                       )}
@@ -252,7 +252,7 @@ export default function SetDetail() {
               )
             })}
             {filteredChapters.length === 0 && (
-              <div style={{ padding: '24px', textAlign: 'center', color: 'var(--ink-3)', fontSize: 13 }}>
+              <div style={{ padding: '24px', textAlign: 'center', color: 'var(--ink-3)', fontSize: 'var(--text-md)' }}>
                 {filter === 'starred' ? S.setDetail.emptyStarredChapters : S.setDetail.emptyChapters}
               </div>
             )}

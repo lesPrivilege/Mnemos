@@ -86,12 +86,12 @@ function SubjectCard({ subject }) {
         </div>
         <div style={{ display: 'flex', gap: 4, marginTop: 4 }}>
           {typeCounts.choice > 0 && (
-            <span className="chip" style={{ fontSize: 10, padding: '2px 7px', pointerEvents: 'none' }}>
+            <span className="chip" style={{ fontSize: 'var(--text-2xs)', padding: '2px 7px', pointerEvents: 'none' }}>
               {S.quizHome.choiceCountPrefix}{typeCounts.choice}
             </span>
           )}
           {typeCounts.review > 0 && (
-            <span className="chip" style={{ fontSize: 10, padding: '2px 7px', pointerEvents: 'none' }}>
+            <span className="chip" style={{ fontSize: 'var(--text-2xs)', padding: '2px 7px', pointerEvents: 'none' }}>
               {S.quizHome.reviewCountPrefix}{typeCounts.review}
             </span>
           )}

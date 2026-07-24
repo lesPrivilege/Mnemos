@@ -21,14 +21,14 @@ export default class ErrorBoundary extends Component {
           background: 'var(--bg)', color: 'var(--ink)',
           fontFamily: 'var(--font-zh)',
         }}>
-          <div style={{ fontSize: 48, opacity: 0.3 }}>⚠</div>
-          <div style={{ fontSize: 18, fontWeight: 500 }}>{S.error.boundaryTitle}</div>
-          <div style={{ fontSize: 14, color: 'var(--ink-2)', lineHeight: 1.6 }}>
+          <div style={{ fontSize: 'var(--text-4xl)', opacity: 0.3 }}>⚠</div>
+          <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 500 }}>{S.error.boundaryTitle}</div>
+          <div style={{ fontSize: 'var(--text-lg)', color: 'var(--ink-2)', lineHeight: 1.6 }}>
             {this.state.error.message}
           </div>
           <button onClick={() => window.location.reload()}
             style={{
-              padding: '10px 24px', borderRadius: 'var(--r-lg)', fontSize: 14,
+              padding: '10px 24px', borderRadius: 'var(--r-lg)', fontSize: 'var(--text-lg)',
               background: 'var(--ink)', color: 'var(--bg)', border: 0, cursor: 'pointer',
             }}>
             {S.error.reload}

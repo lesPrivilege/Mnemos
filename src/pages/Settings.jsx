@@ -307,7 +307,7 @@ export default function Settings() {
         <button onClick={goBack} className="tb-btn">
           <BackIcon />
         </button>
-        <h1 className="flex-1 font-body text-[17px] font-semibold text-ink pl-1">{S.settings.title}</h1>
+        <h1 className="flex-1 font-body text-xl font-semibold text-ink pl-1">{S.settings.title}</h1>
       </header>
 
       <main className="flex-1 overflow-y-auto p-[18px] flex flex-col gap-4">
@@ -630,7 +630,7 @@ export default function Settings() {
               {autoBackup.status?.ok && (
                 <div className="kv-row">
                   <span className="k">{S.settings.locationLabel}</span>
-                  <span className="v font-mono text-[11px]">{autoBackup.status.dir}/Mnemos/</span>
+                  <span className="v font-mono text-xs">{autoBackup.status.dir}/Mnemos/</span>
                 </div>
               )}
               {autoBackup.status && !autoBackup.status.ok && (
@@ -710,9 +710,9 @@ export default function Settings() {
           <div className="lbl">{S.settings.aboutHeading}</div>
           <div className="flex flex-col items-center gap-2 py-3.5">
             <MnemosMark size={36} accent="var(--accent)" />
-            <div className="font-display text-[26px] tracking-wide text-ink">Mnemos</div>
+            <div className="font-display text-3xl tracking-wide text-ink">Mnemos</div>
             {/* 牌记：版本 · 提交 · 构建日（刊例第六条；数据用 mono，判例三） */}
-            <div className="font-mono text-[10px] text-ink-3">
+            <div className="font-mono text-2xs text-ink-3">
               v{__MNEMOS_BUILD__.version} · {__MNEMOS_BUILD__.commit} · {__MNEMOS_BUILD__.builtAt}
             </div>
           </div>

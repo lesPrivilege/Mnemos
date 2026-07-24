@@ -22,7 +22,7 @@ export default function ReadingHomeBody({ h }) {
       {/* Search results */}
       {h.query.trim() && (
         h.searchResults.length === 0 ? (
-          <div className="text-center text-ink-3 py-6 font-zh text-sm">{S.readingHomeBody.noMatchingDocs}</div>
+          <div className="text-center text-ink-3 py-6 font-zh text-md">{S.readingHomeBody.noMatchingDocs}</div>
         ) : (
           <div className="flex flex-col gap-2">
             <div className="section-title">{S.readingHomeBody.searchResultsHeading}</div>
@@ -30,8 +30,8 @@ export default function ReadingHomeBody({ h }) {
               <div key={doc.id} className="bg-bg-card rounded-lg p-3 border cursor-pointer hover:border-accent transition-colors"
                 style={{ borderColor: 'var(--border-soft)' }}
                 onClick={() => navigate(`/reading/doc/${doc.id}?col=${doc.collectionId}`)}>
-                <div className="font-body text-[14px] text-ink font-medium truncate">{doc.title}</div>
-                {snippet && <div className="font-zh text-[11px] text-ink-3 mt-1 line-clamp-2">{snippet}</div>}
+                <div className="font-body text-lg text-ink font-medium truncate">{doc.title}</div>
+                {snippet && <div className="font-zh text-xs text-ink-3 mt-1 line-clamp-2">{snippet}</div>}
               </div>
             ))}
           </div>
@@ -158,14 +158,14 @@ export default function ReadingHomeBody({ h }) {
           {h.showNewDoc && (
             <form onSubmit={h.handleAddDocument} className="bg-bg-card rounded-lg p-4 border flex flex-col gap-3"
               style={{ borderColor: 'var(--border-soft)' }}>
-              <div className="font-zh text-[10px] text-ink-3 tracking-wider">{S.readingHomeBody.newDocHeading}</div>
+              <div className="font-zh text-2xs text-ink-3 tracking-wider">{S.readingHomeBody.newDocHeading}</div>
               <input value={h.newDocTitle} onChange={e => h.setNewDocTitle(e.target.value)}
                 placeholder={S.readingHomeBody.docTitlePlaceholder} autoFocus
-                className="w-full py-[9px] px-3 rounded-md border bg-bg text-ink font-zh text-sm outline-none focus:border-accent"
+                className="w-full py-[9px] px-3 rounded-md border bg-bg text-ink font-zh text-md outline-none focus:border-accent"
                 style={{ borderColor: 'var(--border)' }} />
               <textarea value={h.newDocContent} onChange={e => h.setNewDocContent(e.target.value)}
                 placeholder={S.readingHomeBody.docContentPlaceholder} rows={8}
-                className="w-full p-3 rounded-md border bg-bg text-ink font-zh text-sm outline-none focus:border-accent resize-none"
+                className="w-full p-3 rounded-md border bg-bg text-ink font-zh text-md outline-none focus:border-accent resize-none"
                 style={{ borderColor: 'var(--border)' }} />
               <div className="flex gap-2 justify-end">
                 <button type="button" onClick={() => h.setShowNewDoc(null)}
@@ -184,14 +184,14 @@ export default function ReadingHomeBody({ h }) {
         {h.showNewCol ? (
           <form onSubmit={h.handleAddCollection} className="col-span-2 flex gap-2">
             <input value={h.newColName} onChange={e => h.setNewColName(e.target.value)} placeholder={S.readingHomeBody.newColNamePlaceholder} autoFocus
-              className="flex-1 px-3 py-2.5 rounded-md border bg-bg-card text-ink font-zh text-sm outline-none focus:border-accent"
+              className="flex-1 px-3 py-2.5 rounded-md border bg-bg-card text-ink font-zh text-md outline-none focus:border-accent"
               style={{ borderColor: 'var(--border)' }} />
             <button type="submit" disabled={!h.newColName.trim()}
-              className="px-4 py-2.5 rounded-md font-medium text-sm font-body bg-ink text-bg active:scale-[0.97] transition-transform disabled:opacity-40">
+              className="px-4 py-2.5 rounded-md font-medium text-md font-body bg-ink text-bg active:scale-[0.97] transition-transform disabled:opacity-40">
               {S.readingHomeBody.create}
             </button>
             <button type="button" onClick={() => { h.setShowNewCol(false); h.setNewColName('') }}
-              className="px-4 py-2.5 rounded-md font-body text-sm border text-ink-2 active:scale-[0.97] transition-transform"
+              className="px-4 py-2.5 rounded-md font-body text-md border text-ink-2 active:scale-[0.97] transition-transform"
               style={{ borderColor: 'var(--border)' }}>
               {S.readingHomeBody.cancel}
             </button>

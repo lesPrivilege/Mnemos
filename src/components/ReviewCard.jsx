@@ -37,7 +37,7 @@ export default function ReviewCard({ card, index, flipped, onFlip, swipeOffset }
               <span>答</span>
             </span>
             <div className="body back">
-              <div className="card-content font-zh text-[16px] text-ink-2" style={{ maxHeight: '20vh', overflowY: 'auto' }}
+              <div className="card-content font-zh text-xl text-ink-2" style={{ maxHeight: '20vh', overflowY: 'auto' }}
                 dangerouslySetInnerHTML={{ __html: frontHtml }} />
               <div className="divider-srs" aria-hidden="true" />
               <div className="back-a card-content" style={{ maxHeight: '35vh', overflowY: 'auto' }}
@@ -54,7 +54,7 @@ export default function ReviewCard({ card, index, flipped, onFlip, swipeOffset }
             background: `color-mix(in oklch, var(--danger) ${Math.round(labelOpacity * 15)}%, transparent)`,
             pointerEvents: 'none', zIndex: 10,
           }}>
-            <span style={{ color: 'var(--danger)', fontWeight: 500, fontSize: 18, opacity: labelOpacity }}>{S.review.again}</span>
+            <span style={{ color: 'var(--danger)', fontWeight: 500, fontSize: 'var(--text-2xl)', opacity: labelOpacity }}>{S.review.again}</span>
           </div>
         )}
         {showLabel && swipeOffset > 0 && (
@@ -64,7 +64,7 @@ export default function ReviewCard({ card, index, flipped, onFlip, swipeOffset }
             background: `color-mix(in oklch, var(--ink) ${Math.round(labelOpacity * 10)}%, transparent)`,
             pointerEvents: 'none', zIndex: 10,
           }}>
-            <span style={{ color: 'var(--ink)', fontWeight: 500, fontSize: 18, opacity: labelOpacity }}>{S.review.remember}</span>
+            <span style={{ color: 'var(--ink)', fontWeight: 500, fontSize: 'var(--text-2xl)', opacity: labelOpacity }}>{S.review.remember}</span>
           </div>
         )}
       </div>

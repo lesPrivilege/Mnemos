@@ -68,7 +68,7 @@ export default function Starred() {
                   </button>
                 </div>
               </div>
-              <div className="text-sm text-ink card-content"><RenderMarkdown content={q.question || q.id} /></div>
+              <div className="text-md text-ink card-content"><RenderMarkdown content={q.question || q.id} /></div>
             </div>
           ))
         )}

@@ -57,7 +57,7 @@ export default function Wrong() {
         <button className="tb-btn" onClick={() => goBack()} aria-label={S.wrong.back}><BackIcon /></button>
         <h1 className="zh" style={{ flex: 1, paddingLeft: 4 }}>{S.wrong.title}</h1>
         {wrongQuestions.length > 0 && (
-          <button className="tb-btn font-zh text-[13px]"
+          <button className="tb-btn font-zh text-md"
             style={{ color: 'var(--accent)' }}
             onClick={() => {
               const cards = questionsToCards(wrongQuestions)
@@ -95,7 +95,7 @@ export default function Wrong() {
                 <div className="text-xs text-ink-3 font-zh">{getSubjectDisplayName(q.subject)} · {q.chapter}</div>
                 <span className="px-2 py-0.5 rounded text-xs font-zh" style={{ border: '1px solid var(--border)', color: 'var(--ink-3)' }}>{q.type === 'choice' ? S.quizPage.choiceLabel : S.quizReview.reviewTagLabel}</span>
               </div>
-              <div className="text-sm text-ink mb-2 card-content"><RenderMarkdown content={q.question || q.id} /></div>
+              <div className="text-md text-ink mb-2 card-content"><RenderMarkdown content={q.question || q.id} /></div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 text-xs text-ink-3">
                   <span>{S.wrong.wrongCountSuffix(q.wrong_count)}</span>

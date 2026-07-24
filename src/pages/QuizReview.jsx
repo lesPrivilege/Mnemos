@@ -140,7 +140,7 @@ export default function ReviewQuestion() {
               <span>{S.quizReview.masteredRateLabel} <span className="v">{correctRate}%</span></span>
             </div>
             {newWrong > 0 && (
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--danger)' }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-sm)', color: 'var(--danger)' }}>
                 {S.quizReview.newWrongPrefix}{newWrong}
               </div>
             )}
@@ -215,7 +215,7 @@ export default function ReviewQuestion() {
       {/* Topbar */}
       <div className="topbar">
         <button className="tb-btn" onClick={() => goBack()} aria-label={S.quizReview.back}><BackIcon /></button>
-        <span className="font-mono text-[11px]">
+        <span className="font-mono text-xs">
           <span style={{ color: 'var(--ink)', fontWeight: 500 }}>{String(currentIndex + 1).padStart(2, '0')}</span>
           <span style={{ color: 'var(--ink-3)' }}> / {String(questions.length).padStart(2, '0')}</span>
         </span>
@@ -235,7 +235,7 @@ export default function ReviewQuestion() {
                   role="menu"
                   style={{ border: '1px solid var(--border-soft)' }}>
                   <button onClick={handleDeleteQuestion}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-body text-danger hover:bg-bg-raised transition-colors" role="menuitem">
+                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-danger hover:bg-bg-raised transition-colors" role="menuitem">
                     <TrashIcon size={15} /> {S.quiz.deleteQuestion}
                   </button>
                 </div>

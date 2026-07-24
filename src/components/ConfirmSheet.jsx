@@ -27,11 +27,11 @@ export function ConfirmSheet({ state }) {
     <>
       <div className="confirm-backdrop" onClick={() => onResult(false)} />
       <div className="confirm-sheet" role="dialog" aria-modal="true" aria-labelledby="confirm-sheet-title">
-        <div id="confirm-sheet-title" style={{ fontFamily: 'var(--font-zh)', fontSize: 15, fontWeight: 500, color: 'var(--ink)', marginBottom: 4 }}>
+        <div id="confirm-sheet-title" style={{ fontFamily: 'var(--font-zh)', fontSize: 'var(--text-lg)', fontWeight: 500, color: 'var(--ink)', marginBottom: 4 }}>
           {title}
         </div>
         {message && (
-          <div style={{ fontFamily: 'var(--font-zh)', fontSize: 13, color: 'var(--ink-2)', lineHeight: 1.5, marginBottom: 16 }}>
+          <div style={{ fontFamily: 'var(--font-zh)', fontSize: 'var(--text-md)', color: 'var(--ink-2)', lineHeight: 1.5, marginBottom: 16 }}>
             {message}
           </div>
         )}
@@ -39,12 +39,12 @@ export function ConfirmSheet({ state }) {
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={() => onResult(false)} style={{
             flex: 1, padding: '10px 0', borderRadius: 'var(--r-lg)', border: '1px solid var(--border)',
-            background: 'var(--bg)', color: 'var(--ink)', fontFamily: 'var(--font-zh)', fontSize: 14, fontWeight: 500,
+            background: 'var(--bg)', color: 'var(--ink)', fontFamily: 'var(--font-zh)', fontSize: 'var(--text-lg)', fontWeight: 500,
           }}>{cancelLabel}</button>
           <button onClick={() => onResult(true)} style={{
             flex: 1, padding: '10px 0', borderRadius: 'var(--r-lg)', border: 'none',
             background: destructive ? 'var(--danger)' : 'var(--accent)',
-            color: 'var(--bg)', fontFamily: 'var(--font-zh)', fontSize: 14, fontWeight: 500,
+            color: 'var(--bg)', fontFamily: 'var(--font-zh)', fontSize: 'var(--text-lg)', fontWeight: 500,
           }}>{confirmLabel}</button>
         </div>
       </div>

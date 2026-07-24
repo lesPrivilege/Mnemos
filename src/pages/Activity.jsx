@@ -55,7 +55,7 @@ function ActivityRings({ today, targets }) {
           {ringPath(practice, 66, 'var(--teal)')}
           {ringPath(reading, 46, 'var(--good)')}
           <text x="100" y="96" textAnchor="middle" fontFamily="var(--font-disp)" fontSize="38" fill="var(--ink)">{percentValue}</text>
-          <text x="100" y="116" textAnchor="middle" fontFamily="var(--font-ui)" fontSize="10" fill="var(--ink-3)" letterSpacing="1">{S.activity.percentLabel}</text>
+          <text x="100" y="116" textAnchor="middle" fontFamily="var(--font-ui)" fontSize="var(--text-2xs)" fill="var(--ink-3)" letterSpacing="1">{S.activity.percentLabel}</text>
         </svg>
       </div>
       <div className="activity-ring-stats">
@@ -143,14 +143,14 @@ function HeatmapGrid() {
     <section className="activity-section" style={{ background: 'var(--bg-card)', borderRadius: 'var(--r-lg)', border: '1px solid var(--border-soft)', padding: '14px' }}>
       <div className="activity-section-head" style={{ marginBottom: 10 }}>
         <div className="section-title">{S.activity.heatmapTitle}</div>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--ink-3)' }}>{S.activity.heatmapDays}</span>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-2xs)', color: 'var(--ink-3)' }}>{S.activity.heatmapDays}</span>
       </div>
       <div ref={scrollerRef} style={{ overflowX: 'auto', paddingBottom: 4 }}>
         <div style={{ display: 'inline-flex', flexDirection: 'column', gap: 2, minWidth: weeks.length * 14 + 20 }}>
           {/* Month labels */}
           <div style={{ display: 'flex', gap: 2, paddingLeft: 18 }}>
             {monthLabels.map((label, i) => (
-              <div key={i} style={{ width: 14, fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-3)', textAlign: 'center' }}>
+              <div key={i} style={{ width: 14, fontFamily: 'var(--font-mono)', fontSize: 'var(--text-2xs)', color: 'var(--ink-3)', textAlign: 'center' }}>
                 {label || ''}
               </div>
             ))}
@@ -160,7 +160,7 @@ function HeatmapGrid() {
             {/* Day labels */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2, width: 16, flexShrink: 0 }}>
               {DAY_LABELS_SHORT.map((label, i) => (
-                <div key={i} style={{ height: 14, fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-3)', display: 'flex', alignItems: 'center', justifyContent: i % 2 === 1 ? 'center' : 'flex-end' }}>
+                <div key={i} style={{ height: 14, fontFamily: 'var(--font-mono)', fontSize: 'var(--text-2xs)', color: 'var(--ink-3)', display: 'flex', alignItems: 'center', justifyContent: i % 2 === 1 ? 'center' : 'flex-end' }}>
                   {i % 2 === 1 ? label : ''}
                 </div>
               ))}
@@ -193,7 +193,7 @@ function HeatmapGrid() {
       </div>
       {/* Detail line */}
       {selected && (
-        <div style={{ marginTop: 8, fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-2)', display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div style={{ marginTop: 8, fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--ink-2)', display: 'flex', gap: 8, alignItems: 'center' }}>
           <span>{selected.date}</span>
           <span style={{ color: 'var(--ink-4)' }}>·</span>
           <span>{S.activity.recallDetailPrefix}{selected.recall}</span>

@@ -214,7 +214,7 @@ export default function Quiz() {
       <div className="topbar">
         <button className="tb-btn" onClick={() => goBack()} aria-label={S.quizPage.back}><BackIcon /></button>
         <h1 className="zh" style={{ flex: 1, paddingLeft: 4 }}>{chapter || getSubjectDisplayName(subject)}</h1>
-        <span className="font-mono text-[11px]">
+        <span className="font-mono text-xs">
           <span style={{ color: 'var(--ink)', fontWeight: 500 }}>{currentIndex + 1}</span>
           <span style={{ color: 'var(--ink-3)' }}> / {questions.length}</span>
         </span>
@@ -235,7 +235,7 @@ export default function Quiz() {
                   role="menu"
                   style={{ border: '1px solid var(--border-soft)' }}>
                   <button onClick={handleDeleteQuestion}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-body text-danger hover:bg-bg-raised transition-colors" role="menuitem">
+                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-danger hover:bg-bg-raised transition-colors" role="menuitem">
                     <TrashIcon size={15} /> {S.quiz.deleteQuestion}
                   </button>
                 </div>
@@ -277,7 +277,7 @@ export default function Quiz() {
         <div className="qa-card">
           <span className="corner">
             <span className="num">{String(currentIndex + 1).padStart(2, '0')}</span>
-            <span><span className="font-zh">{S.quizPage.choiceLabel}</span>{isMultiAnswer(currentQuestion) && <span style={{ marginLeft: 6, fontSize: 10, background: 'var(--accent-soft)', color: 'var(--accent)', padding: '1px 5px', borderRadius: 'var(--r-md)' }}>{S.quizPage.multiAnswerBadge}</span>}</span>
+            <span><span className="font-zh">{S.quizPage.choiceLabel}</span>{isMultiAnswer(currentQuestion) && <span style={{ marginLeft: 6, fontSize: 'var(--text-2xs)', background: 'var(--accent-soft)', color: 'var(--accent)', padding: '1px 5px', borderRadius: 'var(--r-md)' }}>{S.quizPage.multiAnswerBadge}</span>}</span>
           </span>
           <div className="qa-stem" style={{ maxHeight: '22dvh', overflowY: 'auto' }}>
             <RenderMarkdown content={currentQuestion.question} />

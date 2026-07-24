@@ -353,7 +353,7 @@ export default function Import() {
           <button onClick={reset} className="tb-btn">
             <BackIcon />
           </button>
-          <h1 className="flex-1 font-zh text-[17px] font-medium text-ink pl-1">{quizBackupData ? S.import.quizBackupPreviewTitle : S.import.jsonImportPreviewTitle}</h1>
+          <h1 className="flex-1 font-zh text-xl font-medium text-ink pl-1">{quizBackupData ? S.import.quizBackupPreviewTitle : S.import.jsonImportPreviewTitle}</h1>
         </header>
         <main className="flex-1 overflow-y-auto p-[18px] flex flex-col gap-4">
           {quizBackupData && (
@@ -429,7 +429,7 @@ export default function Import() {
           <button onClick={reset} className="tb-btn">
             <BackIcon />
           </button>
-          <h1 className="flex-1 font-zh text-[17px] font-medium text-ink pl-1">{S.import.jsonImportPreviewTitle}</h1>
+          <h1 className="flex-1 font-zh text-xl font-medium text-ink pl-1">{S.import.jsonImportPreviewTitle}</h1>
         </header>
         <main className="flex-1 overflow-y-auto p-[18px] flex flex-col gap-4">
           <div className="settings-card">
@@ -496,7 +496,7 @@ export default function Import() {
       <div className="page-fill">
         <header className="topbar">
           <button onClick={reset} className="tb-btn"><BackIcon /></button>
-          <h1 className="flex-1 font-zh text-[17px] font-medium text-ink pl-1">{S.import.fullBackupPreviewTitle}</h1>
+          <h1 className="flex-1 font-zh text-xl font-medium text-ink pl-1">{S.import.fullBackupPreviewTitle}</h1>
         </header>
         <main className="flex-1 overflow-y-auto p-[18px] flex flex-col gap-4">
           <div className="settings-card">
@@ -550,14 +550,14 @@ export default function Import() {
           <button onClick={reset} className="tb-btn">
             <BackIcon />
           </button>
-          <h1 className="flex-1 font-zh text-[17px] font-medium text-ink pl-1">{S.import.mdPreviewTitle}</h1>
+          <h1 className="flex-1 font-zh text-xl font-medium text-ink pl-1">{S.import.mdPreviewTitle}</h1>
         </header>
         <main className="flex-1 overflow-y-auto p-[18px] flex flex-col gap-4">
           <div className="settings-card">
             <div className="lbl">{mdTargetDeck ? S.import.importToDeckLabel : S.import.deckNameLabel}</div>
             <input value={mdDeckName} onChange={(e) => setMdDeckName(e.target.value)}
               disabled={!!mdTargetDeck}
-              className="w-full py-[9px] px-3 rounded-md border bg-bg text-ink font-zh text-sm outline-none focus:border-accent"
+              className="w-full py-[9px] px-3 rounded-md border bg-bg text-ink font-zh text-md outline-none focus:border-accent"
               style={{ borderColor: 'var(--border)', opacity: mdTargetDeck ? 0.72 : 1 }} />
             <div className="kv-row"><span className="k">{S.import.parsedCardsLabel}</span><span className="v">{mdPreview.cards.length}</span></div>
             {dedup.count > 0 && (
@@ -581,7 +581,7 @@ export default function Import() {
                 </div>
               ))}
               {mdPreview.cards.length > 10 && (
-                <div className="it" style={{ borderColor: 'var(--border)', color: 'var(--ink-3)', fontSize: 11 }}>
+                <div className="it" style={{ borderColor: 'var(--border)', color: 'var(--ink-3)', fontSize: 'var(--text-xs)' }}>
                   <span className="n">{S.import.ellipsis}</span>{S.import.andMoreCardsSuffix(mdPreview.cards.length - 10)}
                 </div>
               )}
@@ -610,7 +610,7 @@ export default function Import() {
       <div className="page-fill">
         <header className="topbar">
           <button onClick={reset} className="tb-btn"><BackIcon /></button>
-          <h1 className="flex-1 font-zh text-[17px] font-medium text-ink pl-1">{S.import.readingDocPreviewTitle}</h1>
+          <h1 className="flex-1 font-zh text-xl font-medium text-ink pl-1">{S.import.readingDocPreviewTitle}</h1>
         </header>
         <main className="flex-1 overflow-y-auto p-[18px] flex flex-col gap-4">
           <div className="settings-card">
@@ -623,7 +623,7 @@ export default function Import() {
           <div className="settings-card">
             <div className="lbl">{S.import.importToCollectionHeading}</div>
             <select value={readingCollection} onChange={e => setReadingCollection(e.target.value)}
-              className="w-full py-[9px] px-3 rounded-md border bg-bg text-ink font-zh text-sm outline-none focus:border-accent"
+              className="w-full py-[9px] px-3 rounded-md border bg-bg text-ink font-zh text-md outline-none focus:border-accent"
               style={{ borderColor: 'var(--border)' }}>
               <option value="">{S.import.selectCollectionPlaceholder}</option>
               {readingCollections.map(c => (
@@ -631,7 +631,7 @@ export default function Import() {
               ))}
             </select>
             <div className="mt-2 flex items-center gap-2">
-              <span className="font-zh text-[11px] text-ink-3">{S.import.orCreateNewLabel}</span>
+              <span className="font-zh text-xs text-ink-3">{S.import.orCreateNewLabel}</span>
               <input value={readingNewColName} onChange={e => setReadingNewColName(e.target.value)}
                 placeholder={S.import.newCollectionNamePlaceholder}
                 className="flex-1 py-[6px] px-2 rounded border bg-bg text-ink font-zh text-xs outline-none focus:border-accent"
@@ -657,7 +657,7 @@ export default function Import() {
         <button onClick={goBack} className="tb-btn">
           <BackIcon />
         </button>
-        <h1 className="flex-1 font-zh text-[17px] font-medium text-ink pl-1">{S.import.pageTitle}</h1>
+        <h1 className="flex-1 font-zh text-xl font-medium text-ink pl-1">{S.import.pageTitle}</h1>
       </header>
 
       <main className="flex-1 overflow-y-auto p-[18px] flex flex-col gap-4">
@@ -729,7 +729,7 @@ export default function Import() {
               <textarea className="textarea" value={pasteMd} onChange={(e) => setPasteMd(e.target.value)}
                 placeholder={S.import.pasteMarkdownPlaceholder} />
               <button onClick={handleReadingPaste} disabled={!pasteMd.trim()}
-                className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-md font-body text-sm font-medium active:scale-[0.97] transition-transform disabled:opacity-40"
+                className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-md font-body text-md font-medium active:scale-[0.97] transition-transform disabled:opacity-40"
                 style={{ background: 'var(--accent-soft)', color: 'var(--accent)', border: '1px solid var(--accent-line)' }}>
                 <PasteIcon size={16} /> {S.import.previewDoc}
               </button>
@@ -767,7 +767,7 @@ export default function Import() {
               <div className="kv-row"><span className="k">{S.import.quizOnlyLabel}</span><span className="v">{S.import.quizOnlyValue}</span></div>
             </div>
             {isNative() && (
-              <div className="text-[13px] text-ink-3 leading-relaxed font-zh text-center py-2 tracking-[0.04em]">
+              <div className="text-md text-ink-3 leading-relaxed font-zh text-center py-2 tracking-[0.04em]">
                 {S.import.autoBackupLocationNote}
               </div>
             )}
@@ -796,7 +796,7 @@ export default function Import() {
               <textarea className="textarea" value={pasteMd} onChange={(e) => setPasteMd(e.target.value)}
                 placeholder={S.import.pasteFlashcardPlaceholder} />
               <button onClick={handlePasteSubmit} disabled={!pasteMd.trim()}
-                className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-md font-body text-sm font-medium active:scale-[0.97] transition-transform disabled:opacity-40"
+                className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-md font-body text-md font-medium active:scale-[0.97] transition-transform disabled:opacity-40"
                 style={{ background: 'var(--accent-soft)', color: 'var(--accent)', border: '1px solid var(--accent-line)' }}>
                 <PasteIcon size={16} /> {S.import.parseAndPreview}
               </button>
@@ -812,12 +812,12 @@ export default function Import() {
         )}
 
         {importTab === 'md' && (
-          <div className="text-[13px] text-ink-2 leading-relaxed font-zh text-center py-2 tracking-[0.04em]">
+          <div className="text-md text-ink-2 leading-relaxed font-zh text-center py-2 tracking-[0.04em]">
             {S.import.notSureHowToPrepare}<Link to="/prompt-guide" style={{ color: 'var(--accent)' }}>{S.import.viewCardGuideLink}</Link>
           </div>
         )}
         {importTab === 'reading' && (
-          <div className="text-[13px] text-ink-3 leading-relaxed font-zh text-center py-2 tracking-[0.04em]">
+          <div className="text-md text-ink-3 leading-relaxed font-zh text-center py-2 tracking-[0.04em]">
             {S.import.manageInReadingNote}
           </div>
         )}
@@ -827,10 +827,10 @@ export default function Import() {
           className="flex items-center justify-between p-3.5 rounded-md border cursor-pointer hover:bg-bg-raised transition-colors mt-auto"
           style={{ borderColor: 'var(--border-soft)', background: 'var(--bg-card)' }}>
           <div>
-            <span className="font-zh text-[13px] text-ink-2">{S.import.restoreEntryLabel}</span>
-            <span className="font-zh text-[11px] text-ink-3 ml-2">{S.import.restoreEntryDetail}</span>
+            <span className="font-zh text-md text-ink-2">{S.import.restoreEntryLabel}</span>
+            <span className="font-zh text-xs text-ink-3 ml-2">{S.import.restoreEntryDetail}</span>
           </div>
-          <span className="text-ink-3 text-sm">›</span>
+          <span className="text-ink-3 text-md">›</span>
         </div>
       </main>
       <Toast message={toast} />

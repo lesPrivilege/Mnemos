@@ -18,7 +18,7 @@ export function TocPanel({ toc, onJump }) {
           onClick={() => onJump(item.id)}
           className="w-full text-left px-3 py-2 hover:bg-bg-raised transition-colors"
           style={{ paddingLeft: `${(item.level - 1) * 12 + 12}px` }}>
-          <span className="font-zh text-[13px] text-ink truncate block">{item.text}</span>
+          <span className="font-zh text-md text-ink truncate block">{item.text}</span>
         </button>
       ))}
     </div>
@@ -38,17 +38,17 @@ export function HighlightsPanel({ highlights, onDelete }) {
         </div>
       ) : highlights.map(h => (
         <div key={h.id} className="px-3 py-3 border-b group" style={{ borderColor: 'var(--border-soft)' }}>
-          <div className="font-zh text-[13px] text-ink leading-relaxed"
+          <div className="font-zh text-md text-ink leading-relaxed"
             style={{ borderLeft: '3px solid var(--accent)', paddingLeft: 8 }}>
             {h.selectedText}
           </div>
-          {h.note && <div className="font-zh text-[11px] text-ink-2 mt-2 italic">{h.note}</div>}
+          {h.note && <div className="font-zh text-xs text-ink-2 mt-2 italic">{h.note}</div>}
           <div className="flex items-center justify-between mt-2">
-            <span className="font-mono text-[9px] text-ink-4">
+            <span className="font-mono text-2xs text-ink-4">
               {new Date(h.createdAt).toLocaleDateString()}
             </span>
             <button onClick={() => onDelete(h.id)}
-              className="text-[11px] text-ink-3 hover:text-danger px-1.5 py-0.5 rounded transition-colors">
+              className="text-xs text-ink-3 hover:text-danger px-1.5 py-0.5 rounded transition-colors">
               {S.readerPanels.delete}
             </button>
           </div>
@@ -67,7 +67,7 @@ export function BookmarksPanel({ bookmarks, onJump, onDelete, onAddBookmark, onE
 
       {/* Add bookmark button */}
       <button onClick={() => onAddBookmark?.()}
-        className="w-full flex items-center gap-2 px-3 py-2.5 text-left text-[13px] font-body text-ink-2 hover:bg-bg-raised transition-colors border-b"
+        className="w-full flex items-center gap-2 px-3 py-2.5 text-left text-md font-body text-ink-2 hover:bg-bg-raised transition-colors border-b"
         style={{ borderColor: 'var(--border-soft)' }}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M12 5v14M5 12h14" /></svg>
         {S.readerPanels.addBookmark}
@@ -85,11 +85,11 @@ export function BookmarksPanel({ bookmarks, onJump, onDelete, onAddBookmark, onE
           className="px-3 py-2 hover:bg-bg-raised cursor-pointer flex items-center justify-between group"
           onClick={() => onJump(bm)}>
           <div className="flex-1 min-w-0">
-            <div className="font-zh text-[13px] text-ink truncate">{bm.title}</div>
-            <div className="font-mono text-[10px] text-ink-3">{bm.scrollPct}%</div>
+            <div className="font-zh text-md text-ink truncate">{bm.title}</div>
+            <div className="font-mono text-2xs text-ink-3">{bm.scrollPct}%</div>
           </div>
           <button onClick={(e) => { e.stopPropagation(); onDelete(bm.id) }}
-            className="text-[11px] text-ink-3 hover:text-danger px-1.5 py-0.5 rounded transition-colors">
+            className="text-xs text-ink-3 hover:text-danger px-1.5 py-0.5 rounded transition-colors">
             {S.readerPanels.delete}
           </button>
         </div>
@@ -100,14 +100,14 @@ export function BookmarksPanel({ bookmarks, onJump, onDelete, onAddBookmark, onE
         <div className="border-t" style={{ borderColor: 'var(--border-soft)', marginTop: 'auto' }}>
           {canGenerateFlashcards && (
             <button onClick={() => onGenerateFlashcards?.()}
-              className="w-full flex items-center gap-2 px-3 py-2.5 text-left text-[13px] font-body text-ink-2 hover:bg-bg-raised transition-colors">
+              className="w-full flex items-center gap-2 px-3 py-2.5 text-left text-md font-body text-ink-2 hover:bg-bg-raised transition-colors">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M12 5v14M5 12h14" /></svg>
               {S.readerPanels.generateFlashcards}
             </button>
           )}
           {hasHighlights && (
             <button onClick={() => onExportHighlights?.()}
-              className="w-full flex items-center gap-2 px-3 py-2.5 text-left text-[13px] font-body text-ink-2 hover:bg-bg-raised transition-colors">
+              className="w-full flex items-center gap-2 px-3 py-2.5 text-left text-md font-body text-ink-2 hover:bg-bg-raised transition-colors">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M12 4v12M6 10l6-6 6 6M4 20h16" /></svg>
               {S.readerPanels.exportHighlightsAction}
             </button>

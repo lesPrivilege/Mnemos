@@ -210,10 +210,10 @@ export default function DeckDetail() {
               if (e.key === 'Enter') e.target.blur()
               else if (e.key === 'Escape') { setEditingName(false) }
             }}
-            className="flex-1 font-zh text-[17px] font-medium text-ink bg-transparent border-b border-accent outline-none px-2" />
+            className="flex-1 font-zh text-xl font-medium text-ink bg-transparent border-b border-accent outline-none px-2" />
         ) : (
           <h1 onClick={() => { setEditingName(true); setNameInput(deck.name) }}
-            className="flex-1 font-zh text-[17px] font-medium text-ink truncate cursor-pointer hover:text-accent transition-colors pl-1">
+            className="flex-1 font-zh text-xl font-medium text-ink truncate cursor-pointer hover:text-accent transition-colors pl-1">
             {deck.name}
           </h1>
         )}
@@ -230,15 +230,15 @@ export default function DeckDetail() {
                   role="menu"
                   style={{ border: '1px solid var(--border-soft)' }}>
                   <button onClick={() => { setShowDeckMenu(false); setEditingName(true); setNameInput(deck.name) }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">
+                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">
                     <EditIcon size={15} /> {S.deckDetail.rename}
                   </button>
                   <button onClick={() => { setShowDeckMenu(false); togglePin(id); refresh() }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">
+                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">
                     <PinIcon size={15} /> {deck.pinned ? S.deckDetail.unpinDeck : S.deckDetail.pinDeck}
                   </button>
                   <button onClick={() => { setShowDeckMenu(false); editing ? exitEdit() : setEditing(true) }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">
+                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">
                     <EditIcon size={15} /> {editing ? S.deckDetail.finishEditing : S.deckDetail.batchEditCards}
                   </button>
                   <button onClick={() => {
@@ -248,15 +248,15 @@ export default function DeckDetail() {
                     const blob = new Blob([json], { type: 'application/json' })
                     downloadBlob(blob, `${deck.name || 'deck'}.json`)
                   }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">
+                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">
                     <DownloadIcon size={15} /> {S.deckDetail.exportDeck}
                   </button>
                   <button onClick={() => { setShowDeckMenu(false); handleResetProgress() }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">
+                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">
                     <RefreshIcon size={15} /> {S.deckDetail.resetProgressMenu}
                   </button>
                   <button onClick={() => { setShowDeckMenu(false); handleDeleteDeck() }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-body text-danger hover:bg-bg-raised transition-colors" role="menuitem">
+                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-danger hover:bg-bg-raised transition-colors" role="menuitem">
                     <TrashIcon size={15} /> {S.deckDetail.deleteDeckMenu}
                   </button>
                 </div>
@@ -277,12 +277,12 @@ export default function DeckDetail() {
               {suspendedCount > 0 && <><span className="sep">·</span><span style={{ color: 'var(--warn)' }}>{S.deckDetail.pausedPrefix}{suspendedCount}</span></>}
             </div>
             <div className="dd-meta" style={{ marginTop: 4 }}>
-              <span className="font-mono text-[10px]" style={{ color: 'var(--danger)' }}>{S.deckDetail.weakPrefix}{tiers.weak}</span>
+              <span className="font-mono text-2xs" style={{ color: 'var(--danger)' }}>{S.deckDetail.weakPrefix}{tiers.weak}</span>
               <span className="sep">·</span>
-              <span className="font-mono text-[10px]" style={{ color: 'var(--accent)' }}>{S.deckDetail.midPrefix}{tiers.mid}</span>
+              <span className="font-mono text-2xs" style={{ color: 'var(--accent)' }}>{S.deckDetail.midPrefix}{tiers.mid}</span>
               <span className="sep">·</span>
-              <span className="font-mono text-[10px]" style={{ color: 'var(--good)' }}>{S.deckDetail.solidPrefix}{tiers.solid}</span>
-              {tiers.new > 0 && <><span className="sep">·</span><span className="font-mono text-[10px]" style={{ color: 'var(--ink-3)' }}>{S.deckDetail.newPrefix}{tiers.new}</span></>}
+              <span className="font-mono text-2xs" style={{ color: 'var(--good)' }}>{S.deckDetail.solidPrefix}{tiers.solid}</span>
+              {tiers.new > 0 && <><span className="sep">·</span><span className="font-mono text-2xs" style={{ color: 'var(--ink-3)' }}>{S.deckDetail.newPrefix}{tiers.new}</span></>}
             </div>
             <div className="dd-progress">
               <div className="bar" style={{ transform: `scaleX(${total > 0 ? learned / total : 0})` }} />
@@ -432,7 +432,7 @@ export default function DeckDetail() {
           <div className="mx-[18px] mb-4 flex gap-2">
             {selected.size > 0 && (
               <button onClick={handleBatchDelete}
-                className="flex-1 py-2.5 rounded-md font-body text-sm text-danger border active:scale-[0.97] transition-transform"
+                className="flex-1 py-2.5 rounded-md font-body text-md text-danger border active:scale-[0.97] transition-transform"
                 style={{ borderColor: 'color-mix(in oklch, var(--danger) 30%, transparent)' }}>
                 {S.deckDetail.batchDeleteLabel(selected.size)}
               </button>
@@ -445,7 +445,7 @@ export default function DeckDetail() {
               setEditing(false)
               refresh()
             }}
-              className="flex-1 py-2.5 rounded-md font-body text-sm text-danger border active:scale-[0.97] transition-transform"
+              className="flex-1 py-2.5 rounded-md font-body text-md text-danger border active:scale-[0.97] transition-transform"
               style={{ borderColor: 'color-mix(in oklch, var(--danger) 30%, transparent)' }}>
               {S.deckDetail.deleteAllButton}
             </button>
@@ -485,11 +485,11 @@ export default function DeckDetail() {
       {previewCard && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6" style={{ background: 'var(--scrim)' }} onClick={() => setPreviewCard(null)}>
           <div className="bg-bg-card rounded-lg p-5 max-w-sm w-full border border-border-soft" style={{ border: '1px solid var(--border-soft)' }} onClick={e => e.stopPropagation()}>
-            <div className="font-body text-[10px] text-ink-3 mb-2 tracking-wider">{S.deckDetail.previewFrontLabel}</div>
-            <div className="font-zh text-[15px] text-ink mb-3 max-h-40 overflow-y-auto"><PreviewContent text={previewCard.front} /></div>
-            <div className="font-body text-[10px] text-ink-3 mb-2 tracking-wider">{S.deckDetail.previewBackLabel}</div>
-            <div className="font-zh text-[14px] card-content max-h-48 overflow-y-auto"><PreviewContent text={previewCard.back} /></div>
-            <button onClick={() => setPreviewCard(null)} className="mt-4 w-full py-2 rounded-md text-sm font-body text-ink-2 border" style={{ borderColor: 'var(--border)' }}>{S.deckDetail.close}</button>
+            <div className="font-body text-2xs text-ink-3 mb-2 tracking-wider">{S.deckDetail.previewFrontLabel}</div>
+            <div className="font-zh text-lg text-ink mb-3 max-h-40 overflow-y-auto"><PreviewContent text={previewCard.front} /></div>
+            <div className="font-body text-2xs text-ink-3 mb-2 tracking-wider">{S.deckDetail.previewBackLabel}</div>
+            <div className="font-zh text-lg card-content max-h-48 overflow-y-auto"><PreviewContent text={previewCard.back} /></div>
+            <button onClick={() => setPreviewCard(null)} className="mt-4 w-full py-2 rounded-md text-md font-body text-ink-2 border" style={{ borderColor: 'var(--border)' }}>{S.deckDetail.close}</button>
           </div>
         </div>
       )}
@@ -537,10 +537,10 @@ function CardRow({ card, editing, selected, onToggleSelect, onEdit, onDelete, is
             </svg>
           )}
         </div>
-        <span className="text-sm text-ink truncate flex-1">{card.front}</span>
+        <span className="text-md text-ink truncate flex-1">{card.front}</span>
         {card.starred && <span className="text-xs shrink-0 text-accent">★</span>}
         {!isRecall(card) && (
-          <span className="font-body text-[9px] px-1.5 py-0.5 rounded border text-ink-3 shrink-0" style={{ borderColor: 'var(--border)' }}>REF</span>
+          <span className="font-body text-2xs px-1.5 py-0.5 rounded border text-ink-3 shrink-0" style={{ borderColor: 'var(--border)' }}>REF</span>
         )}
       </div>
     )
@@ -554,16 +554,16 @@ function CardRow({ card, editing, selected, onToggleSelect, onEdit, onDelete, is
         {isRecall(card) && (
           <span style={{ width: 6, height: 6, borderRadius: '50%', background: tierColor, flexShrink: 0, marginLeft: 2 }} />
         )}
-        <span className="front" style={{ fontSize: 13, paddingLeft: isRecall(card) ? 4 : 6 }}>{card.front}</span>
+        <span className="front" style={{ fontSize: 'var(--text-md)', paddingLeft: isRecall(card) ? 4 : 6 }}>{card.front}</span>
         {card.starred && <span className="star">★</span>}
         {!isRecall(card) && (
           <span className="q-tag-mini">REF</span>
         )}
         <div className="hidden group-hover:flex group-focus-within:flex gap-1 shrink-0 ml-1">
           <button onClick={(e) => { e.stopPropagation(); onEdit() }}
-            className="text-[11px] px-1.5 py-0.5 rounded border text-ink-2" style={{ borderColor: 'var(--border)' }}>{S.deckDetail.editCard}</button>
+            className="text-xs px-1.5 py-0.5 rounded border text-ink-2" style={{ borderColor: 'var(--border)' }}>{S.deckDetail.editCard}</button>
           <button onClick={async (e) => { e.stopPropagation(); const ok = await confirm({ title: S.deckDetail.deleteCardTitle, message: S.deckDetail.deleteCardMessage, confirmLabel: S.deckDetail.confirmDelete }); if (ok) onDelete() }}
-            className="text-[11px] px-1.5 py-0.5 rounded border text-danger" style={{ borderColor: 'color-mix(in oklch, var(--danger) 30%, transparent)' }}>{S.deckDetail.deleteCard}</button>
+            className="text-xs px-1.5 py-0.5 rounded border text-danger" style={{ borderColor: 'color-mix(in oklch, var(--danger) 30%, transparent)' }}>{S.deckDetail.deleteCard}</button>
         </div>
       </div>
   )

@@ -45,7 +45,7 @@ function TreeNode({ node, depth, onLeafTap }) {
         {hasChildren ? (
           <span style={{
             display: 'inline-flex', width: 16, justifyContent: 'center',
-            fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--ink-3)',
+            fontFamily: 'var(--font-ui)', fontSize: 'var(--text-sm)', color: 'var(--ink-3)',
             transform: open ? 'rotate(90deg)' : 'rotate(0deg)',
             transition: 'transform var(--motion-quick)',
           }}>›</span>
@@ -54,10 +54,10 @@ function TreeNode({ node, depth, onLeafTap }) {
         )}
 
         {/* Label */}
-        <span className="font-zh text-[13px] text-ink truncate flex-1">{node.label}</span>
+        <span className="font-zh text-md text-ink truncate flex-1">{node.label}</span>
 
         {/* Count */}
-        <span className="font-mono text-[10px] text-ink-3">{node.count}</span>
+        <span className="font-mono text-2xs text-ink-3">{node.count}</span>
 
         {/* Tier bar */}
         {node.tiers && <TierBar tiers={node.tiers} />}

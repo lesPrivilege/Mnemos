@@ -402,7 +402,7 @@ export default function Review() {
       <div className="rv-meta">
         <span className="crumb">
           {card.chapter && <>{card.chapter}{card.section && <span className="div">/</span>}{card.section}</>}
-          {isLearning && <span style={{ marginLeft: 8, fontSize: 10, color: 'var(--accent)', fontWeight: 500 }}>{S.review.learningPrefix}{passCount + 1}/2</span>}
+          {isLearning && <span style={{ marginLeft: 8, fontSize: 'var(--text-2xs)', color: 'var(--accent)', fontWeight: 500 }}>{S.review.learningPrefix}{passCount + 1}/2</span>}
         </span>
         <span className="pos">
           <span className="now">{String(currentIndex + 1).padStart(2, '0')}</span> / {String(dueCards.length).padStart(2, '0')}
@@ -451,7 +451,7 @@ export default function Review() {
           style={{
             position: 'fixed', bottom: 100, left: '50%', transform: 'translateX(-50%)',
             background: 'var(--ink)', color: 'var(--bg)',
-            padding: '8px 16px', borderRadius: 999, fontSize: 12,
+            padding: '8px 16px', borderRadius: 999, fontSize: 'var(--text-sm)',
             fontFamily: 'var(--font-ui)', cursor: 'pointer',
             boxShadow: 'var(--shadow-md)', zIndex: 50,
             animation: 'fadeIn var(--motion-mid)',

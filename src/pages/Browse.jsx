@@ -14,18 +14,18 @@ function CardFace({ card, flipped }) {
   return flipped ? (
       <div className="absolute inset-0">
         <div className="h-full relative flex flex-col" style={{ padding: '22px 20px 20px' }}>
-          <div className="absolute top-[14px] left-4 font-body text-[10px] tracking-[0.1em] text-ink-3 flex gap-1.5 items-center">
+          <div className="absolute top-[14px] left-4 font-body text-2xs tracking-[0.1em] text-ink-3 flex gap-1.5 items-center">
             <span style={{ color: 'var(--accent)', fontWeight: 500, letterSpacing: '0.02em', fontFamily: 'var(--font-mono)' }}>A</span><span>{S.browse.backLabel}</span>
           </div>
           <div className="flex-1 flex flex-col items-stretch justify-start text-left gap-3.5 p-2 pt-8 pb-6">
-            <div className="card-content font-zh text-[16px] text-ink-2"
+            <div className="card-content font-zh text-xl text-ink-2"
               style={{ maxHeight: '20vh', overflowY: 'auto' }}
               dangerouslySetInnerHTML={{ __html: frontHtml }} />
             <div className="w-full px-2 flex items-center gap-2.5" aria-hidden="true">
               <span className="flex-1 h-px" style={{ background: 'var(--border-soft)' }} />
               <span className="flex-1 h-px" style={{ background: 'var(--border-soft)' }} />
             </div>
-            <div className="card-content font-zh text-base leading-[1.85] text-teal text-left self-stretch tracking-wide"
+            <div className="card-content font-zh text-lg leading-[1.85] text-teal text-left self-stretch tracking-wide"
               style={{ maxHeight: '35vh', overflowY: 'auto' }}
               dangerouslySetInnerHTML={{ __html: backHtml }} />
           </div>
@@ -36,11 +36,11 @@ function CardFace({ card, flipped }) {
       <div className="absolute inset-0">
         <div className="h-full relative flex flex-col"
           style={{ padding: '22px 20px 20px' }}>
-          <div className="absolute top-[14px] left-4 font-body text-[10px] tracking-[0.1em] text-ink-3 flex gap-1.5 items-center">
+          <div className="absolute top-[14px] left-4 font-body text-2xs tracking-[0.1em] text-ink-3 flex gap-1.5 items-center">
             <span style={{ color: 'var(--accent)', fontWeight: 500, letterSpacing: '0.02em', fontFamily: 'var(--font-mono)' }}>Q</span><span>{S.browse.frontLabel}</span>
           </div>
           <div className="flex-1 flex flex-col items-stretch justify-start text-left gap-3.5 p-2 pt-8 pb-6">
-            <div className="card-content font-zh text-[18px] font-medium leading-relaxed tracking-wide"
+            <div className="card-content font-zh text-2xl font-medium leading-relaxed tracking-wide"
               style={{ color: 'var(--ink)' }}
               dangerouslySetInnerHTML={{ __html: frontHtml }} />
           </div>
@@ -121,7 +121,7 @@ export default function Browse() {
           <button onClick={goBack} className="tb-btn">
             <BackIcon />
           </button>
-          <h1 className="flex-1 font-zh text-[17px] font-medium text-ink pl-1">{S.browse.title}</h1>
+          <h1 className="flex-1 font-zh text-xl font-medium text-ink pl-1">{S.browse.title}</h1>
         </header>
         <div className="empty">
           <div className="msg">{S.browse.empty}</div>
@@ -140,7 +140,7 @@ export default function Browse() {
         <button onClick={goBack} className="tb-btn">
           <BackIcon />
         </button>
-        <span className="font-mono text-[11px]">
+        <span className="font-mono text-xs">
           <span className="text-ink font-medium">{currentIndex + 1}</span>
           <span className="text-ink-3"> / {cards.length}</span>
         </span>
@@ -158,7 +158,7 @@ export default function Browse() {
           const suspended = toggleSuspended(card.id)
           setCards(prev => prev.map((c, i) => i === currentIndex ? { ...c, suspended } : c))
         }}
-          className="tb-btn font-zh text-[9px] tracking-wider"
+          className="tb-btn font-zh text-2xs tracking-wider"
           style={{ color: card.suspended ? 'var(--warn)' : 'var(--ink-3)' }}>
           {card.suspended ? S.browse.restore : S.browse.pause}
         </button>
@@ -166,14 +166,14 @@ export default function Browse() {
 
       {/* Breadcrumb */}
       {(card.chapter || card.section || card.suspended || card.leech) && (
-        <div className="px-[18px] pt-3 flex items-center justify-between font-body text-[11px] text-ink-3">
+        <div className="px-[18px] pt-3 flex items-center justify-between font-body text-xs text-ink-3">
           <span className="font-zh text-ink-2 text-xs flex items-center gap-1.5">
             {card.chapter}{card.section && <><span className="text-ink-4 mx-1">›</span>{card.section}</>}
-            {card.suspended && <span className="px-1.5 py-0.5 rounded text-[9px] font-medium" style={{ background: 'var(--warn-soft)', color: 'var(--warn)' }}>{S.browse.paused}</span>}
+            {card.suspended && <span className="px-1.5 py-0.5 rounded text-2xs font-medium" style={{ background: 'var(--warn-soft)', color: 'var(--warn)' }}>{S.browse.paused}</span>}
             {/* font-body here fixes a pre-existing mismatch: this literal was inheriting
                 --font-zh from the wrapper span below, caught as a byproduct of this
                 commit's font-family audit rather than something newly introduced. */}
-            {card.leech && <span className="px-1.5 py-0.5 rounded text-[9px] font-medium font-body" style={{ background: 'var(--danger-soft)', color: 'var(--danger)' }}>LEECH</span>}
+            {card.leech && <span className="px-1.5 py-0.5 rounded text-2xs font-medium font-body" style={{ background: 'var(--danger-soft)', color: 'var(--danger)' }}>LEECH</span>}
           </span>
           <span className="tracking-wider">BROWSE</span>
         </div>
@@ -201,12 +201,12 @@ export default function Browse() {
       {/* Navigation */}
       <div className="grid grid-cols-2 gap-2 px-[18px] pb-[18px]">
         <button onClick={goPrev} disabled={currentIndex === 0}
-          className="inline-flex items-center justify-center gap-1.5 py-3 rounded-md font-medium text-sm font-body border text-ink-2 active:scale-[0.97] transition-transform disabled:opacity-30"
+          className="inline-flex items-center justify-center gap-1.5 py-3 rounded-md font-medium text-md font-body border text-ink-2 active:scale-[0.97] transition-transform disabled:opacity-30"
           style={{ borderColor: 'var(--border)' }}>
           <ArrowLIcon size={16} /> {S.browse.prevCard}
         </button>
         <button onClick={goNext} disabled={currentIndex >= cards.length - 1}
-          className="inline-flex items-center justify-center gap-1.5 py-3 rounded-md font-medium text-sm font-body border text-ink-2 active:scale-[0.97] transition-transform disabled:opacity-30"
+          className="inline-flex items-center justify-center gap-1.5 py-3 rounded-md font-medium text-md font-body border text-ink-2 active:scale-[0.97] transition-transform disabled:opacity-30"
           style={{ borderColor: 'var(--border)' }}>
           {S.browse.nextCard} <ArrowRIcon size={16} />
         </button>
