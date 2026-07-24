@@ -11,11 +11,6 @@
   },
   {
     "gate": "source-single",
-    "file": "pages/Review.jsx",
-    "match": "transition: swipeRef.current.committed ? 'transform 180ms ease-out' : (Math.abs(swipeOffset) < 5 ? 'transform 15"
-  },
-  {
-    "gate": "source-single",
     "file": "pages/Settings.jsx",
     "match": "background: `oklch(60% 0.10 ${60 + hue * 55})`,"
   }

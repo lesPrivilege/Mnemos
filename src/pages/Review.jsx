@@ -416,7 +416,7 @@ export default function Review() {
         onTouchEnd={handleTouchEnd}
         style={swipeOffset ? {
           transform: `translateX(${swipeOffset}px) rotate(${swipeOffset / 40}deg)`,
-          transition: swipeRef.current.committed ? 'transform 180ms ease-out' : (Math.abs(swipeOffset) < 5 ? 'transform 150ms ease-out' : 'none'),
+          transition: swipeRef.current.committed ? 'transform var(--motion-mid)' : (Math.abs(swipeOffset) < 5 ? 'transform var(--motion-quick)' : 'none'),
         } : undefined}>
         <ReviewCard
           card={card}
@@ -452,7 +452,7 @@ export default function Review() {
             position: 'fixed', bottom: 100, left: '50%', transform: 'translateX(-50%)',
             background: 'var(--ink)', color: 'var(--bg)',
             padding: '8px 16px', borderRadius: 999, fontSize: 12,
-            fontFamily: 'var(--font-zh)', cursor: 'pointer',
+            fontFamily: 'var(--font-ui)', cursor: 'pointer',
             boxShadow: 'var(--shadow-md)', zIndex: 50,
             animation: 'fadeIn var(--motion-mid)',
           }}>
@@ -460,7 +460,6 @@ export default function Review() {
         </div>
       )}
 
-      <style>{`@keyframes fadeIn { from { opacity: 0; transform: translateX(-50%) translateY(8px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }`}</style>
     </div>
   )
 }

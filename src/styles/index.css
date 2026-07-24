@@ -193,6 +193,12 @@ a { color: inherit; text-decoration: none; }
     transform: translateX(-50%) translateY(8px);
   }
 }
+/* 浮签入场（Review 撤销签、Reader 存签共用；原有两处同名定义并档于此） */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
 .dropzone .icon {
   width: 36px; height: 36px; border-radius: 50%;
   background: var(--bg-card); border: 1px solid var(--border);
@@ -647,7 +653,6 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* ─────── Flip state ─────── */
-.flip-card { perspective: none; }
 .flip-inner {
   width: 100%; height: 100%;
   position: relative;
