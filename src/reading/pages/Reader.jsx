@@ -57,6 +57,8 @@ export default function Reader() {
   }
 
   useEffect(() => {
+    // 换文档先复位断链态——否则由不存在之文档转入存在者，仍滞留「未找到」
+    setMissing(false)
     const d = getDocument(id)
     // 断链不静默：不见页有返回径，不再无声 goBack（病2 修）
     if (!d) { setMissing(true); return }
