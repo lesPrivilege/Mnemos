@@ -44,8 +44,8 @@ a { color: inherit; text-decoration: none; }
   gap: 8px;
 }
 .topbar h1 {
-  /* 标题归宋（记-07）：页面题与内容名同族，重与大者为题 */
-  font-family: var(--font-zh);
+  /* 题属 UI 层，归器轨（宋之重，记-10） */
+  font-family: var(--font-ui);
   font-weight: 600;
   font-size: 17px;
   letter-spacing: 0;
@@ -412,7 +412,7 @@ a { color: inherit; text-decoration: none; }
   gap: 3px;
 }
 .settings-subject-copy span {
-  font-family: var(--font-zh);
+  font-family: var(--font-ui);
   font-size: 13px;
   color: var(--ink);
   white-space: nowrap;
@@ -558,7 +558,7 @@ a { color: inherit; text-decoration: none; }
   color: var(--ink-3);
 }
 .rv-meta .crumb {
-  font-family: var(--font-zh);
+  font-family: var(--font-ui);
   color: var(--ink-2);
   font-size: 12px;
   display: flex; align-items: center; gap: 6px;
@@ -762,7 +762,7 @@ a { color: inherit; text-decoration: none; }
 }
 .ch-caret.open { transform: rotate(90deg); }
 .ch-name {
-  font-family: var(--font-zh); font-size: 14px; font-weight: 500;
+  font-family: var(--font-ui); font-size: 14px; font-weight: 500;
   color: var(--ink); flex: 1;
 }
 .ch-count {
@@ -777,7 +777,7 @@ a { color: inherit; text-decoration: none; }
   transition: background var(--motion-quick);
 }
 .sec-row:hover { background: var(--bg-raised); }
-.sec-row .ch-name { font-size: 13px; font-weight: 400; color: var(--ink-2); font-family: var(--font-zh); }
+.sec-row .ch-name { font-size: 13px; font-weight: 400; color: var(--ink-2); font-family: var(--font-ui); }
 
 /* ─────── Section title ─────── */
 .section-title {

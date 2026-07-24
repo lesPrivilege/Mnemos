@@ -56,13 +56,14 @@
 
   --r-sm: 2px; --r-md: 4px; --r-lg: 6px; --r-xl: 10px;
 
-  /* 字轨四声（记-07，主令 2026-07-24）——
-     文：多字重宋，拉丁与数字前置 Times（Android 无 Times，降级至系统衬线拉丁，记-09）；
-     器：仿宋承注疏声（朱雀子集 368KB，见 src/styles/fonts.css 牌记），黑体只存栈底兜底；
-     展示：Times 系（Source Serif 4 已退役入账）；数据：mono 唯真数据。 */
-  --font-zh:    'Times New Roman', 'Noto Serif SC', 'Songti SC', Georgia, serif;
+  /* 字轨四声（记-10，主令 2026-07-24 再翻转）——UI 层与内容层解耦：
+     器（UI）：多字重宋立层级，UI 拉丁前置 Times，栈尾收 serif 泛族——黑体全路径无落点；
+     文（内容正文）：朱雀仿宋（常用级子集，其自带罗马体与仿宋相称，故拉丁不另前置），
+       罕字回退系统仿宋再回退宋；「同版异纸」：内容纸切换见下方 :root.content-song；
+     展示：Times 系；数据：mono 唯真数据，公式 KaTeX 自字体（terminal 声不动）。 */
+  --font-zh:    'Zhuque Fangsong (technical preview)', 'FangSong', 'STFangsong', 'Noto Serif SC', 'Songti SC', serif;
   --font-disp:  'Times New Roman', 'Noto Serif SC', Georgia, serif;
-  --font-ui:    'Zhuque Fangsong (technical preview)', 'FangSong', 'STFangsong', system-ui, sans-serif;
+  --font-ui:    'Times New Roman', 'Noto Serif SC', 'Songti SC', Georgia, serif;
   --font-mono:  'JetBrains Mono', ui-monospace, monospace;
 
   /* ─────── Type scale (Dynamic Type-ready) ───────
@@ -131,6 +132,12 @@
   --surface-chrome-border: var(--border-soft);
   --surface-raised:        var(--bg-raised);
   --surface-overlay:       var(--bg-card);
+}
+
+/* 同版异纸（第五条，记-10）：内容纸之宋刻本——切换只发生在此，组件零分支。
+   偏好键 mnemos-content-font，Settings 阅读区设入口。 */
+:root.content-song {
+  --font-zh: 'Times New Roman', 'Noto Serif SC', 'Songti SC', Georgia, serif;
 }
 
 :root.dark {

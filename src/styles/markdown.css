@@ -1,7 +1,13 @@
 .card-content {
-  font-family: "Noto Serif SC", "Songti SC", Georgia, serif;
+  /* 内容正文总承文轨（记-10）：仿宋为默认纸，:root.content-song 换宋纸 */
+  font-family: var(--font-zh);
   word-break: break-word;
   overflow-wrap: break-word;
+}
+
+/* 题宋文仿：内容视图内的标题与强调取宋之重；代码与公式在下方各自守 mono/KaTeX */
+.card-content :is(h1, h2, h3, h4, strong, b) {
+  font-family: var(--font-ui);
 }
 
 .card-content ::selection {
