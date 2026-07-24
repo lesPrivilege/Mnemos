@@ -391,7 +391,7 @@ export default function Review() {
 
       {/* Progress bar */}
       <div className="rv-progress">
-        <div className="bar" style={{ width: `${(currentIndex / dueCards.length) * 100}%` }} />
+        <div className="bar" style={{ transform: `scaleX(${dueCards.length ? currentIndex / dueCards.length : 0})` }} />
       </div>
 
       {/* Meta */}

@@ -156,7 +156,7 @@ export default function SetDetail() {
               <span style={{ color: accuracy < 60 ? 'var(--danger)' : 'var(--good)' }}>{accuracy}%</span>
             </div>
             <div className="dd-progress">
-              <div className="bar teal" style={{ width: `${accuracy}%` }} />
+              <div className="bar teal" style={{ transform: `scaleX(${(accuracy || 0) / 100})` }} />
             </div>
             <div className="dd-progress-row">
               <span>{S.setDetail.accuracyLabel}</span>

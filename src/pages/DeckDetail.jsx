@@ -287,7 +287,7 @@ export default function DeckDetail() {
               {tiers.new > 0 && <><span className="sep">·</span><span className="font-mono text-[10px]" style={{ color: 'var(--ink-3)' }}>{S.deckDetail.newPrefix}{tiers.new}</span></>}
             </div>
             <div className="dd-progress">
-              <div className="bar" style={{ width: `${total > 0 ? (learned / total) * 100 : 0}%` }} />
+              <div className="bar" style={{ transform: `scaleX(${total > 0 ? learned / total : 0})` }} />
             </div>
             <div className="dd-progress-row">
               <span>{S.deckDetail.progressLabel}</span>

@@ -247,7 +247,7 @@ export default function ReviewQuestion() {
 
       {/* Progress */}
       <div className="rv-progress">
-        <div className="bar" style={{ width: `${(currentIndex / questions.length) * 100}%` }} />
+        <div className="bar" style={{ transform: `scaleX(${questions.length ? currentIndex / questions.length : 0})` }} />
       </div>
 
       {/* Meta */}
