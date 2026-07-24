@@ -189,6 +189,15 @@ export default function Quiz() {
           <button className="tb-btn" onClick={() => goBack()} aria-label={S.quizPage.back}><BackIcon /></button>
           <h1 className="zh" style={{ flex: 1, paddingLeft: 4 }}>{chapter || getSubjectDisplayName(subject)}{S.quizPage.subjectHeadingSuffix}</h1>
         </div>
+        {/* 空态之下一步（病2）：提示所指的筛选器就在眼前 */}
+        <div className="px-[18px] pt-2 pb-1 flex gap-1.5 flex-wrap">
+          {MODES.map(m => (
+            <button key={m.key} onClick={() => setMode(m.key)}
+              className={`chip ${mode === m.key ? 'on' : ''}`}>
+              {m.label}
+            </button>
+          ))}
+        </div>
         <div className="page-scroll">
           <div className="empty">
             <div className="msg">{S.quiz.noQuestions}</div>

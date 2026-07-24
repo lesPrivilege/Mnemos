@@ -9,6 +9,7 @@ import { addReviewEntry } from '../lib/reviewLog'
 import { useBackButton } from '../lib/useBackButton'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 import { S } from '../lib/strings'
+import { pressable } from '../lib/a11y'
 import '../styles/markdown.css'
 
 const MODES = [
@@ -79,6 +80,8 @@ export default function ReviewQuestion() {
 
   const handleRate = (correct) => {
     if (!currentQuestion) return
+    // 未见答不评（记-08）：与 Review 同构的内层卫
+    if (!flipped) return
     const prog = markQuestion(currentQuestion.id, correct)
     setStats(prev => ({
       wrong: prev.wrong + (correct ? 0 : 1),
@@ -165,6 +168,14 @@ export default function ReviewQuestion() {
         <div className="topbar">
           <button className="tb-btn" onClick={() => goBack()} aria-label={S.quizReview.back}><BackIcon /></button>
           <h1 className="zh" style={{ flex: 1, paddingLeft: 4 }}>{chapter || getSubjectDisplayName(subject)}</h1>
+        </div>
+        <div className="px-[18px] pt-2 pb-1 flex gap-1.5 flex-wrap">
+          {MODES.map(m => (
+            <button key={m.key} onClick={() => setMode(m.key)}
+              className={`chip ${mode === m.key ? 'on' : ''}`}>
+              {m.label}
+            </button>
+          ))}
         </div>
         <div className="page-scroll">
           <div className="empty">
@@ -262,7 +273,9 @@ export default function ReviewQuestion() {
 
       {/* Scrollable card area */}
       <div className="rv-card-wrap page-scroll">
-        <div className="rv-card flip-card" onClick={() => !flipped && setFlipped(true)}
+        <div className="rv-card flip-card" aria-label={S.review.flipHint}
+          onClick={() => !flipped && setFlipped(true)}
+          {...pressable(() => !flipped && setFlipped(true))}
           style={{ flex: 1, minHeight: 0 }}>
           <div className={`flip-inner ${flipped ? 'flipped' : ''}`}>
             {/* FRONT */}

@@ -4,9 +4,11 @@ import { getCollection, getDocumentsByCollection, addDocument, deleteDocument, d
 import { readFileAsDocument } from '../lib/importer'
 import { BackIcon, UploadIcon, PlusIcon, TrashIcon, MoreIcon, PinIcon } from '../../components/Icons'
 import { useBackButton } from '../../lib/useBackButton'
+import NotFoundPage from '../../components/NotFoundPage'
 import { useToast, Toast } from '../../components/Toast'
 import { useConfirm, ConfirmSheet } from '../../components/ConfirmSheet'
 import { S } from '../../lib/strings'
+import { pressable } from '../../lib/a11y'
 
 export default function CollectionDetail() {
   const { id } = useParams()
@@ -100,11 +102,7 @@ export default function CollectionDetail() {
   // ── Not found ──────────────────────────────────────
 
   if (!col) {
-    return (
-      <div className="page-fill items-center justify-center text-ink-2">
-        {S.collectionDetail.notFound}
-      </div>
-    )
+    return <NotFoundPage title={S.collectionDetail.notFound} />
   }
 
   return (
@@ -170,12 +168,13 @@ export default function CollectionDetail() {
             <div className="card-list">
               {sorted.map(doc => (
                 <div key={doc.id} className="card-row group"
-                  onClick={() => navigate(`/reading/doc/${doc.id}?col=${id}`)}>
+                  onClick={() => navigate(`/reading/doc/${doc.id}?col=${id}`)}
+                  {...pressable(() => navigate(`/reading/doc/${doc.id}?col=${id}`))}>
                   <span className="dot-bullet" />
                   <span className="front" style={{ fontFamily: 'var(--font-ui)' }}>{doc.title}</span>
                   <span className="font-body text-[10px] text-ink-3 shrink-0">{doc.format.toUpperCase()}</span>
                   <button onClick={(e) => { e.stopPropagation(); handleDeleteDocument(doc.id) }}
-                    className="hidden group-hover:inline-flex items-center justify-center w-6 h-6 rounded text-ink-3 hover:text-danger transition-colors">
+                    className="hidden group-hover:inline-flex group-focus-within:inline-flex items-center justify-center w-6 h-6 rounded text-ink-3 hover:text-danger transition-colors">
                     <TrashIcon size={14} />
                   </button>
                 </div>

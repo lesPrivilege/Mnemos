@@ -1,4 +1,8 @@
 export const deckDetail = {
+  notFound: '卡组未找到',
+  notFoundHint: '它可能已被删除或尚未导入',
+  emptyCardsTitle: '暂无卡片',
+  emptyCardsHint: '新建或导入卡片即可开始',
   closeMenu: '关闭菜单',
   resetProgressTitle: '重置进度',
   resetProgressMessage: (deckName) => `重置「${deckName}」的学习进度？已收藏的卡片会保留。`,

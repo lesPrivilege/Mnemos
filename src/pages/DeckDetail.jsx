@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import CardEditor from '../components/CardEditor'
 import { BackIcon, PinIcon, MoreIcon, LayersIcon, SparkIcon, UploadIcon, PlusIcon, SearchIcon, EditIcon, TrashIcon, DownloadIcon, RefreshIcon } from '../components/Icons'
 import FloatingBar from '../components/FloatingBar'
+import NotFoundPage from '../components/NotFoundPage'
 import { isRecall } from '../lib/cardUtils'
 import { mastery, masteryTier, tierCounts } from '../lib/cardStats'
 import StructureTree from '../components/StructureTree'
@@ -14,6 +15,7 @@ import { downloadBlob } from '../lib/utils'
 import { useToast, Toast } from '../components/Toast'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 import { S } from '../lib/strings'
+import { pressable } from '../lib/a11y'
 import '../styles/markdown.css'
 
 function buildOutline(cards) {
@@ -185,11 +187,7 @@ export default function DeckDetail() {
   })()
 
   if (!deck) {
-    return (
-      <div className="page-fill items-center justify-center text-ink-2">
-        Deck not found
-      </div>
-    )
+    return <NotFoundPage title={S.deckDetail.notFound} hint={S.deckDetail.notFoundHint} />
   }
 
   return (
@@ -335,7 +333,12 @@ export default function DeckDetail() {
 
         {/* Card list / outline */}
         <div style={{ padding: '8px 0 24px' }}>
-          {viewMode === 'tree' ? (
+          {cards.length === 0 ? (
+            <div className="empty" style={{ margin: '0 18px' }}>
+              <div className="msg">{S.deckDetail.emptyCardsTitle}</div>
+              <div className="motto-zh">{S.deckDetail.emptyCardsHint}</div>
+            </div>
+          ) : viewMode === 'tree' ? (
             <div className="mx-[18px]">
               <StructureTree
                 nodes={treeNodes}
@@ -368,7 +371,8 @@ export default function DeckDetail() {
                 return (
                   <div key={chapterKey}>
                     <div onClick={() => toggleChapter(chapterKey)}
-                      className="ch-row">
+                      className="ch-row" aria-expanded={isChapterOpen}
+                      {...pressable(() => toggleChapter(chapterKey))}>
                       <span className={`ch-caret ${isChapterOpen ? 'open' : ''}`}>›</span>
                       <span className="ch-name">{chapter || S.deckDetail.uncategorized}</span>
                       <span className="ch-count">{chapterCount}</span>
@@ -394,7 +398,8 @@ export default function DeckDetail() {
                           return (
                             <div key={sectionKey}>
                               <div onClick={() => toggleSection(sectionKey)}
-                                className="sec-row">
+                                className="sec-row" aria-expanded={isSectionOpen}
+                                {...pressable(() => toggleSection(sectionKey))}>
                                 <span className={`ch-caret ${isSectionOpen ? 'open' : ''}`}>›</span>
                                 <span className="ch-name">{section}</span>
                                 <span className="ch-count">{sectionCards.length}</span>
@@ -483,7 +488,7 @@ export default function DeckDetail() {
             <div className="font-body text-[10px] text-ink-3 mb-2 tracking-wider">{S.deckDetail.previewFrontLabel}</div>
             <div className="font-zh text-[15px] text-ink mb-3 max-h-40 overflow-y-auto"><PreviewContent text={previewCard.front} /></div>
             <div className="font-body text-[10px] text-ink-3 mb-2 tracking-wider">{S.deckDetail.previewBackLabel}</div>
-            <div className="font-zh text-[14px] card-content max-h-48 overflow-y-auto" style={{ color: 'var(--teal)' }}><PreviewContent text={previewCard.back} /></div>
+            <div className="font-zh text-[14px] card-content max-h-48 overflow-y-auto"><PreviewContent text={previewCard.back} /></div>
             <button onClick={() => setPreviewCard(null)} className="mt-4 w-full py-2 rounded-md text-sm font-body text-ink-2 border" style={{ borderColor: 'var(--border)' }}>{S.deckDetail.close}</button>
           </div>
         </div>
@@ -520,7 +525,7 @@ function CardRow({ card, editing, selected, onToggleSelect, onEdit, onDelete, is
 
   if (editing) {
     return (
-      <div onClick={onToggleSelect}
+      <div onClick={onToggleSelect} {...pressable(onToggleSelect)}
         className={`flex items-center gap-2 py-2 px-2 rounded-md cursor-pointer transition-colors
           ${selected ? 'bg-accent/5 border border-accent' : 'border hover:bg-bg-raised'}`}
         style={{ borderColor: selected ? undefined : 'var(--border)' }}>
@@ -553,7 +558,7 @@ function CardRow({ card, editing, selected, onToggleSelect, onEdit, onDelete, is
         {!isRecall(card) && (
           <span className="q-tag-mini">REF</span>
         )}
-        <div className="hidden group-hover:flex gap-1 shrink-0 ml-1">
+        <div className="hidden group-hover:flex group-focus-within:flex gap-1 shrink-0 ml-1">
           <button onClick={(e) => { e.stopPropagation(); onEdit() }}
             className="text-[11px] px-1.5 py-0.5 rounded border text-ink-2" style={{ borderColor: 'var(--border)' }}>{S.deckDetail.editCard}</button>
           <button onClick={async (e) => { e.stopPropagation(); const ok = await confirm({ title: S.deckDetail.deleteCardTitle, message: S.deckDetail.deleteCardMessage, confirmLabel: S.deckDetail.confirmDelete }); if (ok) onDelete() }}

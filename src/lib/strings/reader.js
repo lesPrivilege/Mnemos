@@ -1,4 +1,8 @@
 export const reader = {
+  notFound: '文档未找到',
+  loadErrorTitle: '文档载入失败',
+  loadErrorHint: '内容读取出错，可重试或返回',
+  retryAction: '重试',
   tocTab: '目录',
   highlightsTab: '高亮',
   bookmarksTab: '书签',

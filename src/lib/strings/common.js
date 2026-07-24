@@ -3,4 +3,6 @@ export const common = {
   confirm: '确认',
   cancel: '取消',
   undo: '撤销',
+  back: '返回',
+  backAction: '返回上一页',
 }

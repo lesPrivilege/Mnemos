@@ -1,4 +1,5 @@
 export const setDetail = {
+  notFound: '题库未找到',
   closeMenu: '关闭菜单',
   deleteSubjectTitle: '删除科目',
   deleteSubjectMessage: (subjectName) => `删除科目「${subjectName}」及其全部题目与进度？此操作不可撤销。`,

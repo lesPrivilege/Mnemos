@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { BackIcon, RefreshIcon, UploadIcon, ArrowRIcon, MoreIcon, TrashIcon, StarIcon } from '../components/Icons'
 import FloatingBar from '../components/FloatingBar'
+import NotFoundPage from '../components/NotFoundPage'
 import { getSubjectStats, getChapterList, loadStarred, loadQuestions, loadProgress, deleteSubject, clearSubjectProgress } from '../quiz/lib/storage'
 import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
 import { tierCountsForQuestions } from '../quiz/lib/questionStats'
@@ -105,11 +106,7 @@ export default function SetDetail() {
   const accuracy = stats.done > 0 ? Math.round((stats.done - stats.wrong) / stats.done * 100) : 0
 
   if (!subject) {
-    return (
-      <div className="page-fill items-center justify-center text-ink-2">
-        Subject not found
-      </div>
-    )
+    return <NotFoundPage title={S.setDetail.notFound} />
   }
 
   return (

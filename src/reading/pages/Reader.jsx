@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getDocument, getDocumentContent, updateReadingProgress, getReadingSettings, updateReadingSettings } from '../lib/storage'
 import { useBackButton } from '../../lib/useBackButton'
+import NotFoundPage from '../../components/NotFoundPage'
 import { renderDoc, extractToc } from '../lib/renderDoc'
 import { getHighlightsByDoc, addHighlight, deleteHighlight } from '../lib/highlights'
 import { repaintHighlights } from '../lib/highlightAnchor'
@@ -27,6 +28,8 @@ export default function Reader() {
   const navigate = useNavigate()
   const { goBack } = useBackButton()
   const [doc, setDoc] = useState(null)
+  const [missing, setMissing] = useState(false)
+  const [loadError, setLoadError] = useState(false)
   const [html, setHtml] = useState('')
   const [toc, setToc] = useState([])
   const [settings, setSettings] = useState(getReadingSettings())
@@ -46,13 +49,19 @@ export default function Reader() {
 
   // ── Load document + session ─────────────────────────
 
+  const loadContent = (d) => {
+    setLoadError(false)
+    getDocumentContent(id)
+      .then(content => renderDoc(content, d.format).then(h => { setHtml(h); setToc(extractToc(h)) }))
+      .catch(() => setLoadError(true))
+  }
+
   useEffect(() => {
     const d = getDocument(id)
-    if (!d) { goBack(); return }
+    // 断链不静默：不见页有返回径，不再无声 goBack（病2 修）
+    if (!d) { setMissing(true); return }
     setDoc(d)
-    getDocumentContent(id).then(content => {
-      renderDoc(content, d.format).then(h => { setHtml(h); setToc(extractToc(h)) })
-    })
+    loadContent(d)
     setHighlights(getHighlightsByDoc(id))
     setBookmarks(getBookmarksByDoc(id))
     startSession(id)
@@ -239,6 +248,16 @@ export default function Reader() {
     navigate('/import?tab=md', { state: { prefillCards: cards, prefillDeckName: `${S.reader.flashcardDeckNamePrefix}${doc.title}` } })
   }
 
+  if (missing) return <NotFoundPage title={S.reader.notFound} />
+  if (loadError && doc) {
+    return (
+      <NotFoundPage
+        title={S.reader.loadErrorTitle}
+        hint={S.reader.loadErrorHint}
+        action={{ label: S.reader.retryAction, onClick: () => loadContent(doc) }}
+      />
+    )
+  }
   if (!doc) return null
 
   const barHidden = !showBars
