@@ -273,7 +273,7 @@ export default function Reader() {
       {/* Backdrop to close panels */}
       <div
         className={`reader-backdrop ${activePanel ? 'visible' : ''}`}
-        style={{ position: 'fixed', inset: 0, zIndex: 14, background: 'color-mix(in oklch, var(--border-strong) 15%, transparent)' }}
+        style={{ position: 'fixed', inset: 0, zIndex: 14, background: 'var(--scrim)' }}
         onClick={() => setActivePanel(null)}
       />
 

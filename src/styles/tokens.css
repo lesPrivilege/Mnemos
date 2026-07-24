@@ -132,6 +132,8 @@
   --surface-chrome-border: var(--border-soft);
   --surface-raised:        var(--bg-raised);
   --surface-overlay:       var(--bg-card);
+  /* 幕布：遮罩恒为暗纱，不随纸色反转（overlay/modal/panel 共用一部） */
+  --scrim:                 oklch(15% 0.01 250 / 0.38);
 }
 
 /* 同版异纸（第五条，记-10）：内容纸之宋刻本——切换只发生在此，组件零分支。
@@ -192,6 +194,7 @@
   --surface-chrome-border: var(--border-soft);
   --surface-raised:        var(--bg-raised);
   --surface-overlay:       var(--bg-card);
+  --scrim:                 oklch(5% 0.01 250 / 0.52);
 }
 
 /* ─────── Reduced motion ───────
