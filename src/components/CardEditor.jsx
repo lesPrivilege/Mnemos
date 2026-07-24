@@ -92,7 +92,7 @@ export default function CardEditor({ initial, onSave, onCancel }) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-body text-ink-3 tracking-wider uppercase">Front</span>
+        <span className="text-xs font-body text-ink-3 tracking-wider">{S.cardEditor.frontLabel}</span>
         <button type="button" onClick={() => setFrontPreview(p => !p)}
           className="text-xs font-body text-ink-3 hover:text-ink tracking-wider uppercase">
           {frontPreview ? S.cardEditor.edit : S.cardEditor.preview}
@@ -110,14 +110,14 @@ export default function CardEditor({ initial, onSave, onCancel }) {
             placeholder={S.cardEditor.frontPlaceholder}
             rows={3}
             className="w-full p-3 rounded-lg border border-border bg-bg-card text-ink
-              font-serif text-sm placeholder:text-ink-2/50
+              font-zh text-sm placeholder:text-ink-2/50
               focus:outline-none focus:border-accent resize-none"
           />
         </>
       )}
 
       <div className="flex items-center justify-between">
-        <span className="text-xs font-body text-ink-3 tracking-wider uppercase">Back</span>
+        <span className="text-xs font-body text-ink-3 tracking-wider">{S.cardEditor.backLabel}</span>
         <button type="button" onClick={() => setBackPreview(p => !p)}
           className="text-xs font-body text-ink-3 hover:text-ink tracking-wider uppercase">
           {backPreview ? S.cardEditor.edit : S.cardEditor.preview}
@@ -135,7 +135,7 @@ export default function CardEditor({ initial, onSave, onCancel }) {
             placeholder={S.cardEditor.backPlaceholder}
             rows={3}
             className="w-full p-3 rounded-lg border border-border bg-bg-card text-ink
-              font-serif text-sm placeholder:text-ink-2/50
+              font-zh text-sm placeholder:text-ink-2/50
               focus:outline-none focus:border-accent resize-none"
           />
         </>
@@ -145,7 +145,7 @@ export default function CardEditor({ initial, onSave, onCancel }) {
         <button
           type="submit"
           className="px-4 py-2 rounded-lg font-medium text-sm font-body
-            bg-accent text-white active:scale-[0.97] transition-transform
+            bg-ink text-bg active:scale-[0.97] transition-transform
             disabled:opacity-40"
           disabled={!front.trim() || !back.trim()}
         >

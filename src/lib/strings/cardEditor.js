@@ -1,4 +1,6 @@
 export const cardEditor = {
+  frontLabel: '正面',
+  backLabel: '背面',
   edit: '编辑',
   preview: '预览',
   frontPlaceholder: '正面 · 问题',
