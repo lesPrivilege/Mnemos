@@ -300,14 +300,12 @@ export default function ReviewQuestion() {
 
       {/* Rate buttons — only functional after flip, fixed height prevents card resize */}
       <div className="rate shrink-0" style={{ paddingBottom: 'max(18px, env(safe-area-inset-bottom))' }}>
-        <button className="rate-btn rate-again"
-          onClick={() => flipped && handleRate(false)}
-          style={{ visibility: flipped ? 'visible' : 'hidden', cursor: flipped ? 'pointer' : 'default' }}>
+        <button className="rate-btn rate-again" disabled={!flipped}
+          onClick={() => flipped && handleRate(false)}>
           <span>{S.quizReview.missedLabel}</span>
         </button>
-        <button className="rate-btn rate-good"
-          onClick={() => flipped && handleRate(true)}
-          style={{ visibility: flipped ? 'visible' : 'hidden', cursor: flipped ? 'pointer' : 'default' }}>
+        <button className="rate-btn rate-good" disabled={!flipped}
+          onClick={() => flipped && handleRate(true)}>
           <span>{S.quizReview.gotItLabel}</span>
         </button>
       </div>

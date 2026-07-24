@@ -35,6 +35,8 @@ export default function Review() {
   const [stats, setStats] = useState({ again: 0, hard: 0, good: 0, easy: 0 })
   const [deckName, setDeckName] = useState('')
   const [flipped, setFlipped] = useState(false)
+  const flippedRef = useRef(false)
+  useEffect(() => { flippedRef.current = flipped }, [flipped])
   const [toast, setToast] = useState(null)
   const lastRef = useRef(null)
   const completedRef = useRef(false)
@@ -85,6 +87,8 @@ export default function Review() {
   const handleRate = useCallback((quality) => {
     const card = dueCards[currentIndex]
     if (!card) return
+    // 未见答不评：评分是对照答案后的裁决（记-08）
+    if (!flippedRef.current) return
 
     // 1. 存 undo 狀態
     const prevSM2 = getCardSM2(card.id)
@@ -426,17 +430,17 @@ export default function Review() {
 
       {/* Fixed bottom rating buttons */}
       <div className="rate shrink-0" style={{ paddingBottom: 'max(18px, env(safe-area-inset-bottom))' }}>
-        <button onClick={() => handleRate(1)} className="rate-btn rate-again">
+        <button onClick={() => handleRate(1)} disabled={!flipped} className="rate-btn rate-again">
           <span>{S.review.again}</span><span className="iv">{predictInterval(card, 1, passCount)}d</span>
         </button>
-        <button onClick={() => handleRate(2)} className="rate-btn rate-hard">
+        <button onClick={() => handleRate(2)} disabled={!flipped} className="rate-btn rate-hard">
           <span>{S.review.hard}</span><span className="iv">{predictInterval(card, 2, passCount)}d</span>
         </button>
-        <button onClick={() => handleRate(4)} className="rate-btn rate-good">
+        <button onClick={() => handleRate(4)} disabled={!flipped} className="rate-btn rate-good">
           {/* S.review.later compared via === below is a control-flow sentinel (predictInterval's "no interval yet" case), not decorative text — see predictInterval() */}
           <span>{S.review.remember}</span><span className="iv">{predictInterval(card, 4, passCount) === S.review.later ? S.review.later : `${predictInterval(card, 4, passCount)}d`}</span>
         </button>
-        <button onClick={() => handleRate(5)} className="rate-btn rate-easy">
+        <button onClick={() => handleRate(5)} disabled={!flipped} className="rate-btn rate-easy">
           <span>{S.review.easy}</span><span className="iv">{predictInterval(card, 5, passCount)}d</span>
         </button>
       </div>
