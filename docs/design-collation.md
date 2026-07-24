@@ -85,6 +85,16 @@
 - `SettingsPanel` 死出口 → **已删**（清扫轮，全库零引用先证）。
 - README 旧书影 → **已著录**（README 加注 v1.4.0 旧影），重摄随真机验证批。
 
+### 记 2026-07-24-14 · 雠还与修
+
+独立雠（审书状全表）判「不可写定」，不刊三类尽修，应记逐条处置：
+
+- **病2 死端七处**：立 `NotFoundPage`（顶栏＋返回径＋可选重试位），卡组/题库/集合三断链页接入并去两处硬编码英文；Reader 断链不再无声 goBack、内容载入加 catch 与「重试」错误态；卡组零卡片得空态；练习/解答空态补上其提示所指的模式筛选行。
+- **病2 键盘径路**：立 `pressable()`（role/tabIndex/Enter/Space），翻面卡两处（携 aria-label）与九处 div 行（续读、集合、科目、章节/小节折叠、批选行、文档行）入 Tab 序；hover 隐藏的卡片编辑/删除钮补 `group-focus-within` 显现。**语义级 Link 归一**（div 行改真 Link）列 roadmap M4 无障碍批，不在本轮——判准：功能可达先行，语义归一随 VoiceOver 批全屏统做。
+- **病1 讹二处**：DeckDetail 预览答文残留 teal 删（同判例五之答文归墨）；CardEditor 保存钮 `bg-accent` 改墨底纸字（判例四），顺手清其 Front/Back 英文标签与裸 `font-serif`（判例二/底1——Tailwind 默认 serif 逃逸栈，编辑与预览异字之源）。
+- **应记**：QuizReview 补内层 flipped 卫（与 Review 同构）；Review 滑评 180/150ms 归 mid/quick，基线随缩至 3；`fadeIn` 两处同名定义并档 index.css；`perspective:none` 遗物删；§七 青行改「已定」并补字首徽记数据身份轴旁注；行款语补形状习语与动效属性白名单之精确措辞。
+- **存置**：Home 滑动收尾曲线 `(.2,.8,.2,1)` 为手势域释放滑翔曲线，与状态迁移之标准减速有意分立（家6），基线双条存册即其记；Settings 科目色相公式为数据编码，非声部。
+
 ### 记 2026-07-24-13 · 写定
 
 - **版本定格**：package.json 1.5.0；android versionCode 2 / versionName 1.5.0（记-04 之牌记失真至此对齐）；CHANGELOG v1.5.0 记轮。
