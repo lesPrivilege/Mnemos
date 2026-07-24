@@ -10,6 +10,7 @@ import EmptyState from '../components/EmptyState'
 import { useToast, Toast } from '../components/Toast'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 import { S } from '../lib/strings'
+import { pressable } from '../lib/a11y'
 
 const DAY_LABELS = S.flashcardHome.dayLabels
 
@@ -155,7 +156,7 @@ export function FlashcardHomeContent() {
 
       {/* Continue review card */}
       {!editing && reviewSession && (
-        <div className="deck group" onClick={() => navigate(`/review/${reviewSession.deckId}`)}>
+        <div className="deck group" onClick={() => navigate(`/review/${reviewSession.deckId}`)} {...pressable(() => navigate(`/review/${reviewSession.deckId}`))}>
           <div className={`deck-spine ${DECK_COLORS[Math.abs(reviewSession.deckName.charCodeAt(0)) % 4]}`}>
             <span className="glyph">{reviewSession.deckName.charAt(0)}</span>
           </div>

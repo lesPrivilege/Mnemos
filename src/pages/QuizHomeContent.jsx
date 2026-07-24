@@ -10,6 +10,7 @@ import { HeroSection } from '../components/HeroSection'
 import EmptyState from '../components/EmptyState'
 import { useToast, Toast } from '../components/Toast'
 import { S } from '../lib/strings'
+import { pressable } from '../lib/a11y'
 
 function getTimeAgo(ts) {
   const mins = Math.floor((Date.now() - ts) / 60000)
@@ -31,7 +32,7 @@ function ContinueCard({ subjects, onDismiss }) {
   const timeStr = ago < 60 ? S.quizHome.minutesAgoSuffix(ago) : ago < 1440 ? S.quizHome.hoursAgoSuffix(Math.floor(ago / 60)) : S.quizHome.daysAgoSuffix(Math.floor(ago / 1440))
 
   return (
-    <div className="deck group" onClick={() => navigate(session.route)}>
+    <div className="deck group" onClick={() => navigate(session.route)} {...pressable(() => navigate(session.route))}>
       <div className={`deck-spine h${SUBJECT_HUE[session.subject] || 0}`}>
         <span className="glyph">{SUBJECT_GLYPH[session.subject] || S.quizHome.defaultGlyph}</span>
       </div>
@@ -71,7 +72,7 @@ function SubjectCard({ subject }) {
   }
 
   return (
-    <div className="deck group" onClick={() => navigate(`/set/${subject}`)}>
+    <div className="deck group" onClick={() => navigate(`/set/${subject}`)} {...pressable(() => navigate(`/set/${subject}`))}>
       <div className={`deck-spine h${hue} mono`}>
         <span className="glyph">{glyph}</span>
       </div>

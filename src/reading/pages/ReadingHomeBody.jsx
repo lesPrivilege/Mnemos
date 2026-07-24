@@ -7,6 +7,7 @@ import { PlusIcon, UploadIcon } from '../../components/Icons'
 import { HeroSection } from '../../components/HeroSection'
 import EmptyState from '../../components/EmptyState'
 import { S } from '../../lib/strings'
+import { pressable } from '../../lib/a11y'
 
 export default function ReadingHomeBody({ h }) {
   const navigate = useNavigate()
@@ -74,7 +75,7 @@ export default function ReadingHomeBody({ h }) {
           })()}
 
           {h.continueDoc && !h.dismissedContinue && (
-            <div className="deck group" onClick={() => navigate(`/reading/doc/${h.continueDoc.id}?col=${h.continueDoc.collectionId}`)}>
+            <div className="deck group" onClick={() => navigate(`/reading/doc/${h.continueDoc.id}?col=${h.continueDoc.collectionId}`)} {...pressable(() => navigate(`/reading/doc/${h.continueDoc.id}?col=${h.continueDoc.collectionId}`))}>
               <div className={`deck-spine ${['h0','h1','h2','h3'][Math.abs(h.continueDoc.title.charCodeAt(0)) % 4]}`}>
                 <span className="glyph">{h.continueDoc.title.charAt(0)}</span>
               </div>
@@ -126,7 +127,7 @@ export default function ReadingHomeBody({ h }) {
             const glyph = col.icon && col.icon !== '📖' ? col.icon : col.name.charAt(0)
 
             return (
-              <div key={col.id} className="deck group" onClick={() => navigate(`/collection/${col.id}`)}>
+              <div key={col.id} className="deck group" onClick={() => navigate(`/collection/${col.id}`)} {...pressable(() => navigate(`/collection/${col.id}`))}>
                 <div className={`deck-spine ${hueClass}`}>
                   <span className="glyph">{glyph}</span>
                 </div>

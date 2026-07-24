@@ -1,5 +1,6 @@
 import { useRenderedMarkdown } from '../lib/useRenderedMarkdown'
 import { S } from '../lib/strings'
+import { pressable } from '../lib/a11y'
 import '../styles/markdown.css'
 
 export default function ReviewCard({ card, index, flipped, onFlip, swipeOffset }) {
@@ -13,7 +14,9 @@ export default function ReviewCard({ card, index, flipped, onFlip, swipeOffset }
 
   return (
     <div className="rv-card-wrap">
-      <div className="rv-card flip-card" onClick={() => { if (!swipeOffset) onFlip?.(!flipped) }}>
+      <div className="rv-card flip-card" aria-label={S.review.flipHint}
+        onClick={() => { if (!swipeOffset) onFlip?.(!flipped) }}
+        {...pressable(() => { if (!swipeOffset) onFlip?.(!flipped) })}>
         <div className={`flip-inner ${flipped ? 'flipped' : ''}`}>
           {/* FRONT */}
           <div className="flip-face">
