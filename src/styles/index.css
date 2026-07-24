@@ -973,10 +973,20 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   .topbar {
     padding-inline: max(var(--sp-7), calc((100% - var(--col-list)) / 2));
   }
+  /* L2 会话（复习卡／题卡）守会话之度——较列表略宽以容长题干 */
+  .page-fixed:has(.rv-card-wrap) > *:not(.topbar),
+  .page-fixed:has(.qa-card) > *:not(.topbar) {
+    max-width: var(--col-session);
+  }
+  .page-fixed:has(.rv-card-wrap) .topbar,
+  .page-fixed:has(.qa-card) .topbar {
+    padding-inline: max(var(--sp-7), calc((100% - var(--col-session)) / 2));
+  }
   /* 解除一：活动页为仪表盘，双栏须整幅（其自有 1120 上限） */
   .page-fixed:has(.activity-content) > * { max-width: none; }
-  /* 解除二：阅读页守自身 measure（680），不受列表之度 */
-  .page-fixed:has(.card-content) > * { max-width: none; }
+  /* 解除二：阅读页守自身 measure（680）。钩子取 `.reader-panel`（阅读页独有）
+     而非 `.card-content`——后者复习卡内亦有三处，会反压会话之度（实测证）。 */
+  .page-fixed:has(.reader-panel) > * { max-width: none; }
 }
 
 /* ═══════════════════════════════════════════════════
