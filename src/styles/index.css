@@ -982,41 +982,40 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
    ——不编排，但不破。 */
 @supports selector(:has(*)) {
   @media (min-width: 720px) and (orientation: portrait) {
-    /* L0/L1 内容守列表之度；chrome（顶栏/底栏）随外框，其内容内缩与栏对齐
-       ——上下 chrome 同宽方统，故顶栏不入此收。 */
-    /* 幕不入收束——其职在遮蔽身后全部（记-22 之三） */
+    /* 级别由变量择定，全篇只留一条消费规则（记-23）。
+       前版以「通用收束 + 各页解除」相争，我为排除幕布给通用收束添了一个
+       `:not()`，特异性由 0-2-0 升至 0-3-0，两条解除（0-2-0）遂被无条件压过
+       ——活动页在任何浏览器都裁切，反较修前更劣。故改由自定义属性择级：
+       特异性只作用于变量赋值（`.page-fixed:has(X)` 自然胜 `.page-fixed`），
+       消费处唯一，override 之争从根上消失。 */
+    .page-fill,
+    .page-fixed { --col-current: var(--col-list); }
+    /* L2 会话（复习卡／题卡／完成屏）——较列表略宽以容长题干；完成屏无卡片
+       容器故须单列，否则会话终了瞬间由 560 缩回 480（记-22 之五）。 */
+    .page-fixed:has(.rv-card-wrap),
+    .page-fixed:has(.qa-card),
+    .page-fixed:has(.done-wrap) { --col-current: var(--col-session); }
+    /* 阅读页守自身 measure。钩子取 `.reader-panel`（阅读页独有）而非
+       `.card-content`——后者复习卡内亦有三处，会反压会话之度（实测证）。 */
+    .page-fixed:has(.reader-panel) { --col-current: var(--col-read); }
+    /* 活动页为仪表盘，双栏须整幅（其自有 1120 上限） */
+    .page-fixed:has(.activity-content) { --col-current: 100%; }
+
+    /* 唯一消费处。幕不入收束——其职在遮蔽身后全部，须铺满视口（记-22 之三）；
+       前版只在通用收束上排除了幕，会话页那条漏排，致会话页删除确认时幕仅
+       560 且贴左，大半视口不暗（雠实测）。此处唯一，故排除亦唯一。 */
     .page-fill > *:not(.topbar):not(.confirm-backdrop),
     .page-fixed > *:not(.topbar):not(.confirm-backdrop) {
       width: 100%;
-      max-width: var(--col-list);
+      max-width: var(--col-current);
       margin-inline: auto;
     }
+    /* chrome 随外框，其内容按当前级内缩与栏首对齐 */
     .topbar {
-      padding-inline: max(var(--sp-7), calc((100% - var(--col-list)) / 2));
+      padding-inline: max(var(--sp-7), calc((100% - var(--col-current)) / 2));
     }
-    /* L2 会话（复习卡／题卡／完成屏）守会话之度——较列表略宽以容长题干。
-       完成屏无卡片容器，须单列，否则会话终了瞬间由 560 缩回 480（记-22 之五）。 */
-    .page-fixed:has(.rv-card-wrap) > *:not(.topbar),
-    .page-fixed:has(.qa-card) > *:not(.topbar),
-    .page-fixed:has(.done-wrap) > *:not(.topbar) {
-      max-width: var(--col-session);
-    }
-    .page-fixed:has(.rv-card-wrap) .topbar,
-    .page-fixed:has(.qa-card) .topbar,
-    .page-fixed:has(.done-wrap) .topbar {
-      padding-inline: max(var(--sp-7), calc((100% - var(--col-session)) / 2));
-    }
-    /* 解除一：活动页为仪表盘，双栏须整幅（其自有 1120 上限）；
-       其顶栏随栅格之天地（--sp-8），不随列表之度（记-22 之四）。 */
-    .page-fixed:has(.activity-content) > * { max-width: none; }
+    /* 仪表盘之顶栏随其栅格天地，不随栏度（--col-current 为 100% 时上式得 sp-7） */
     .page-fixed:has(.activity-content) .topbar { padding-inline: var(--sp-8); }
-    /* 解除二：阅读页守自身 measure（680）。钩子取 `.reader-panel`（阅读页独有）
-       而非 `.card-content`——后者复习卡内亦有三处，会反压会话之度（实测证）。
-       其顶栏亦须按 measure 内缩，否则返回键较正文左沿偏出 100px（记-22 之一）。 */
-    .page-fixed:has(.reader-panel) > * { max-width: none; }
-    .page-fixed:has(.reader-panel) .topbar {
-      padding-inline: max(var(--sp-7), calc((100% - var(--col-read)) / 2));
-    }
   }
 }
 
