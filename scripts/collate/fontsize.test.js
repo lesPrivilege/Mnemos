@@ -31,6 +31,12 @@ describe('g1-fontsize · 应报（硬写样式字面量）', () => {
     expect(
       scan('i.jsx', 'const h = `<pre style="font-size: 14px">${x}</pre>`\nconst y = { a: 1 }')
     ).toHaveLength(1))
+  it('属性名大写亦不得逃（记-20）', () =>
+    expect(scan('q.css', '.x { FONT-SIZE: 13px; }')).toHaveLength(1))
+  it('单位大写亦不得逃', () => expect(scan('r.css', '.x { font-size: 13PX; }')).toHaveLength(1))
+  it('简写居 HTML 串内', () =>
+    expect(scan('s.jsx', 'const h = `<pre style="font:13px serif">hi</pre>`')).toHaveLength(1))
+  it('无空格', () => expect(scan('t.css', '.x{font-size:13px}')).toHaveLength(1))
 })
 
 describe('g1-fontsize · 不报（门只治硬写样式，不治算出之值与用户数据）', () => {
@@ -48,4 +54,12 @@ describe('g1-fontsize · 不报（门只治硬写样式，不治算出之值与�
     expect(scan('o.js', 'export const DEFAULT_SETTINGS = { fontSize: 18, lineHeight: 1.8 }')).toHaveLength(0))
   it('font: inherit 非字号', () =>
     expect(scan('p.css', 'input, textarea { font: inherit; color: inherit; }')).toHaveLength(0))
+  /* 此负例锁 F1 之现行形态：Activity 环心数字用 SVG 属性式配 token。
+     属性式探测立时曾无此锁——同类漏网即由此而生（记-20）。 */
+  it('SVG 属性式配 token（F1 现行形态）', () =>
+    expect(scan('u.jsx', 'const a = <text fontSize="var(--text-4xl)">x</text>')).toHaveLength(0))
+  it('calc 包裹属算出（同 clamp）', () =>
+    expect(scan('v.css', '.x { font-size: calc(14px + 1vw); }')).toHaveLength(0))
+  it('模板串插值属算出（记-17 通例；刻意 ${14}px 可绕，已记为边界）', () =>
+    expect(scan('w.jsx', 'const s = `font-size: ${x}px`')).toHaveLength(0))
 })
