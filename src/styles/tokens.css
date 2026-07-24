@@ -115,6 +115,18 @@
   --sp-9: 32px;
   --sp-10: 48px;
 
+  /* ─────── 竖向缩放谱（记-21；横向已拒，主令 2026-07-24）───────
+     一栏之宽有度，余宽让给天地，不让行拉长——手机既定之行款不动，
+     宽屏只加白。四级各有其度：
+       L0 首页 / L1 列表：操作行与内容行同宽，止于 --col-list
+       L2 会话（复习卡、题卡）：限宽居中，视线不横扫
+       阅读：续用 measure 上限（680px 已行之有效，不动）
+     著录于行款语「iPad 竖向」一款；实测基准 390 / 768 / 834pt。 */
+  --col-list:    480px;  /* L0/L1 单栏上限——手机满宽，宽屏留白 */
+  --col-session: 560px;  /* L2 会话卡上限——较列表略宽以容长题干 */
+  --col-read:    680px;  /* 阅读 measure 上限（现行值，此处只是入册） */
+  --gutter-wide: var(--sp-10); /* 宽屏天地边距（≥720 竖向） */
+
   /* ─────── Motion ───────
      Four durations, one standard-decelerate curve. quick = tap
      feedback & micro color shifts; mid = hover/background state
