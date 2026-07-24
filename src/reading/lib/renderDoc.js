@@ -172,5 +172,5 @@ function renderTxt(text) {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-  return `<pre style="white-space: pre-wrap; word-break: break-word; font-family: var(--font-mono); font-size: 14px; line-height: 1.7;">${escaped}</pre>`
+  return `<pre style="white-space: pre-wrap; word-break: break-word; font-family: var(--font-mono); font-size: var(--text-lg); line-height: 1.7;">${escaped}</pre>`
 }
