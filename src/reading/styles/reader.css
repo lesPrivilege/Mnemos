@@ -39,7 +39,7 @@
   padding: 8px 12px;
   /* 面板题为 chrome，归器轨（判例三之轴；mono 唯真数据） */
   font-family: var(--font-ui);
-  font-size: 10px;
+  font-size: var(--text-2xs);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--ink-3);
@@ -49,7 +49,7 @@
 .panel-empty {
   text-align: center;
   color: var(--ink-3);
-  font-size: 12px;
+  font-size: var(--text-sm);
   padding: 32px 12px;
   line-height: 1.6;
 }
