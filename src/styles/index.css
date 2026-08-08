@@ -95,8 +95,6 @@ a { color: inherit; text-decoration: none; }
 .btn-primary:hover { background: var(--ink-2); }
 .btn-ghost { background: var(--bg-card); border-color: var(--border); color: var(--ink); }
 .btn-ghost:hover { background: var(--bg-raised); }
-.btn-accent { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-line); }
-.btn-accent:hover { background: var(--accent); color: white; }
 .btn-block { width: 100%; }
 
 /* ─────── Chips ─────── */
@@ -457,9 +455,6 @@ a { color: inherit; text-decoration: none; }
   font-family: var(--font-ui);
   font-size: var(--text-sm);
   line-height: 1.5;
-}
-.sticky-confirm {
-  margin-top: -4px;
 }
 .settings-backup-list {
   display: grid;
@@ -1189,10 +1184,6 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* ─────── Bottom actions ─────── */
-.bottom-actions {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-  margin-top: 8px;
-}
 
 /* ─────── Hide native number input spinners ─────── */
 input[type=number]::-webkit-outer-spin-button,
@@ -1500,182 +1491,10 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
 }
 /* 焦点行随版心，与 .act-section 同其天地——否则贴左沿而与其下诸行不齐 */
 .activity-content > .focus { margin: 0 18px; }
-.activity-hero,
-.activity-section {
-  margin: 18px;
-  background: transparent;
-  border: 0;
-  border-bottom: 1px solid var(--border);
-  border-radius: 0;
-}
-.activity-hero {
-  padding: 16px 14px 14px;
-  display: flex; flex-direction: column; gap: 14px;
-}
-.activity-hero-head,
-.activity-section-head {
-  display: flex; align-items: center; justify-content: space-between; gap: 10px;
-}
-.activity-hero-head .lbl {
-  font-family: var(--font-ui); font-size: var(--text-2xs);
-  letter-spacing: 0.16em;
-  color: var(--ink-3); font-weight: 500;
-}
-.activity-hero-head .streak,
-.activity-section-head span {
-  display: inline-flex; align-items: center; gap: 4px;
-  font-family: var(--font-mono); font-size: var(--text-xs);
-  color: var(--accent); font-weight: 500;
-  white-space: nowrap;
-}
 .activity-section-head span { color: var(--ink-3); }
-.activity-hero-grid {
-  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-}
-.activity-hero-grid > div {
-  min-width: 0;
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
-  padding: 0 4px;
-}
-.activity-hero .num {
-  font-family: var(--font-disp);
-  font-size: clamp(30px, 9vw, 39px);
-  line-height: 1; color: var(--ink);
-  font-feature-settings: "lnum", "tnum";
-}
-.activity-hero .num.accent { color: var(--accent); }
-.activity-hero .zh-label {
-  font-family: var(--font-ui); font-size: var(--text-xs);
-  color: var(--ink-2);
-}
 .activity-section {
   padding: 14px;
   display: flex; flex-direction: column; gap: 12px;
-}
-.activity-rings-card { gap: 8px; }
-.activity-rings {
-  display: flex; align-items: center; justify-content: center;
-  padding: 8px 0 2px;
-}
-.activity-ring-svg {
-  width: min(54vw, 210px);
-  height: min(54vw, 210px);
-  max-width: 100%;
-}
-.activity-ring-stats {
-  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 6px;
-  padding: 0 4px 2px;
-}
-.activity-ring-stats .col {
-  min-width: 0;
-  display: flex; flex-direction: column; align-items: center;
-  gap: 3px; padding: 6px 2px;
-}
-.activity-ring-stats .dot {
-  width: 8px; height: 8px; border-radius: 50%;
-}
-.activity-ring-stats .dot.recall { background: var(--accent); }
-.activity-ring-stats .dot.practice { background: var(--teal); }
-.activity-ring-stats .dot.read { background: var(--good); }
-.activity-ring-stats .num {
-  font-family: var(--font-disp); font-size: var(--text-3xl);
-  color: var(--ink); line-height: 1;
-  white-space: nowrap;
-}
-.activity-ring-stats .num span {
-  font-family: var(--font-mono); font-size: var(--text-xs);
-  color: var(--ink-3); margin-left: 2px;
-}
-.activity-ring-stats .zh {
-  font-family: var(--font-ui); font-size: var(--text-xs);
-  color: var(--ink-2); text-align: center;
-}
-.activity-calendar {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 6px;
-}
-.activity-day {
-  aspect-ratio: 1;
-  border-radius: var(--r-lg);
-  background: var(--bg-raised);
-  color: var(--ink-3);
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-mono); font-size: var(--text-2xs);
-  border: 1px solid var(--border-soft);
-}
-.activity-day.l1 { background: color-mix(in oklch, var(--accent-soft) 70%, var(--bg-card)); color: var(--ink-2); border-color: var(--accent-soft); }
-.activity-day.l2 { background: color-mix(in oklch, var(--accent-line) 36%, var(--bg-card)); color: var(--ink); border-color: var(--accent-line); }
-.activity-day.l3 { background: color-mix(in oklch, var(--accent) 58%, var(--bg-card)); color: white; border-color: transparent; }
-.activity-day.l4 { background: var(--accent); color: white; border-color: transparent; }
-.activity-modules {
-  display: flex; flex-direction: column; gap: 10px;
-}
-.activity-module {
-  display: grid; grid-template-columns: minmax(58px, 0.8fr) minmax(70px, 1fr) auto;
-  align-items: center; gap: 10px;
-}
-.activity-module-name {
-  font-family: var(--font-ui); font-size: var(--text-lg);
-  color: var(--ink);
-}
-.activity-module-meta,
-.activity-module-value {
-  font-family: var(--font-mono); font-size: var(--text-2xs);
-  color: var(--ink-3);
-}
-.activity-module-value {
-  font-size: var(--text-sm); color: var(--ink-2);
-  min-width: 28px; text-align: right;
-}
-.activity-module-meter {
-  position: relative;
-  height: 8px;
-  border-radius: var(--r-sm);
-  overflow: hidden;
-  background: var(--bg-raised);
-}
-.activity-module-fill {
-  position: absolute; inset: 0 auto 0 0;
-  border-radius: inherit;
-  min-width: 0;
-}
-.activity-module-fill.recall { background: var(--accent); }
-.activity-module-fill.practice { background: var(--teal); }
-.activity-module-fill.reading { background: var(--good); }
-.activity-recent {
-  display: grid; grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 6px;
-}
-.activity-recent-day {
-  min-width: 0;
-  display: flex; flex-direction: column; align-items: center; gap: 7px;
-}
-.activity-recent-date {
-  font-family: var(--font-mono); font-size: var(--text-2xs);
-  color: var(--ink-3);
-}
-.activity-recent-bars {
-  width: 100%; height: 42px;
-  display: flex; align-items: end; justify-content: center; gap: 2px;
-  background: var(--bg-raised);
-  border-radius: var(--r-lg);
-  padding: 5px 3px;
-}
-.activity-recent-bars span {
-  width: 7px;
-  border-radius: var(--r-sm) var(--r-sm) 0 0;
-}
-.activity-recent-bars .recall { background: var(--accent); }
-.activity-recent-bars .practice { background: var(--teal); }
-.activity-recent-bars .reading { background: var(--good); }
-@media (max-width: 360px) {
-  .activity-hero,
-  .activity-section { margin-left: 14px; margin-right: 14px; }
-  .activity-calendar { gap: 4px; }
-  .activity-module { grid-template-columns: minmax(48px, 0.7fr) minmax(58px, 1fr) auto; gap: 8px; }
 }
 @media (min-width: 720px) and (orientation: portrait) {
   .activity-content {
@@ -1688,22 +1507,6 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
     gap: 18px;
     padding: var(--sp-8);
   }
-  .activity-hero,
-  .activity-section { margin: 0; }
-  .activity-hero { grid-area: hero; }
-  .activity-rings-card { grid-area: rings; }
-  .activity-calendar-card { grid-area: calendar; }
-  .activity-modules-card { grid-area: modules; }
-  .activity-recent-card { grid-area: recent; }
-  .activity-ring-svg {
-    width: min(25vw, 230px);
-    height: min(25vw, 230px);
-  }
-  .activity-calendar {
-    grid-template-columns: repeat(7, minmax(36px, 1fr));
-    gap: 8px;
-  }
-  .activity-day { font-size: var(--text-xs); border-radius: var(--r-lg); }
 }
 
 /* ─────── Deck detail (dd-*) ─────── */
@@ -1783,23 +1586,10 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
 }
 
 /* ─────── Deck list additions ─────── */
-.deck-cta { display: flex; align-items: center; flex-shrink: 0; }
-.cta-pill {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 7px 13px;
-  border-radius: var(--r-md);
-  background: var(--ink); color: var(--bg);
-  font-family: var(--font-ui); font-size: var(--text-sm); font-weight: 500;
-  transition: opacity var(--motion-quick), transform var(--motion-quick);
-}
-.cta-pill:active { transform: scale(0.96); }
-.cta-pill:hover { opacity: 0.85; }
-.cta-pill .arr { font-family: inherit; font-size: var(--text-md); line-height: 1; }
 .deck-pin {
   font-size: var(--text-2xs); color: var(--accent);
   margin-left: 2px;
 }
-.deck-spine.mono { border-radius: var(--r-md); }
 
 /* ─────── Card list ─────── */
 .card-list {
