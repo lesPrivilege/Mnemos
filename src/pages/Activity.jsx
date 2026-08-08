@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { ArrowLIcon, FlameIcon, SparkIcon } from '../components/Icons'
+import { ArrowLIcon, CheckIcon } from '../components/Icons'
+import { FocusHeader } from '../components/FocusHeader'
 import { getActivityDashboard, getHeatmapData } from '../lib/activity'
 import { useBackButton } from '../lib/useBackButton'
 import { S } from '../lib/strings'
@@ -9,84 +10,41 @@ function percent(done, total) {
   return `${Math.round((done / total) * 100)}%`
 }
 
-function intensity(day, max) {
-  if (!day.total) return 0
-  return Math.max(1, Math.ceil((day.total / max) * 4))
-}
-
-function ringPath(value, radius, color) {
-  const circumference = 2 * Math.PI * radius
-  const progress = Math.max(0, Math.min(1, value))
+/**
+ * 一行一模块（记-31）——替旧三同心环。
+ * 环是 Apple 之签名形，家讳一（借古／借他人之形须证今义）证不出：同一组
+ * 数在环上要三次视觉解码（哪一圈是哪个模块、缺口多大、中心数从何来），
+ * 在行上一次就读完，且行可标数、可标目标、可比长短。
+ */
+function ProgressRow({ name, value, target, unit, tone, meta, scaleOnly }) {
+  /* target 有两义：日目标（可达成，故报「/N」与达标记）与比例尺
+     （只为定长短，不可报）。二者不分即成假目标（记-31）。 */
+  const ratio = target > 0 ? Math.min(1, value / target) : 0
+  const reached = !scaleOnly && target > 0 && value >= target
   return (
-    <>
-      <circle cx="100" cy="100" r={radius} fill="none" stroke="var(--bg-raised)" strokeWidth="14" />
-      {progress > 0 && (
-        <circle
-          cx="100"
-          cy="100"
-          r={radius}
-          fill="none"
-          stroke={color}
-          strokeWidth="14"
-          strokeDasharray={`${circumference * progress} ${circumference}`}
-          strokeLinecap="round"
-          transform="rotate(-90 100 100)"
-        />
-      )}
-    </>
-  )
-}
-
-function ActivityRings({ today, targets }) {
-  const recall = Math.min(1, today.recall / targets.recall)
-  const practice = Math.min(1, today.practice / targets.practice)
-  const reading = Math.min(1, today.reading / targets.reading)
-  const percentValue = Math.round(((recall + practice + reading) / 3) * 100)
-
-  return (
-    <section className="activity-section activity-rings-card">
-      <div className="activity-section-head">
-        <div className="section-title">{S.activity.todayTitle}</div>
-        <span>{percentValue}%</span>
-      </div>
-      <div className="activity-rings">
-        <svg className="activity-ring-svg" viewBox="0 0 200 200" aria-label={S.activity.todayCompletionAria(percentValue)}>
-          {ringPath(recall, 86, 'var(--accent)')}
-          {ringPath(practice, 66, 'var(--teal)')}
-          {ringPath(reading, 46, 'var(--good)')}
-          <text x="100" y="96" textAnchor="middle" fontFamily="var(--font-disp)" fontSize="var(--text-4xl)" fill="var(--ink)">{percentValue}</text>
-          <text x="100" y="116" textAnchor="middle" fontFamily="var(--font-ui)" fontSize="var(--text-2xs)" fill="var(--ink-3)" letterSpacing="1">{S.activity.percentLabel}</text>
-        </svg>
-      </div>
-      <div className="activity-ring-stats">
-        <div className="col"><span className="dot recall" /><span className="num">{today.recall}</span><span className="zh">{S.activity.recallRingLabel}{targets.recall}</span></div>
-        <div className="col"><span className="dot practice" /><span className="num">{today.practice}</span><span className="zh">{S.activity.practiceRingLabel}{targets.practice}</span></div>
-        <div className="col"><span className="dot read" /><span className="num">{today.reading}<span>m</span></span><span className="zh">{S.activity.readingRingLabel}{targets.reading}</span></div>
-      </div>
-    </section>
-  )
-}
-
-function ModuleRow({ name, meta, value, max, tone }) {
-  return (
-    <div className="activity-module">
-      <div>
-        <div className="activity-module-name">{name}</div>
-        <div className="activity-module-meta">{meta}</div>
-      </div>
-      <div className="activity-module-meter">
-        <span className={`activity-module-fill ${tone}`} style={{ width: `${value > 0 && max ? Math.max(6, (value / max) * 100) : 0}%` }} />
-      </div>
-      <span className="activity-module-value">{value}</span>
+    <div className="act-row">
+      <span className="k">{name}</span>
+      <span className="track">
+        <span className={`fill ${tone}`} style={{ width: `${Math.max(ratio * 100, value > 0 ? 3 : 0)}%` }} />
+      </span>
+      <span className="v">
+        {value}{unit}
+        {!scaleOnly && target > 0 && <span className="t">/{target}</span>}
+        {reached && <CheckIcon size={11} sw={2.4} />}
+      </span>
+      {meta && <span className="m">{meta}</span>}
     </div>
   )
 }
 
+/* 混色取 oklab 而非 oklch：oklch 走极坐标，accent（hue 30）与 bg-raised
+   （hue 240 之极低彩度）之间要插值 hue，途经紫区——实测四档全泛蓝紫。
+   oklab 走直角坐标，无 hue 可插，色相不飘（记-31）。 */
 const HEATMAP_LEVELS = [
   'var(--bg-raised)',
-  'color-mix(in oklch, var(--accent) 25%, var(--bg-raised))',
-  'color-mix(in oklch, var(--accent) 50%, var(--bg-raised))',
-  'color-mix(in oklch, var(--accent) 75%, var(--bg-raised))',
+  'color-mix(in oklab, var(--accent) 25%, var(--bg-raised))',
+  'color-mix(in oklab, var(--accent) 50%, var(--bg-raised))',
+  'color-mix(in oklab, var(--accent) 75%, var(--bg-raised))',
   'var(--accent)',
 ]
 const DAY_LABELS_SHORT = S.activity.dayLabelsShort
@@ -217,100 +175,48 @@ export default function Activity() {
       <header className="topbar">
         <button onClick={goBack} className="tb-btn" aria-label={S.activity.back}><ArrowLIcon size={18} /></button>
         <h1 className="zh">{S.activity.pageTitle}</h1>
-        <div className="tb-actions">
-          <span className="tb-text">{S.activity.thisMonth}</span>
-        </div>
       </header>
 
       <main className="page-scroll">
         <div className="activity-content">
-        <div className="activity-hero">
-          <div className="activity-hero-head">
-            <span className="lbl">{S.activity.monthLabel}</span>
-            <span className="streak"><FlameIcon size={14} />{data.streak}{S.activity.streakSuffix}</span>
-          </div>
-          <div className="activity-hero-grid">
-            <div>
-              <span className="num accent">{data.activeDays}</span>
-              <span className="zh-label">{S.activity.activeDaysLabel}</span>
+          {/* 焦点：连续天数是这一屏唯一会改变行为的数——其余是回顾。
+              旧此处三数并列（活跃天数／本周／总活动量），皆无下一步。 */}
+          <FocusHeader
+            label={S.activity.streakLabel}
+            value={data.streak}
+            unit={S.activity.streakUnit}
+            sub={S.activity.streakSub(data.activeDays, data.weekTotals.total)}
+          />
+
+          <section className="act-section">
+            <div className="act-section-head">
+              <span className="t">{S.activity.todayTitle}</span>
+              <span className="m">{S.activity.targetNote}</span>
             </div>
-            <div>
-              <span className="num">{data.weekTotals.total}</span>
-              <span className="zh-label">{S.activity.thisWeekLabel}</span>
+            <ProgressRow name={S.activity.recallName} value={data.today.recall}
+              target={data.targets.recall} unit="" tone="recall" />
+            <ProgressRow name={S.activity.practiceName} value={data.today.practice}
+              target={data.targets.practice} unit="" tone="practice" />
+            <ProgressRow name={S.activity.readingName} value={data.today.reading}
+              target={data.targets.reading} unit={S.activity.minuteUnit} tone="reading" />
+          </section>
+
+          <HeatmapGrid />
+
+          <section className="act-section">
+            <div className="act-section-head">
+              <span className="t">{S.activity.modulesTitle}</span>
+              <span className="m">{S.activity.thisMonth}</span>
             </div>
-            <div>
-              <span className="num">{data.totals.total}</span>
-              <span className="zh-label">{S.activity.totalLabel}</span>
-            </div>
-          </div>
-        </div>
-
-        <ActivityRings today={data.today} targets={data.targets} />
-
-        <section className="activity-section activity-calendar-card">
-          <div className="activity-section-head">
-            <div className="section-title">{S.activity.calendarTitle}</div>
-            <span>{data.days.length}{S.activity.calendarDaysSuffix}</span>
-          </div>
-          <div className="activity-calendar">
-            {data.days.map((day) => (
-              <div key={day.date} className={`activity-day l${intensity(day, data.maxDayTotal)}`} title={`${day.date}: ${day.total}`}>
-                <span>{Number(day.date.slice(-2))}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <HeatmapGrid />
-
-        <section className="activity-section activity-modules-card">
-          <div className="activity-section-head">
-            <div className="section-title">{S.activity.modulesTitle}</div>
-            <span style={{ fontFamily: 'var(--font-zh)' }}><SparkIcon size={13} />{S.activity.readonlyAggregate}</span>
-          </div>
-          <div className="activity-modules">
-            <ModuleRow
-              name={S.activity.recallName}
-              meta={S.activity.correctRatePrefix(percent(data.totals.recallCorrect, data.totals.recall))}
-              value={data.totals.recall}
-              max={maxModule}
-              tone="recall"
-            />
-            <ModuleRow
-              name={S.activity.practiceName}
-              meta={S.activity.correctRatePrefix(percent(data.totals.practiceCorrect, data.totals.practice))}
-              value={data.totals.practice}
-              max={maxModule}
-              tone="practice"
-            />
-            <ModuleRow
-              name={S.activity.readingName}
-              meta={S.activity.minutesLabel}
-              value={data.totals.reading}
-              max={maxModule}
-              tone="reading"
-            />
-          </div>
-        </section>
-
-        <section className="activity-section activity-recent-card">
-          <div className="activity-section-head">
-            <div className="section-title">{S.activity.recentTitle}</div>
-            <span>{S.activity.recentDaysLabel}</span>
-          </div>
-          <div className="activity-recent">
-            {data.days.slice(-7).map((day) => (
-              <div key={day.date} className="activity-recent-day">
-                <div className="activity-recent-date">{Number(day.date.slice(-2))}</div>
-                <div className="activity-recent-bars">
-                  <span className="recall" style={{ height: day.recall ? `${Math.max(3, Math.min(36, day.recall * 6))}px` : 0 }} />
-                  <span className="practice" style={{ height: day.practice ? `${Math.max(3, Math.min(36, day.practice * 6))}px` : 0 }} />
-                  <span className="reading" style={{ height: day.reading ? `${Math.max(3, Math.min(36, day.reading))}px` : 0 }} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+            <ProgressRow name={S.activity.recallName} value={data.totals.recall}
+              target={maxModule} scaleOnly unit="" tone="recall"
+              meta={S.activity.correctRatePrefix(percent(data.totals.recallCorrect, data.totals.recall))} />
+            <ProgressRow name={S.activity.practiceName} value={data.totals.practice}
+              target={maxModule} scaleOnly unit="" tone="practice"
+              meta={S.activity.correctRatePrefix(percent(data.totals.practiceCorrect, data.totals.practice))} />
+            <ProgressRow name={S.activity.readingName} value={data.totals.reading}
+              target={maxModule} scaleOnly unit={S.activity.minuteUnit} tone="reading" />
+          </section>
         </div>
       </main>
     </div>

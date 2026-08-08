@@ -9,6 +9,7 @@ import { shuffle } from '../lib/utils'
 import { isRecall } from '../lib/cardUtils'
 import { useBackButton } from '../lib/useBackButton'
 import { recordEvent } from '../lib/derive/events'
+import { sessionSummary, todayFocus } from '../lib/derive'
 import { saveReviewSession, clearReviewSession } from '../lib/reviewSession'
 import { hapticLight, hapticSuccess, hapticWarning } from '../lib/haptics'
 import { S } from '../lib/strings'
@@ -24,6 +25,14 @@ function predictInterval(card, quality, passCount) {
 }
 
 const UNDO_LABELS = { 1: S.review.again, 2: S.review.hard, 4: S.review.remember, 5: S.review.easy }
+
+/** 时长成句：不足一分只报秒，逾一分报「N 分 M 秒」——完成屏读的是节奏不是精度。 */
+function formatDuration(ms) {
+  if (!ms || ms < 1000) return S.review.durationInstant
+  const secs = Math.round(ms / 1000)
+  if (secs < 60) return S.review.durationSecs(secs)
+  return S.review.durationMins(Math.floor(secs / 60), secs % 60)
+}
 
 export default function Review() {
   const { id } = useParams()
@@ -323,6 +332,13 @@ export default function Review() {
   if (dueCards.length === 0) {
     const total = stats.again + stats.hard + stats.good + stats.easy
     const correctRate = total > 0 ? Math.round((stats.good + stats.easy) / total * 100) : 0
+    // 会话小结出于事件流（记-30）：本次已写入，故 sessionSummary 之末场即此场
+    const summary = total > 0 ? sessionSummary(id) : null
+    // 下一处有到期者——完成之後最自然的下一步，非「返回」
+    const focus = todayFocus()
+    const nextDeck = focus.primary && focus.primary.deckId !== id && !focus.primary.all
+      ? { deckId: focus.primary.deckId, name: focus.breakdown[0]?.name }
+      : null
 
     return (
       <div className="page-fixed" style={{ background: 'var(--bg)' }}>
@@ -331,33 +347,50 @@ export default function Review() {
         </div>
         <div className="page-scroll">
           <div className="done-wrap">
-            <div className="done-mark">
-              <CheckIcon size={32} />
-            </div>
-            <div className="done-title">Mnēmosúnē</div>
-            <div className="done-zh">{S.review.doneZh}</div>
+            <div className="done-mark"><CheckIcon size={20} sw={2} /></div>
+            <div className="done-title">{S.review.doneTitle}</div>
+            <div className="done-sum">{S.review.doneSummary(total, formatDuration(summary?.durationMs))}</div>
 
-            {total > 0 && (
-              <>
-                <div className="done-stats">
-                  <span>{S.review.reviewedCount} <span className="v">{total}</span></span>
-                  <span>{S.review.correctRate} <span className="v">{correctRate}%</span></span>
+            {/* 关系式（版1）——替旧「两个孤立数 + 四格计数」。
+                孤立的 24、92% 不回答任何问题；「较上次多 6 张」「↑4」
+                「下次明天 09:00」才是。无可比者不编造比较（首场会话
+                delta 为 null，整行不出）。 */}
+            <div className="rel">
+              {summary?.delta && (
+                <div className="rel-row">
+                  <span className="k">{S.review.vsLast}</span>
+                  <span className="v">{S.review.deltaCards(summary.delta.count)}</span>
                 </div>
-                <div className="done-grid">
-                  <div className="cell again"><span className="num">{stats.again}</span><span>{S.review.again}</span></div>
-                  <div className="cell hard"><span className="num">{stats.hard}</span><span>{S.review.hard}</span></div>
-                  <div className="cell good"><span className="num">{stats.good}</span><span>{S.review.remember}</span></div>
-                  <div className="cell easy"><span className="num">{stats.easy}</span><span>{S.review.easy}</span></div>
-                </div>
-              </>
-            )}
-
-            <div className="flex gap-2 w-full mt-2">
-              {lastRef.current && (
-                <button className="btn btn-ghost btn-block" onClick={handleUndo}>{S.review.undoLastCard}</button>
               )}
-              <button className="btn btn-ghost btn-block" onClick={goBack}>{S.review.backToDeck}</button>
-              <Link to={`/browse/${id}`} className="btn btn-accent btn-block">{S.review.browseCards}</Link>
+              <div className="rel-row">
+                <span className="k">{S.review.correctRate}</span>
+                <span className="v">
+                  {correctRate}%
+                  {summary?.delta ? <em>{S.review.deltaPct(summary.delta.accuracy)}</em> : null}
+                </span>
+              </div>
+              {stats.again > 0 && (
+                <div className="rel-row">
+                  <span className="k">{S.review.again}</span>
+                  <span className="v">{S.review.againCount(stats.again)}</span>
+                </div>
+              )}
+              {summary?.nextDue && (
+                <div className="rel-row">
+                  <span className="k">{S.review.nextDue}</span>
+                  <span className="v">{S.review.nextDueValue(summary.nextDue.date, summary.nextDue.count)}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="done-actions">
+              {lastRef.current && (
+                <button className="btn btn-ghost" onClick={handleUndo}>{S.review.undoLastCard}</button>
+              )}
+              <Link to={`/browse/${id}`} className="btn btn-ghost">{S.review.browseCards}</Link>
+              {nextDeck
+                ? <Link to={`/review/${nextDeck.deckId}`} className="btn btn-primary">{S.review.continueNext(nextDeck.name)}</Link>
+                : <button className="btn btn-primary" onClick={goBack}>{S.review.backToDeck}</button>}
             </div>
           </div>
         </div>

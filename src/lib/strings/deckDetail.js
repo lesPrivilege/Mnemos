@@ -1,4 +1,12 @@
 export const deckDetail = {
+  /* 熟练度分布表（记-31）——替旧四件同源之物 */
+  distributionLabel: '熟练度',
+  totalSummary: (total, learned) => `共 ${total} 张 · 已学 ${learned}`,
+  solidTier: '稳',
+  midTier: '中',
+  weakTier: '弱',
+  newTier: '新',
+  pausedTier: '暂停',
   notFound: '卡组未找到',
   notFoundHint: '它可能已被删除或尚未导入',
   emptyCardsTitle: '暂无卡片',

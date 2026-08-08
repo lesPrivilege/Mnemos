@@ -1,4 +1,5 @@
 export const quizReview = {
+  newWrongLabel: '新增错题',
   back: '返回',
   closeMenu: '关闭菜单',
   practicedLabel: '已练',

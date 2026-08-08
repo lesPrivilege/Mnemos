@@ -133,27 +133,36 @@ export default function ReviewQuestion() {
         </div>
         <div className="page-scroll">
           <div className="done-wrap">
-            <div className="done-mark"><CheckIcon size={32} /></div>
+            <div className="done-mark"><CheckIcon size={20} sw={2} /></div>
             <div className="done-title">{S.quiz.doneTitle}</div>
-            <div className="done-stats">
-              <span>{S.quizReview.practicedLabel} <span className="v">{total}</span></span>
-              <span>{S.quizReview.masteredRateLabel} <span className="v">{correctRate}%</span></span>
-            </div>
-            {newWrong > 0 && (
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-sm)', color: 'var(--danger)' }}>
-                {S.quizReview.newWrongPrefix}{newWrong}
+            <div className="done-sum">{S.quiz.doneSummary(total)}</div>
+            <div className="rel">
+              <div className="rel-row">
+                <span className="k">{S.quizReview.masteredRateLabel}</span>
+                <span className="v">{correctRate}%</span>
               </div>
-            )}
-            <div className="done-grid two">
-              <div className="cell good"><span className="num">{stats.correct}</span><span>{S.quiz.correctLabel}</span></div>
-              <div className="cell again"><span className="num">{stats.wrong}</span><span>{S.quiz.wrongLabel}</span></div>
-            </div>
-            <div style={{ display: 'flex', gap: 8, width: '100%', marginTop: 8 }}>
-              <button className="btn btn-ghost btn-block" onClick={() => goBack()}>{S.quiz.backAction}</button>
-              {results.some(r => !r.correct) && (
-                <button className="btn btn-accent btn-block" onClick={() => { setMode('wrong'); load('wrong') }}>{S.quiz.wrongReviewAction}</button>
+              <div className="rel-row">
+                <span className="k">{S.quiz.correctLabel}</span>
+                <span className="v">{S.quiz.countUnit(stats.correct)}</span>
+              </div>
+              {stats.wrong > 0 && (
+                <div className="rel-row">
+                  <span className="k">{S.quiz.wrongLabel}</span>
+                  <span className="v">{S.quiz.countUnit(stats.wrong)}</span>
+                </div>
               )}
-              <button className="btn btn-primary btn-block" onClick={() => load(mode)}>{S.quiz.anotherRoundAction}</button>
+              {newWrong > 0 && (
+                <div className="rel-row">
+                  <span className="k">{S.quizReview.newWrongLabel}</span>
+                  <span className="v">{S.quiz.countUnit(newWrong)}</span>
+                </div>
+              )}
+            </div>
+            <div className="done-actions">
+              <button className="btn btn-ghost" onClick={() => goBack()}>{S.quiz.backAction}</button>
+              {results.some(r => !r.correct)
+                ? <button className="btn btn-primary" onClick={() => { setMode('wrong'); load('wrong') }}>{S.quiz.wrongReviewAction}</button>
+                : <button className="btn btn-primary" onClick={() => load(mode)}>{S.quiz.anotherRoundAction}</button>}
             </div>
           </div>
         </div>

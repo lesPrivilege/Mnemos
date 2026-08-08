@@ -906,6 +906,103 @@ a { color: inherit; text-decoration: none; }
 .new-doc textarea::placeholder { color: var(--ink-3); }
 .new-doc-actions { display: flex; gap: 8px; justify-content: flex-end; }
 
+/* ─────── 熟练度分布表（记-31）───────
+   一行一档：标签在左、条在中、数在右。序即墨阶（稳深新浅），色不单独
+   编码；「弱」独得一图标——它是唯一需人动手的一档。替旧四件同源之物
+   （meta 行 × 2、learned/total 进度条、「进度 N%」行）。 */
+.dd-tiers {
+  margin: 14px 18px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 5px;
+}
+.dd-tiers-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 3px;
+}
+.dd-tiers-head .t {
+  font-family: var(--font-ui); font-size: var(--text-xs);
+  letter-spacing: 0.04em; color: var(--ink-3);
+}
+.dd-tiers-head .m {
+  font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--ink-2);
+}
+.dd-tier-row {
+  display: grid;
+  grid-template-columns: 2.6em minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+}
+.dd-tier-row .k {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-family: var(--font-ui); font-size: var(--text-sm); color: var(--ink-2);
+}
+.dd-tier-row .bar {
+  height: 4px; min-width: 2px;
+  border-radius: var(--r-sm);
+  justify-self: start;
+}
+.dd-tier-row .v {
+  font-family: var(--font-mono); font-size: var(--text-sm);
+  color: var(--ink); font-feature-settings: "tnum";
+}
+/* 暂停归警示声部——它是「此卡不参与调度」之状态，非熟练度之一档 */
+.dd-tier-row.paused .k { color: var(--warn); }
+.dd-tier-row.paused .bar { background: var(--warn); }
+
+/* ─────── 活动页（记-31）───────
+   旧此屏有六件同源之物：三数字 hero、三同心环、月历、90 日热力、模块条、
+   最近七日条——月历／热力／最近七日是同一序列的三种时间视图，环与模块条
+   是模块合计的两种视图。今留一件时间视图（热力）与一件模块视图（行），
+   焦点归连续天数。 */
+.act-section {
+  margin: 16px 18px 0;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-soft);
+  display: flex; flex-direction: column; gap: 7px;
+}
+.act-section-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 2px;
+}
+.act-section-head .t {
+  font-family: var(--font-ui); font-size: var(--text-xs);
+  letter-spacing: 0.04em; color: var(--ink-3);
+}
+.act-section-head .m {
+  font-family: var(--font-ui); font-size: var(--text-2xs); color: var(--ink-3);
+}
+.act-row {
+  display: grid;
+  grid-template-columns: 2.8em minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+.act-row .k {
+  font-family: var(--font-ui); font-size: var(--text-sm); color: var(--ink-2);
+}
+.act-row .track {
+  height: 4px; border-radius: var(--r-sm);
+  background: var(--bg-raised);
+  overflow: hidden;
+}
+.act-row .fill { display: block; height: 100%; border-radius: var(--r-sm); }
+/* 三模块之色为跨模块对比之数据轴——teal 之唯一登记落点（记-05） */
+.act-row .fill.recall { background: var(--accent); }
+.act-row .fill.practice { background: var(--teal); }
+.act-row .fill.reading { background: var(--good); }
+.act-row .v {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-family: var(--font-mono); font-size: var(--text-sm);
+  color: var(--ink); font-feature-settings: "tnum";
+}
+.act-row .v .t { color: var(--ink-3); }
+.act-row .v svg { color: var(--good); }
+.act-row .m {
+  grid-column: 2 / -1;
+  font-family: var(--font-ui); font-size: var(--text-2xs); color: var(--ink-3);
+}
+
 /* ─────── Chapter / Section rows ─────── */
 .ch-row {
   display: flex; align-items: center; gap: 8px;
@@ -980,53 +1077,60 @@ a { color: inherit; text-decoration: none; }
 .done-wrap {
   flex: 1;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 18px; padding: 32px 24px;
-  text-align: center;
+  gap: 4px;
+  padding: 26px 20px 32px;
+  max-width: var(--col-session);
+  margin: 0 auto;
+  width: 100%;
 }
-/* 动为仪式：全书唯一编排入场——会话完成屏（卅二条）。
-   transform/opacity 白名单内；reduced-motion 由底本全局清零。 */
-.done-wrap > * {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity var(--motion-slow), transform var(--motion-slow);
-  @starting-style { opacity: 0; transform: translateY(10px); }
-}
-.done-wrap > *:nth-child(2) { transition-delay: 60ms; }
-.done-wrap > *:nth-child(3) { transition-delay: 120ms; }
-.done-wrap > *:nth-child(n + 4) { transition-delay: 180ms; }
 .done-mark {
-  width: 76px; height: 76px;
-  border-radius: 50%;
-  background: var(--good-soft);
-  border: 1px solid color-mix(in oklch, var(--good) 30%, transparent);
+  width: 34px; height: 34px;
   display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--good);
+  border-radius: 50%;
   color: var(--good);
+  margin-bottom: 9px;
 }
 .done-title {
-  font-family: var(--font-disp);
-  font-size: var(--text-4xl);
-  font-weight: 400;
-  color: var(--ink);
-  margin-top: 6px;
-  letter-spacing: 0.005em;
-  font-feature-settings: "liga", "dlig";
-}
-.done-zh {
   font-family: var(--font-ui);
-  font-size: var(--text-md);
-  color: var(--ink-3);
-  letter-spacing: 0.04em;
-  margin-top: -4px;
+  font-size: var(--text-2xl); font-weight: 600;
+  color: var(--ink);
 }
-.done-stats {
-  display: flex; gap: 18px;
+.done-sum {
+  font-family: var(--font-mono); font-size: var(--text-md);
+  color: var(--ink-2);
+  margin-bottom: 20px;
+}
+/* 关系式（记-31）：一行一关系，键在左、值在右。
+   本次 vs 上次、正确率之升降、下次到期——皆是「所以呢」有答之量。 */
+.rel {
+  width: 100%;
+  display: flex; flex-direction: column;
+  border-top: 1px solid var(--border-soft);
+}
+.rel-row {
+  display: grid; grid-template-columns: auto 1fr;
+  align-items: baseline; gap: 14px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+.rel-row .k {
   font-family: var(--font-ui); font-size: var(--text-sm);
-  color: var(--ink-3);
-  margin-top: 4px;
+  color: var(--ink-3); white-space: nowrap;
 }
-.done-stats .v { font-family: var(--font-mono); color: var(--ink); font-weight: 500; }
+.rel-row .v {
+  font-family: var(--font-mono); font-size: var(--text-md);
+  color: var(--ink); text-align: right;
+  font-feature-settings: "tnum";
+}
+.rel-row .v em { font-style: normal; color: var(--good); }
+.done-actions {
+  width: 100%;
+  display: flex; gap: 8px;
+  margin-top: 22px;
+}
+.done-actions > * { flex: 1; }
 
-/* ─────── Preview list ─────── */
 .preview-list { display: flex; flex-direction: column; gap: 6px; }
 .preview-list .it {
   display: flex; gap: 8px;
@@ -1394,6 +1498,8 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   margin: 0 auto;
   padding-bottom: 24px;
 }
+/* 焦点行随版心，与 .act-section 同其天地——否则贴左沿而与其下诸行不齐 */
+.activity-content > .focus { margin: 0 18px; }
 .activity-hero,
 .activity-section {
   margin: 18px;
@@ -1797,27 +1903,6 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
 }
 
 /* ─────── Done grid ─────── */
-.done-grid {
-  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px;
-  width: 100%; margin-top: 4px;
-}
-.done-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.done-grid .cell {
-  padding: 10px 4px; border-radius: var(--r-sm);
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
-}
-.done-grid .cell .num {
-  font-size: var(--text-2xl); font-weight: 500;
-  font-family: var(--font-mono);
-}
-.done-grid .cell span:last-child {
-  font-family: var(--font-ui); font-size: var(--text-2xs);
-  letter-spacing: 0.1em;
-}
-.done-grid .cell.again { background: var(--danger-critical-soft); color: var(--danger-critical); }
-.done-grid .cell.hard { background: var(--warn-soft); color: var(--warn); }
-.done-grid .cell.good { background: var(--bg-raised); color: var(--ink); }
-.done-grid .cell.easy { background: var(--good-soft); color: var(--good); }
 
 /* ─────── Rate additions ─────── */
 /* 「重来」重置间隔——有后果之动作，取真红（记-25）。「重来」计数同声部。 */
