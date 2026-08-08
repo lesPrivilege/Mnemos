@@ -62,6 +62,15 @@
 
 ## 校勘记（R2 轮：主链路重定调 + 声部换刻，2026-08-09 起）
 
+### 记 2026-08-09-30 · 派生单源立，事件流升 v2
+
+- **改何**：立 `src/lib/derive/`（`events.js` 事件流 + `index.js` 选择器）；事件流 envelope 携 `schemaVersion: 2`，`type: flashcard|quiz` 归并为 `module: recall|practice`；`reviewLog.js` 整个退役，写入口收于 `recordEvent` 一处；`activity.js` 三处各自 `loadJson` 与其 `getStreak` 皆改由 derive 供给；`FlashcardHomeContent.computeStreak` 删。
+- **据何**：同一事实曾有两套算法——`computeStreak` 遍历 `card.updatedAt`，只见每张卡**最後**一次更新，同日复习同卡两次即漏计；`activity.getStreak` 另从事件流算。同名不同义，是「事件流派生区」槽位未兑现之实证（design-kanli §八）。
+- **判准**：**契约先立，UI 後接**。UI 若先落，必再造第三套自算——此非假设，本轮开工时库中已有两套。派生量一律出于此层，页面不得自算。
+- **选择器之取舍**：`todayFocus` 刻意不返回「总数」「今日已复习」——不支持决策之量不入契约（版1 之立论若只改版面而不改契约，下一个页面又会把它们取回去）。`sessionSummary` 於首场会话返回 `delta: null`，不编造比较。会话由事件流按 30 分静默阈切分而得，**不另存状态**——会话是派生，不是状态。
+- **迁移之界**：AGENTS.md 曰「不留兼容路」，然此处所迁者是**磁盘上的用户历史**，非代码里的旧路。故升格一次而後弃 v1 之形，不设兼容层，亦不删数据。
+- **证据**：vitest +29（全库 157/157）；真机浏览器实测迁移——种入 4 条 v1（含 1 条无 timestamp 之不可解者），重载後磁盘为 `schemaVersion: 2`、3 条、`type` 尽去；活动页连续天数／活跃天数／月历三处皆由新流派生，书影已验。此非 IDB，然记忆项「不以假实现代真引擎」之判准同适用——`fake-indexeddb` 与手搓 localStorage mock 是一类事。
+
 ### 记 2026-08-09-29 · 暗纸之色不是明纸之算术反演
 
 - **改何**：暗纸 `--accent` 由 `oklch(70% .145 30)` 改 `oklch(65% .165 30)`；`--accent-soft` 随之 28%→24%（守 `accent/accent-soft` 之 AA，实测 4.78），`--accent-line` 47%→45%。
