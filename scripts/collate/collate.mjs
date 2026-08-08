@@ -521,8 +521,12 @@ const REQUIRED_PAIRS = [
   ['ink-2', 'bg-raised'],
   ['ink-3', 'bg'],
   ['ink-3', 'bg-card'],
+  // 三级文亦落於 raised（.deck:active、settings 卡、骨架）——旧门只校 bg 与
+  // bg-card 两底，此落点漏校，明暗两纸皆曾在 4.4x 徘徊而门不报（记-25）。
+  ['ink-3', 'bg-raised'],
   ['accent', 'bg'],
   ['accent', 'bg-card'],
+  ['accent', 'bg-raised'],
   ['danger', 'bg'],
   ['good', 'bg'],
   ['warn', 'bg-card'],
@@ -532,12 +536,19 @@ const REQUIRED_PAIRS = [
   ['rate-hard', 'rate-hard-soft'],
   ['teal', 'teal-soft'],
   ['accent', 'accent-soft'],
+  // 后果声部（重来、删除）——真红自成一对，不与告知类之 danger 墨阶混校
+  ['danger-critical', 'bg'],
+  ['danger-critical', 'bg-card'],
+  ['danger-critical', 'danger-critical-soft'],
+  ['bg', 'danger-critical'], // 语义底纸字 destructive button（恒白在暗纸只 2.98）
   ['bg-card', 'ink'], // 墨底纸字 primary button
 ]
 
 const INFO_PAIRS = [
   ['ink-4', 'bg'],
   ['border-strong', 'bg'],
+  // 熟练度计之充填对轨：承载值的是这条边界，不是轨对底（记-25）
+  ['ink', 'ink-4'],
 ]
 
 const REQUIRED_RATIO = 4.5
