@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mnemos R2 原型 · 主链路重定调（非权威影刻）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.4/babel.min.js"></script>
+<style>
+/* ══════════════════════════════════════════════════════════
+   影刻件 · 非权威。底本仍为 src/styles/tokens.css。
+   本档所载为 R2 提案值，未入底本，不得反向抄写。
+   第二稿 —— 据雠之对读改：danger 退出熟练度序列、色域越界纠正、
+   ink-4 退出文字位、pending 态可读、焦点环与 reduced-motion 补回。
+   ══════════════════════════════════════════════════════════ */
+
+/* ── 现行案：accent 取 Dystopia 砖红真值；danger 退墨阶 ──
+   accent = oklch(51.5% .155 30) → #af3a2c，反解自色板 #B0392B，差一色阶。
+   旧甲案压到 .115 彩度唯一的理由是躲 danger；danger 既离红区，让步失据。
+   danger 之司按「后果」划线，自三收一：
+     告知类之错（notice / 错题标记 / 弱卡）→ 墨阶 + 重描边 + 图标，以形不以色
+     有后果之动作（重来重置间隔、删除毁数据）→ --danger-critical 真红
+   此为声部登记之递修，须入簿。 */
+:root{
+  --bg:            oklch(97.6% 0.002 240);
+  --bg-card:       oklch(100% 0 0);
+  --bg-raised:     oklch(95.4% 0.003 240);
+  --bg-sunken:     oklch(93.2% 0.004 240);
+  --border:        oklch(87.5% 0.005 240);
+  --border-soft:   oklch(91.8% 0.004 240);
+  --border-strong: oklch(66% 0.010 240);
+  --ink:           oklch(24% 0.006 240);
+  --ink-2:         oklch(44% 0.008 240);
+  --ink-3:         oklch(53% 0.008 240);   /* 54% 在 bg-raised 上 4.42，落 AA 线下 */
+  --ink-4:         oklch(74% 0.006 240);   /* 唯线与轨，不入文字位（2.15 不及 AA） */
+
+  --accent:        oklch(51.5% 0.155 30);  /* ≈ #af3a2c，色板 #B0392B 之反解 */
+  --accent-soft:   oklch(94.5% 0.024 30);
+  --accent-line:   oklch(76% 0.070 30);
+  --danger:          oklch(38% 0.014 240);  /* 告知类之错：墨阶，与 ink-2 有别 */
+  --danger-soft:     oklch(93.2% 0.004 240);
+  --danger-critical: oklch(48% 0.170 15);   /* 有后果之动作：重来、删除 */
+  --danger-critical-soft: oklch(94% 0.028 12);
+  --good:          oklch(51% 0.10 150);
+  --good-soft:     oklch(94% 0.028 150);
+  --warn:          oklch(52% 0.104 78);
+  --warn-soft:     oklch(94% 0.03 78);
+
+  --r-sm:2px; --r-md:4px; --r-lg:6px; --r-xl:10px;
+
+  --font-zh:   'Noto Serif SC', 'FangSong', 'STFangsong', serif;
+  --font-ui:   'Times New Roman', 'Noto Serif SC', Georgia, serif;
+  --font-disp: 'Times New Roman', 'Noto Serif SC', Georgia, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --text-2xs:.625rem; --text-xs:.6875rem; --text-sm:.75rem; --text-md:.8125rem;
+  --text-lg:.875rem;  --text-xl:1rem;     --text-2xl:1.1875rem;
+  --text-3xl:1.5rem;  --text-4xl:2.0625rem;
+  --leading-tight:1.2; --leading-normal:1.5; --leading-relaxed:1.7;
+
+  --motion-quick:120ms cubic-bezier(.2,0,0,1);
+  --motion-mid:180ms cubic-bezier(.2,0,0,1);
+  --motion-gentle:240ms cubic-bezier(.2,0,0,1);
+  --motion-slow:420ms cubic-bezier(.2,0,0,1);
+  /* 向底本提请新增两档（本档所提，未入底本）：
+     loop = 不定长进行态之循环；hold = 完成态停留后归位 */
+  --motion-loop:640ms linear;
+  --motion-hold:1600ms;
+
+  --surface-chrome-bg: color-mix(in oklch, var(--bg-card) 88%, transparent);
+  --surface-chrome-blur: blur(12px);
+  --scrim: oklch(15% 0.01 240 / .38);
+
+  --stage-bg:#e8eaec;
+}
+:root.dark{
+  --bg:            oklch(16.5% 0.005 240);
+  --bg-card:       oklch(19.5% 0.006 240);
+  --bg-raised:     oklch(23.5% 0.007 240);
+  --bg-sunken:     oklch(12.8% 0.004 240);
+  --border:        oklch(30% 0.007 240);
+  --border-soft:   oklch(25.5% 0.006 240);
+  --border-strong: oklch(45% 0.010 240);
+  --ink:           oklch(92% 0.004 240);
+  --ink-2:         oklch(74% 0.006 240);
+  --ink-3:         oklch(64% 0.007 240);   /* 61% 在 bg-raised 上 4.40，落 AA 线下 */
+  --ink-4:         oklch(41% 0.007 240);
+
+  --accent:        oklch(70% 0.145 30);
+  --accent-soft:   oklch(28% 0.050 30);
+  --accent-line:   oklch(47% 0.085 30);
+  --danger:          oklch(80% 0.010 240);
+  --danger-soft:     oklch(23.5% 0.007 240);
+  --danger-critical: oklch(69% 0.150 15);
+  --danger-critical-soft: oklch(25% 0.05 12);
+  --good:          oklch(73% 0.11 150);
+  --good-soft:     oklch(24% 0.05 150);
+  --warn:          oklch(76% 0.11 78);
+  --warn-soft:     oklch(25% 0.05 78);
+  --scrim: oklch(5% 0.01 240 / .52);
+  --stage-bg:#141617;
+}
+/* ── 乙案（唯一待裁处）：评分行全墨 ──
+   若「重来」也不给真红，则 danger 之司只剩「删除」一项，色预算再收一档；
+   代价是四档序列由色改为「描边粗细＋墨深」，第一眼识别靠形。
+   token 不动，只改评分行——差别就在屏 6/7/8 的底部一行。 */
+:root.case-b .rate-btn{background:var(--bg-card);border-color:var(--border);color:var(--ink-2);border-width:1px}
+:root.case-b .rate-btn.r-reset{border-color:var(--ink);color:var(--ink);border-width:2px;font-weight:600}
+:root.case-b .rate-btn.r-hard{border-color:var(--ink-2);color:var(--ink)}
+:root.case-b .rate-btn.r-good{border-color:var(--border-strong);color:var(--ink-2)}
+:root.case-b .rate-btn.r-easy{background:var(--bg-raised);border-color:var(--border-soft);color:var(--ink-3)}
+
+/* ─────── Stage（舞台域；阴影为舞台例外，不入应用）─────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--stage-bg);color:var(--ink);font-family:var(--font-ui);-webkit-font-smoothing:antialiased;overflow-y:auto}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.stage{min-height:100vh;padding:28px 16px 72px}
+.stage-inner{max-width:1400px;margin:0 auto;display:flex;flex-direction:column;gap:26px}
+.colophon{border:1px solid var(--border);background:var(--bg-card);border-radius:var(--r-lg);padding:16px 18px;display:flex;flex-direction:column;gap:9px}
+.colophon .warn-line{font-family:var(--font-mono);font-size:var(--text-xs);letter-spacing:.06em;color:var(--danger-critical)}
+.colophon h1{font-family:var(--font-ui);font-size:var(--text-3xl);font-weight:600;letter-spacing:.01em}
+.colophon h2{font-family:var(--font-ui);font-size:var(--text-md);font-weight:600;color:var(--ink);margin-top:3px}
+.colophon dl{display:grid;grid-template-columns:auto 1fr;gap:2px 14px;font-size:var(--text-xs)}
+.colophon dt{font-family:var(--font-ui);color:var(--ink-3)}
+.colophon dd{font-family:var(--font-mono);color:var(--ink-2)}
+.colophon p{font-family:var(--font-zh);font-size:var(--text-md);line-height:var(--leading-relaxed);color:var(--ink-2);max-width:64em}
+.colophon p em{font-style:normal;color:var(--ink);font-weight:500}
+.stage-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:3px}
+.stage-toggle{padding:6px 13px;border-radius:999px;border:1px solid var(--border);background:var(--bg-card);font-family:var(--font-ui);font-size:var(--text-sm);color:var(--ink-2);transition:border-color var(--motion-quick),color var(--motion-quick)}
+.stage-toggle.active{color:var(--bg);background:var(--ink);border-color:var(--ink)}
+.stage-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:30px 26px;align-items:start}
+.frame-wrap{display:flex;flex-direction:column;gap:9px;align-items:center}
+.frame-label{font-family:var(--font-ui);font-size:var(--text-xs);color:var(--ink-3);letter-spacing:.06em;display:flex;gap:8px;align-items:center}
+.frame-label .num{display:inline-flex;align-items:center;justify-content:center;min-width:19px;height:19px;padding:0 4px;border-radius:var(--r-sm);background:var(--bg-card);border:1px solid var(--border);color:var(--ink-2);font-family:var(--font-mono);font-size:var(--text-2xs)}
+
+/* ─────── Phone frame（舞台域）─────── */
+.phone{width:390px;height:844px;background:var(--bg);border-radius:42px;border:1px solid var(--border);box-shadow:0 4px 12px rgba(0,0,0,.10),0 16px 40px rgba(0,0,0,.10);position:relative;overflow:hidden;isolation:isolate}
+:root.dark .phone{border-color:rgba(255,255,255,.09);box-shadow:0 4px 12px rgba(0,0,0,.4),0 16px 40px rgba(0,0,0,.4)}
+.phone::before{content:"";position:absolute;top:22px;left:50%;transform:translateX(-50%);width:120px;height:34px;background:#000;border-radius:999px;z-index:30}
+.phone-status{position:absolute;top:12px;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 30px;font-family:var(--font-mono);font-size:13px;color:var(--ink);z-index:20;pointer-events:none}
+.phone-screen{position:absolute;top:62px;left:10px;right:10px;bottom:44px;overflow:hidden;background:var(--bg);display:flex;flex-direction:column}
+.phone-home{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);width:132px;height:5px;background:rgba(0,0,0,.28);border-radius:999px;z-index:10}
+:root.dark .phone-home{background:rgba(255,255,255,.42)}
+.scroll{flex:1;overflow-y:auto;scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+
+/* ─────── App chrome ─────── */
+.topbar{min-height:50px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--border);background:var(--bg);gap:8px}
+.topbar .t{font-family:var(--font-ui);font-weight:600;font-size:var(--text-xl);color:var(--ink);display:flex;align-items:center;gap:9px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-actions{display:flex;gap:2px;align-items:center;flex-shrink:0}
+.tb-btn{width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:var(--r-lg);color:var(--ink-2)}
+.tabbar{flex-shrink:0;display:flex;flex-direction:column;gap:5px;padding:8px 0 6px;border-top:1px solid var(--border-soft);background:var(--surface-chrome-bg);backdrop-filter:var(--surface-chrome-blur)}
+.tabbar-row{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--ink-3);font-family:var(--font-ui);font-size:var(--text-xs);font-weight:500}
+.tab.on{color:var(--accent)}
+.body{padding:16px 16px 26px;display:flex;flex-direction:column;gap:14px}
+
+/* ─────── 版1 · 焦点行 ─────── */
+.focus{display:flex;flex-direction:column;gap:11px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.focus .lbl{font-family:var(--font-ui);font-size:var(--text-sm);color:var(--ink-3);letter-spacing:.04em}
+.focus-main{display:flex;align-items:flex-end;justify-content:space-between;gap:14px}
+.focus-num{display:flex;align-items:baseline;gap:7px;min-width:0}
+.focus-num .n{font-family:var(--font-disp);font-size:var(--text-4xl);line-height:.95;color:var(--ink);font-feature-settings:"lnum","tnum"}
+.focus-num .u{font-family:var(--font-ui);font-size:var(--text-md);color:var(--ink-3)}
+.focus-sub{font-family:var(--font-ui);font-size:var(--text-xs);color:var(--ink-3);letter-spacing:.02em}
+
+/* ─────── 预测条 ─────── */
+.forecast{display:flex;flex-direction:column;gap:7px;padding-bottom:13px;border-bottom:1px solid var(--border-soft)}
+.forecast-head{display:flex;align-items:baseline;justify-content:space-between}
+.forecast-head .t{font-family:var(--font-ui);font-size:var(--text-xs);color:var(--ink-3);letter-spacing:.04em}
+.forecast-head .m{font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-2)}
+.fc-row{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;align-items:end;height:46px}
+.fc-col{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;min-width:0}
+.fc-col .v{font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-3);line-height:1}
+.fc-col .b{width:100%;background:var(--ink-3);border-radius:var(--r-sm) var(--r-sm) 0 0}
+.fc-col.today .b{background:var(--accent)}
+.fc-col.today .v{color:var(--accent);font-weight:500}
+.fc-col.zero .b{background:var(--ink-4)}
+.fc-axis{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;border-top:1px solid var(--border-soft);padding-top:5px}
+.fc-axis span{font-family:var(--font-ui);font-size:var(--text-2xs);color:var(--ink-3);text-align:center}
+.fc-axis span.today{color:var(--ink);font-weight:500}
+
+/* ─────── 列表 ─────── */
+.list-head{display:flex;align-items:baseline;justify-content:space-between;padding-top:2px}
+.list-head .t{font-family:var(--font-ui);font-size:var(--text-xs);color:var(--ink-3);letter-spacing:.04em;display:flex;gap:7px;align-items:baseline}
+.list-head .t em{font-style:normal;font-family:var(--font-mono);color:var(--ink-2);font-size:var(--text-2xs)}
+.list-head .sort{font-family:var(--font-ui);font-size:var(--text-xs);color:var(--ink-2);display:flex;align-items:center;gap:4px}
+.rows{display:flex;flex-direction:column}
+.deck{display:grid;grid-template-columns:30px minmax(0,1fr) auto;align-items:center;gap:12px;padding:11px 2px;border-bottom:1px solid var(--border-soft);transition:background-color var(--motion-quick);text-align:left;width:100%}
+.deck:active{background:var(--bg-raised)}
+.deck .glyph{height:30px;display:flex;align-items:center;justify-content:center;font-family:var(--font-zh);font-size:var(--text-xl);color:var(--ink-2);font-weight:500}
+.deck-meta{min-width:0;display:flex;flex-direction:column;gap:5px}
+.deck-name{font-family:var(--font-ui);font-size:var(--text-lg);font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.deck-line{display:flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-3);min-width:0}
+.deck-line .weak{color:var(--ink);font-weight:500;display:inline-flex;align-items:center;gap:3px}
+.deck-line .sep{color:var(--ink-3)}
+.deck-line .zh{font-family:var(--font-ui)}
+.deck-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.deck-due{font-family:var(--font-mono);font-size:var(--text-md);color:var(--accent);font-weight:500;font-feature-settings:"tnum"}
+.deck-done{font-family:var(--font-ui);font-size:var(--text-xs);color:var(--ink-3)}
+.deck-chev{color:var(--ink-3);display:flex}
+
+/* 熟练度计：一记一义——已稳固之比例。轨与充填两段，墨底对比 16:1。
+   「弱」不入此计（弱非 danger 之司，亦非本计所答之问），
+   由 .deck-line 之图标＋墨重承载——以形不以色。 */
+.meter{height:4px;background:var(--ink-4);border-radius:var(--r-sm);overflow:hidden}
+.meter i{display:block;height:100%;background:var(--ink)}
+
+/* ─────── 次级操作 · 按钮母题（一份实体）─────── */
+.sub-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-top:6px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 13px;border-radius:var(--r-md);font-family:var(--font-ui);font-size:var(--text-md);font-weight:500;border:1px solid transparent;line-height:1;white-space:nowrap;transition:transform var(--motion-quick),background var(--motion-mid),border-color var(--motion-mid),color var(--motion-mid)}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--ink);color:var(--bg)}
+.btn-ghost{background:var(--bg-card);border-color:var(--border);color:var(--ink-2)}
+.btn-cta{background:var(--ink);color:var(--bg);padding:11px 17px;font-size:var(--text-lg)}
+/* 版4 · 四态是 .btn 的态扩展，非平行族 */
+.btn.pending{background:var(--bg-raised);border-color:var(--border);color:var(--ink-2);cursor:default}
+.btn.pending:active{transform:none}
+.btn.done{background:var(--good-soft);color:var(--good);border-color:var(--good)}
+.btn.error{background:var(--danger-soft);color:var(--danger);border-color:var(--danger)}
+.spin{width:13px;height:13px;border-radius:50%;border:2px solid currentColor;border-top-color:transparent;animation:spin var(--motion-loop) infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.act-block{display:flex;flex-direction:column;gap:7px;padding-bottom:12px;border-bottom:1px solid var(--border-soft);align-items:flex-start}
+.act-cause{font-family:var(--font-zh);font-size:var(--text-sm);color:var(--ink-2);line-height:var(--leading-relaxed)}
+.act-note{font-family:var(--font-zh);font-size:var(--text-xs);color:var(--ink-3);line-height:var(--leading-relaxed)}
+
+/* ─────── L1 卡组详情 ─────── */
+.tier-table{display:flex;flex-direction:column}
+.tier-row{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--border-soft)}
+.tier-row .k{font-family:var(--font-ui);font-size:var(--text-sm);color:var(--ink-2);min-width:2em}
+.tier-row .v{font-family:var(--font-mono);font-size:var(--text-sm);color:var(--ink);font-feature-settings:"tnum"}
+.tier-bar{height:4px;border-radius:var(--r-sm);background:var(--ink-3)}
+.tier-row.weak .k{color:var(--ink);font-weight:500;display:inline-flex;align-items:center;gap:4px}
+.segs{display:flex;gap:6px;padding:2px 0;flex-wrap:wrap}
+.seg{padding:5px 10px;border-radius:999px;border:1px solid var(--border);background:var(--bg-card);font-family:var(--font-ui);font-size:var(--text-sm);color:var(--ink-2)}
+.seg.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.card-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:11px;align-items:center;padding:11px 2px;border-bottom:1px solid var(--border-soft);text-align:left;width:100%}
+.card-row .q{font-family:var(--font-zh);font-size:var(--text-md);color:var(--ink);line-height:var(--leading-normal);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-row .t{font-family:var(--font-ui);font-size:var(--text-2xs);color:var(--ink-3)}
+.card-row .t.weak{color:var(--ink);font-weight:500;display:inline-flex;align-items:center;gap:3px}
+.card-row .star{color:var(--accent);display:flex}
+.card-row .blank{width:13px}
+
+/* ─────── L2 会话 ─────── */
+.rv-progress{height:3px;background:var(--bg-raised);flex-shrink:0}
+.rv-progress i{display:block;height:100%;background:var(--accent);transform-origin:left;transition:transform var(--motion-gentle)}
+.rv-meta{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 0;gap:10px}
+.rv-meta .crumb{font-family:var(--font-ui);font-size:var(--text-sm);color:var(--ink-2);min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rv-meta .pos{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--ink-3);letter-spacing:.06em;flex-shrink:0}
+.rv-meta .pos b{color:var(--accent);font-weight:500}
+.rv-wrap{flex:1;min-height:0;display:flex;flex-direction:column;padding:14px 16px;gap:13px}
+.rv-card{flex:1;min-height:0;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-md);padding:20px 16px;position:relative;display:flex;flex-direction:column;overflow-y:auto}
+.rv-seal{position:absolute;top:13px;left:13px;width:19px;height:19px;border:1px solid var(--accent);border-radius:var(--r-sm);color:var(--accent);font-family:var(--font-zh);font-size:var(--text-xs);display:flex;align-items:center;justify-content:center;font-weight:500}
+.rv-q{font-family:var(--font-zh);font-size:var(--text-2xl);font-weight:500;color:var(--ink);line-height:var(--leading-relaxed);margin-top:26px}
+.rv-a{font-family:var(--font-zh);font-size:var(--text-xl);line-height:var(--leading-relaxed);color:var(--ink);margin-top:14px}
+.rv-rule{height:1px;background:var(--border-soft);margin:16px 0}
+.rv-hint{text-align:center;font-family:var(--font-ui);font-size:var(--text-2xs);color:var(--ink-3);letter-spacing:.14em;margin-top:auto;padding-top:16px}
+.rate{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:0 16px 16px}
+.rate-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:11px 4px;border-radius:var(--r-md);border:1px solid;font-family:var(--font-ui);font-size:var(--text-lg);font-weight:500;transition:transform var(--motion-quick),opacity var(--motion-mid)}
+.rate-btn:active{transform:scale(.96)}
+.rate-btn .k{font-family:var(--font-mono);font-size:var(--text-2xs);color:inherit;font-weight:400}
+.rate-btn.dim{opacity:.4}
+/* 评分四档（现行案）：重来取真红——「有后果之动作」，非告知类之错 */
+.rate-btn.r-reset{color:var(--danger-critical);background:var(--danger-critical-soft);border-color:var(--danger-critical)}
+.rate-btn.r-hard{color:var(--warn);background:var(--warn-soft);border-color:var(--warn)}
+.rate-btn.r-good{color:var(--ink-2);background:var(--bg-raised);border-color:var(--ink-2)}
+.rate-btn.r-easy{color:var(--good);background:var(--good-soft);border-color:var(--good)}
+
+/* ─────── 完成屏 ─────── */
+.done{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:26px 20px}
+.done-mark{width:34px;height:34px;border:1px solid var(--good);border-radius:50%;color:var(--good);display:flex;align-items:center;justify-content:center;margin-bottom:9px}
+.done-title{font-family:var(--font-ui);font-size:var(--text-2xl);font-weight:600;color:var(--ink)}
+.done-sum{font-family:var(--font-mono);font-size:var(--text-md);color:var(--ink-2);margin-bottom:20px}
+.rel{width:100%;display:flex;flex-direction:column;border-top:1px solid var(--border-soft)}
+.rel-row{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--border-soft)}
+.rel-row .k{font-family:var(--font-ui);font-size:var(--text-sm);color:var(--ink-3);white-space:nowrap}
+.rel-row .v{font-family:var(--font-mono);font-size:var(--text-md);color:var(--ink);text-align:right;font-feature-settings:"tnum"}
+.rel-row .v em{font-style:normal;color:var(--good)}
+.rel-row .v i{font-style:normal;color:var(--ink-3)}
+.done-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-top:22px}
+
+/* ─────── 态：空 / 载 / 错 ─────── */
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;padding:34px 26px;text-align:center}
+.empty .ic{color:var(--ink-3)}
+.empty .t{font-family:var(--font-ui);font-size:var(--text-lg);color:var(--ink-2);font-weight:500}
+.empty .h{font-family:var(--font-zh);font-size:var(--text-md);color:var(--ink-3);line-height:var(--leading-relaxed);max-width:22em}
+.sk{background:var(--bg-raised);border-radius:var(--r-sm);animation:pulse var(--motion-slow) ease-in-out infinite alternate}
+@keyframes pulse{to{opacity:.48}}
+/* 告知类之错：danger 既退墨阶，识别改由形承载——重描边（2px）＋图标恒在＋动词 */
+.notice{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;padding:12px;border:2px solid var(--danger);border-radius:var(--r-md);background:var(--danger-soft)}
+.notice .ic{color:var(--danger);margin-top:1px}
+.notice .t{font-family:var(--font-ui);font-size:var(--text-md);color:var(--ink);font-weight:500}
+.notice .d{font-family:var(--font-zh);font-size:var(--text-sm);color:var(--ink-2);line-height:var(--leading-relaxed);margin-top:3px}
+.notice .a{margin-top:9px;display:flex;gap:7px}
+.notice .a button{font-family:var(--font-ui);font-size:var(--text-sm);color:var(--danger);border:1px solid var(--danger);border-radius:var(--r-md);padding:5px 10px}
+.notice .a button.ghost{color:var(--ink-2);border-color:var(--border)}
+
+/* ─────── 屏12 · 破坏性确认（乙案之 --danger-critical 唯一落点）─────── */
+.scrim{position:absolute;inset:0;background:var(--scrim);display:flex;align-items:flex-end;z-index:40}
+.sheet{width:100%;background:var(--bg-card);border-top:1px solid var(--border);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:20px 18px calc(18px + 8px);display:flex;flex-direction:column;gap:9px}
+.sheet .t{font-family:var(--font-ui);font-size:var(--text-2xl);font-weight:600;color:var(--ink)}
+.sheet .d{font-family:var(--font-zh);font-size:var(--text-md);color:var(--ink-2);line-height:var(--leading-relaxed)}
+.sheet .acts{display:flex;flex-direction:column;gap:8px;margin-top:7px}
+/* 语义底上之字取 --bg，与 .btn-primary 同法——恒白在暗纸上只有 2.98 */
+.btn-critical{background:var(--danger-critical);color:var(--bg);border-color:var(--danger-critical);padding:12px}
+
+/* ─────── 声部对照板 ─────── */
+.cases{display:flex;flex-direction:column;gap:13px;padding:16px}
+.case-block{border:1px solid var(--border);border-radius:var(--r-md);padding:13px;display:flex;flex-direction:column;gap:9px}
+.case-block h2{font-family:var(--font-ui);font-size:var(--text-md);font-weight:600;color:var(--ink)}
+.case-block p{font-family:var(--font-zh);font-size:var(--text-xs);color:var(--ink-2);line-height:var(--leading-relaxed)}
+.sw-row{display:flex;gap:7px;flex-wrap:wrap}
+.sw{display:flex;flex-direction:column;gap:4px;align-items:center}
+.sw i{width:46px;height:30px;border-radius:var(--r-sm);border:1px solid var(--border);display:block}
+.sw span{font-family:var(--font-mono);font-size:var(--text-2xs);color:var(--ink-3)}
+.adj{display:flex;gap:7px;align-items:center;padding:9px;border:1px solid var(--border-soft);border-radius:var(--r-md)}
+.adj .tag{font-family:var(--font-mono);font-size:var(--text-2xs);padding:3px 7px;border-radius:var(--r-sm)}
+.adj .tag.a{color:var(--accent);background:var(--accent-soft)}
+.adj .tag.d{color:var(--danger);background:var(--danger-soft);border:2px solid var(--danger)}
+.adj .tag.c{color:var(--danger-critical);background:var(--danger-critical-soft);border:1px solid var(--danger-critical)}
+.adj .note{font-family:var(--font-ui);font-size:var(--text-2xs);color:var(--ink-3);margin-left:auto}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState } = React
+
+/* ══════════ Icons ══════════ */
+const Ico = ({ d, size = 20, sw = 1.6, fill = 'none' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} aria-hidden="true"
+    stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">
+    {(Array.isArray(d) ? d : [d]).map((p, i) => <path key={i} d={p} />)}
+  </svg>
+)
+const D = {
+  back: 'M14 6l-6 6 6 6',
+  chev: 'M9 6l6 6-6 6',
+  plus: 'M12 5v14M5 12h14',
+  search: 'M11 5a6 6 0 110 12 6 6 0 010-12zM21 21l-5-5',
+  gear: ['M12 8.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7z', 'M19 12a7 7 0 00-.1-1.2l1.7-1.3-1.7-3-2 .8a7 7 0 00-2.1-1.2L15 4h-3.5l-.4 2.1A7 7 0 009 7.3l-2-.8-1.7 3 1.7 1.3a7 7 0 000 2.4l-1.7 1.3 1.7 3 2-.8a7 7 0 002.1 1.2l.4 2.1H15l.4-2.1a7 7 0 002.1-1.2l2 .8 1.7-3-1.7-1.3a7 7 0 00.1-1.2z'],
+  up: 'M12 4v12M6 10l6-6 6 6M4 20h16',
+  check: 'M5 12l5 5 9-12',
+  arrow: 'M5 12h14M13 6l6 6-6 6',
+  layers: 'M12 3l9 5-9 5-9-5 9-5zm0 8l9 5-9 5-9-5',
+  grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
+  book: 'M4 4h9a3 3 0 013 3v13H7a3 3 0 01-3-3z',
+  alert: ['M12 8v5', 'M12 17h.01', 'M12 3l9 17H3z'],
+  sort: 'M7 4v16M7 20l-3-3M17 20V4M17 4l3 3',
+  star: 'M12 3l2.7 5.9 6.3.6-4.8 4.5 1.5 6.5L12 17l-5.7 3.5 1.5-6.5L3 9.5l6.3-.6z',
+  trash: 'M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13',
+  x: 'M18 6L6 18M6 6l12 12',
+}
+const Mark = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 64 64" fill="none" aria-hidden="true">
+    <path d="M10 52 L10 14 L20 14 L32 30 L44 14 L54 14 L54 52" stroke="currentColor" strokeWidth="5" strokeLinecap="square" strokeLinejoin="miter" />
+    <path d="M22 24 L32 38 L42 24" stroke="var(--accent)" strokeWidth="3" strokeLinecap="square" strokeLinejoin="miter" />
+    <rect x="6" y="50" width="12" height="4" fill="currentColor" />
+    <rect x="46" y="50" width="12" height="4" fill="currentColor" />
+  </svg>
+)
+
+/* ══════════ Mock data ══════════ */
+const DECKS = [
+  { g: '学', name: '学习方法', due: 8, solid: 12, total: 24, weak: 3, when: '2 小时前' },
+  { g: '日', name: '日语 N2 词汇', due: 4, solid: 40, total: 86, weak: 8, when: '昨天' },
+  { g: '统', name: '统计推断', due: 0, solid: 38, total: 52, weak: 2, when: '3 天前' },
+  { g: '药', name: '药理学 · 期中', due: 0, solid: 20, total: 120, weak: 0, when: '上周' },
+]
+const FORECAST = [
+  { d: '今', n: 12, today: true }, { d: '二', n: 5 }, { d: '三', n: 9 }, { d: '四', n: 3 },
+  { d: '五', n: 0 }, { d: '六', n: 7 }, { d: '日', n: 2 },
+]
+const TIERS = [
+  { k: '稳', v: 12, w: 50 }, { k: '中', v: 5, w: 21 },
+  { k: '弱', v: 3, w: 12.5, weak: true }, { k: '新', v: 4, w: 16.5 },
+]
+const CARDS = [
+  { q: '间隔重复的核心假设是什么？', t: '稳' },
+  { q: 'SM-2 中 EF 的下限取值', t: '弱', star: true },
+  { q: '为什么首次复习间隔定在一天后？', t: '中' },
+  { q: 'leech 卡的处理策略有哪几种', t: '新' },
+  { q: '主动回忆与重读在留存率上的差异', t: '稳' },
+  { q: '遗忘曲线的横轴与纵轴分别是什么', t: '中' },
+]
+
+/* ══════════ Frame primitives ══════════ */
+function Phone({ n, label, children }) {
+  return (
+    <div className="frame-wrap">
+      <div className="frame-label"><span className="num">{n}</span>{label}</div>
+      <div className="phone">
+        <div className="phone-status"><span>9:41</span><span>▮▮▮ ▯</span></div>
+        <div className="phone-screen">{children}</div>
+        <div className="phone-home" />
+      </div>
+    </div>
+  )
+}
+
+function TopBar({ title, mark, back, actions }) {
+  const inner = mark
+    ? <div className="t"><Mark size={21} />{title}</div>
+    : <div className="t">{back ? <Ico d={D.back} size={19} /> : null}{title}</div>
+  return <div className="topbar">{inner}<div className="tb-actions">{actions}</div></div>
+}
+
+function TabBar() {
+  const tabs = [{ k: 'quiz', t: '练习', d: D.grid }, { k: 'recall', t: '记忆', d: D.layers }, { k: 'read', t: '阅读', d: D.book }]
+  return (
+    <div className="tabbar">
+      <div className="tabbar-row">
+        {tabs.map((x) => (
+          <div key={x.k} className={'tab' + (x.k === 'recall' ? ' on' : '')}>
+            <Ico d={x.d} size={20} /><span>{x.t}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+const HOME_ACTIONS = [
+  <div key="s" className="tb-btn" tabIndex={0} role="button" aria-label="搜索"><Ico d={D.search} size={19} /></div>,
+  <div key="g" className="tb-btn" tabIndex={0} role="button" aria-label="设置"><Ico d={D.gear} size={19} /></div>,
+]
+
+const HomeChrome = ({ children }) => (
+  <React.Fragment>
+    <TopBar title="Mnemos" mark actions={HOME_ACTIONS} />
+    <div className="scroll">{children}</div>
+    <TabBar />
+  </React.Fragment>
+)
+
+/* ══════════ 版1 · 焦点行 ══════════ */
+function Focus({ label, value, unit, sub, cta }) {
+  return (
+    <div className="focus">
+      <span className="lbl">{label}</span>
+      <div className="focus-main">
+        <div className="focus-num"><span className="n">{value}</span><span className="u">{unit}</span></div>
+        <button className="btn btn-cta">{cta}<Ico d={D.arrow} size={15} /></button>
+      </div>
+      {sub ? <div className="focus-sub">{sub}</div> : null}
+    </div>
+  )
+}
+
+function Forecast({ data }) {
+  const max = Math.max(1, ...data.map((x) => x.n))
+  const total = data.reduce((s, x) => s + x.n, 0)
+  return (
+    <div className="forecast">
+      <div className="forecast-head"><span className="t">未来七日到期</span><span className="m">合计 {total}</span></div>
+      <div className="fc-row">{data.map((x, i) => <FcCol key={i} x={x} max={max} />)}</div>
+      <div className="fc-axis">{data.map((x, i) => <span key={i} className={x.today ? 'today' : ''}>{x.d}</span>)}</div>
+    </div>
+  )
+}
+
+function FcCol({ x, max }) {
+  const h = x.n === 0 ? 2 : Math.max(6, Math.round((x.n / max) * 32))
+  const cls = 'fc-col' + (x.today ? ' today' : '') + (x.n === 0 ? ' zero' : '')
+  return (
+    <div className={cls}>
+      <span className="v">{x.n === 0 ? '·' : x.n}</span>
+      <span className="b" style={{ height: h }} />
+    </div>
+  )
+}
+
+/* ══════════ 版3 · 卡组行 ══════════ */
+const Meter = ({ solid, total }) => (
+  <div className="meter"><i style={{ width: Math.round((solid / total) * 100) + '%' }} /></div>
+)
+
+function DeckRow({ d }) {
+  const right = d.due > 0
+    ? <span className="deck-due">{d.due}</span>
+    : <span className="deck-done">已清</span>
+  const weak = d.weak > 0
+    ? <span className="weak"><Ico d={D.alert} size={9} sw={2} />弱 {d.weak}</span>
+    : <span>稳 {d.solid}/{d.total}</span>
+  return (
+    <button className="deck">
+      <span className="glyph">{d.g}</span>
+      <span className="deck-meta">
+        <span className="deck-name">{d.name}</span>
+        <Meter solid={d.solid} total={d.total} />
+        <span className="deck-line">
+          {weak}<span className="sep">·</span><span className="zh">{d.when}复习</span>
+        </span>
+      </span>
+      <span className="deck-right">{right}<span className="deck-chev"><Ico d={D.chev} size={15} /></span></span>
+    </button>
+  )
+}
+
+/* ══════════ 屏 1 · 记忆首页 · 常态 ══════════ */
+function HomeNormal() {
+  return (
+    <HomeChrome>
+      <div className="body">
+        <Focus label="今日" value="12" unit="张待复习" sub="学习方法 8 · 日语 N2 词汇 4" cta="开始复习" />
+        <Forecast data={FORECAST} />
+        <div className="list-head">
+          <span className="t">卡组<em>4</em></span>
+          <span className="sort"><Ico d={D.sort} size={13} />待复习优先</span>
+        </div>
+        <div className="rows">{DECKS.map((d, i) => <DeckRow key={i} d={d} />)}</div>
+        <div className="sub-actions">
+          <button className="btn btn-ghost"><Ico d={D.up} size={15} />导入</button>
+          <button className="btn btn-ghost"><Ico d={D.plus} size={15} />新建卡组</button>
+        </div>
+      </div>
+    </HomeChrome>
+  )
+}
+
+/* ══════════ 屏 2 · 首页 · 空 ══════════ */
+function HomeEmpty() {
+  return (
+    <HomeChrome>
+      <div className="empty">
+        <span className="ic"><Ico d={D.layers} size={30} sw={1.2} /></span>
+        <span className="t">还没有卡组</span>
+        <span className="h">从 Markdown 导入，或新建一个空卡组开始。示例卡组可在设置里取用。</span>
+        <div className="sub-actions" style={{ marginTop: 14, width: 240 }}>
+          <button className="btn btn-ghost"><Ico d={D.up} size={15} />导入</button>
+          <button className="btn btn-primary"><Ico d={D.plus} size={15} />新建卡组</button>
+        </div>
+      </div>
+    </HomeChrome>
+  )
+}
+
+/* ══════════ 屏 3 · 首页 · 载 ══════════ */
+const SkRow = () => (
+  <div className="deck">
+    <span className="sk" style={{ width: 30, height: 30 }} />
+    <span className="deck-meta">
+      <span className="sk" style={{ width: '58%', height: 13 }} />
+      <span className="sk" style={{ height: 4 }} />
+      <span className="sk" style={{ width: '38%', height: 9 }} />
+    </span>
+    <span className="sk" style={{ width: 16, height: 15 }} />
+  </div>
+)
+
+function HomeLoading() {
+  return (
+    <HomeChrome>
+      <div className="body" aria-busy="true">
+        <div className="focus">
+          <span className="sk" style={{ width: 44, height: 12 }} />
+          <div className="focus-main">
+            <span className="sk" style={{ width: 96, height: 34 }} />
+            <span className="sk" style={{ width: 118, height: 38, borderRadius: 'var(--r-md)' }} />
+          </div>
+        </div>
+        <div className="sk" style={{ height: 62 }} />
+        <div className="list-head"><span className="sk" style={{ width: 58, height: 11 }} /></div>
+        <div className="rows">{[0, 1, 2, 3].map((i) => <SkRow key={i} />)}</div>
+      </div>
+    </HomeChrome>
+  )
+}
+
+/* ══════════ 屏 4 · 首页 · 错（隔离区公民态）══════════ */
+function HomeError() {
+  return (
+    <HomeChrome>
+      <div className="body">
+        <div className="notice" role="alert">
+          <span className="ic"><Ico d={D.alert} size={17} /></span>
+          <div>
+            <div className="t">两个卡组暂时读不出来</div>
+            <div className="d">已把这两份数据原样留存，不会被覆盖。可以先导出留档，再试着重新读取。其余卡组不受影响。</div>
+            <div className="a"><button>重新读取</button><button className="ghost">导出留档</button></div>
+          </div>
+        </div>
+        <Focus label="今日" value="4" unit="张待复习" sub="日语 N2 词汇 4" cta="开始复习" />
+        <div className="list-head"><span className="t">可用卡组<em>2</em></span></div>
+        <div className="rows">{DECKS.slice(1, 3).map((d, i) => <DeckRow key={i} d={d} />)}</div>
+      </div>
+    </HomeChrome>
+  )
+}
+
+/* ══════════ 屏 5 · 卡组详情 ══════════ */
+const TierRow = ({ t }) => (
+  <div className={'tier-row' + (t.weak ? ' weak' : '')}>
+    <span className="k">{t.weak ? <Ico d={D.alert} size={10} sw={2} /> : null}{t.k}</span>
+    <span className="tier-bar" style={{ width: t.w + '%' }} />
+    <span className="v">{t.v}</span>
+  </div>
+)
+
+const CardRow = ({ c }) => (
+  <button className="card-row">
+    {c.star ? <span className="star"><Ico d={D.star} size={13} fill="currentColor" /></span> : <span className="blank" />}
+    <span className="q">{c.q}</span>
+    <span className={'t' + (c.t === '弱' ? ' weak' : '')}>
+      {c.t === '弱' ? <Ico d={D.alert} size={9} sw={2} /> : null}{c.t}
+    </span>
+  </button>
+)
+
+function DeckDetail() {
+  return (
+    <React.Fragment>
+      <TopBar title="学习方法" back actions={[<div key="p" className="tb-btn" tabIndex={0} role="button" aria-label="新建卡片"><Ico d={D.plus} size={19} /></div>]} />
+      <div className="scroll">
+        <div className="body">
+          <Focus label="本卡组" value="8" unit="张待复习" sub="共 24 张 · 上次 2 小时前" cta="开始复习" />
+          <div className="tier-table">{TIERS.map((t) => <TierRow key={t.k} t={t} />)}</div>
+          <div className="segs">
+            <span className="seg on">全部 24</span><span className="seg">待复习 8</span>
+            <span className="seg">收藏 2</span><span className="seg">错题 1</span>
+          </div>
+          <div className="rows">{CARDS.map((c, i) => <CardRow key={i} c={c} />)}</div>
+        </div>
+      </div>
+    </React.Fragment>
+  )
+}
+
+/* ══════════ 屏 6–8 · 会话 ══════════ */
+const RATES = [
+  { t: '重来', k: '1', c: 'r-reset' }, { t: '困难', k: '2', c: 'r-hard' },
+  { t: '良好', k: '4', c: 'r-good' }, { t: '容易', k: '5', c: 'r-easy' },
+]
+
+function RateRow({ dim }) {
+  return (
+    <div className="rate">
+      {RATES.map((r) => (
+        <button key={r.t} disabled={dim} className={'rate-btn ' + r.c + (dim ? ' dim' : '')}>
+          <span>{r.t}</span><span className="k">{r.k}</span>
+        </button>
+      ))}
+    </div>
+  )
+}
+
+const SessionHead = () => (
+  <React.Fragment>
+    <div className="rv-progress"><i style={{ transform: 'scaleX(0.125)' }} /></div>
+    <div className="rv-meta">
+      <span className="crumb">学习方法 · 第二章 编码</span>
+      <span className="pos"><b>03</b> / 24</span>
+    </div>
+  </React.Fragment>
+)
+
+function SessionQ() {
+  return (
+    <React.Fragment>
+      <SessionHead />
+      <div className="rv-wrap">
+        <div className="rv-card">
+          <div className="rv-q">为什么首次复习的间隔定在一天之后，而不是当天？</div>
+          <div className="rv-hint">轻点显示答案</div>
+        </div>
+      </div>
+      <RateRow dim />
+    </React.Fragment>
+  )
+}
+
+function SessionA() {
+  return (
+    <React.Fragment>
+      <SessionHead />
+      <div className="rv-wrap">
+        <div className="rv-card">
+          <div className="rv-seal">答</div>
+          <div className="rv-q">为什么首次复习的间隔定在一天之后，而不是当天？</div>
+          <div className="rv-rule" />
+          <div className="rv-a">当天重复接近于重读，提取难度过低，留存收益很小。隔夜之后记忆痕迹已有衰减，此时提取才构成有效的检索练习。</div>
+        </div>
+      </div>
+      <RateRow />
+    </React.Fragment>
+  )
+}
+
+function SessionErr() {
+  return (
+    <React.Fragment>
+      <SessionHead />
+      <div className="rv-wrap">
+        <div className="notice" role="alert">
+          <span className="ic"><Ico d={D.alert} size={17} /></span>
+          <div>
+            <div className="t">这张卡的内容读不出来</div>
+            <div className="d">答案字段是空的，已跳过并留存原样。可以先看下一张，稍后在卡组里补上；本次进度不受影响。</div>
+            <div className="a"><button>看下一张</button><button className="ghost">去编辑</button></div>
+          </div>
+        </div>
+      </div>
+      <RateRow dim />
+    </React.Fragment>
+  )
+}
+
+/* ══════════ 屏 9 · 完成屏（关系式）══════════ */
+const REL = [
+  { k: '较上次', v: <span><em>多 6 张</em> <i>·</i> <em>快 1 分 40 秒</em></span> },
+  { k: '正确率', v: <span>92% <em>↑ 4</em></span> },
+  { k: '下次到期', v: <span>明天 09:00 <i>· 6 张</i></span> },
+]
+
+const RelRow = ({ r }) => (
+  <div className="rel-row"><span className="k">{r.k}</span><span className="v">{r.v}</span></div>
+)
+
+function Done() {
+  return (
+    <React.Fragment>
+      <TopBar title="学习方法" back actions={[<div key="x" className="tb-btn" tabIndex={0} role="button" aria-label="关闭"><Ico d={D.x} size={19} /></div>]} />
+      <div className="done">
+        <div className="done-mark"><Ico d={D.check} size={17} sw={2} /></div>
+        <div className="done-title">这一轮做完了</div>
+        <div className="done-sum">24 张 · 8 分 12 秒</div>
+        <div className="rel">{REL.map((r, i) => <RelRow key={i} r={r} />)}</div>
+        <div className="done-actions">
+          <button className="btn btn-ghost">回到卡组</button>
+          <button className="btn btn-primary">继续 日语 N2</button>
+        </div>
+      </div>
+    </React.Fragment>
+  )
+}
+
+/* ══════════ 屏 10 · 动作四态 ══════════ */
+const ACTS = [
+  { s: '', label: '导入', cls: 'btn-primary', note: '静止态。墨底纸字——主操作用墨，accent 不作按钮底色（判例四）。' },
+  { s: 'pending', label: '导入中', spin: true, note: '进行态。降为 raised 底、ink-2 字（可读；旧稿用 ink-4 底只有 2.15，进行态最该读时读不出）。转圈只动 transform。' },
+  { s: 'done', label: '已导入 42 张', icon: D.check, note: '完成态。停留 --motion-hold 后归位，不做庆祝动画（每屏至多一处入场）。' },
+  { s: 'error', label: '重试导入', icon: D.alert, cause: '第 12 行缺少答案分隔符 —— 该行已跳过，其余 41 张可继续导入。', note: '错态。缘由与下一步同出（与屏4、屏8 之 notice 同规格）；色配非色线索。' },
+]
+
+const ActBlock = ({ a }) => (
+  <div className="act-block">
+    {a.cause ? <span className="act-cause">{a.cause}</span> : null}
+    <button className={'btn ' + (a.cls || '') + ' ' + a.s}>
+      {a.spin ? <span className="spin" /> : null}
+      {a.icon ? <Ico d={a.icon} size={15} sw={2} /> : null}
+      {a.label}
+    </button>
+    <span className="act-note">{a.note}</span>
+  </div>
+)
+
+function ActionStates() {
+  return (
+    <React.Fragment>
+      <TopBar title="动作四态" back />
+      <div className="scroll">
+        <div className="body">
+          {ACTS.map((a, i) => <ActBlock key={i} a={a} />)}
+          <span className="act-note">取 loader-buttons 之纪律，不取其装饰：其半数为 WebGL 摆件，入不了家讳6 与「静为常」。此处只留「动作有态、态有缘由与下一步」一条。</span>
+        </div>
+      </div>
+    </React.Fragment>
+  )
+}
+
+/* ══════════ 屏 11 · 破坏性确认（乙案唯一真红落点）══════════ */
+function ConfirmDestroy() {
+  return (
+    <React.Fragment>
+      <TopBar title="学习方法" back actions={[<div key="t" className="tb-btn" tabIndex={0} role="button" aria-label="删除"><Ico d={D.trash} size={19} /></div>]} />
+      <div className="body" style={{ opacity: .5 }}>
+        <Focus label="本卡组" value="8" unit="张待复习" sub="共 24 张" cta="开始复习" />
+      </div>
+      <div className="scrim">
+        <div className="sheet" role="dialog" aria-modal="true">
+          <span className="t">删除「学习方法」？</span>
+          <span className="d">连同 24 张卡片与它们的复习记录一并删除，无法撤销。若只是想暂时收起，可以改用归档。</span>
+          <div className="acts">
+            <button className="btn btn-critical"><Ico d={D.trash} size={15} />删除卡组与 24 张卡片</button>
+            <button className="btn btn-ghost">改为归档</button>
+            <button className="btn btn-ghost">取消</button>
+          </div>
+        </div>
+      </div>
+    </React.Fragment>
+  )
+}
+
+/* ══════════ 屏 12 · 声部对照 ══════════ */
+const SW = [
+  { n: 'accent', c: 'var(--accent)' }, { n: 'accent-soft', c: 'var(--accent-soft)' },
+  { n: 'danger 墨', c: 'var(--danger)' }, { n: 'critical', c: 'var(--danger-critical)' },
+  { n: 'good', c: 'var(--good)' }, { n: 'warn', c: 'var(--warn)' }, { n: 'ink', c: 'var(--ink)' },
+]
+
+const Sw = ({ s }) => (
+  <span className="sw"><i style={{ background: s.c }} /><span>{s.n}</span></span>
+)
+
+function ColorCases() {
+  return (
+    <React.Fragment>
+      <TopBar title="声部对照" back />
+      <div className="scroll">
+        <div className="cases">
+          <div className="case-block">
+            <h2>当前案（顶部开关切甲/乙）</h2>
+            <div className="sw-row">{SW.map((s) => <Sw key={s.n} s={s} />)}</div>
+          </div>
+          <div className="case-block">
+            <h2>danger 之司，自三收一</h2>
+            <p>登记原载三司：重来、错、destructive。今按<em>「有无后果」</em>划线，非按屏之轻重划线——</p>
+            <div className="adj"><span className="tag d">notice · 错题 · 弱</span><span className="note">告知类 → 墨阶＋2px 描边＋图标</span></div>
+            <div className="adj"><span className="tag c">重来 · 删除</span><span className="note">有后果 → danger-critical 真红</span></div>
+            <p>如此 danger 只剩一司「后果」，是一句可写入簿册的话，不是「这屏不重要故不给色」。</p>
+          </div>
+          <div className="case-block">
+            <h2>两红同屏：会话答面</h2>
+            <p>进度条与「答」朱印属 accent（当前位置），评分行「重来」属 critical（后果）。二者明度比 1.18，但色相 30 与 15 分属锈与绛，且非同类记号——一为条一为钮，不构成误读。</p>
+            <div className="adj"><span className="tag a">进度条 · 答</span><span className="tag c">重来</span><span className="note">相隔一屏之高</span></div>
+            <p>旧稿另称卡组行、详情页亦相邻——复核不实，`.rv-meta .pos` 与 `.seg` 本非声部色，已更正。</p>
+          </div>
+          <div className="case-block">
+            <h2>待裁：评分行全墨？</h2>
+            <p>切「乙案」看屏 6/7/8 底部一行。全墨则 danger 只剩「删除」一司，色预算再收一档；代价是四档序列由色改为描边粗细＋墨深，第一眼识别靠形。token 不动，差别只在这一行。</p>
+          </div>
+        </div>
+      </div>
+    </React.Fragment>
+  )
+}
+
+/* ══════════ Stage ══════════ */
+const SCREENS = [
+  { n: '1', label: '记忆首页 · 常', el: <HomeNormal /> },
+  { n: '2', label: '记忆首页 · 空', el: <HomeEmpty /> },
+  { n: '3', label: '记忆首页 · 载', el: <HomeLoading /> },
+  { n: '4', label: '记忆首页 · 错', el: <HomeError /> },
+  { n: '5', label: 'L1 卡组详情', el: <DeckDetail /> },
+  { n: '6', label: 'L2 会话 · 问面', el: <SessionQ /> },
+  { n: '7', label: 'L2 会话 · 答面', el: <SessionA /> },
+  { n: '8', label: 'L2 会话 · 错', el: <SessionErr /> },
+  { n: '9', label: '完成屏 · 关系式', el: <Done /> },
+  { n: '10', label: '动作四态谱', el: <ActionStates /> },
+  { n: '11', label: '破坏性确认', el: <ConfirmDestroy /> },
+  { n: '12', label: '声部对照', el: <ColorCases /> },
+]
+
+function Colophon({ dark, caseB, onDark, onCase }) {
+  return (
+    <div className="colophon">
+      <span className="warn-line">影刻件 · 非权威 · 不得反向抄入底本</span>
+      <h1>Mnemos R2 原型 · 主链路重定调</h1>
+      <dl>
+        <dt>据底本</dt><dd>src/styles/tokens.css @ 87090d4（v1.5.0）</dd>
+        <dt>生成器</dt><dd>Claude Opus 5 · design-prototype 骨架 · React 18 + Babel standalone</dd>
+        <dt>稿次</dt><dd>第三稿（二稿治雠之七件不刊；三稿从主令：accent 取色板真值、danger 退墨阶）</dd>
+        <dt>射程</dt><dd>只提 ink 阶 / accent / danger / danger-critical / on-semantic / motion-loop / motion-hold；teal、rate-hard、plum、col-*、sp-*、code-*、tk-* 一概不动</dd>
+        <dt>视口</dt><dd>390 × 844 竖向</dd>
+        <dt>字</dt><dd>朱雀仿宋无 CDN，内容轨以 Noto Serif SC 代显</dd>
+      </dl>
+      <h2>本稿要验的四条</h2>
+      <p><em>版1</em> 焦点行取代三数字盒——单一主数 + 唯一主行动。<em>版2</em> 行内 CTA 撤净，导入/新建降为次级。<em>版3</em> 卡组行承载熟练度计与时序。<em>版4</em> 动作四态，态有缘由与下一步。</p>
+      <h2>三稿：accent 取真值，danger 退墨阶</h2>
+      <p><em>accent = oklch(51.5% .155 30) ≈ #af3a2c</em>，反解自色板 #B0392B，差一色阶。二稿压到 .115 彩度唯一的理由是躲 danger；danger 既离红区，让步失据，故取真值。</p>
+      <p><em>danger 之司自三收一。</em>按「有无后果」划线：告知类之错（notice、错题标记、弱卡）退墨阶，识别改由 2px 描边＋恒在图标＋明确动词承载；有后果之动作（重来重置间隔、删除毁数据）留真红 danger-critical。此为声部登记之递修，须入簿。</p>
+      <h2>二稿已治（雠之七件不刊）</h2>
+      <p>「弱」退出 danger 归墨阶——弱是熟练度末档，非错；熟练度收为一记一义的<em>熟练度计</em>（已稳固之比例，墨对轨 16:1），四档全谱移 L1 作带标签之表。另：出色域之 danger 已撤；ink-4 退出一切文字位（明 2.15／暗 2.07）；暗案 ink-3 由 61% 提至 64%（旧值在 bg-raised 上 4.40）；pending 态改 raised 底 ink-2 字；焦点环与 reduced-motion 补回；进度条改 scaleX；.act 收为 .btn 的态扩展；app 域色字面量清零；屏 12 相邻三例中两例复核不实，已更正。</p>
+      <div className="stage-controls">
+        <button className={'stage-toggle' + (dark ? ' active' : '')} onClick={onDark}>{dark ? '暗' : '明'}</button>
+        <button className={'stage-toggle' + (caseB ? '' : ' active')} onClick={() => onCase(false)}>甲案 · 重来留真红</button>
+        <button className={'stage-toggle' + (caseB ? ' active' : '')} onClick={() => onCase(true)}>乙案 · 评分行全墨</button>
+      </div>
+    </div>
+  )
+}
+
+function App() {
+  const [dark, setDark] = useState(false)
+  const [caseB, setCaseB] = useState(false)
+  const toggleDark = () => {
+    document.documentElement.classList.toggle('dark')
+    setDark(!dark)
+  }
+  const setCase = (v) => {
+    document.documentElement.classList.toggle('case-b', v)
+    setCaseB(v)
+  }
+  return (
+    <div className="stage">
+      <div className="stage-inner">
+        <Colophon dark={dark} caseB={caseB} onDark={toggleDark} onCase={setCase} />
+        <div className="stage-grid">
+          {SCREENS.map((s) => <Phone key={s.n} n={s.n} label={s.label}>{s.el}</Phone>)}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />)
+</script>
+</body>
+</html>

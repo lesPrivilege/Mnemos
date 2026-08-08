@@ -6,27 +6,31 @@
    ═══════════════════════════════════════════════════ */
 
 :root {
-  /* Light · archival neutral. Deliberately avoids the cream/terracotta
-     pairing that became a generic AI-product default. */
-  --bg:            oklch(98.2% 0.002 250);
+  /* Light · Dystopia 中性灰阶（R2 换刻，记-25）。灰由 hue 250 微移至 240，
+     值据色板反解：纸 #F4F5F6、界 #DDE1E4、次墨 #565C5F、墨 #2A2D2E。
+     仍拒 cream/terracotta 那对已成 AI 产品默认的配色。 */
+  --bg:            oklch(97.6% 0.002 240);
   --bg-card:       oklch(100% 0 0);
-  --bg-raised:     oklch(96.2% 0.004 250);
-  --bg-sunken:     oklch(94.8% 0.005 250);
-  --border:        oklch(84.5% 0.008 250);
-  --border-soft:   oklch(90.5% 0.006 250);
-  --border-strong: oklch(63% 0.014 250);
-  --ink:           oklch(19% 0.012 250);
-  --ink-2:         oklch(42% 0.014 250);
-  --ink-3:         oklch(54% 0.012 250);
-  --ink-4:         oklch(74% 0.009 250);
-  /* Brand copper, anchored to the launcher icon's hue. Light value sits
-     one step deeper than the icon's #B86A30: copper renders as small text
-     (due counts, streak, position marks), and 刊例第五条 rules that a
-     one-value-many-consumers token takes the strictest consumer — 4.5:1
-     on --bg-card. The icon raster keeps its own copper untouched. */
-  --accent:        oklch(50% 0.122 55);
-  --accent-soft:   oklch(95% 0.025 55);
-  --accent-line:   oklch(77% 0.065 55);
+  --bg-raised:     oklch(95.4% 0.003 240);
+  --bg-sunken:     oklch(93.2% 0.004 240);
+  --border:        oklch(87.5% 0.005 240);
+  --border-soft:   oklch(91.8% 0.004 240);
+  --border-strong: oklch(66% 0.010 240);
+  --ink:           oklch(24% 0.006 240);
+  --ink-2:         oklch(44% 0.008 240);
+  /* 53% 而非 54%：54% 在 --bg-raised 上只有 4.42，落 AA 线下。此落点
+     旧门未校（门三只校 ink-3/bg 与 ink-3/bg-card），本轮补入（记-25）。 */
+  --ink-3:         oklch(53% 0.008 240);
+  /* --ink-4 唯线、轨、禁用之形，不入文字位：对 --bg 仅 2.15，连图形 3:1
+     亦不及。凡以 ink-4 排字者皆讹（记-25）。 */
+  --ink-4:         oklch(74% 0.006 240);
+  /* 砖红，反解自 Dystopia 色板 #B0392B（≈ #af3a2c，差一色阶）。
+     accent 作小字排（due 数、streak、位置记），故取最严消费者 4.5:1
+     於 --bg-card——实测 6.08，不必再压。铜 #B86A30 於本轮退役（判例四
+     递修：职司不变，锚色已换）。 */
+  --accent:        oklch(51.5% 0.155 30);
+  --accent-soft:   oklch(94.5% 0.024 30);
+  --accent-line:   oklch(76% 0.070 30);
   --teal:          oklch(45% 0.062 215);
   --teal-soft:     oklch(94% 0.018 215);
   --teal-line:     oklch(79% 0.04 215);
@@ -34,8 +38,15 @@
   --good-soft:     oklch(94% 0.028 150);
   --warn:          oklch(52% 0.104 78);
   --warn-soft:     oklch(94% 0.03 78);
-  --danger:        oklch(48% 0.17 15);
-  --danger-soft:   oklch(94% 0.028 12);
+  /* danger 之司自三收一，按「有无后果」划线（记-25）：
+       告知类之错（错误提示、错题标记、弱卡）→ --danger 墨阶，
+         识别改由 2px 描边＋恒在图标＋明确动词承载，以形不以色；
+       有后果之动作（重来重置间隔、删除毁数据）→ --danger-critical 真红。
+     墨阶之值与 --ink-2 有别（38 vs 44），免声部被静默并入墨。 */
+  --danger:        oklch(38% 0.014 240);
+  --danger-soft:   oklch(93.2% 0.004 240);
+  --danger-critical:      oklch(48% 0.170 15);
+  --danger-critical-soft: oklch(94% 0.028 12);
   --plum:          oklch(46% 0.09 320);
   --rate-hard:     oklch(48% 0.098 95);
   --rate-hard-soft: oklch(93.5% 0.03 95);
@@ -139,6 +150,11 @@
   --motion-mid:    180ms cubic-bezier(0.2, 0, 0, 1);
   --motion-gentle: 240ms cubic-bezier(0.2, 0, 0, 1);
   --motion-slow:   420ms cubic-bezier(0.2, 0, 0, 1);
+  /* 动作四态之循环（记-31）：不定长进行态，唯 linear——匀速方读作
+     「还在转」，带缓动的循环会读作心跳。其性质与上四档（过渡）不同，
+     故另立而不混入。完成态之驻留时长不入此处：那是 JS 计时，非 CSS 值，
+     底本不辖；置之於此即成零消费者之槽（记-18 所拒）。 */
+  --motion-loop:   640ms linear;
 
   /* ─────── Surfaces — light ───────
      Composite semantics built from the primitives above.
@@ -164,7 +180,7 @@
   --surface-raised:        var(--bg-raised);
   --surface-overlay:       var(--bg-card);
   /* 幕布：遮罩恒为暗纱，不随纸色反转（overlay/modal/panel 共用一部） */
-  --scrim:                 oklch(15% 0.01 250 / 0.38);
+  --scrim:                 oklch(15% 0.01 240 / 0.38);
 }
 
 /* 同版异纸（第五条，记-10）：内容纸之宋刻本——切换只发生在此，组件零分支。
@@ -174,21 +190,28 @@
 }
 
 :root.dark {
-  /* Dark · neutral graphite */
-  --bg:            oklch(16% 0.008 250);
-  --bg-card:       oklch(19% 0.009 250);
-  --bg-raised:     oklch(23% 0.010 250);
-  --bg-sunken:     oklch(12.5% 0.007 250);
-  --border:        oklch(30% 0.010 250);
-  --border-soft:   oklch(25.5% 0.009 250);
-  --border-strong: oklch(43% 0.014 250);
-  --ink:           oklch(92% 0.007 250);
-  --ink-2:         oklch(74% 0.009 250);
-  --ink-3:         oklch(61% 0.010 250);
-  --ink-4:         oklch(41% 0.010 250);
-  --accent:        #D9945E;
-  --accent-soft:   oklch(27% 0.04 55);
-  --accent-line:   oklch(47% 0.08 55);
+  /* Dark · Dystopia graphite（R2 换刻，记-25） */
+  --bg:            oklch(16.5% 0.005 240);
+  --bg-card:       oklch(19.5% 0.006 240);
+  --bg-raised:     oklch(23.5% 0.007 240);
+  --bg-sunken:     oklch(12.8% 0.004 240);
+  --border:        oklch(30% 0.007 240);
+  --border-soft:   oklch(25.5% 0.006 240);
+  --border-strong: oklch(45% 0.010 240);
+  --ink:           oklch(92% 0.004 240);
+  --ink-2:         oklch(74% 0.006 240);
+  /* 64% 而非 61%：61% 在 --bg-raised 上只有 4.40（同明纸之病，只治一纸
+     即漏，故两纸同调，记-25）。 */
+  --ink-3:         oklch(64% 0.007 240);
+  --ink-4:         oklch(41% 0.007 240);
+  /* 暗纸 accent 归 oklch——旧值为 hex 字面量 #D9945E，跨层异文（记-04）今清。
+     值取 65%／.165 而非明纸之等价上提：暗纸上抬明度必失其彩，70%／.145
+     实机读作鲑鱼粉（#eb7867）而非砖红，故降一档明度、补一档彩度收回红意
+     （#e2604f）。soft 随之压至 24% 以守 accent/accent-soft 之 AA（4.78）。
+     记-29：暗纸之色不是明纸之算术反演，须以实机所见裁。 */
+  --accent:        oklch(65% 0.165 30);
+  --accent-soft:   oklch(24% 0.040 30);
+  --accent-line:   oklch(45% 0.090 30);
   --teal:          oklch(73% 0.07 215);
   --teal-soft:     oklch(25% 0.035 215);
   --teal-line:     oklch(43% 0.055 215);
@@ -196,8 +219,10 @@
   --good-soft:     oklch(24% 0.05 150);
   --warn:          oklch(76% 0.11 78);
   --warn-soft:     oklch(25% 0.05 78);
-  --danger:        oklch(69% 0.15 15);
-  --danger-soft:   oklch(25% 0.05 12);
+  --danger:        oklch(80% 0.010 240);
+  --danger-soft:   oklch(23.5% 0.007 240);
+  --danger-critical:      oklch(69% 0.150 15);
+  --danger-critical-soft: oklch(25% 0.05 12);
   --plum:          oklch(72% 0.10 320);
   --rate-hard:     oklch(68% 0.10 95);
   --rate-hard-soft: oklch(25% 0.045 95);
@@ -225,7 +250,7 @@
   --surface-chrome-border: var(--border-soft);
   --surface-raised:        var(--bg-raised);
   --surface-overlay:       var(--bg-card);
-  --scrim:                 oklch(5% 0.01 250 / 0.52);
+  --scrim:                 oklch(5% 0.01 240 / 0.52);
 }
 
 /* ─────── Reduced motion ───────

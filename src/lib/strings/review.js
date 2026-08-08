@@ -1,4 +1,17 @@
 export const review = {
+  /* 完成屏之关系式（记-31）——替旧「Mnēmosúnē 大标 + 两孤立数 + 四格计数」 */
+  doneTitle: '这一轮做完了',
+  doneSummary: (n, dur) => `${n} 张 · ${dur}`,
+  durationInstant: '不到一秒',
+  durationSecs: (s) => `${s} 秒`,
+  durationMins: (m, s) => (s > 0 ? `${m} 分 ${s} 秒` : `${m} 分`),
+  vsLast: '较上次',
+  deltaCards: (n) => (n > 0 ? `多 ${n} 张` : n < 0 ? `少 ${-n} 张` : '张数相同'),
+  deltaPct: (n) => (n > 0 ? ` ↑${n}` : n < 0 ? ` ↓${-n}` : ''),
+  againCount: (n) => `${n} 张`,
+  nextDue: '下次到期',
+  nextDueValue: (date, count) => `${date} · ${count} 张`,
+  continueNext: (name) => `继续 ${name}`,
   again: '重来',
   remember: '记住',
   flipHint: '轻点翻面',

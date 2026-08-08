@@ -2,7 +2,7 @@ import { useParams, useSearchParams } from 'react-router-dom'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { getCards, toggleStar, toggleSuspended } from '../lib/storage'
 import { useRenderedMarkdown } from '../lib/useRenderedMarkdown'
-import { BackIcon, ArrowLIcon, ArrowRIcon } from '../components/Icons'
+import { BackIcon, ArrowLIcon, ArrowRIcon, AlertIcon } from '../components/Icons'
 import { useBackButton } from '../lib/useBackButton'
 import { S } from '../lib/strings'
 import '../styles/markdown.css'
@@ -172,8 +172,14 @@ export default function Browse() {
             {card.suspended && <span className="px-1.5 py-0.5 rounded text-2xs font-medium" style={{ background: 'var(--warn-soft)', color: 'var(--warn)' }}>{S.browse.paused}</span>}
             {/* font-body here fixes a pre-existing mismatch: this literal was inheriting
                 --font-zh from the wrapper span below, caught as a byproduct of this
-                commit's font-family audit rather than something newly introduced. */}
-            {card.leech && <span className="px-1.5 py-0.5 rounded text-2xs font-medium font-body" style={{ background: 'var(--danger-soft)', color: 'var(--danger)' }}>LEECH</span>}
+                commit's font-family audit rather than something newly introduced.
+                danger 既退墨阶，此标改由图标作非色线索；LEECH 一字亦归中文（判例二）。 */}
+            {card.leech && (
+              <span className="px-1.5 py-0.5 rounded text-2xs font-medium font-body inline-flex items-center gap-1"
+                style={{ background: 'var(--danger-soft)', color: 'var(--danger)', border: '1px solid var(--danger)' }}>
+                <AlertIcon size={10} />{S.browse.leech}
+              </span>
+            )}
           </span>
           <span className="tracking-wider">BROWSE</span>
         </div>

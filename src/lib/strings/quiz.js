@@ -1,4 +1,7 @@
 export const quiz = {
+  /* 完成屏之关系式（记-31） */
+  doneSummary: (n) => `${n} 题`,
+  countUnit: (n) => `${n} 题`,
   modeRandom: '随机',
   modeSequential: '顺序',
   modeNew: '未做',

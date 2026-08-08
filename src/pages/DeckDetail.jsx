@@ -1,7 +1,7 @@
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useState, useEffect, useMemo, useRef } from 'react'
 import CardEditor from '../components/CardEditor'
-import { BackIcon, PinIcon, MoreIcon, LayersIcon, SparkIcon, UploadIcon, PlusIcon, SearchIcon, EditIcon, TrashIcon, DownloadIcon, RefreshIcon } from '../components/Icons'
+import { BackIcon, PinIcon, MoreIcon, LayersIcon, SparkIcon, UploadIcon, PlusIcon, SearchIcon, EditIcon, TrashIcon, DownloadIcon, RefreshIcon, AlertIcon } from '../components/Icons'
 import FloatingBar from '../components/FloatingBar'
 import NotFoundPage from '../components/NotFoundPage'
 import { isRecall } from '../lib/cardUtils'
@@ -17,6 +17,30 @@ import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 import { S } from '../lib/strings'
 import { pressable } from '../lib/a11y'
 import '../styles/markdown.css'
+
+/* 熟练度四档之序：由稳至新，墨由深至浅——序即墨阶，不另编色（记-31）。
+   「弱」是唯一需人动手的一档，故独得一个图标作非色线索。 */
+const TIER_ROWS = [
+  { key: 'solid', label: S.deckDetail.solidTier, ink: 'var(--ink)' },
+  { key: 'mid', label: S.deckDetail.midTier, ink: 'var(--ink-2)' },
+  { key: 'weak', label: S.deckDetail.weakTier, ink: 'var(--ink-3)', alert: true },
+  { key: 'new', label: S.deckDetail.newTier, ink: 'var(--ink-4)' },
+]
+
+const pct = (n, total) => (total > 0 ? (n / total) * 100 : 0)
+
+function TierRow({ row, count, total }) {
+  return (
+    <div className="dd-tier-row">
+      <span className="k">
+        {row.alert && count > 0 && <AlertIcon size={10} />}
+        {row.label}
+      </span>
+      <span className="bar" style={{ width: `${pct(count, total)}%`, background: row.ink }} />
+      <span className="v">{count}</span>
+    </div>
+  )
+}
 
 function buildOutline(cards) {
   const map = new Map()
@@ -267,31 +291,27 @@ export default function DeckDetail() {
       </header>
 
       <main className="flex-1 overflow-y-auto" style={{ paddingBottom: 140 }}>
-        {/* Progress section */}
-        <div style={{ padding: '14px 0 0' }}>
-          <div className="dd-head">
-            <div className="dd-meta">
-              <span>{total}{S.deckDetail.countSuffix}</span><span className="sep">·</span>
-              <span style={{ color: 'var(--accent)' }}>{dueCount}{S.deckDetail.dueSuffix}</span><span className="sep">·</span>
-              <span>{learned}{S.deckDetail.learnedSuffix}</span>
-              {suspendedCount > 0 && <><span className="sep">·</span><span style={{ color: 'var(--warn)' }}>{S.deckDetail.pausedPrefix}{suspendedCount}</span></>}
-            </div>
-            <div className="dd-meta" style={{ marginTop: 4 }}>
-              <span className="font-mono text-2xs" style={{ color: 'var(--danger)' }}>{S.deckDetail.weakPrefix}{tiers.weak}</span>
-              <span className="sep">·</span>
-              <span className="font-mono text-2xs" style={{ color: 'var(--accent)' }}>{S.deckDetail.midPrefix}{tiers.mid}</span>
-              <span className="sep">·</span>
-              <span className="font-mono text-2xs" style={{ color: 'var(--good)' }}>{S.deckDetail.solidPrefix}{tiers.solid}</span>
-              {tiers.new > 0 && <><span className="sep">·</span><span className="font-mono text-2xs" style={{ color: 'var(--ink-3)' }}>{S.deckDetail.newPrefix}{tiers.new}</span></>}
-            </div>
-            <div className="dd-progress">
-              <div className="bar" style={{ transform: `scaleX(${total > 0 ? learned / total : 0})` }} />
-            </div>
-            <div className="dd-progress-row">
-              <span>{S.deckDetail.progressLabel}</span>
-              <span>{total > 0 ? Math.round((learned / total) * 100) : 0}%</span>
-            </div>
+        {/* 熟练度分布（记-31）
+            旧此处并列四件同源之物：一行「总数·待复习·已学·暂停」、一行
+            四档计数、一条 learned/total 进度条、一行「进度 N%」——同一个
+            分布说了四遍，而主行动之数（待复习）在浮动条上已有。今收为一张
+            带标签之表：一行一档，标签在左、条在中、数在右，色不单独编码
+            （唯「弱」加图标，它是唯一需人动手的一档）。 */}
+        <div className="dd-tiers">
+          <div className="dd-tiers-head">
+            <span className="t">{S.deckDetail.distributionLabel}</span>
+            <span className="m">{S.deckDetail.totalSummary(total, learned)}</span>
           </div>
+          {TIER_ROWS.map((row) => (
+            <TierRow key={row.key} row={row} count={tiers[row.key]} total={total} />
+          ))}
+          {suspendedCount > 0 && (
+            <div className="dd-tier-row paused">
+              <span className="k">{S.deckDetail.pausedTier}</span>
+              <span className="bar" style={{ width: `${pct(suspendedCount, total)}%` }} />
+              <span className="v">{suspendedCount}</span>
+            </div>
+          )}
         </div>
 
         {/* Editor */}
@@ -432,8 +452,8 @@ export default function DeckDetail() {
           <div className="mx-[18px] mb-4 flex gap-2">
             {selected.size > 0 && (
               <button onClick={handleBatchDelete}
-                className="flex-1 py-2.5 rounded-md font-body text-md text-danger border active:scale-[0.97] transition-transform"
-                style={{ borderColor: 'color-mix(in oklch, var(--danger) 30%, transparent)' }}>
+                className="flex-1 py-2.5 rounded-md font-body text-md text-critical border active:scale-[0.97] transition-transform"
+                style={{ borderColor: 'color-mix(in oklch, var(--danger-critical) 30%, transparent)' }}>
                 {S.deckDetail.batchDeleteLabel(selected.size)}
               </button>
             )}
@@ -445,8 +465,8 @@ export default function DeckDetail() {
               setEditing(false)
               refresh()
             }}
-              className="flex-1 py-2.5 rounded-md font-body text-md text-danger border active:scale-[0.97] transition-transform"
-              style={{ borderColor: 'color-mix(in oklch, var(--danger) 30%, transparent)' }}>
+              className="flex-1 py-2.5 rounded-md font-body text-md text-critical border active:scale-[0.97] transition-transform"
+              style={{ borderColor: 'color-mix(in oklch, var(--danger-critical) 30%, transparent)' }}>
               {S.deckDetail.deleteAllButton}
             </button>
           </div>
@@ -507,7 +527,9 @@ function PreviewContent({ text }) {
 function CardRow({ card, editing, selected, onToggleSelect, onEdit, onDelete, isEditingThis, onSave, onCancel, onPreview, confirm }) {
   const longPressTimer = useRef(null)
   const tier = isRecall(card) ? masteryTier(mastery(card)) : null
-  const tierColor = card.repetitions === 0 ? 'var(--ink-3)' : tier === 'weak' ? 'var(--danger)' : tier === 'mid' ? 'var(--accent)' : 'var(--good)'
+  /* 熟练度点归墨阶（记-25）：mid 旧占 accent，违判例四（accent 不入语义场景）；
+     新/中/稳成一道单调墨阶，唯「弱」留 danger——它是唯一要人动手的一档。 */
+  const tierColor = card.repetitions === 0 ? 'var(--ink-4)' : tier === 'weak' ? 'var(--danger)' : tier === 'mid' ? 'var(--ink-3)' : 'var(--ink)'
 
   const handleTouchStart = () => {
     longPressTimer.current = setTimeout(() => onPreview?.(card), 500)
@@ -563,7 +585,7 @@ function CardRow({ card, editing, selected, onToggleSelect, onEdit, onDelete, is
           <button onClick={(e) => { e.stopPropagation(); onEdit() }}
             className="text-xs px-1.5 py-0.5 rounded border text-ink-2" style={{ borderColor: 'var(--border)' }}>{S.deckDetail.editCard}</button>
           <button onClick={async (e) => { e.stopPropagation(); const ok = await confirm({ title: S.deckDetail.deleteCardTitle, message: S.deckDetail.deleteCardMessage, confirmLabel: S.deckDetail.confirmDelete }); if (ok) onDelete() }}
-            className="text-xs px-1.5 py-0.5 rounded border text-danger" style={{ borderColor: 'color-mix(in oklch, var(--danger) 30%, transparent)' }}>{S.deckDetail.deleteCard}</button>
+            className="text-xs px-1.5 py-0.5 rounded border text-critical" style={{ borderColor: 'color-mix(in oklch, var(--danger-critical) 30%, transparent)' }}>{S.deckDetail.deleteCard}</button>
         </div>
       </div>
   )

@@ -1,22 +1,11 @@
 import { useState } from 'react'
 import { S } from '../lib/strings'
+import { MasteryMeter } from './MasteryMeter'
 
-// Tier bar — thin stacked horizontal bar showing weak/mid/solid/new distribution
-function TierBar({ tiers }) {
+function TierMeter({ tiers }) {
   const total = tiers.weak + tiers.mid + tiers.solid + tiers.new
   if (total === 0) return null
-  const p = (n) => `${(n / total) * 100}%`
-  return (
-    <div style={{
-      display: 'flex', height: 3, borderRadius: 'var(--r-sm)', overflow: 'hidden',
-      width: 48, flexShrink: 0, background: 'var(--bg-raised)',
-    }}>
-      {tiers.weak > 0 && <span style={{ width: p(tiers.weak), background: 'var(--danger)' }} />}
-      {tiers.mid > 0 && <span style={{ width: p(tiers.mid), background: 'var(--accent)' }} />}
-      {tiers.solid > 0 && <span style={{ width: p(tiers.solid), background: 'var(--good)' }} />}
-      {tiers.new > 0 && <span style={{ width: p(tiers.new), background: 'var(--bg-raised)' }} />}
-    </div>
-  )
+  return <MasteryMeter ratio={tiers.solid / total} width={48} />
 }
 
 function TreeNode({ node, depth, onLeafTap }) {
@@ -60,7 +49,7 @@ function TreeNode({ node, depth, onLeafTap }) {
         <span className="font-mono text-2xs text-ink-3">{node.count}</span>
 
         {/* Tier bar */}
-        {node.tiers && <TierBar tiers={node.tiers} />}
+        {node.tiers && <TierMeter tiers={node.tiers} />}
       </div>
 
       {/* Children */}

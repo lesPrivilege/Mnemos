@@ -5,7 +5,7 @@ import { saveLastSession, toggleStar, isStarred, deleteQuestion, loadStarred, lo
 import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
 import RenderMarkdown from '../quiz/components/RenderMarkdown'
 import { BackIcon, CheckIcon, XIcon, StarIcon, MoreIcon, TrashIcon } from '../components/Icons'
-import { addReviewEntry } from '../lib/reviewLog'
+import { recordEvent } from '../lib/derive/events'
 import { useBackButton } from '../lib/useBackButton'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 import { hapticLight, hapticWarning, hapticSuccess } from '../lib/haptics'
@@ -106,7 +106,7 @@ export default function Quiz() {
     setSubmitted(true)
     setExplainOpen(true)
     setResults(prev => [...prev, { id: currentQuestion.id, correct: res.correct, wrongStreak: res.wrongStreak }])
-    addReviewEntry({ type: 'quiz', correct: res.correct, itemId: currentQuestion.id, subject })
+    recordEvent({ module: 'practice', correct: res.correct, itemId: currentQuestion.id, subject })
     hapticLight()
     if (res.correct === false) hapticWarning()
   }
@@ -158,22 +158,32 @@ export default function Quiz() {
         </div>
         <div className="page-scroll">
           <div className="done-wrap">
-            <div className="done-mark"><CheckIcon size={32} /></div>
+            <div className="done-mark"><CheckIcon size={20} sw={2} /></div>
             <div className="done-title">{S.quiz.doneTitle}</div>
-            <div className="done-stats">
-              <span>{S.quiz.practicedLabel} <span className="v">{results.length}</span></span>
-              <span>{S.quiz.correctRateLabel} <span className="v">{results.length > 0 ? Math.round(correct / results.length * 100) : 0}%</span></span>
-            </div>
-            <div className="done-grid two">
-              <div className="cell good"><span className="num">{correct}</span><span>{S.quiz.correctLabel}</span></div>
-              <div className="cell again"><span className="num">{results.length - correct}</span><span>{S.quiz.wrongLabel}</span></div>
-            </div>
-            <div className="flex gap-2 w-full mt-2">
-              <button className="btn btn-ghost btn-block" onClick={() => goBack()}>{S.quiz.backAction}</button>
-              {results.some(r => !r.correct) && (
-                <button className="btn btn-accent btn-block" onClick={() => { setMode('wrong'); load('wrong') }}>{S.quiz.wrongReviewAction}</button>
+            <div className="done-sum">{S.quiz.doneSummary(results.length)}</div>
+            {/* 关系式（记-31）：孤立的「已练 N / 正确率 X%」不回答任何问题；
+                「答对几题、错几题、错的往哪去」才是。 */}
+            <div className="rel">
+              <div className="rel-row">
+                <span className="k">{S.quiz.correctRateLabel}</span>
+                <span className="v">{results.length > 0 ? Math.round(correct / results.length * 100) : 0}%</span>
+              </div>
+              <div className="rel-row">
+                <span className="k">{S.quiz.correctLabel}</span>
+                <span className="v">{S.quiz.countUnit(correct)}</span>
+              </div>
+              {results.length - correct > 0 && (
+                <div className="rel-row">
+                  <span className="k">{S.quiz.wrongLabel}</span>
+                  <span className="v">{S.quiz.countUnit(results.length - correct)}</span>
+                </div>
               )}
-              <button className="btn btn-primary btn-block" onClick={() => load(mode)}>{S.quiz.anotherRoundAction}</button>
+            </div>
+            <div className="done-actions">
+              <button className="btn btn-ghost" onClick={() => goBack()}>{S.quiz.backAction}</button>
+              {results.some(r => !r.correct)
+                ? <button className="btn btn-primary" onClick={() => { setMode('wrong'); load('wrong') }}>{S.quiz.wrongReviewAction}</button>
+                : <button className="btn btn-primary" onClick={() => load(mode)}>{S.quiz.anotherRoundAction}</button>}
             </div>
           </div>
         </div>

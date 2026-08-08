@@ -3,211 +3,181 @@
 import { useNavigate, Link } from 'react-router-dom'
 import { getDocumentsByCollection } from '../lib/storage'
 import { getWeeklyMinutes } from '../lib/stats'
-import { PlusIcon, UploadIcon } from '../../components/Icons'
-import { HeroSection } from '../../components/HeroSection'
+import { PlusIcon, UploadIcon, ChevronRIcon, XIcon } from '../../components/Icons'
+import { FocusHeader } from '../../components/FocusHeader'
+import { MasteryMeter } from '../../components/MasteryMeter'
+import { ActionButton } from '../../components/ActionButton'
 import EmptyState from '../../components/EmptyState'
 import { S } from '../../lib/strings'
-import { pressable } from '../../lib/a11y'
+
+const R = S.readingHomeBody
+
+/** 读毕之界：滚过 95% 即算读完——留 5% 给页尾注与滚动惯性。 */
+const DONE_PCT = 95
+const isDone = (doc) => (doc.scrollPct ?? 0) >= DONE_PCT
+
+/**
+ * 集合行——与卡组行、科目行同一行款（版3）。
+ * 旧行只有「N 篇文档」一句，并挂一个行内「阅读」钮；後者与整行入口重复
+ * （判例八第三问），删。今补进度计与「几篇未读完」。
+ */
+function CollectionRow({ col, navigate }) {
+  const docs = getDocumentsByCollection(col.id)
+  const done = docs.filter(isDone).length
+  const pending = docs.length - done
+  const glyph = col.icon && col.icon !== '📖' ? col.icon : col.name.charAt(0)
+
+  return (
+    <button className="deck" onClick={() => navigate(`/collection/${col.id}`)}>
+      <span className="deck-glyph">{glyph}</span>
+      <span className="deck-meta">
+        <span className="deck-name">
+          {col.name}
+          {col.pinned && <span className="deck-pin">◆</span>}
+        </span>
+        <MasteryMeter ratio={docs.length === 0 ? 0 : done / docs.length} />
+        <span className="deck-line">
+          <span>{R.docsProgress(done, docs.length)}</span>
+        </span>
+      </span>
+      <span className="deck-right">
+        {pending > 0
+          ? <span className="deck-due">{pending}</span>
+          : <span className="deck-done">{R.allRead}</span>}
+        <ChevronRIcon size={15} />
+      </span>
+    </button>
+  )
+}
 
 export default function ReadingHomeBody({ h }) {
   const navigate = useNavigate()
-  const docCount = h.collections.reduce((sum, c) => sum + getDocumentsByCollection(c.id).length, 0)
-  const isEmptyLibrary = h.collections.length === 0
-  const firstDoc = h.continueDoc || h.collections
-    .flatMap((collection) => getDocumentsByCollection(collection.id))
-    .find(Boolean)
+  const allDocs = h.collections.flatMap((c) => getDocumentsByCollection(c.id))
+  const pending = allDocs.filter((d) => !isDone(d))
+  const isEmpty = h.collections.length === 0
+  const resumeDoc = h.continueDoc || pending[0] || allDocs[0]
+  const weekly = getWeeklyMinutes()
+
+  const addCollection = async () => {
+    const name = h.newColName.trim()
+    if (!name) throw new Error(R.nameRequired)
+    await h.handleAddCollection({ preventDefault() {} })
+  }
+
+  if (h.query.trim()) {
+    return h.searchResults.length === 0 ? (
+      <EmptyState title={R.noMatchingDocs} hint={R.searchHint} />
+    ) : (
+      <div className="rows">
+        {h.searchResults.map(({ doc, snippet }) => (
+          <button key={doc.id} className="deck"
+            onClick={() => navigate(`/reading/doc/${doc.id}?col=${doc.collectionId}`)}>
+            <span className="deck-glyph">{doc.title.charAt(0)}</span>
+            <span className="deck-meta">
+              <span className="deck-name">{doc.title}</span>
+              {snippet && <span className="deck-snippet">{snippet}</span>}
+            </span>
+            <span className="deck-right"><ChevronRIcon size={15} /></span>
+          </button>
+        ))}
+      </div>
+    )
+  }
 
   return (
     <>
-      {/* Search results */}
-      {h.query.trim() && (
-        h.searchResults.length === 0 ? (
-          <div className="text-center text-ink-3 py-6 font-zh text-md">{S.readingHomeBody.noMatchingDocs}</div>
-        ) : (
-          <div className="flex flex-col gap-2">
-            <div className="section-title">{S.readingHomeBody.searchResultsHeading}</div>
-            {h.searchResults.map(({ doc, snippet }) => (
-              <div key={doc.id} className="bg-bg-card rounded-lg p-3 border cursor-pointer hover:border-accent transition-colors"
-                style={{ borderColor: 'var(--border-soft)' }}
-                onClick={() => navigate(`/reading/doc/${doc.id}?col=${doc.collectionId}`)}>
-                <div className="font-body text-lg text-ink font-medium truncate">{doc.title}</div>
-                {snippet && <div className="font-zh text-xs text-ink-3 mt-1 line-clamp-2">{snippet}</div>}
-              </div>
+      <FocusHeader
+        label={isEmpty ? R.readyLabel : R.readingLabel}
+        value={isEmpty ? 0 : pending.length}
+        unit={isEmpty ? R.emptyUnit : R.pendingUnit}
+        sub={isEmpty ? null : R.weekSummary(weekly.totalThisWeek, allDocs.length)}
+        cta={resumeDoc ? {
+          to: `/reading/doc/${resumeDoc.id}?col=${resumeDoc.collectionId}`,
+          label: h.continueDoc ? R.continueReading : R.startReadingAction,
+        } : null}
+      />
+
+      {h.continueDoc && !h.dismissedContinue && (
+        <div className="resume">
+          <button className="resume-body"
+            onClick={() => navigate(`/reading/doc/${h.continueDoc.id}?col=${h.continueDoc.collectionId}`)}>
+            <span className="resume-name">{h.continueDoc.title}</span>
+            <span className="resume-meta">
+              {R.continueReading}<span className="sep">·</span>{h.continueDoc.scrollPct}%
+            </span>
+          </button>
+          <button className="resume-x" aria-label={R.dismissContinue}
+            onClick={() => h.setDismissedContinue(true)}>
+            <XIcon size={14} />
+          </button>
+        </div>
+      )}
+
+      <div className="list-head">
+        <span className="t">{R.collectionsHeading}<em>{h.collections.length}</em></span>
+        {h.collections.length > 0 ? (
+          <div className="seg-inline">
+            {[{ key: 'created', label: R.createdSort }, { key: 'recent', label: R.recentSort }].map((s) => (
+              <button key={s.key} onClick={() => h.setSortBy(s.key)}
+                className={h.sortBy === s.key ? 'on' : ''}>{s.label}</button>
             ))}
           </div>
-        )
+        ) : (
+          <Link to="/activity" className="list-link">{R.activityLink}<ChevronRIcon size={12} /></Link>
+        )}
+      </div>
+
+      {h.sorted.length === 0 && !h.showNewCol ? (
+        <EmptyState title={R.emptyCollectionsTitle} hint={R.emptyCollectionsHint} />
+      ) : (
+        <div className="rows">
+          {h.sorted.map((col) => <CollectionRow key={col.id} col={col} navigate={navigate} />)}
+        </div>
       )}
 
-      {!h.query.trim() && (
-        <>
-          {/* Hero — weekly reading chart */}
-          {(() => {
-            const weekly = getWeeklyMinutes()
-            const maxCount = Math.max(1, ...weekly.chart.map(d => d.count))
-            return (
-              <HeroSection
-                label={isEmptyLibrary ? S.readingHomeBody.readyLabel : S.readingHomeBody.thisWeekLabel}
-                right={isEmptyLibrary
-                  ? { text: S.readingHomeBody.pendingImport }
-                  : { text: S.readingHomeBody.minutesSuffix(weekly.totalThisWeek), color: 'var(--accent)' }}
-                metrics={isEmptyLibrary
-                  ? [
-                      { value: h.collections.length, zhLabel: S.readingHomeBody.colsZhLabel, accent: true },
-                      { value: weekly.totalThisWeek, zhLabel: S.readingHomeBody.minZhLabel },
-                      { value: docCount, zhLabel: S.readingHomeBody.docsZhLabel },
-                    ]
-                  : [
-                      { value: weekly.totalThisWeek, zhLabel: S.readingHomeBody.minZhLabel, accent: true },
-                      { value: h.stats.docsCompleted, zhLabel: S.readingHomeBody.doneZhLabel },
-                      { value: docCount, zhLabel: S.readingHomeBody.docsZhLabel },
-                    ]}
-                chartData={weekly.chart}
-                chartColor=""
-                chartMax={maxCount}
-                to="/activity"
-                cta={firstDoc ? {
-                  to: `/reading/doc/${firstDoc.id}?col=${firstDoc.collectionId}`,
-                  label: S.readingHomeBody.startReadingAction,
-                  count: docCount,
-                } : null}
-              />
-            )
-          })()}
-
-          {h.continueDoc && !h.dismissedContinue && (
-            <div className="deck group" onClick={() => navigate(`/reading/doc/${h.continueDoc.id}?col=${h.continueDoc.collectionId}`)} {...pressable(() => navigate(`/reading/doc/${h.continueDoc.id}?col=${h.continueDoc.collectionId}`))}>
-              <div className={`deck-spine ${['h0','h1','h2','h3'][Math.abs(h.continueDoc.title.charCodeAt(0)) % 4]}`}>
-                <span className="glyph">{h.continueDoc.title.charAt(0)}</span>
-              </div>
-              <div className="deck-meta">
-                <div className="deck-name">{h.continueDoc.title}</div>
-                <div className="deck-stats">
-                  <span className="due" style={{ fontFamily: 'var(--font-ui)' }}>{S.readingHomeBody.continueReading}</span>
-                  <span className="dot">·</span>
-                  <span>{h.continueDoc.scrollPct}%</span>
-                </div>
-              </div>
-              <div className="deck-cta">
-                <button onClick={(e) => { e.stopPropagation(); h.setDismissedContinue(true) }}
-                  className="text-ink-3 hover:text-ink text-xs px-1">✕</button>
-              </div>
-            </div>
-          )}
-
-          <div className="list-head">
-            <div className="section-title">{S.readingHomeBody.collectionsHeading}</div>
-            <span className="count">{h.collections.length}</span>
+      {h.showNewDoc && (
+        <form onSubmit={h.handleAddDocument} className="new-doc">
+          <span className="new-doc-title">{R.newDocHeading}</span>
+          <input value={h.newDocTitle} onChange={(e) => h.setNewDocTitle(e.target.value)}
+            placeholder={R.docTitlePlaceholder} autoFocus />
+          <textarea value={h.newDocContent} onChange={(e) => h.setNewDocContent(e.target.value)}
+            placeholder={R.docContentPlaceholder} rows={8} />
+          <div className="new-doc-actions">
+            <button type="button" className="btn btn-ghost"
+              onClick={() => h.setShowNewDoc(null)}>{R.cancel}</button>
+            <button type="submit" className="btn btn-primary"
+              disabled={!h.newDocTitle.trim() || !h.newDocContent.trim()}>{R.create}</button>
           </div>
-
-          {h.collections.length > 0 && (
-            <div className="flex items-center gap-2">
-              <div className="seg" style={{ display: 'inline-flex', width: 'auto' }}>
-                {[{ key: 'created', label: S.readingHomeBody.createdSort }, { key: 'recent', label: S.readingHomeBody.recentSort }].map(s => (
-                  <button key={s.key} onClick={() => h.setSortBy(s.key)} className={h.sortBy === s.key ? 'on' : ''}>{s.label}</button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {h.sorted.length === 0 && !h.showNewCol && (
-            <EmptyState
-              title={S.readingHomeBody.emptyCollectionsTitle}
-              hint={S.readingHomeBody.emptyCollectionsHint}
-            />
-          )}
-
-          {h.sorted.map((col) => {
-            const docs = getDocumentsByCollection(col.id)
-            const lastDoc = docs.length > 0
-              ? docs.reduce((best, d) => ((d.lastReadAt || '') > (best.lastReadAt || '') ? d : best))
-              : null
-            const COLORS = ['h0', 'h1', 'h2', 'h3']
-            const hueClass = COLORS[Math.abs(col.name.charCodeAt(0)) % 4]
-            // 本校：同义同形 — default 📖 has no signal, fall back to deck-spine's first-char glyph; a real custom icon (if ever set) still renders as-is
-            const glyph = col.icon && col.icon !== '📖' ? col.icon : col.name.charAt(0)
-
-            return (
-              <div key={col.id} className="deck group" onClick={() => navigate(`/collection/${col.id}`)} {...pressable(() => navigate(`/collection/${col.id}`))}>
-                <div className={`deck-spine ${hueClass}`}>
-                  <span className="glyph">{glyph}</span>
-                </div>
-                <div className="deck-meta">
-                  <div className="deck-name">
-                    {col.name}
-                    {col.pinned && <span className="deck-pin">◆</span>}
-                  </div>
-                  <div className="deck-stats">
-                    <span>{docs.length}{S.readingHomeBody.docsCountSuffix}</span>
-                  </div>
-                </div>
-                <div className="deck-cta" style={{ gap: 6 }}>
-                  {docs.length > 0 && (
-                    <button className="cta-pill" onClick={(e) => {
-                      e.stopPropagation()
-                      navigate(lastDoc?.lastReadAt ? `/reading/doc/${lastDoc.id}?col=${col.id}` : `/collection/${col.id}`)
-                    }}>
-                      {S.readingHomeBody.readAction}<span className="arr">→</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-            )
-          })}
-
-          {/* New document form */}
-          {h.showNewDoc && (
-            <form onSubmit={h.handleAddDocument} className="bg-bg-card rounded-lg p-4 border flex flex-col gap-3"
-              style={{ borderColor: 'var(--border-soft)' }}>
-              <div className="font-zh text-2xs text-ink-3 tracking-wider">{S.readingHomeBody.newDocHeading}</div>
-              <input value={h.newDocTitle} onChange={e => h.setNewDocTitle(e.target.value)}
-                placeholder={S.readingHomeBody.docTitlePlaceholder} autoFocus
-                className="w-full py-[9px] px-3 rounded-md border bg-bg text-ink font-zh text-md outline-none focus:border-accent"
-                style={{ borderColor: 'var(--border)' }} />
-              <textarea value={h.newDocContent} onChange={e => h.setNewDocContent(e.target.value)}
-                placeholder={S.readingHomeBody.docContentPlaceholder} rows={8}
-                className="w-full p-3 rounded-md border bg-bg text-ink font-zh text-md outline-none focus:border-accent resize-none"
-                style={{ borderColor: 'var(--border)' }} />
-              <div className="flex gap-2 justify-end">
-                <button type="button" onClick={() => h.setShowNewDoc(null)}
-                  className="btn btn-ghost">{S.readingHomeBody.cancel}</button>
-                <button type="submit" disabled={!h.newDocTitle.trim() || !h.newDocContent.trim()}
-                  className="btn btn-primary disabled:opacity-40">{S.readingHomeBody.create}</button>
-              </div>
-            </form>
-          )}
-
-        </>
+        </form>
       )}
 
-      {/* Bottom actions */}
-      <div className="bottom-actions">
+      <div className="sub-actions">
         {h.showNewCol ? (
-          <form onSubmit={h.handleAddCollection} className="col-span-2 flex gap-2">
-            <input value={h.newColName} onChange={e => h.setNewColName(e.target.value)} placeholder={S.readingHomeBody.newColNamePlaceholder} autoFocus
-              className="flex-1 px-3 py-2.5 rounded-md border bg-bg-card text-ink font-zh text-md outline-none focus:border-accent"
-              style={{ borderColor: 'var(--border)' }} />
-            <button type="submit" disabled={!h.newColName.trim()}
-              className="px-4 py-2.5 rounded-md font-medium text-md font-body bg-ink text-bg active:scale-[0.97] transition-transform disabled:opacity-40">
-              {S.readingHomeBody.create}
-            </button>
-            <button type="button" onClick={() => { h.setShowNewCol(false); h.setNewColName('') }}
-              className="px-4 py-2.5 rounded-md font-body text-md border text-ink-2 active:scale-[0.97] transition-transform"
-              style={{ borderColor: 'var(--border)' }}>
-              {S.readingHomeBody.cancel}
-            </button>
-          </form>
+          <div className="new-deck">
+            <input value={h.newColName} onChange={(e) => h.setNewColName(e.target.value)}
+              placeholder={R.newColNamePlaceholder} autoFocus />
+            <ActionButton
+              onAction={addCollection}
+              label={R.create}
+              pendingLabel={R.creating}
+              doneLabel={R.created}
+              retryLabel={R.createRetry}
+              disabled={!h.newColName.trim()}
+            />
+            <button type="button" className="btn btn-ghost"
+              onClick={() => { h.setShowNewCol(false); h.setNewColName('') }}>{R.cancel}</button>
+          </div>
         ) : (
           <>
             <Link to="/import?tab=reading" className="btn btn-ghost">
-              <UploadIcon size={16} /> {S.readingHomeBody.importAction}
+              <UploadIcon size={15} />{R.importAction}
             </Link>
-            <button onClick={() => h.setShowNewCol(true)} className="btn btn-primary">
-              <PlusIcon size={16} /> {S.readingHomeBody.newCollectionAction}
+            <button className="btn btn-ghost" onClick={() => h.setShowNewCol(true)}>
+              <PlusIcon size={15} />{R.newCollectionAction}
             </button>
           </>
         )}
       </div>
-
     </>
   )
 }

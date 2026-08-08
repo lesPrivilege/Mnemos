@@ -1,6 +1,7 @@
 import { HashRouter, Link, Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import ErrorBoundary from './components/ErrorBoundary'
+import NotFoundPage from './components/NotFoundPage'
 import { maybeRunAutoBackup } from './lib/autoBackup'
 import { initReminders } from './lib/reminders'
 import Home from './pages/Home'
@@ -53,6 +54,15 @@ function AppShell() {
         <Route path="/activity" element={<Activity />} />
         <Route path="/reading/doc/:id" element={<Reader />} />
         <Route path="/collection/:id" element={<CollectionDetail />} />
+        {/* 兜底路由（记-31）：无此径者旧渲染空白——不留下一步之死端（病2 不刊）。
+            NotFoundPage 早已在册，只是从未接到路由表上。 */}
+        <Route path="*" element={
+          <NotFoundPage
+            title={S.error.notFoundTitle}
+            hint={S.error.notFoundHint}
+            action={{ label: S.error.backHome, onClick: () => { window.location.hash = '#/' } }}
+          />
+        } />
       </Routes>
       {showBottomTabs && (
         <nav className="bottom-tabs" aria-label="主导航">
