@@ -150,6 +150,11 @@
   --motion-mid:    180ms cubic-bezier(0.2, 0, 0, 1);
   --motion-gentle: 240ms cubic-bezier(0.2, 0, 0, 1);
   --motion-slow:   420ms cubic-bezier(0.2, 0, 0, 1);
+  /* 动作四态之循环（记-31）：不定长进行态，唯 linear——匀速方读作
+     「还在转」，带缓动的循环会读作心跳。其性质与上四档（过渡）不同，
+     故另立而不混入。完成态之驻留时长不入此处：那是 JS 计时，非 CSS 值，
+     底本不辖；置之於此即成零消费者之槽（记-18 所拒）。 */
+  --motion-loop:   640ms linear;
 
   /* ─────── Surfaces — light ───────
      Composite semantics built from the primitives above.

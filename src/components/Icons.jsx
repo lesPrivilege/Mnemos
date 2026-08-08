@@ -14,6 +14,8 @@ export const TrashIcon = (p) => <Icon d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" {..
 export const PinIcon = ({ filled, ...p }) => <Icon d="M12 3l3 5 5 1-4 4 1 5-5-3-5 3 1-5-4-4 5-1z" fill={filled ? 'currentColor' : 'none'} {...p} />
 export const StarIcon = ({ filled, ...p }) => <Icon d="M12 3l2.7 5.9 6.3.6-4.8 4.5 1.5 6.5L12 17l-5.7 3.5 1.5-6.5L3 9.5l6.3-.6z" fill={filled ? 'currentColor' : 'none'} {...p} />
 export const ArrowRIcon = (p) => <Icon d="M5 12h14M13 6l6 6-6 6" {...p} />
+/* 行末去向记：非按钮，只表「此行可入」——与 ArrowR（主行动）分职 */
+export const ChevronRIcon = (p) => <Icon d="M9 6l6 6-6 6" {...p} />
 export const ArrowLIcon = (p) => <Icon d="M19 12H5M11 6l-6 6 6 6" {...p} />
 export const CheckIcon = (p) => <Icon d="M5 12l5 5 9-12" sw={2} {...p} />
 export const UploadIcon = (p) => <Icon d="M12 4v12M6 10l6-6 6 6M4 20h16" {...p} />

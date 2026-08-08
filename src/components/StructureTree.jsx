@@ -1,25 +1,11 @@
 import { useState } from 'react'
 import { S } from '../lib/strings'
+import { MasteryMeter } from './MasteryMeter'
 
-/* 熟练度计（记-25）——一记一义：已稳固之比例。
-   旧为 weak/mid/solid/new 四色堆叠条，两处越界：mid 占 accent（判例四所禁，
-   accent 不入语义场景），weak 占 danger（弱是熟练度末档，非错、非重来、非
-   destructive）。四色堆叠在 3px 上亦不可辨——暗纸相邻两档实测 2.99 与 1.21。
-   今收为墨阶两段，充填对轨 7:1；「弱」之提示改由行内文字与图标承载。 */
-function MasteryMeter({ tiers }) {
+function TierMeter({ tiers }) {
   const total = tiers.weak + tiers.mid + tiers.solid + tiers.new
   if (total === 0) return null
-  return (
-    <div style={{
-      height: 3, borderRadius: 'var(--r-sm)', overflow: 'hidden',
-      width: 48, flexShrink: 0, background: 'var(--ink-4)',
-    }}>
-      <span style={{
-        display: 'block', height: '100%',
-        width: `${(tiers.solid / total) * 100}%`, background: 'var(--ink)',
-      }} />
-    </div>
-  )
+  return <MasteryMeter ratio={tiers.solid / total} width={48} />
 }
 
 function TreeNode({ node, depth, onLeafTap }) {
@@ -63,7 +49,7 @@ function TreeNode({ node, depth, onLeafTap }) {
         <span className="font-mono text-2xs text-ink-3">{node.count}</span>
 
         {/* Tier bar */}
-        {node.tiers && <MasteryMeter tiers={node.tiers} />}
+        {node.tiers && <TierMeter tiers={node.tiers} />}
       </div>
 
       {/* Children */}
