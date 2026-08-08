@@ -43,7 +43,8 @@ export function ConfirmSheet({ state }) {
           }}>{cancelLabel}</button>
           <button onClick={() => onResult(true)} style={{
             flex: 1, padding: '10px 0', borderRadius: 'var(--r-lg)', border: 'none',
-            background: destructive ? 'var(--danger)' : 'var(--accent)',
+            /* 有后果之动作取真红；寻常确认取墨——accent 不作按钮底色（判例四） */
+            background: destructive ? 'var(--danger-critical)' : 'var(--ink)',
             color: 'var(--bg)', fontFamily: 'var(--font-zh)', fontSize: 'var(--text-lg)', fontWeight: 500,
           }}>{confirmLabel}</button>
         </div>

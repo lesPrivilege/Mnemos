@@ -51,10 +51,10 @@ export default function ReviewCard({ card, index, flipped, onFlip, swipeOffset }
           <div style={{
             position: 'absolute', inset: 0, display: 'flex', alignItems: 'center',
             justifyContent: 'flex-start', paddingLeft: 24, borderRadius: 'var(--r-lg)',
-            background: `color-mix(in oklch, var(--danger) ${Math.round(labelOpacity * 15)}%, transparent)`,
+            background: `color-mix(in oklch, var(--danger-critical) ${Math.round(labelOpacity * 15)}%, transparent)`,
             pointerEvents: 'none', zIndex: 10,
           }}>
-            <span style={{ color: 'var(--danger)', fontWeight: 500, fontSize: 'var(--text-2xl)', opacity: labelOpacity }}>{S.review.again}</span>
+            <span style={{ color: 'var(--danger-critical)', fontWeight: 500, fontSize: 'var(--text-2xl)', opacity: labelOpacity }}>{S.review.again}</span>
           </div>
         )}
         {showLabel && swipeOffset > 0 && (

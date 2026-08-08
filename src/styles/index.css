@@ -386,12 +386,13 @@ a { color: inherit; text-decoration: none; }
   transform: translateX(18px);
 }
 .settings-switch:active::after { width: 20px; }
+/* 删数据、清库——有后果之动作，取真红（记-25） */
 .settings-action-btn.danger {
-  background: var(--danger-soft);
-  color: var(--danger);
+  background: var(--danger-critical-soft);
+  color: var(--danger-critical);
 }
 .settings-action-btn.danger.confirm {
-  background: var(--danger);
+  background: var(--danger-critical);
   color: var(--bg);
 }
 .settings-action-btn.warn {
@@ -446,12 +447,13 @@ a { color: inherit; text-decoration: none; }
   font-size: var(--text-sm);
   color: var(--ink-3);
 }
+/* 破坏性确认之告白——与其钮同声部（真红） */
 .settings-confirm-note {
   padding: 11px 12px;
-  border: 1px solid color-mix(in oklch, var(--danger) 24%, transparent);
+  border: 1px solid color-mix(in oklch, var(--danger-critical) 24%, transparent);
   border-radius: var(--r-sm);
-  background: var(--danger-soft);
-  color: var(--danger);
+  background: var(--danger-critical-soft);
+  color: var(--danger-critical);
   font-family: var(--font-ui);
   font-size: var(--text-sm);
   line-height: 1.5;
@@ -485,9 +487,10 @@ a { color: inherit; text-decoration: none; }
   border-color: var(--ink);
   color: var(--bg);
 }
+/* 隔离区：告知类之错，danger 已退墨阶；识别改由 2px 重描边＋标题＋动词承载（记-25） */
 .settings-quarantine {
   padding: 12px;
-  border: 1px solid color-mix(in oklch, var(--danger) 24%, transparent);
+  border: 2px solid var(--danger);
   border-radius: var(--r-sm);
   background: var(--danger-soft);
 }
@@ -510,7 +513,7 @@ a { color: inherit; text-decoration: none; }
   justify-content: space-between;
   gap: 10px;
   padding-top: 8px;
-  border-top: 1px solid color-mix(in oklch, var(--danger) 24%, transparent);
+  border-top: 1px solid color-mix(in oklch, var(--danger) 30%, transparent);
 }
 .settings-quarantine-copy {
   min-width: 0;
@@ -1641,13 +1644,14 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   font-family: var(--font-ui); font-size: var(--text-2xs);
   letter-spacing: 0.1em;
 }
-.done-grid .cell.again { background: var(--danger-soft); color: var(--danger); }
+.done-grid .cell.again { background: var(--danger-critical-soft); color: var(--danger-critical); }
 .done-grid .cell.hard { background: var(--warn-soft); color: var(--warn); }
 .done-grid .cell.good { background: var(--bg-raised); color: var(--ink); }
 .done-grid .cell.easy { background: var(--good-soft); color: var(--good); }
 
 /* ─────── Rate additions ─────── */
-.rate-again { background: var(--danger-soft); color: var(--danger); border-color: color-mix(in oklch, var(--danger) 22%, transparent); }
+/* 「重来」重置间隔——有后果之动作，取真红（记-25）。「重来」计数同声部。 */
+.rate-again { background: var(--danger-critical-soft); color: var(--danger-critical); border-color: color-mix(in oklch, var(--danger-critical) 22%, transparent); }
 .rate-hard { background: var(--rate-hard-soft); color: var(--rate-hard); border-color: color-mix(in oklch, var(--rate-hard) 22%, transparent); }
 .rate-good { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .rate-easy { background: var(--good-soft); color: var(--good); border-color: color-mix(in oklch, var(--good) 22%, transparent); }

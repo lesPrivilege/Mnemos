@@ -254,8 +254,8 @@ export function FlashcardHomeContent() {
         <div className="flex gap-2 mt-2">
           {selected.size > 0 && (
             <button onClick={handleBatchDelete}
-              className="flex-1 py-2.5 rounded-md font-body text-md text-danger border active:scale-[0.97] transition-transform"
-              style={{ borderColor: 'color-mix(in oklch, var(--danger) 30%, transparent)' }}>
+              className="flex-1 py-2.5 rounded-md font-body text-md text-critical border active:scale-[0.97] transition-transform"
+              style={{ borderColor: 'color-mix(in oklch, var(--danger-critical) 30%, transparent)' }}>
               {S.flashcardHome.batchDeleteLabel(selected.size)}
             </button>
           )}
@@ -267,8 +267,8 @@ export function FlashcardHomeContent() {
             setEditing(false)
             refresh()
           }}
-            className="flex-1 py-2.5 rounded-md font-body text-md text-danger border active:scale-[0.97] transition-transform"
-            style={{ borderColor: 'color-mix(in oklch, var(--danger) 30%, transparent)' }}>
+            className="flex-1 py-2.5 rounded-md font-body text-md text-critical border active:scale-[0.97] transition-transform"
+            style={{ borderColor: 'color-mix(in oklch, var(--danger-critical) 30%, transparent)' }}>
               {S.flashcardHome.deleteAllButton}
           </button>
         </div>

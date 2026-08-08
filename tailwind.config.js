@@ -31,6 +31,8 @@ export default {
         good: { DEFAULT: 'var(--good)', soft: 'var(--good-soft)' },
         warn: { DEFAULT: 'var(--warn)', soft: 'var(--warn-soft)' },
         danger: { DEFAULT: 'var(--danger)', soft: 'var(--danger-soft)' },
+        /* 后果声部：重来、删除。与告知类之 danger 墨阶分列（记-25） */
+        critical: { DEFAULT: 'var(--danger-critical)', soft: 'var(--danger-critical-soft)' },
       },
       fontFamily: {
         /* 唯一底本在 tokens.css；此处只准引用变量（判例七、记-10） */

@@ -277,11 +277,13 @@ export default function DeckDetail() {
               {suspendedCount > 0 && <><span className="sep">·</span><span style={{ color: 'var(--warn)' }}>{S.deckDetail.pausedPrefix}{suspendedCount}</span></>}
             </div>
             <div className="dd-meta" style={{ marginTop: 4 }}>
-              <span className="font-mono text-2xs" style={{ color: 'var(--danger)' }}>{S.deckDetail.weakPrefix}{tiers.weak}</span>
+              {/* 三档各自带标签，色本属冗余；故只「弱」着色（唯一需人动手者），
+                  中/稳归 meta 墨阶。mid 旧占 accent 违判例四，一并归位（记-25）。 */}
+              <span className="font-mono text-2xs" style={{ color: 'var(--danger)', fontWeight: 500 }}>{S.deckDetail.weakPrefix}{tiers.weak}</span>
               <span className="sep">·</span>
-              <span className="font-mono text-2xs" style={{ color: 'var(--accent)' }}>{S.deckDetail.midPrefix}{tiers.mid}</span>
+              <span className="font-mono text-2xs" style={{ color: 'var(--ink-3)' }}>{S.deckDetail.midPrefix}{tiers.mid}</span>
               <span className="sep">·</span>
-              <span className="font-mono text-2xs" style={{ color: 'var(--good)' }}>{S.deckDetail.solidPrefix}{tiers.solid}</span>
+              <span className="font-mono text-2xs" style={{ color: 'var(--ink-3)' }}>{S.deckDetail.solidPrefix}{tiers.solid}</span>
               {tiers.new > 0 && <><span className="sep">·</span><span className="font-mono text-2xs" style={{ color: 'var(--ink-3)' }}>{S.deckDetail.newPrefix}{tiers.new}</span></>}
             </div>
             <div className="dd-progress">
@@ -432,8 +434,8 @@ export default function DeckDetail() {
           <div className="mx-[18px] mb-4 flex gap-2">
             {selected.size > 0 && (
               <button onClick={handleBatchDelete}
-                className="flex-1 py-2.5 rounded-md font-body text-md text-danger border active:scale-[0.97] transition-transform"
-                style={{ borderColor: 'color-mix(in oklch, var(--danger) 30%, transparent)' }}>
+                className="flex-1 py-2.5 rounded-md font-body text-md text-critical border active:scale-[0.97] transition-transform"
+                style={{ borderColor: 'color-mix(in oklch, var(--danger-critical) 30%, transparent)' }}>
                 {S.deckDetail.batchDeleteLabel(selected.size)}
               </button>
             )}
@@ -445,8 +447,8 @@ export default function DeckDetail() {
               setEditing(false)
               refresh()
             }}
-              className="flex-1 py-2.5 rounded-md font-body text-md text-danger border active:scale-[0.97] transition-transform"
-              style={{ borderColor: 'color-mix(in oklch, var(--danger) 30%, transparent)' }}>
+              className="flex-1 py-2.5 rounded-md font-body text-md text-critical border active:scale-[0.97] transition-transform"
+              style={{ borderColor: 'color-mix(in oklch, var(--danger-critical) 30%, transparent)' }}>
               {S.deckDetail.deleteAllButton}
             </button>
           </div>
@@ -507,7 +509,9 @@ function PreviewContent({ text }) {
 function CardRow({ card, editing, selected, onToggleSelect, onEdit, onDelete, isEditingThis, onSave, onCancel, onPreview, confirm }) {
   const longPressTimer = useRef(null)
   const tier = isRecall(card) ? masteryTier(mastery(card)) : null
-  const tierColor = card.repetitions === 0 ? 'var(--ink-3)' : tier === 'weak' ? 'var(--danger)' : tier === 'mid' ? 'var(--accent)' : 'var(--good)'
+  /* 熟练度点归墨阶（记-25）：mid 旧占 accent，违判例四（accent 不入语义场景）；
+     新/中/稳成一道单调墨阶，唯「弱」留 danger——它是唯一要人动手的一档。 */
+  const tierColor = card.repetitions === 0 ? 'var(--ink-4)' : tier === 'weak' ? 'var(--danger)' : tier === 'mid' ? 'var(--ink-3)' : 'var(--ink)'
 
   const handleTouchStart = () => {
     longPressTimer.current = setTimeout(() => onPreview?.(card), 500)
@@ -563,7 +567,7 @@ function CardRow({ card, editing, selected, onToggleSelect, onEdit, onDelete, is
           <button onClick={(e) => { e.stopPropagation(); onEdit() }}
             className="text-xs px-1.5 py-0.5 rounded border text-ink-2" style={{ borderColor: 'var(--border)' }}>{S.deckDetail.editCard}</button>
           <button onClick={async (e) => { e.stopPropagation(); const ok = await confirm({ title: S.deckDetail.deleteCardTitle, message: S.deckDetail.deleteCardMessage, confirmLabel: S.deckDetail.confirmDelete }); if (ok) onDelete() }}
-            className="text-xs px-1.5 py-0.5 rounded border text-danger" style={{ borderColor: 'color-mix(in oklch, var(--danger) 30%, transparent)' }}>{S.deckDetail.deleteCard}</button>
+            className="text-xs px-1.5 py-0.5 rounded border text-critical" style={{ borderColor: 'color-mix(in oklch, var(--danger-critical) 30%, transparent)' }}>{S.deckDetail.deleteCard}</button>
         </div>
       </div>
   )

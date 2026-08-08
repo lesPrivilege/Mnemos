@@ -7,6 +7,7 @@ export const browse = {
   restore: '恢复',
   pause: '暂停',
   paused: '已暂停',
+  leech: '顽固',
   prevCard: '上一张',
   nextCard: '下一张',
 }
