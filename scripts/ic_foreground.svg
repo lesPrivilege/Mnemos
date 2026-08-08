@@ -14,10 +14,10 @@
   -->
   <g transform="translate(22, 23)">
     <path d="M10 52 L10 14 L20 14 L32 30 L44 14 L54 14 L54 52"
-      stroke="#2D2920" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter"/>
+      stroke="#1D2022" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter"/>
     <path d="M22 24 L32 38 L42 24"
-      stroke="#B86A30" stroke-width="4" stroke-linecap="square" stroke-linejoin="miter"/>
-    <rect x="6" y="50" width="12" height="4" fill="#2D2920"/>
-    <rect x="46" y="50" width="12" height="4" fill="#2D2920"/>
+      stroke="#AF3A2C" stroke-width="4" stroke-linecap="square" stroke-linejoin="miter"/>
+    <rect x="6" y="50" width="12" height="4" fill="#1D2022"/>
+    <rect x="46" y="50" width="12" height="4" fill="#1D2022"/>
   </g>
 </svg>

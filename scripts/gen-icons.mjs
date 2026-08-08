@@ -6,9 +6,12 @@ import { fileURLToPath } from 'url'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ANDROID_RES = join(__dirname, '..', 'android/app/src/main/res')
 
-const BG = '#FAF8F5'
-const INK = '#2D2920'
-const ACCENT = '#B86A30'
+/* 牌记：三色皆影刻自 src/styles/tokens.css（light）之 sRGB 折算——
+   BG=--bg、INK=--ink、ACCENT=--accent。R2 换刻 Dystopia 後同步（记-25）：
+   暖调米白 #FAF8F5 与铜 #B86A30 於本轮退役。底本改则此三值随改并重跑本脚本。 */
+const BG = '#F6F7F8'
+const INK = '#1D2022'
+const ACCENT = '#AF3A2C'
 
 const densities = {
   mdpi:    108,
@@ -29,13 +32,7 @@ function makeBackgroundSvg(size) {
 function makeLegacySvg(size) {
   const r = size * 0.224 * 4.5
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 256 256">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#FAF8F5"/>
-      <stop offset="1" stop-color="#F5F0E8"/>
-    </linearGradient>
-  </defs>
-  <rect width="256" height="256" rx="${r}" fill="url(#bg)"/>
+  <rect width="256" height="256" rx="${r}" fill="${BG}"/>
   <rect x="14" y="14" width="228" height="228" rx="${r*0.89}" fill="none" stroke="${INK}" stroke-opacity="0.08" stroke-width="1.5"/>
   <g transform="translate(40, 56)">
     <path d="M0 144 L0 0 L36 0 L88 64 L140 0 L176 0 L176 144" stroke="${INK}" stroke-width="18" stroke-linecap="square" stroke-linejoin="miter" fill="none"/>

@@ -6,12 +6,13 @@ import { fileURLToPath } from 'url'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ANDROID_RES = join(__dirname, '..', 'android/app/src/main/res')
 
-/* 牌记：BG 影刻自 src/styles/tokens.css --bg（light, oklch(98.2% 0.002 250)）
-   的 sRGB 折算值——splash 与首帧同底，冷启动无闪变（记-04）。底本改则此值随改，
-   并重跑本脚本。INK/ACCENT 为品牌 icon 实物之色，不随底本（icon 经主认可）。 */
-const BG = '#F8F9FA'
-const INK = '#2D2920'
-const ACCENT = '#B86A30'
+/* 牌记：BG 影刻自 src/styles/tokens.css --bg（light, oklch(97.6% 0.002 240)）
+   的 sRGB 折算值——splash 与首帧同底，冷启动无闪变（记-04）。R2 换刻後
+   INK/ACCENT 亦归底本（--ink / --accent）：icon 之铜既已退役，「不随底本」
+   之例失据（记-25）。底本改则此三值随改，并重跑本脚本。 */
+const BG = '#F6F7F8'
+const INK = '#1D2022'
+const ACCENT = '#AF3A2C'
 
 // Splash screen sizes per density + orientation
 const sizes = [
