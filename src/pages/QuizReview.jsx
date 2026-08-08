@@ -5,7 +5,7 @@ import { saveLastSession, toggleStar, isStarred, deleteQuestion, loadStarred, lo
 import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
 import RenderMarkdown from '../quiz/components/RenderMarkdown'
 import { BackIcon, CheckIcon, MoreIcon, TrashIcon } from '../components/Icons'
-import { addReviewEntry } from '../lib/reviewLog'
+import { recordEvent } from '../lib/derive/events'
 import { useBackButton } from '../lib/useBackButton'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 import { S } from '../lib/strings'
@@ -88,7 +88,7 @@ export default function ReviewQuestion() {
       correct: prev.correct + (correct ? 1 : 0),
     }))
     setResults(prev => [...prev, { id: currentQuestion.id, correct, wrongStreak: prog.wrongStreak }])
-    addReviewEntry({ type: 'quiz', correct, itemId: currentQuestion.id, subject })
+    recordEvent({ module: 'practice', correct, itemId: currentQuestion.id, subject })
 
     if (currentIndex + 1 < questions.length) {
       setCurrentIndex(currentIndex + 1)

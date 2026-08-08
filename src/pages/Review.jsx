@@ -8,7 +8,7 @@ import { sm2 } from '../lib/sm2'
 import { shuffle } from '../lib/utils'
 import { isRecall } from '../lib/cardUtils'
 import { useBackButton } from '../lib/useBackButton'
-import { addReviewEntry } from '../lib/reviewLog'
+import { recordEvent } from '../lib/derive/events'
 import { saveReviewSession, clearReviewSession } from '../lib/reviewSession'
 import { hapticLight, hapticSuccess, hapticWarning } from '../lib/haptics'
 import { S } from '../lib/strings'
@@ -139,7 +139,7 @@ export default function Review() {
     }
 
     // 2. 記錄日誌
-    addReviewEntry({ type: 'flashcard', quality, itemId: card.id, deckId: id })
+    recordEvent({ module: 'recall', quality, itemId: card.id, deckId: id })
 
     // 3. 存 undo ref
     const reinsertedAt = reinserted ? Math.min(currentIndex + 3, dueCards.length) : -1

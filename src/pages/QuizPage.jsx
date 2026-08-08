@@ -5,7 +5,7 @@ import { saveLastSession, toggleStar, isStarred, deleteQuestion, loadStarred, lo
 import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
 import RenderMarkdown from '../quiz/components/RenderMarkdown'
 import { BackIcon, CheckIcon, XIcon, StarIcon, MoreIcon, TrashIcon } from '../components/Icons'
-import { addReviewEntry } from '../lib/reviewLog'
+import { recordEvent } from '../lib/derive/events'
 import { useBackButton } from '../lib/useBackButton'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 import { hapticLight, hapticWarning, hapticSuccess } from '../lib/haptics'
@@ -106,7 +106,7 @@ export default function Quiz() {
     setSubmitted(true)
     setExplainOpen(true)
     setResults(prev => [...prev, { id: currentQuestion.id, correct: res.correct, wrongStreak: res.wrongStreak }])
-    addReviewEntry({ type: 'quiz', correct: res.correct, itemId: currentQuestion.id, subject })
+    recordEvent({ module: 'practice', correct: res.correct, itemId: currentQuestion.id, subject })
     hapticLight()
     if (res.correct === false) hapticWarning()
   }

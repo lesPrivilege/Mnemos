@@ -3,9 +3,10 @@ import { Link, useNavigate } from 'react-router-dom'
 import { PlusIcon, UploadIcon } from '../components/Icons'
 import { getAllDeckStats } from '../lib/scheduler'
 import { addDeck, deleteDecks, loadData } from '../lib/storage'
-import { localToday, isoToLocalDate, localDow, formatLocalDate } from '../lib/dateUtils'
+import { localToday, localDow } from '../lib/dateUtils'
 import { HeroSection } from '../components/HeroSection'
 import { loadReviewSession, clearReviewSession } from '../lib/reviewSession'
+import { streak as deriveStreak } from '../lib/derive'
 import EmptyState from '../components/EmptyState'
 import { useToast, Toast } from '../components/Toast'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
@@ -13,29 +14,6 @@ import { S } from '../lib/strings'
 import { pressable } from '../lib/a11y'
 
 const DAY_LABELS = S.flashcardHome.dayLabels
-
-function computeStreak() {
-  const data = loadData()
-  const reviewDays = new Set()
-  for (const card of data.cards) {
-    if (card.updatedAt && card.repetitions > 0) {
-      // updatedAt is a UTC ISO string; convert to local YYYY-MM-DD before
-      // comparing to the local-date keys we build below.
-      reviewDays.add(isoToLocalDate(card.updatedAt))
-    }
-  }
-  if (reviewDays.size === 0) return 0
-  let streak = 0
-  const today = new Date()
-  for (let i = 0; i < 365; i++) {
-    const d = new Date(today)
-    d.setDate(d.getDate() - i)
-    const key = formatLocalDate(d)
-    if (reviewDays.has(key)) streak++
-    else if (i > 0) break
-  }
-  return streak
-}
 
 export function FlashcardHomeContent() {
   const [decks, setDecks] = useState([])
@@ -110,7 +88,9 @@ export function FlashcardHomeContent() {
     return slots
   })()
   const maxCount = Math.max(1, ...weekChart.map((d) => d.count))
-  const streak = useMemo(() => computeStreak(), [])
+  // 连续天数出于事件流单源（记-30）——旧 computeStreak 遍历 card.updatedAt，
+  // 只见每张卡最後一次更新，同日复习同卡两次即漏计。
+  const streak = useMemo(() => deriveStreak(), [])
   const starredCount = useMemo(() => loadData().cards.filter(c => c.starred).length, [])
   const [reviewSession, setReviewSession] = useState(() => loadReviewSession())
   const dismissReviewSession = () => { clearReviewSession(); setReviewSession(null) }

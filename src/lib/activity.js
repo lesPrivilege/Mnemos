@@ -1,9 +1,7 @@
 import { formatLocalDate } from './dateUtils'
 import { isPlainObject, loadJson } from './store'
-
-function isLog(value) {
-  return isPlainObject(value) && Array.isArray(value.entries)
-}
+import { readEvents } from './derive/events'
+import { streak as deriveStreak } from './derive'
 
 function isStats(value) {
   return isPlainObject(value) && Array.isArray(value.sessions)
@@ -49,29 +47,27 @@ function emptyDay(date) {
   }
 }
 
-function addRecall(daysByDate) {
-  const log = loadJson('mnemos-review-log', { entries: [] }, isLog)
-  for (const entry of log.entries || []) {
-    if (entry.type !== 'flashcard' || !entry.timestamp) continue
-    const date = dayKeyFromMs(entry.timestamp)
-    const day = daysByDate.get(date)
+/* 事件流由 derive/events 单源供给（记-30）——此处不再各自 loadJson，
+   亦不再各自判 v1 之 `type` 字段：升格与排序皆在上游一次做完。 */
+function addRecall(daysByDate, events) {
+  for (const e of events) {
+    if (e.module !== 'recall') continue
+    const day = daysByDate.get(dayKeyFromMs(e.timestamp))
     if (!day) continue
     day.recall += 1
-    if ((entry.quality || 0) >= 4) day.recallCorrect += 1
+    if ((e.quality || 0) >= 4) day.recallCorrect += 1
   }
 }
 
-function addPracticeFromLog(daysByDate) {
-  const log = loadJson('mnemos-review-log', { entries: [] }, isLog)
+function addPracticeFromLog(daysByDate, events) {
   let found = false
-  for (const entry of log.entries || []) {
-    if (entry.type !== 'quiz' || !entry.timestamp) continue
-    const date = dayKeyFromMs(entry.timestamp)
-    const day = daysByDate.get(date)
+  for (const e of events) {
+    if (e.module !== 'practice') continue
+    const day = daysByDate.get(dayKeyFromMs(e.timestamp))
     if (!day) continue
     found = true
     day.practice += 1
-    if (entry.correct) day.practiceCorrect += 1
+    if (e.correct) day.practiceCorrect += 1
   }
   return found
 }
@@ -99,31 +95,19 @@ function addReading(daysByDate) {
   }
 }
 
-function getStreak(activeDates) {
-  let streak = 0
-  const today = new Date()
-  for (let i = 0; i < 365; i += 1) {
-    const d = new Date(today)
-    d.setDate(today.getDate() - i)
-    const key = formatLocalDate(d)
-    if (activeDates.has(key)) streak += 1
-    else if (i > 0) break
-  }
-  return streak
-}
-
 export function getActivityDashboard() {
+  const events = readEvents()
   const dates = monthDays()
   const daysByDate = new Map(dates.map((date) => [date, emptyDay(date)]))
-  addRecall(daysByDate)
-  if (!addPracticeFromLog(daysByDate)) addPracticeFromProgress(daysByDate)
+  addRecall(daysByDate, events)
+  if (!addPracticeFromLog(daysByDate, events)) addPracticeFromProgress(daysByDate)
   addReading(daysByDate)
 
-  // Build 90-day window for streak calculation
+  // 活跃天数仍取 90 日窗（本月之外亦算「活跃」）；连续天数则归 derive 单源
   const streakDates = trailingDays(90)
   const streakByDate = new Map(streakDates.map((date) => [date, emptyDay(date)]))
-  addRecall(streakByDate)
-  if (!addPracticeFromLog(streakByDate)) addPracticeFromProgress(streakByDate)
+  addRecall(streakByDate, events)
+  if (!addPracticeFromLog(streakByDate, events)) addPracticeFromProgress(streakByDate)
   addReading(streakByDate)
   const activeDates = new Set(
     [...streakByDate.values()]
@@ -165,7 +149,7 @@ export function getActivityDashboard() {
     totals,
     weekTotals,
     activeDays: activeDates.size,
-    streak: getStreak(activeDates),
+    streak: deriveStreak(events),
     maxDayTotal: Math.max(1, ...days.map((d) => d.total)),
   }
 }
@@ -175,10 +159,11 @@ export function getActivityDashboard() {
  * Reuses the same source-reading helpers as getActivityDashboard.
  */
 export function getHeatmapData() {
+  const events = readEvents()
   const dates = trailingDays(90)
   const byDate = new Map(dates.map((date) => [date, emptyDay(date)]))
-  addRecall(byDate)
-  if (!addPracticeFromLog(byDate)) addPracticeFromProgress(byDate)
+  addRecall(byDate, events)
+  if (!addPracticeFromLog(byDate, events)) addPracticeFromProgress(byDate)
   addReading(byDate)
 
   const days = dates.map(date => {
