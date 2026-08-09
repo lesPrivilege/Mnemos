@@ -82,6 +82,9 @@ hydrate-cache）。上面的快照數字已過時，留檔只為對照「地基�
 ## Phase 5 — 發布路徑（有意願時啟動，前置依賴 Phase 1-2）
 
 ### 5.1 iOS
+- R0 施工与独立验收边界见 [`ios-native-readiness-handoff.md`](ios-native-readiness-handoff.md)：
+  先接官方规范、跑 Capacitor iOS 技术 Spike，以真机证据决定是否进入原生壳／SwiftUI
+  决策门；该件是施工单，不是设计底本或已排期承诺。
 - 首選 **Capacitor iOS**（`npx cap add ios`），不是原生重寫——現有 web 層直接複用，成本集中在：
   - Filesystem / LocalNotifications / Haptics 插件的 iOS 行為驗證（自動備份寫 Documents 的路徑語義不同）
   - safe area / 鍵盤 / 滑動返回手勢與 iOS 系統手勢的衝突
