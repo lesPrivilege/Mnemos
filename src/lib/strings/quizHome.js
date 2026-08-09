@@ -28,6 +28,8 @@ export const quizHome = {
   noQuestionsDetected: '未识别到题目。请确认 JSON 是数组，且每项含 question 与 answer。',
   importing: '导入中',
   imported: '已导入',
+  /* 同上（记-32）；带上道数，方是这一次导入之实。 */
+  importedNotice: (count) => `已导入 ${count} 道题`,
   importRetry: '重试导入',
   cancel: '取消',
   importAction: '导入',

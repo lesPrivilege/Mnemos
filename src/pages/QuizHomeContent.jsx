@@ -85,6 +85,7 @@ export function QuizHomeContent() {
     setJson('')
     setShowNew(false)
     refresh()
+    return Q.importedNotice(result.questions.length) // 同上（记-32）
   }
 
   const isEmpty = subjects.length === 0

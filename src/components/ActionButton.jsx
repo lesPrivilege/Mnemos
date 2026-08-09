@@ -1,5 +1,6 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { CheckIcon, AlertIcon } from './Icons'
+import { announceAction } from './ActionNotice'
 
 /**
  * ActionButton — 动作四态标准件（版4，记-31）
@@ -17,7 +18,12 @@ import { CheckIcon, AlertIcon } from './Icons'
  *   3. error 之标签必是**下一步**（「重试导入」而非「导入失败」），
  *      缘由另由 `error` 文字出，与 notice 同规格（病2 不刊项）。
  *
- * @param {() => Promise<any>} onAction - 抛出即入 error 态；其 message 作缘由
+ * 成之归属（记-32）：`done` 一态活不过关掉表单的那一下，故成功之信另托
+ * ActionNotice——它挂在应用根上，卸载不及于它。`onAction` 之**返回值即确认语**；
+ * 不返者退用 doneLabel。败则相反：缘由与重试钮同在此处，不外送。
+ *
+ * @param {() => Promise<string|void>} onAction - 抛出即入 error 态，其 message 作缘由；
+ *                                                返回之字符串即报出去的确认语
  * @param {string} label      - idle 之标签
  * @param {string} pendingLabel
  * @param {string} doneLabel
@@ -30,19 +36,28 @@ export function ActionButton({
   const [state, setState] = useState('idle')
   const [cause, setCause] = useState(null)
   const holdTimer = useRef(null)
+  /* 同步动作在一帧内跑完，`state` 尚未回到闭包便已再点一次——重复提交之闸
+     须在 ref 上，不在 state 上（记-32）。 */
+  const running = useRef(false)
+
+  useEffect(() => () => clearTimeout(holdTimer.current), [])
 
   const run = async () => {
-    if (state === 'pending') return
+    if (running.current) return
+    running.current = true
     clearTimeout(holdTimer.current)
     setState('pending')
     setCause(null)
     try {
-      await onAction()
+      const notice = await onAction()
+      announceAction(typeof notice === 'string' ? notice : (doneLabel ?? label))
       setState('done')
       holdTimer.current = setTimeout(() => setState('idle'), HOLD_MS)
     } catch (err) {
       setCause(err?.message || null)
       setState('error')
+    } finally {
+      running.current = false
     }
   }
 
@@ -55,7 +70,7 @@ export function ActionButton({
 
   return (
     <>
-      {state === 'error' && cause && <span className="act-cause">{cause}</span>}
+      {state === 'error' && cause && <span className="act-cause" role="alert">{cause}</span>}
       <button
         type="button"
         onClick={run}

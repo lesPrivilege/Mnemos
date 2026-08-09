@@ -62,6 +62,7 @@ export default function ReadingHomeBody({ h }) {
     const name = h.newColName.trim()
     if (!name) throw new Error(R.nameRequired)
     await h.handleAddCollection({ preventDefault() {} })
+    return R.createdNotice(name) // 同上（记-32）
   }
 
   if (h.query.trim()) {

@@ -21,6 +21,7 @@ import SetDetail from './pages/SetDetail'
 import Reader from './reading/pages/Reader'
 import CollectionDetail from './reading/pages/CollectionDetail'
 import { Icon } from './components/Icons'
+import { ActionNotice } from './components/ActionNotice'
 import { S } from './lib/strings'
 
 const bottomTabs = [
@@ -97,6 +98,9 @@ export default function App() {
     <HashRouter>
       <ErrorBoundary>
         <AppShell />
+        {/* 动作确认之活区（记-32）：发起它的表单关掉之後它还在，故挂于此，
+            不挂在任一屏内。 */}
+        <ActionNotice />
       </ErrorBoundary>
     </HashRouter>
   )

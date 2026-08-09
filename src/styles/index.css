@@ -1481,6 +1481,13 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   font-family: var(--font-zh); font-size: var(--text-sm);
   line-height: var(--leading-relaxed); color: var(--ink-2);
 }
+/* 动作确认（记-32）：借浮签之形，只多一条空态之隐。
+   活区须常在 DOM 内方得宣读，故以 opacity 退，不以 display:none 除——
+   後者连同无障碍树一并摘掉，内容再变也无人读。 */
+.act-notice:empty {
+  opacity: 0;
+  pointer-events: none;
+}
 
 /* ─────── Activity dashboard ─────── */
 .activity-content {

@@ -81,6 +81,7 @@ export function FlashcardHomeContent() {
     setNewDeckName('')
     setShowNewDeck(false)
     refresh()
+    return F.deckCreatedNotice(name) // 表单就此关掉，确认语交 ActionNotice 承（记-32）
   }
 
   const isEmpty = decks.length === 0

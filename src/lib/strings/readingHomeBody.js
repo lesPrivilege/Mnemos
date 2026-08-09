@@ -29,6 +29,8 @@ export const readingHomeBody = {
   create: '创建',
   creating: '创建中',
   created: '已创建',
+  /* 同上（记-32）。 */
+  createdNotice: (name) => `已创建集合「${name}」`,
   createRetry: '重试创建',
   nameRequired: '集合名称不能为空。',
   newColNamePlaceholder: '集合名称',

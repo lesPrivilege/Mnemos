@@ -36,6 +36,8 @@ export const flashcardHome = {
   newDeckAction: '新建卡组',
   creatingDeck: '新建中',
   deckCreated: '已新建',
+  /* 表单关掉之後还要读的一句，故须自足——钮上「已新建」离开语境即无所指（记-32）。 */
+  deckCreatedNotice: (name) => `已新建卡组「${name}」`,
   createRetry: '重试新建',
   createFailed: '卡组名称不能为空。',
 }
