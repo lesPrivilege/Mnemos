@@ -40,7 +40,9 @@ async function click() {
 }
 
 beforeEach(() => {
-  vi.useFakeTimers({ shouldAdvanceTime: true })
+  /* 不用 shouldAdvanceTime：假钟若随真时一同走，驻留边界之验（3999 未撤、
+     4000 已撤）会随机器忙闲而翻覆。此处只用 act 推进，不用 waitFor，故无需之。 */
+  vi.useFakeTimers()
 })
 afterEach(() => {
   announceAction(null)
