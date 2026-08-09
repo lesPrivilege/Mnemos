@@ -5,7 +5,10 @@ export const activity = {
      旧此处三数并列（活跃天数／本周／总活动量），皆无下一步。 */
   streakLabel: '连续',
   streakUnit: ' 天',
-  streakSub: (activeDays, weekTotal) => `本月活跃 ${activeDays} 天 · 本周 ${weekTotal} 次`,
+  /* 副句两数同为「天」。旧作「本周 N 次」，而那个 N 是记忆次数＋练习次数＋
+     阅读分钟之和——三个量纲相加後挂一个单位，读者无从还原（记-32）。 */
+  streakSub: (monthActiveDays, weekActiveDays) =>
+    `本月活跃 ${monthActiveDays} 天 · 近 7 日 ${weekActiveDays} 天`,
   todayTitle: '今日',
   targetNote: '对每日目标',
   minuteUnit: ' 分钟',
@@ -23,4 +26,7 @@ export const activity = {
   recallDetailPrefix: '记忆 ',
   practiceDetailPrefix: '练习 ',
   readingDetailPrefix: '阅读 ',
+  /* 格之提示语：分模块出，各带各的单位——旧作「日期: 7」，那个 7 同是三量纲之和。 */
+  cellTitle: (day) =>
+    `${day.date}：记忆 ${day.recall} · 练习 ${day.practice} · 阅读 ${day.reading} 分钟`,
 }

@@ -7,10 +7,12 @@
  * 凡首页、活动页、完成屏、日後 widget 所需之派生量，一概出于此处；
  * 页面不得自算（design-kanli §八「事件流派生区」槽位之兑现）。
  *
- * 上游唯一：`./events`（事件流）与 `../scheduler`（卡片到期状态）。
+ * 上游唯一：`./events`（事件流）、`./activeDays`（跨模块活跃日）与
+ * `../scheduler`（卡片到期状态）。
  */
 
-import { readEvents, splitSessions, dayKey } from './events'
+import { readEvents, splitSessions } from './events'
+import { activeDayKeys } from './activeDays'
 import { getAllDeckStats } from '../scheduler'
 import { loadData } from '../storage'
 import { isRecall } from '../cardUtils'
@@ -67,11 +69,12 @@ export function forecast7() {
 }
 
 /**
- * 连续天数 — 出于事件流，非出于 card.updatedAt。
- * 今日尚未活动不断链（i > 0 方判断），与 activity.js 旧口径一致。
+ * 连续天数 — 出于跨模块活跃日，非出于 card.updatedAt，亦不止于事件流（记-32）。
+ * 记忆、练习、阅读任一动过即算这一天；今日尚未活动不断链（i > 0 方判断）。
+ *
+ * @param {Set<string>} [active] - 活跃日键集；传入以免同一轮内重复读盘
  */
-export function streak(events = readEvents()) {
-  const active = new Set(events.map((e) => dayKey(e.timestamp)))
+export function streak(active = activeDayKeys()) {
   if (active.size === 0) return 0
 
   let count = 0

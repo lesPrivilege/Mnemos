@@ -94,36 +94,33 @@ describe('forecast7', () => {
   })
 })
 
+/* streak 之输入自记-32 起为跨模块活跃日键集（derive/activeDays），非事件流；
+   「哪一天算活跃」之判在彼处有其自己的一批测。此处只验数链之法。 */
 describe('streak', () => {
+  const keys = (...offsets) => new Set(offsets.map((i) => {
+    const d = new Date(NOW)
+    d.setDate(NOW.getDate() - i)
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  }))
+
   it('数连续活动之日，今日未动不断链', () => {
-    const t = NOW.getTime()
-    readEvents.mockReturnValue([
-      ev({ timestamp: t - DAY }),
-      ev({ timestamp: t - 2 * DAY }),
-      ev({ timestamp: t - 3 * DAY }),
-    ])
-    expect(streak()).toBe(3)
+    expect(streak(keys(1, 2, 3))).toBe(3)
   })
 
   it('中断即止，不数断链之前的', () => {
-    const t = NOW.getTime()
-    readEvents.mockReturnValue([
-      ev({ timestamp: t }),
-      ev({ timestamp: t - DAY }),
-      ev({ timestamp: t - 5 * DAY }),
-      ev({ timestamp: t - 6 * DAY }),
-    ])
-    expect(streak()).toBe(2)
+    expect(streak(keys(0, 1, 5, 6))).toBe(2)
   })
 
-  it('同日多事件只算一天——旧 computeStreak 之漏正在此', () => {
-    const t = NOW.getTime()
-    readEvents.mockReturnValue([ev({ timestamp: t }), ev({ timestamp: t - 3600_000 })])
-    expect(streak()).toBe(1)
+  it('今日已动则计入今日', () => {
+    expect(streak(keys(0))).toBe(1)
   })
 
-  it('空流得零', () => {
-    expect(streak()).toBe(0)
+  it('空集得零', () => {
+    expect(streak(new Set())).toBe(0)
+  })
+
+  it('唯昨日一天亦成链，今日尚有机会补', () => {
+    expect(streak(keys(1))).toBe(1)
   })
 })
 

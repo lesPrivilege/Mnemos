@@ -140,7 +140,7 @@ function HeatmapGrid() {
                         border: selected?.date === day.date ? '1px solid var(--ink)' : '1px solid var(--border-soft)',
                         boxShadow: selected?.date === day.date ? '0 0 0 1px var(--bg), 0 0 0 2px var(--ink)' : 'none',
                       }}
-                      title={`${day.date}: ${day.total}`}
+                      title={S.activity.cellTitle(day)}
                     />
                   )
                 })}
@@ -185,7 +185,7 @@ export default function Activity() {
             label={S.activity.streakLabel}
             value={data.streak}
             unit={S.activity.streakUnit}
-            sub={S.activity.streakSub(data.activeDays, data.weekTotals.total)}
+            sub={S.activity.streakSub(data.monthActiveDays, data.weekActiveDays)}
           />
 
           <section className="act-section">

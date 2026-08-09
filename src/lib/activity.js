@@ -1,11 +1,7 @@
 import { formatLocalDate } from './dateUtils'
-import { isPlainObject, loadJson } from './store'
 import { readEvents } from './derive/events'
 import { streak as deriveStreak } from './derive'
-
-function isStats(value) {
-  return isPlainObject(value) && Array.isArray(value.sessions)
-}
+import { activeDayKeys, readLegacyPracticeAttempts, readReadingSessions } from './derive/activeDays'
 
 function dayKeyFromMs(ms) {
   return formatLocalDate(new Date(ms))
@@ -59,37 +55,28 @@ function addRecall(daysByDate, events) {
   }
 }
 
-function addPracticeFromLog(daysByDate, events) {
-  let found = false
+/* 练习之两源与阅读之源皆由 derive/activeDays 供给——兜底该不该取，那里判一次，
+   此处不再各自决断（记-32）。 */
+function addPractice(daysByDate, events) {
   for (const e of events) {
     if (e.module !== 'practice') continue
     const day = daysByDate.get(dayKeyFromMs(e.timestamp))
     if (!day) continue
-    found = true
     day.practice += 1
     if (e.correct) day.practiceCorrect += 1
   }
-  return found
-}
-
-function addPracticeFromProgress(daysByDate) {
-  const progress = loadJson('examprep-progress', {}, isPlainObject)
-  for (const item of Object.values(progress)) {
-    if (!item?.last_attempt) continue
-    const date = dayKeyFromMs(item.last_attempt * 1000)
-    const day = daysByDate.get(date)
+  for (const attempt of readLegacyPracticeAttempts(events)) {
+    const day = daysByDate.get(dayKeyFromMs(attempt.timestamp))
     if (!day) continue
     day.practice += 1
-    if (item.status === 'correct') day.practiceCorrect += 1
+    if (attempt.correct) day.practiceCorrect += 1
   }
 }
 
 function addReading(daysByDate) {
-  const stats = loadJson('reading-stats', { sessions: [] }, isStats)
-  for (const session of stats.sessions || []) {
+  for (const session of readReadingSessions()) {
     if (!session.startedAt) continue
-    const date = dayKeyFromMs(session.startedAt)
-    const day = daysByDate.get(date)
+    const day = daysByDate.get(dayKeyFromMs(session.startedAt))
     if (!day) continue
     day.reading += session.minutesRead || 0
   }
@@ -97,30 +84,21 @@ function addReading(daysByDate) {
 
 export function getActivityDashboard() {
   const events = readEvents()
+  const activeKeys = activeDayKeys(events)
   const dates = monthDays()
   const daysByDate = new Map(dates.map((date) => [date, emptyDay(date)]))
   addRecall(daysByDate, events)
-  if (!addPracticeFromLog(daysByDate, events)) addPracticeFromProgress(daysByDate)
+  addPractice(daysByDate, events)
   addReading(daysByDate)
-
-  // 活跃天数仍取 90 日窗（本月之外亦算「活跃」）；连续天数则归 derive 单源
-  const streakDates = trailingDays(90)
-  const streakByDate = new Map(streakDates.map((date) => [date, emptyDay(date)]))
-  addRecall(streakByDate, events)
-  if (!addPracticeFromLog(streakByDate, events)) addPracticeFromProgress(streakByDate)
-  addReading(streakByDate)
-  const activeDates = new Set(
-    [...streakByDate.values()]
-      .filter(d => d.recall + d.practice + d.reading > 0)
-      .map(d => d.date)
-  )
 
   const days = dates.map((date) => {
     const day = daysByDate.get(date)
     return {
+      /* total 是热力浓淡之标度，非可读之量——三模块量纲不同，故不挂单位、
+         不入文案；要给人看的数一律分模块出（记-32）。 */
       ...day,
       total: day.recall + day.practice + day.reading,
-      active: day.recall + day.practice + day.reading > 0,
+      active: activeKeys.has(date),
     }
   })
 
@@ -135,21 +113,16 @@ export function getActivityDashboard() {
     total: sum.total + d.total,
   }), { recall: 0, recallCorrect: 0, practice: 0, practiceCorrect: 0, reading: 0, total: 0 })
 
-  const weekTotals = thisWeek.reduce((sum, d) => ({
-    recall: sum.recall + d.recall,
-    practice: sum.practice + d.practice,
-    reading: sum.reading + d.reading,
-    total: sum.total + d.total,
-  }), { recall: 0, practice: 0, reading: 0, total: 0 })
-
   return {
     days,
     today,
     targets: TARGETS,
     totals,
-    weekTotals,
-    activeDays: activeDates.size,
-    streak: deriveStreak(events),
+    /* 焦点副句之两数同为「天」——旧此处以本周次数副之，而那个「次」是记忆次数
+       ＋练习次数＋阅读分钟之和，三个量纲相加後挂一个单位（记-32）。 */
+    monthActiveDays: days.filter((d) => d.active).length,
+    weekActiveDays: thisWeek.filter((d) => d.active).length,
+    streak: deriveStreak(activeKeys),
     maxDayTotal: Math.max(1, ...days.map((d) => d.total)),
   }
 }
@@ -163,7 +136,7 @@ export function getHeatmapData() {
   const dates = trailingDays(90)
   const byDate = new Map(dates.map((date) => [date, emptyDay(date)]))
   addRecall(byDate, events)
-  if (!addPracticeFromLog(byDate, events)) addPracticeFromProgress(byDate)
+  addPractice(byDate, events)
   addReading(byDate)
 
   const days = dates.map(date => {
