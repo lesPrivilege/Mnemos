@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { PlusIcon, UploadIcon, ChevronRIcon, AlertIcon, XIcon } from '../components/Icons'
+import { PlusIcon, UploadIcon, ChevronRIcon, AlertIcon, XIcon, LayersIcon } from '../components/Icons'
 import { getAllDeckStats } from '../lib/scheduler'
 import { addDeck } from '../lib/storage'
 import { FocusHeader, ForecastStrip } from '../components/FocusHeader'
@@ -90,83 +90,94 @@ export function FlashcardHomeContent() {
     label: focus.primary.all ? F.reviewAllAction : F.startReviewAction,
   }
 
-  return (
-    <div className="scr">
-      <FocusHeader
-        label={isEmpty ? F.readyLabel : F.todayLabel}
-        value={isEmpty ? 0 : focus.dueTotal}
-        unit={isEmpty ? F.emptyUnit : F.dueUnit}
-        sub={focus.breakdown.length > 0
-          ? focus.breakdown.map((d) => F.breakdownItem(d.name, d.due)).join(F.breakdownJoin)
-          : null}
-        cta={cta}
-      />
-
-      {!isEmpty && (
-        <ForecastStrip
-          data={forecast}
-          labels={F.dayLabels}
-          title={F.forecastTitle}
-          formatTotal={F.forecastTotal}
-        />
-      )}
-
-      {/* 续读——只在真有中断之会话时出现 */}
-      {session && (
-        <div className="resume">
-          <button className="resume-body" onClick={() => navigate(`/review/${session.deckId}`)}>
-            <span className="resume-name">{session.deckName}</span>
-            <span className="resume-meta">
-              {F.continueReview}<span className="sep">·</span>{session.dueCount}{F.dueCountSuffix}
-            </span>
-          </button>
-          <button className="resume-x" aria-label={F.dismissContinue}
-            onClick={() => { clearReviewSession(); setSession(null) }}>
-            <XIcon size={14} />
-          </button>
-        </div>
-      )}
-
-      <div className="list-head">
-        <span className="t">{F.decksTitle}<em>{decks.length}</em></span>
-        <Link to="/activity" className="list-link">{F.activityLink}<ChevronRIcon size={12} /></Link>
-      </div>
-
-      {isEmpty ? (
-        <EmptyState title={F.emptyDecksTitle} hint={F.emptyDecksHint} />
+  const actions = (
+    <div className={`sub-actions${isEmpty ? ' empty-actions' : ''}`}>
+      {showNewDeck ? (
+        <form className="new-deck" onSubmit={(e) => e.preventDefault()}>
+          <input value={newDeckName} onChange={(e) => setNewDeckName(e.target.value)}
+            placeholder={F.deckNamePlaceholder} autoFocus />
+          <ActionButton
+            onAction={createDeck}
+            label={F.add}
+            pendingLabel={F.creatingDeck}
+            doneLabel={F.deckCreated}
+            retryLabel={F.createRetry}
+            disabled={!newDeckName.trim()}
+          />
+          <button type="button" className="btn btn-ghost"
+            onClick={() => { setShowNewDeck(false); setNewDeckName('') }}>{F.cancel}</button>
+        </form>
       ) : (
-        <div className="rows">
-          {sorted.map((deck) => <DeckRow key={deck.id} deck={deck} />)}
-        </div>
+        <>
+          <Link to="/import?tab=md" className="btn btn-ghost">
+            <UploadIcon size={15} />{F.importAction}
+          </Link>
+          <button className={`btn ${isEmpty ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setShowNewDeck(true)}>
+            <PlusIcon size={15} />{F.newDeckAction}
+          </button>
+        </>
       )}
+    </div>
+  )
 
-      <div className="sub-actions">
-        {showNewDeck ? (
-          <form className="new-deck" onSubmit={(e) => e.preventDefault()}>
-            <input value={newDeckName} onChange={(e) => setNewDeckName(e.target.value)}
-              placeholder={F.deckNamePlaceholder} autoFocus />
-            <ActionButton
-              onAction={createDeck}
-              label={F.add}
-              pendingLabel={F.creatingDeck}
-              doneLabel={F.deckCreated}
-              retryLabel={F.createRetry}
-              disabled={!newDeckName.trim()}
-            />
-            <button type="button" className="btn btn-ghost"
-              onClick={() => { setShowNewDeck(false); setNewDeckName('') }}>{F.cancel}</button>
-          </form>
-        ) : (
-          <>
-            <Link to="/import?tab=md" className="btn btn-ghost">
-              <UploadIcon size={15} />{F.importAction}
-            </Link>
-            <button className="btn btn-ghost" onClick={() => setShowNewDeck(true)}>
-              <PlusIcon size={15} />{F.newDeckAction}
-            </button>
-          </>
-        )}
-      </div>
+  return (
+    <div className={`scr${isEmpty ? ' scr-empty' : ''}`}>
+      {isEmpty ? (
+        <EmptyState
+          centered
+          icon={<LayersIcon size={30} />}
+          title={F.emptyDecksTitle}
+          hint={F.emptyDecksHint}
+        >
+          {actions}
+        </EmptyState>
+      ) : (
+        <>
+          <FocusHeader
+            label={F.todayLabel}
+            value={focus.dueTotal}
+            unit={F.dueUnit}
+            sub={focus.breakdown.length > 0
+              ? focus.breakdown.map((d) => F.breakdownItem(d.name, d.due)).join(F.breakdownJoin)
+              : null}
+            cta={cta}
+          />
+
+          <ForecastStrip
+            data={forecast}
+            labels={F.dayLabels}
+            title={F.forecastTitle}
+            formatTotal={F.forecastTotal}
+          />
+
+          {/* 续读——只在真有中断之会话时出现 */}
+          {session && (
+            <div className="resume">
+              <button className="resume-body" onClick={() => navigate(`/review/${session.deckId}`)}>
+                <span className="resume-name">{session.deckName}</span>
+                <span className="resume-meta">
+                  {F.continueReview}<span className="sep">·</span>{session.dueCount}{F.dueCountSuffix}
+                </span>
+              </button>
+              <button className="resume-x" aria-label={F.dismissContinue}
+                onClick={() => { clearReviewSession(); setSession(null) }}>
+                <XIcon size={14} />
+              </button>
+            </div>
+          )}
+
+          <div className="list-head">
+            <span className="t">{F.decksTitle}<em>{decks.length}</em></span>
+            <Link to="/activity" className="list-link">{F.activityLink}<ChevronRIcon size={12} /></Link>
+          </div>
+
+          <div className="rows">
+            {sorted.map((deck) => <DeckRow key={deck.id} deck={deck} />)}
+          </div>
+
+          {actions}
+        </>
+      )}
     </div>
   )
 }

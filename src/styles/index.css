@@ -32,9 +32,9 @@ a { color: inherit; text-decoration: none; }
 
 /* ─────── Top bar ─────── */
 .topbar {
-  min-height: 52px; flex-shrink: 0;
+  min-height: 50px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: space-between;
-  padding: env(safe-area-inset-top, 0px) 18px 0;
+  padding: env(safe-area-inset-top, 0px) 16px 0;
   /* 主界：chrome 与内容之界（界行两档，款2） */
   border-bottom: 1px solid var(--border);
   background: var(--bg);
@@ -80,20 +80,20 @@ a { color: inherit; text-decoration: none; }
 /* ─────── Buttons ─────── */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  padding: 11px 14px;
+  padding: 10px 13px;
   border-radius: var(--r-md);
   font-family: var(--font-ui);
   font-size: var(--text-md);
   font-weight: 500;
   border: 1px solid transparent;
-  transition: transform var(--motion-quick), background var(--motion-quick), border-color var(--motion-quick), color var(--motion-quick);
+  transition: transform var(--motion-quick), background var(--motion-mid), border-color var(--motion-mid), color var(--motion-mid);
   white-space: nowrap;
   line-height: 1;
 }
 .btn:active { transform: scale(0.97); }
 .btn-primary { background: var(--ink); color: var(--bg); }
 .btn-primary:hover { background: var(--ink-2); }
-.btn-ghost { background: var(--bg-card); border-color: var(--border); color: var(--ink); }
+.btn-ghost { background: var(--bg-card); border-color: var(--border); color: var(--ink-2); }
 .btn-ghost:hover { background: var(--bg-raised); }
 .btn-block { width: 100%; }
 
@@ -811,7 +811,7 @@ a { color: inherit; text-decoration: none; }
 .list-link:hover { color: var(--ink); }
 
 /* ─────── 次级操作 ─────── */
-.sub-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.sub-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding-top: 6px; }
 .new-deck {
   grid-column: 1 / -1;
   display: flex; gap: 8px; align-items: stretch;
@@ -1047,7 +1047,8 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* ─────── Scr (screen content area) ─────── */
-.scr { padding: 18px 18px 32px; display: flex; flex-direction: column; gap: 16px; }
+.scr { padding: 16px 16px 26px; display: flex; flex-direction: column; gap: 14px; }
+.scr-empty { min-height: 100%; justify-content: center; }
 
 /* ─────── Empty state ─────── */
 .empty {
@@ -1067,6 +1068,33 @@ a { color: inherit; text-decoration: none; }
   color: var(--ink-3);
   letter-spacing: 0.04em;
 }
+.empty-centered {
+  flex: 0;
+  align-items: center;
+  gap: 9px;
+  padding: 34px 26px;
+  text-align: center;
+}
+.empty-centered .ic { color: var(--ink-3); display: inline-flex; }
+.empty-centered .msg {
+  font-size: var(--text-lg);
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--ink-2);
+}
+.empty-centered .motto-zh {
+  max-width: 22em;
+  font-family: var(--font-zh);
+  font-size: var(--text-md);
+  line-height: var(--leading-relaxed);
+  letter-spacing: 0;
+}
+.empty-actions {
+  width: min(240px, 100%);
+  margin-top: 14px;
+  padding-top: 0;
+}
+.empty-actions:has(.new-deck) { width: min(340px, 100%); }
 
 /* ─────── Done screen ─────── */
 .done-wrap {
@@ -1174,8 +1202,8 @@ a { color: inherit; text-decoration: none; }
 
 /* ─────── List header ─────── */
 .list-head {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 4px;
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: 2px 0 0;
 }
 .list-head .count {
   font-family: var(--font-mono);
@@ -1355,7 +1383,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
    三等分栅格，层级由分隔线维持而非由份量维持；今只留一个主数、一句
    分解、一个去处，其余下沉活动页。 */
 .focus {
-  padding: 4px 0 14px;
+  padding: 0 0 14px;
   border-bottom: 1px solid var(--border);
   display: flex; flex-direction: column; gap: 11px;
   min-width: 0;
@@ -1372,7 +1400,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
 .focus-num .n {
   /* 展示数字归 disp 轨（判例三） */
   font-family: var(--font-disp);
-  font-size: clamp(30px, 8.5vw, 38px);
+  font-size: var(--text-4xl);
   line-height: 0.95; color: var(--ink);
   font-feature-settings: "lnum", "tnum";
 }
@@ -1387,15 +1415,16 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
 }
 .focus-cta {
   flex-shrink: 0;
-  display: inline-flex; align-items: center; gap: 7px;
-  padding: 11px 16px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 11px 17px;
   border-radius: var(--r-md);
+  border: 1px solid transparent;
   background: var(--ink); color: var(--bg);
-  font-family: var(--font-ui); font-size: var(--text-lg); font-weight: 600;
+  font-family: var(--font-ui); font-size: var(--text-lg); font-weight: 500;
   line-height: 1;
   transition: transform var(--motion-quick), background var(--motion-quick);
 }
-.focus-cta:active { transform: scale(0.98); }
+.focus-cta:active { transform: scale(0.97); }
 .focus-cta:hover { background: var(--ink-2); }
 
 /* ─────── 预测条 ───────
@@ -1430,7 +1459,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   color: var(--ink-3); line-height: 1;
 }
 .fc-col .b {
-  width: 100%; max-width: 22px;
+  width: 100%;
   background: var(--ink-3);
   border-radius: var(--r-sm) var(--r-sm) 0 0;
 }
@@ -1451,7 +1480,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
    一记一义：已稳固之比例。轨取 --ink-4，充填取 --ink，二者相对 7:1；
    承载值的是这条边界，非轨对底。 */
 .meter {
-  height: 3px; border-radius: var(--r-sm); overflow: hidden;
+  height: 4px; border-radius: var(--r-sm); overflow: hidden;
   background: var(--ink-4);
 }
 .meter > i { display: block; height: 100%; background: var(--ink); }
