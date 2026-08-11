@@ -62,6 +62,14 @@
 
 ## 校勘记（R2 轮：主链路重定调 + 声部换刻，2026-08-09 起）
 
+### 记 2026-08-11-39 · 场景恢复推广到练习/阅读，记-38 未尽收口
+
+- **改何**：四事。① **练习中断恢复**：`QuizPage`（选择）与 `QuizReview`（解答）两页皆在真退出（未完成）时把原队列、位置与已答记录落盘（复用 `examprep-last-session`，加 24h 过期，同 `reviewSession` 之裁量）；再入同一题域同模式即按原队列续行，落在「首个未答题」。**已答记录 `results` 只用于重建 UI 位置与完成屏统计，绝不可重放 `submitAnswer`／`markQuestion`**——重放会重复计分、错乱 streak（已调研之硬结论）。同时补上练习页缺失的「已提交题不可重提」对称防护（`handleSubmit` 卫 `submitted || results 已有此题`，与 Review「未见答不评」同构），并令删除题目后前跃至首个未答题，不再停在已答题上。② **阅读「不再提示」持久化**：`dismissedContinue` 由内存态改为按篇落盘（`reading-dismissed-continue` 存被拒文档 id）——拒的是「这一篇」，另读他篇提示自然复现；阅读位置本就随文档持久化（`scrollPct`／`lastReadAt`），此记只补「哪篇被拒」。③ **记-38 未尽收口**：`QuizPage`／`SetDetail`／`Wrong`／`CollectionDetail` 四处筛选 chip 补 `aria-pressed`，另顺手把同形的 `DeckDetail` `dd-filter` 四枚补齐（记-38 所列四处之外的漏网，全库统一）；卡组详情 `<h1 onClick>` 补键盘径路（`pressable`：role button、tabIndex、Enter/Space，复用既有习语）。④ **既有小病**：`collate` 只在「表体」变时才重写 `docs/contrast-table.md`——牌记 commit 行随 HEAD 变动，此前每次跑 check 都弄脏工作树；表体相同则保留上次生成时的牌记（那一次提交确产出这一份表，更如实）。
+- **据何**：roadmap 场景恢复推广（已调研底稿）；记-38 未尽两条；交接日志之既有小病。练习恢复「results 不可重放」为调研硬结论——重放 `submitAnswer` 将二次 `recordAttempt`，`wrongStreak`／`rightStreak` 双双错乱。
+- **判准**：恢复是「重建现场」而非「重放动作」——落盘记的是已发生之事实（队列、位置、已答结果），绝不重演会再写进度的调用；完成即清（`finished` 时 `clearLastSession`），已全部作答未点完成亦视作完成；过期即弃（24h）。已提交题不可重提为硬卫，删除后不落已答题。阅读之拒按篇不按人——换篇复现，不永久闭嘴。`aria-pressed` 与视觉 `on` 恒同源；h1 键盘径路零视觉变动。collate 表体同则不落盘。
+- **证据**：`npm run check` 全绿（26 文件 205 测试，新增练习会话三测与阅读拒篇两测），collate 四门 0 FAIL 基线不增，`vite build` 成功；collate 连跑两遍，第二遍 `unchanged`，工作树不再被 check 弄脏。
+- **未尽（记档）**：`SetDetail` 视图切换（list/tree）与 `ReadingHomeBody` 排序 `.seg` 段控未补 `aria-pressed`（非筛选 chip，另批）；`SetDetail` 章节目录 `.card-row` 之 `onClick` 展开亦无键盘径路（非本轮所列，另批）。
+
 ### 记 2026-08-11-38 · 复习主链路之读屏语义
 
 - **改何**：纯语义层一笔，视觉零动。复习卡与练习卡的翻面容器撤去 `aria-label`（`role="button"` 属内容命名之角色，作者名一设即遮蔽卡面正文，读屏用户听不到题与答；`visibility:hidden` 本已把非当前面逐出可及性树，撤名后可及名自然只由当前面得出）；翻面之态由 `aria-pressed` 改 `aria-expanded`——翻面是「显出被藏之物」的 disclosure，非控件自身二值之 toggle，练习卡单向翻面者另加 `aria-disabled` 明示已无可为。撤销 toast 拆为两物：常驻空 `role="status"` 节点承播报（读屏器于「插入即带内容」之 live region 播报不可靠，节点须先在），可见药丸改真 `<button>` 得焦点与键盘径路。练习页收藏钮去 `aria-pressed` 只留变名（与复习页既有正写对齐，名与态互斥则择一）。评分四钮回归纯内容命名，快捷键数字对读屏器可闻。icon-only 之返回、收藏、更多三钮补可及名；筛选 chip 补 `aria-pressed`；拖拽覆层字加 `aria-hidden`。
