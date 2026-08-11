@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!--
+    Mnemos brand mark — canonical geometry.
+    Web inherits currentColor and its Mnemos accent custom property. Native raster assets
+    are generated from this exact file by scripts/gen-brand-assets.mjs.
+  -->
+  <path data-brand-tone="ink" d="M10 52V14h10l12 16 12-16h10v38"
+    stroke="currentColor" stroke-width="5" stroke-linecap="square" stroke-linejoin="miter"/>
+  <path data-brand-tone="accent" d="m22 24 10 14 10-14"
+    stroke="var(--mnemos-mark-accent, #af3a2c)" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter"/>
+  <path data-brand-tone="ink" d="M6 52h12M46 52h12"
+    stroke="currentColor" stroke-width="4" stroke-linecap="butt"/>
+</svg>

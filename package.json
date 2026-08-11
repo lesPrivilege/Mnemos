@@ -13,7 +13,8 @@
     "preview": "vite preview",
     "subset:font": "node scripts/subset-content-font.mjs",
     "collate": "node scripts/collate/collate.mjs",
-    "collate:selftest": "node scripts/collate/collate.mjs --self-test"
+    "collate:selftest": "node scripts/collate/collate.mjs --self-test",
+    "brand:generate": "node scripts/gen-brand-assets.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.1",

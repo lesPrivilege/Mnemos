@@ -62,6 +62,13 @@
 
 ## 校勘记（R2 轮：主链路重定调 + 声部换刻，2026-08-09 起）
 
+### 记 2026-08-11-35 · 品牌牌记归一底本
+
+- **改何**：`src/assets/brand/mnemos-mark.svg` 立为 M 牌记唯一几何源；Web 顶栏与关于页直接内联此源，Android adaptive／legacy／round launcher、iOS AppIcon、两端 splash、favicon 与文档图均由 `npm run brand:generate` 从同源生成。旧 `Icons.jsx`、`gen-icons.mjs`、`gen-splash.mjs` 三份手抄路径退役；iOS 的 Capacitor 蓝色 X 占位亦退役。
+- **据何**：盘点见四种异文：文档图仍是暖白／铜，Android 已是冷白／砖红，Web 各自手写路径，iOS 仍为模板图。所谓「已经换刻」只覆盖 Android，不足称品牌一致。
+- **判准**：M＋内收 V 的识别骨架不改；应用内牌记仍以 `currentColor`／`--accent` 随纸，平台 launcher 则取 Dystopia 暗纸三元组——石墨 `--bg`、冷白 `--ink`、砖红 `--accent`——以全幅实色底交由系统裁切。平台可有方、圆、adaptive 安全区之差，不得再有路径与配色底本之差。旧记-04「launcher 暖白留作品牌实物」至此由主令翻案，不再有既判力。
+- **证据**：生成器从 `tokens.css` 现场换算两纸 sRGB，不另存一份色表；回归锁校两纸三元组与生成 SVG 不残留未解析色值。iPhone 17 / iOS 26.5 clean install 实测主屏 60pt 与 WebView 顶栏 20px 同骨架、皆清楚；Xcode `BUILD SUCCEEDED`，Android `:app:assembleDebug` `BUILD SUCCESSFUL`。
+
 ### 记 2026-08-11-34 · 复习会话还一张纸
 
 - **改何**：复习问／答面撤去 50px 独立顶栏与重复的双层卡片 padding，按 R2 第 6–8 屏归为 `3px` 进度线、一行语境／位置、单张直排卡、四档评分。问面提示收进卡底；答面只留「答」朱印、原问、界线、答案；评分词「记住」归标准档名「良好」，第二行由误读为间隔的 `1d` 改为真实可按的数字键 `1/2/4/5`，并补四键径路。空答案不再翻出白纸，改出可跳过、可回册编辑的隔离告知。
