@@ -62,6 +62,20 @@
 
 ## 校勘记（R2 轮：主链路重定调 + 声部换刻，2026-08-09 起）
 
+### 记 2026-08-11-37 · 深链不采，复制为正门（不采之档）
+
+- **改何**：无。「打开 ChatGPT / Claude」深链按钮裁定不做，复制保持为唯一动作。
+- **据何**：外部调研三重否决——① 移动端 ChatGPT/Claude App 经 universal link 接管后 `?q=` 不预填输入框（OpenAI 社区请愿 2025-05 至今无回应），而 Mnemos 是 Capacitor 移动应用，此为主场景硬伤；② `claude.ai/new?q=` 已于 2025-10 移除（anthropics/claude-code#19023，closed as not planned），ChatGPT `?q=` 从未文档化且会强制回落默认模型；③ 即便可用，URL 也塞不下学习材料，深链只能带空模板，用户仍须二次粘贴——比复制净增一步。
+- **判准**：复制对每家 AI 一视同仁、不依赖任何厂商私有接口，与「不内置 LLM、格式即接口」是同一件事的两面；正门动作不建在他人未承诺的地基上。
+- **复议门槛**：仅当某厂商正式文档化 web 端预填参数，且形态限「只带模板不带材料、明标实验性」。
+
+### 记 2026-08-11-36 · 制卡指南扩为三模块模板库
+
+- **改何**：`formatSpec.js` 单源扩容——新增题库 JSON 模板（对齐 `questionParser` 契约：subject/id/type/多选 answer 字母集）与阅读讲义模板（#/##/### 三级出目录、公式 LaTeX）；既有两模板补 few-shot 示例与标题骨架，词书例句引用块收末行（marked 惰性续行会吞并其后普通行，既有规则之坑随笔修正）。PromptGuide 改版为「AI 制作指南」四 tab（`?tab=` 直达、replace 不入历史、切 tab 复位复制态），粘贴引导与占位符说明按 tab 取文并块，增「为什么是复制」说明卡；复制败态入 danger 声部，`##` 行语法着色由 accent 归墨（判例四）。Import 三 tab 皆有模板入口，各自成文不回声；阅读粘贴导入标题改从首个 H1 取，不再恒名「pasted」。文案尽归 `strings/promptGuide.js`。顺清既有病：`questionParser` 之 `calculation|coding|essay→review` 兼容映射退役。新立 `formatSpec.test.js` 互证门：三模板示例段实跑 `mdParser`／`parseQuestionsJson` 断言。
+- **据何**：题库与阅读两模块此前无 LLM 制卡入口，AI-native 正门只开一扇（roadmap M3「Prompt 模板即产品面」）。首笔实施经非实施审书状对读，四款不刊项（QUIZ 缺 subject 致屏显 `unknown`、词书 few-shot 被 blockquote 实测吞并、粘贴路径产恒名文档、返回栈污染）皆源于模板与解析器互证无门——今立测试为门，不再靠人眼对读。
+- **判准**：格式即 API，prompt 与解析器同源一份契约，示例段以测试实跑为凭。判例八三问逐钮过：四 tab 三链接全留，深链钮不设（记-37）。复制钮前置于预览之上系有意为之——主行动前置，预览为参照非阅读正文；审书病4此点不采。「AI」入文案已登临文不讳（家5 之禁在暗示应用内调用，此页恰以字面划清内外边界）。
+- **证据**：`npm run check` 全绿（26 文件 202 测试，含新互证测试与 `questionParser` 退兼容后用例），collate 四门 0 FAIL 基线不增，`vite build` 成功。多选字母集比对（`quizEngine` sort-join）与中文标题过 `titleFromFilename` 两处先核实后落笔。
+
 ### 记 2026-08-11-35 · 品牌牌记归一底本
 
 - **改何**：`src/assets/brand/mnemos-mark.svg` 立为 M 牌记唯一几何源；Web 顶栏与关于页直接内联此源，Android adaptive／legacy／round launcher、iOS AppIcon、两端 splash、favicon 与文档图均由 `npm run brand:generate` 从同源生成。旧 `Icons.jsx`、`gen-icons.mjs`、`gen-splash.mjs` 三份手抄路径退役；iOS 的 Capacitor 蓝色 X 占位亦退役。

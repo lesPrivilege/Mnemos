@@ -132,9 +132,12 @@ token 表）。啟動前提：功能盤完（P2 導圖、R4+1 等在跑事項收
   通知「直接開始複習」、widget 點擊、外部工具喚起全靠它。
 - **事件流 schema 化**：reviewLog/activity 已是雛形；定義正式 event schema 後，
   統計、熱力圖、widget 數據、未來成就系統全部派生，不再各頁自算。
-- **Prompt 模板即產品面**：PromptGuide 升級為「複製即用」的模板庫（按 chatbot /
-  CLI 場景分組，含 formatSpec 的最新契約）。這是 AI-native 定位的正門——用戶的
-  第一個 deck 應該在十分鐘內從任意 LLM 產出。
+- **Prompt 模板即產品面** ✅ 首版完成（2026-08-11，記-36/37）：PromptGuide 升級為
+  「AI 制作指南」——四模板覆蓋三模塊（通用卡/單詞卡/題庫 JSON/閱讀講義），few-shot
+  入模板，Import 三 tab 皆有入口，formatSpec 單源擴容並立模板↔解析器互證測試。
+  深鏈「直接打開 ChatGPT/Claude」調研後不採（移動端不生效、參數不穩，記-37）。
+  這是 AI-native 定位的正門——用戶的第一個 deck 應該在十分鐘內從任意 LLM 產出。
+  後續觸發條件：模板 ≥6 時策展默認視圖；從卡組進入時預填牌組名。
 
 ## M4 — 品味清單（穿插，每輪 1-2 條）
 
