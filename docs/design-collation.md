@@ -62,6 +62,14 @@
 
 ## 校勘记（R2 轮：主链路重定调 + 声部换刻，2026-08-09 起）
 
+### 记 2026-08-11-38 · 复习主链路之读屏语义
+
+- **改何**：纯语义层一笔，视觉零动。复习卡与练习卡的翻面容器撤去 `aria-label`（`role="button"` 属内容命名之角色，作者名一设即遮蔽卡面正文，读屏用户听不到题与答；`visibility:hidden` 本已把非当前面逐出可及性树，撤名后可及名自然只由当前面得出）；翻面之态由 `aria-pressed` 改 `aria-expanded`——翻面是「显出被藏之物」的 disclosure，非控件自身二值之 toggle，练习卡单向翻面者另加 `aria-disabled` 明示已无可为。撤销 toast 拆为两物：常驻空 `role="status"` 节点承播报（读屏器于「插入即带内容」之 live region 播报不可靠，节点须先在），可见药丸改真 `<button>` 得焦点与键盘径路。练习页收藏钮去 `aria-pressed` 只留变名（与复习页既有正写对齐，名与态互斥则择一）。评分四钮回归纯内容命名，快捷键数字对读屏器可闻。icon-only 之返回、收藏、更多三钮补可及名；筛选 chip 补 `aria-pressed`；拖拽覆层字加 `aria-hidden`。
+- **据何**：roadmap M4「VoiceOver / TalkBack 过一遍复习主流程」。原记之病灶（hero 之 link 内含 button）已随记-31 之 `FocusHeader` 重构消解，本轮核实后未动；真病灶在别处，且首笔实施自身把 `aria-label` 由静态强化为动态，遮蔽更甚——经非实施审书七款不刊方归位。
+- **判准**：语义层之改不得触行款一像素（Tailwind preflight 已清 `<button>` 之 UA 边框与字体，显式样式覆盖其余）；播报克制——每屏至多一处 live region，不为读屏器凭空新造屏上本无之承诺（练习页评分后视觉本无反馈，故不补播报）。名与态不并出：用 `aria-pressed` 则名恒定，名已随态变则不加 pressed。
+- **证据**：`npm run check` 全绿，collate 四门 0 FAIL 基线不增；`ReviewCard.test.jsx` 按新语义重立断言。
+- **未尽（记档）**：卡组详情 `<h1 onClick>` 无键盘径路；`QuizPage`／`SetDetail`／`Wrong`／`CollectionDetail` 四处筛选 chip 未补 `aria-pressed`，与本轮已补两处成全库不一——皆越复习主链路，另批。
+
 ### 记 2026-08-11-37 · 深链不采，复制为正门（不采之档）
 
 - **改何**：无。「打开 ChatGPT / Claude」深链按钮裁定不做，复制保持为唯一动作。
