@@ -176,6 +176,7 @@ export default function DeckDetail() {
             className="flex-1 font-zh text-xl font-medium text-ink bg-transparent border-b border-accent outline-none px-2" />
         ) : (
           <h1 onClick={() => { setEditingName(true); setNameInput(deck.name) }}
+            {...pressable(() => { setEditingName(true); setNameInput(deck.name) })}
             className="flex-1 font-zh text-xl font-medium text-ink truncate cursor-pointer hover:text-accent transition-colors pl-1">
             {deck.name}
           </h1>
@@ -271,16 +272,16 @@ export default function DeckDetail() {
           </div>
 
           <div className="dd-filters" aria-label={S.deckDetail.filterLabel}>
-            <button onClick={() => setFilter('all')} className={`dd-filter ${filter === 'all' ? 'on' : ''}`}>
+            <button onClick={() => setFilter('all')} className={`dd-filter ${filter === 'all' ? 'on' : ''}`} aria-pressed={filter === 'all'}>
               {S.deckDetail.allFilter(cardCount)}
             </button>
-            <button onClick={() => setFilter('due')} className={`dd-filter ${filter === 'due' ? 'on' : ''}`}>
+            <button onClick={() => setFilter('due')} className={`dd-filter ${filter === 'due' ? 'on' : ''}`} aria-pressed={filter === 'due'}>
               {S.deckDetail.dueFilter(dueCount)}
             </button>
-            <button onClick={() => setFilter('starred')} className={`dd-filter ${filter === 'starred' ? 'on' : ''}`}>
+            <button onClick={() => setFilter('starred')} className={`dd-filter ${filter === 'starred' ? 'on' : ''}`} aria-pressed={filter === 'starred'}>
               {S.deckDetail.starredFilterCount(starredCount)}
             </button>
-            <button onClick={() => setFilter('wrong')} className={`dd-filter ${filter === 'wrong' ? 'on' : ''}`}>
+            <button onClick={() => setFilter('wrong')} className={`dd-filter ${filter === 'wrong' ? 'on' : ''}`} aria-pressed={filter === 'wrong'}>
               {S.deckDetail.wrongFilter(wrongCount)}
             </button>
           </div>

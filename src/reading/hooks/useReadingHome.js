@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import {
   getCollections, addCollection, deleteCollection,
   getDocumentsByCollection, getRecentDocuments, getContinueReading,
+  getDismissedContinueId, setDismissedContinueId,
   migrateBodiesToIDB,
 } from '../lib/storage'
 import { searchDocuments } from '../lib/search'
@@ -25,13 +26,21 @@ export function useReadingHome({ confirmFn } = {}) {
   const refresh = useCallback(() => {
     setCollections(getCollections())
     setRecentDocs(getRecentDocuments(5))
-    if (!dismissedContinue) setContinueDoc(getContinueReading())
+    const cont = getContinueReading()
+    setContinueDoc(cont)
+    // 拒的是「这一篇」——换一篇续读提示即复现
+    setDismissedContinue(cont ? getDismissedContinueId() === cont.id : true)
     setStats(getReadingStats())
-  }, [dismissedContinue])
+  }, [])
 
   useEffect(() => {
     migrateBodiesToIDB().then(refresh)
   }, [])
+
+  const handleDismissContinue = useCallback(() => {
+    if (continueDoc) setDismissedContinueId(continueDoc.id)
+    setDismissedContinue(true)
+  }, [continueDoc])
 
   // ── Search ──────────────────────────────────────────
 
@@ -86,7 +95,7 @@ export function useReadingHome({ confirmFn } = {}) {
     collections, sorted, showNewCol, newColName,
     sortBy, setSortBy,
     query, setQuery, searchResults,
-    recentDocs, continueDoc, dismissedContinue, setDismissedContinue, stats,
+    recentDocs, continueDoc, dismissedContinue, handleDismissContinue, stats,
     setShowNewCol, setNewColName,
     refresh,
     handleAddCollection, handleDeleteCollection,

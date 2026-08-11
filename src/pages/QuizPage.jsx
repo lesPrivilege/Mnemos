@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { getQuizQuestions, submitAnswer } from '../quiz/lib/quizEngine'
-import { saveLastSession, toggleStar, isStarred, deleteQuestion, loadStarred, loadQuestions } from '../quiz/lib/storage'
+import { saveLastSession, loadLastSession, clearLastSession, toggleStar, isStarred, deleteQuestion, loadStarred, loadQuestions } from '../quiz/lib/storage'
 import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
 import RenderMarkdown from '../quiz/components/RenderMarkdown'
 import { BackIcon, CheckIcon, XIcon, StarIcon, MoreIcon, TrashIcon } from '../components/Icons'
@@ -45,6 +45,7 @@ export default function Quiz() {
   const [explainOpen, setExplainOpen] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
   const pendingQid = useRef(initialQid)
+  const sessionRef = useRef(null)
 
   const load = useCallback((m) => {
     const qid = pendingQid.current
@@ -52,6 +53,43 @@ export default function Quiz() {
     const opts = { subject, chapter, section, type: 'choice', mode: m }
     if (m === 'starred' || qid) opts.starredIds = loadStarred()
     if (!qid) opts.limit = 10
+
+    // 中断恢复（场景恢复推广·已调研）：同一题域同模式的未完会话按原队列续行。
+    // results 只用来重建 UI 位置与完成屏统计，绝不可重放 submitAnswer——
+    // 那会重复计分、错乱 streak。恢复落在「首个未答题」上。
+    const saved = qid ? null : loadLastSession()
+    if (
+      saved && saved.mode === m && saved.subject === subject &&
+      saved.chapter === (chapter || null) && saved.section === (section || null) &&
+      Array.isArray(saved.questionIds) && saved.questionIds.length > 0
+    ) {
+      const byId = new Map(loadQuestions().map((q) => [q.id, q]))
+      const restored = saved.questionIds.map((id) => byId.get(id)).filter(Boolean)
+      if (restored.length > 0) {
+        const validIds = new Set(restored.map((q) => q.id))
+        const results = (Array.isArray(saved.results) ? saved.results : []).filter((r) => validIds.has(r.id))
+        const answered = new Set(results.map((r) => r.id))
+        let idx = Math.min(saved.currentIndex || 0, restored.length)
+        while (idx < restored.length && answered.has(restored[idx].id)) idx++
+        if (idx >= restored.length) {
+          // 已全部答毕（未点完成）——直接进完成屏
+          setQuestions(restored)
+          setResults(results)
+          setFinished(true)
+          return
+        }
+        setQuestions(restored)
+        setCurrentIndex(idx)
+        setResults(results)
+        setSelectedAnswer(null)
+        setSubmitted(false)
+        setResult(null)
+        setFinished(false)
+        setExplainOpen(false)
+        return
+      }
+    }
+
     let loaded = getQuizQuestions(opts)
     // If qid specified, ensure it's at the front
     if (qid && loaded.length > 0) {
@@ -75,11 +113,46 @@ export default function Quiz() {
     setFinished(false)
     setExplainOpen(false)
     if (loaded.length > 0) {
-      saveLastSession({ subject, chapter, route: `/quiz/${subject}${chapter ? `?chapter=${encodeURIComponent(chapter)}` : ''}` })
+      saveLastSession({
+        subject, chapter, section, mode: m,
+        route: `/quiz/${subject}${chapter ? `?chapter=${encodeURIComponent(chapter)}` : ''}${section ? `&section=${encodeURIComponent(section)}` : ''}`,
+      })
     }
   }, [subject, chapter, section])
 
   useEffect(() => { load(mode) }, [subject, chapter, mode, load])
+
+  // 完成即清——中断会话不复存在；finished 由 sessionRef 携至卸载判别
+  useEffect(() => {
+    if (finished) clearLastSession()
+  }, [finished])
+
+  // 中断会话：真退出（未完成）时落盘一次。sessionRef 每帧持最新态，
+  // 避免逐次答题都写 localStorage。
+  useEffect(() => {
+    sessionRef.current = { finished, questions, results, mode, subject, chapter, section }
+  })
+
+  useEffect(() => {
+    return () => {
+      const s = sessionRef.current
+      if (!s || s.finished || s.questions.length === 0) return
+      // 已答数（仍在队列者）即首个未答题下标——已提交未推进者视作已答。
+      const qids = new Set(s.questions.map((q) => q.id))
+      const answeredCount = s.results.reduce((n, r) => (qids.has(r.id) ? n + 1 : n), 0)
+      if (answeredCount >= s.questions.length) {
+        clearLastSession()
+        return
+      }
+      saveLastSession({
+        subject: s.subject, chapter: s.chapter, section: s.section, mode: s.mode,
+        route: `/quiz/${s.subject}${s.chapter ? `?chapter=${encodeURIComponent(s.chapter)}` : ''}${s.section ? `&section=${encodeURIComponent(s.section)}` : ''}`,
+        questionIds: s.questions.map((q) => q.id),
+        currentIndex: answeredCount,
+        results: s.results,
+      })
+    }
+  }, [])
 
   // Haptic on quiz set complete
   useEffect(() => {
@@ -93,6 +166,9 @@ export default function Quiz() {
 
   const handleSubmit = () => {
     if (!currentQuestion) return
+    // 已提交题不可重提（记-38 未尽之对称防护）：恢复与连击路径都不得重放
+    // submitAnswer——重复计分、streak 错乱。与 Review「未见答不评」同构。
+    if (submitted || results.some((r) => r.id === currentQuestion.id)) return
     let answerStr
     if (isMultiAnswer(currentQuestion)) {
       if (!selectedAnswer || selectedAnswer.size === 0) return
@@ -141,7 +217,15 @@ export default function Quiz() {
       setFinished(true)
       return
     }
-    if (currentIndex >= remaining.length) setCurrentIndex(remaining.length - 1)
+    // 前进到首个未答题——不得落在 results 已记录的题上（已提交题不可重提）
+    const answered = new Set(results.map((r) => r.id))
+    let next = Math.min(currentIndex, remaining.length - 1)
+    while (next < remaining.length && answered.has(remaining[next].id)) next++
+    if (next >= remaining.length) {
+      setFinished(true)
+      return
+    }
+    setCurrentIndex(next)
     setSelectedAnswer(null)
     setSubmitted(false)
     setResult(null)
@@ -203,7 +287,7 @@ export default function Quiz() {
         <div className="px-[18px] pt-2 pb-1 flex gap-1.5 flex-wrap">
           {MODES.map(m => (
             <button key={m.key} onClick={() => setMode(m.key)}
-              className={`chip ${mode === m.key ? 'on' : ''}`}>
+              className={`chip ${mode === m.key ? 'on' : ''}`} aria-pressed={mode === m.key}>
               {m.label}
             </button>
           ))}
@@ -259,7 +343,7 @@ export default function Quiz() {
       <div className="px-[18px] pt-2 pb-1 flex gap-1.5 flex-wrap">
         {MODES.map(m => (
           <button key={m.key} onClick={() => setMode(m.key)}
-            className={`chip ${mode === m.key ? 'on' : ''}`}>
+            className={`chip ${mode === m.key ? 'on' : ''}`} aria-pressed={mode === m.key}>
             {m.label}
           </button>
         ))}

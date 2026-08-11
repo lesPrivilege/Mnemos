@@ -74,10 +74,10 @@ export default function Wrong() {
       <div className="scr" style={{ paddingBottom: 0, gap: 10 }}>
         <div style={{ display: 'flex', gap: 6, overflowX: 'auto' }}>
           <button onClick={() => setSelectedSubject(null)}
-            className={`chip ${!selectedSubject ? 'on' : ''}`}>{S.wrong.all}</button>
+            className={`chip ${!selectedSubject ? 'on' : ''}`} aria-pressed={!selectedSubject}>{S.wrong.all}</button>
           {subjects.map(s => (
             <button key={s} onClick={() => setSelectedSubject(s)}
-              className={`chip ${selectedSubject === s ? 'on' : ''}`}>{getSubjectDisplayName(s)}</button>
+              className={`chip ${selectedSubject === s ? 'on' : ''}`} aria-pressed={selectedSubject === s}>{getSubjectDisplayName(s)}</button>
           ))}
         </div>
       </div>

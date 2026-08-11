@@ -108,7 +108,7 @@ export default function ReadingHomeBody({ h }) {
             </span>
           </button>
           <button className="resume-x" aria-label={R.dismissContinue}
-            onClick={() => h.setDismissedContinue(true)}>
+            onClick={h.handleDismissContinue}>
             <XIcon size={14} />
           </button>
         </div>

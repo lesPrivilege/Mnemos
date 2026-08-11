@@ -150,7 +150,7 @@ export default function CollectionDetail() {
         <div style={{ padding: '10px 0 0' }}>
           <div className="filters">
             {[{ key: 'recent', label: S.collectionDetail.recentSort }, { key: 'title', label: S.collectionDetail.titleSort }, { key: 'created', label: S.collectionDetail.createdSort }].map(s => (
-              <button key={s.key} onClick={() => setSortBy(s.key)} className={`chip ${sortBy === s.key ? 'on' : ''}`}>
+              <button key={s.key} onClick={() => setSortBy(s.key)} className={`chip ${sortBy === s.key ? 'on' : ''}`} aria-pressed={sortBy === s.key}>
                 {s.label}
               </button>
             ))}

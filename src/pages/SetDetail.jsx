@@ -165,20 +165,20 @@ export default function SetDetail() {
         {/* Filter chips */}
         <div style={{ padding: '10px 0 0' }}>
           <div className="filters">
-            <button onClick={() => setFilter('all')} className={`chip ${filter === 'all' ? 'on' : ''}`}>
+            <button onClick={() => setFilter('all')} className={`chip ${filter === 'all' ? 'on' : ''}`} aria-pressed={filter === 'all'}>
               {S.setDetail.allFilterPrefix}{stats.total}
             </button>
             {typeCounts.choice > 0 && (
-              <button onClick={() => setFilter('choice')} className={`chip ${filter === 'choice' ? 'on' : ''}`}>
+              <button onClick={() => setFilter('choice')} className={`chip ${filter === 'choice' ? 'on' : ''}`} aria-pressed={filter === 'choice'}>
                 {S.setDetail.choiceFilterPrefix}{typeCounts.choice}
               </button>
             )}
             {typeCounts.review > 0 && (
-              <button onClick={() => setFilter('review')} className={`chip ${filter === 'review' ? 'on' : ''}`}>
+              <button onClick={() => setFilter('review')} className={`chip ${filter === 'review' ? 'on' : ''}`} aria-pressed={filter === 'review'}>
                 {S.setDetail.reviewFilterPrefix}{typeCounts.review}
               </button>
             )}
-            <button onClick={() => setFilter('starred')} className={`chip ${filter === 'starred' ? 'on' : ''}`}>
+            <button onClick={() => setFilter('starred')} className={`chip ${filter === 'starred' ? 'on' : ''}`} aria-pressed={filter === 'starred'}>
               <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l2.7 5.9 6.3.6-4.8 4.5 1.5 6.5L12 17l-5.7 3.5 1.5-6.5L3 9.5l6.3-.6z" /></svg>
               {S.setDetail.starredFilterPrefix}{starredCount}
             </button>

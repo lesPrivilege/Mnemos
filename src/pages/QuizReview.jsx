@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { getQuizQuestions, markQuestion } from '../quiz/lib/quizEngine'
-import { saveLastSession, toggleStar, isStarred, deleteQuestion, loadStarred, loadQuestions } from '../quiz/lib/storage'
+import { saveLastSession, loadLastSession, clearLastSession, toggleStar, isStarred, deleteQuestion, loadStarred, loadQuestions } from '../quiz/lib/storage'
 import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
 import RenderMarkdown from '../quiz/components/RenderMarkdown'
 import { BackIcon, CheckIcon, MoreIcon, TrashIcon } from '../components/Icons'
@@ -41,6 +41,7 @@ export default function ReviewQuestion() {
   const [showMenu, setShowMenu] = useState(false)
   const touchStartX = useRef(null)
   const pendingQid = useRef(initialQid)
+  const sessionRef = useRef(null)
 
   const load = useCallback((m) => {
     const qid = pendingQid.current
@@ -48,6 +49,45 @@ export default function ReviewQuestion() {
     const opts = { subject, chapter, section, type: 'review', mode: m }
     if (m === 'starred' || qid) opts.starredIds = loadStarred()
     if (!qid) opts.limit = 20
+
+    // 中断恢复（同 QuizPage）：results 只重建 UI，不重放 markQuestion——
+    // 重放会重复计分、错乱 streak。恢复落在「首个未答题」上。
+    const saved = qid ? null : loadLastSession()
+    if (
+      saved && saved.mode === m && saved.subject === subject &&
+      saved.chapter === (chapter || null) && saved.section === (section || null) &&
+      Array.isArray(saved.questionIds) && saved.questionIds.length > 0
+    ) {
+      const byId = new Map(loadQuestions().map((q) => [q.id, q]))
+      const restored = saved.questionIds.map((id) => byId.get(id)).filter(Boolean)
+      if (restored.length > 0) {
+        const validIds = new Set(restored.map((q) => q.id))
+        const results = (Array.isArray(saved.results) ? saved.results : []).filter((r) => validIds.has(r.id))
+        const answered = new Set(results.map((r) => r.id))
+        let idx = Math.min(saved.currentIndex || 0, restored.length)
+        while (idx < restored.length && answered.has(restored[idx].id)) idx++
+        const stats = {
+          wrong: results.filter((r) => !r.correct).length,
+          correct: results.filter((r) => r.correct).length,
+        }
+        if (idx >= restored.length) {
+          // 已全部作答（未点完成）——直接进完成屏
+          setQuestions(restored)
+          setResults(results)
+          setStats(stats)
+          setFinished(true)
+          return
+        }
+        setQuestions(restored)
+        setCurrentIndex(idx)
+        setFlipped(false)
+        setStats(stats)
+        setResults(results)
+        setFinished(false)
+        return
+      }
+    }
+
     let loaded = getQuizQuestions(opts)
     if (qid && loaded.length > 0) {
       const idx = loaded.findIndex(q => q.id === qid)
@@ -67,11 +107,45 @@ export default function ReviewQuestion() {
     setResults([])
     setFinished(false)
     if (loaded.length > 0) {
-      saveLastSession({ subject, chapter, route: `/quiz-review/${subject}${chapter ? `?chapter=${encodeURIComponent(chapter)}` : ''}` })
+      saveLastSession({
+        subject, chapter, section, mode: m,
+        route: `/quiz-review/${subject}${chapter ? `?chapter=${encodeURIComponent(chapter)}` : ''}${section ? `&section=${encodeURIComponent(section)}` : ''}`,
+      })
     }
   }, [subject, chapter, section])
 
   useEffect(() => { load(mode) }, [subject, chapter, mode, load])
+
+  // 完成即清——中断会话不复存在
+  useEffect(() => {
+    if (finished) clearLastSession()
+  }, [finished])
+
+  // 中断会话：真退出（未完成）时落盘一次。sessionRef 每帧持最新态。
+  useEffect(() => {
+    sessionRef.current = { finished, questions, results, mode, subject, chapter, section }
+  })
+
+  useEffect(() => {
+    return () => {
+      const s = sessionRef.current
+      if (!s || s.finished || s.questions.length === 0) return
+      // 已答数（仍在队列者）即首个未答题下标——翻面已评者视作已答。
+      const qids = new Set(s.questions.map((q) => q.id))
+      const answeredCount = s.results.reduce((n, r) => (qids.has(r.id) ? n + 1 : n), 0)
+      if (answeredCount >= s.questions.length) {
+        clearLastSession()
+        return
+      }
+      saveLastSession({
+        subject: s.subject, chapter: s.chapter, section: s.section, mode: s.mode,
+        route: `/quiz-review/${s.subject}${s.chapter ? `?chapter=${encodeURIComponent(s.chapter)}` : ''}${s.section ? `&section=${encodeURIComponent(s.section)}` : ''}`,
+        questionIds: s.questions.map((q) => q.id),
+        currentIndex: answeredCount,
+        results: s.results,
+      })
+    }
+  }, [])
 
   const currentQuestion = questions[currentIndex]
   useEffect(() => {
@@ -116,7 +190,15 @@ export default function ReviewQuestion() {
       setFinished(true)
       return
     }
-    if (currentIndex >= remaining.length) setCurrentIndex(remaining.length - 1)
+    // 前进到首个未答题——不得落在 results 已记录的题上（已提交题不可重提）
+    const answered = new Set(results.map((r) => r.id))
+    let next = Math.min(currentIndex, remaining.length - 1)
+    while (next < remaining.length && answered.has(remaining[next].id)) next++
+    if (next >= remaining.length) {
+      setFinished(true)
+      return
+    }
+    setCurrentIndex(next)
     setFlipped(false)
   }
 

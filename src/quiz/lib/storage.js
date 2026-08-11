@@ -135,7 +135,10 @@ export function isStarred(questionId) {
   return loadStarred().includes(questionId)
 }
 
-// ── Last Session (继续练习) ───────────────────────────────────────
+// ── Last Session (继续练习 / 中断恢复) ────────────────────────────────
+
+// 过期即弃——会话隔天再续已无意义，同 reviewSession 之 24h 裁量。
+const SESSION_MAX_AGE_MS = 86400000
 
 export function saveLastSession(session) {
   const result = saveJson(STORAGE_KEYS.LAST_SESSION, {
@@ -146,11 +149,17 @@ export function saveLastSession(session) {
 }
 
 export function loadLastSession() {
-  return loadJson(
+  const s = loadJson(
     STORAGE_KEYS.LAST_SESSION,
     null,
     (value) => value === null || isPlainObject(value)
   )
+  if (!s) return null
+  if (Date.now() - (s.timestamp || 0) > SESSION_MAX_AGE_MS) {
+    removeKey(STORAGE_KEYS.LAST_SESSION)
+    return null
+  }
+  return s
 }
 
 export function clearLastSession() {

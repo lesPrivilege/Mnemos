@@ -8,6 +8,7 @@ const KEYS = {
   COLLECTIONS: 'reading-collections',
   DOCUMENTS: 'reading-documents',
   SETTINGS: 'reading-settings',
+  DISMISSED_CONTINUE: 'reading-dismissed-continue',
 }
 
 const BODY_STORE = 'reading-doc-bodies'
@@ -158,6 +159,19 @@ export function getContinueReading() {
   if (candidates.length === 0) return null
   candidates.sort((a, b) => b.lastReadAt.localeCompare(a.lastReadAt))
   return candidates[0]
+}
+
+// ── Dismissed continue hint ──────────────────────────
+
+// 「不再提示」按篇记——只压住当前续读篇，另读他篇后提示自然复现。
+// 阅读位置本就随文档持久化（scrollPct / lastReadAt），此处只记「哪篇被拒」。
+
+export function getDismissedContinueId() {
+  return load(KEYS.DISMISSED_CONTINUE, null)
+}
+
+export function setDismissedContinueId(id) {
+  save(KEYS.DISMISSED_CONTINUE, id)
 }
 
 // ── Settings ─────────────────────────────────────────

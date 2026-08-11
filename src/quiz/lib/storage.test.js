@@ -4,6 +4,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 let exportData
 let importData
 let saveQuestions
+let saveLastSession
+let loadLastSession
+let clearLastSession
 let flushBigStoreWritesForTests
 
 function createLocalStorage() {
@@ -34,6 +37,9 @@ describe('quiz storage schema version', () => {
     exportData = storage.exportData
     importData = storage.importData
     saveQuestions = storage.saveQuestions
+    saveLastSession = storage.saveLastSession
+    loadLastSession = storage.loadLastSession
+    clearLastSession = storage.clearLastSession
     flushBigStoreWritesForTests = bigStore.flushBigStoreWritesForTests
 
     await bigStore.hydrate()
@@ -43,6 +49,7 @@ describe('quiz storage schema version', () => {
     // Big-record writes are async fire-and-forget; flush them before the
     // globals they touch (localStorage, indexedDB) get torn down below.
     await flushBigStoreWritesForTests()
+    vi.useRealTimers()
     vi.unstubAllGlobals()
   })
 
@@ -89,5 +96,39 @@ describe('quiz storage schema version', () => {
       )
     ).toEqual({ questions: 1, progress: 0, starred: 0 })
     await flushBigStoreWritesForTests()
+  })
+
+  it('round-trips an interrupted quiz session with recovery payload', async () => {
+    const session = {
+      subject: '物', chapter: '力学', section: '运动', mode: 'random',
+      route: '/quiz/物?chapter=%E5%8A%9B%E5%AD%A6',
+      questionIds: ['q1', 'q2'],
+      currentIndex: 1,
+      results: [{ id: 'q1', correct: true, wrongStreak: 0 }],
+    }
+    saveLastSession(session)
+
+    const loaded = loadLastSession()
+    expect(loaded).toMatchObject(session)
+    expect(loaded.timestamp).toBeTypeOf('number')
+  })
+
+  it('drops stale sessions after 24h', async () => {
+    saveLastSession({ subject: '物', route: '/quiz/物' })
+
+    vi.useFakeTimers()
+    vi.setSystemTime(Date.now() + 86400000 + 1000)
+    expect(loadLastSession()).toBeNull()
+    expect(localStorage.getItem('examprep-last-session')).toBeNull()
+    vi.useRealTimers()
+  })
+
+  it('clears the session on dismiss / completion', async () => {
+    saveLastSession({ subject: '物', route: '/quiz/物' })
+    expect(loadLastSession()).not.toBeNull()
+
+    clearLastSession()
+    expect(loadLastSession()).toBeNull()
+    expect(localStorage.getItem('examprep-last-session')).toBeNull()
   })
 })

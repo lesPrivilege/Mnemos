@@ -878,8 +878,19 @@ function main() {
   const r3 = printReport('Gate 3 · 对校·对比度', contrastResult.violations, baseline)
   allFailed.push(...r3.failed)
   allWarned.push(...r3.warned)
-  writeFileSync(CONTRAST_TABLE_PATH, renderContrastTable(TOKENS_PATH, contrastResult))
-  console.log(`  → wrote ${toPosixRel(ROOT, CONTRAST_TABLE_PATH)}`)
+  // 影刻只在「表体」变时才落盘——牌记 commit 行随 HEAD 变动，若每次重写，
+  // 跑一次 check 就弄脏工作树（记档·既有小病）。表体相同则保留上次生成时的
+  // 牌记，更如实（那一次提交确实产出了这一份表）。
+  const renderedContrast = renderContrastTable(TOKENS_PATH, contrastResult)
+  const existingContrast = existsSync(CONTRAST_TABLE_PATH) ? readFileSync(CONTRAST_TABLE_PATH, 'utf8') : null
+  const sameBody = existingContrast !== null &&
+    existingContrast.replace(/^> 牌记 .*$/m, '') === renderedContrast.replace(/^> 牌记 .*$/m, '')
+  if (!sameBody) {
+    writeFileSync(CONTRAST_TABLE_PATH, renderedContrast)
+    console.log(`  → wrote ${toPosixRel(ROOT, CONTRAST_TABLE_PATH)}`)
+  } else {
+    console.log(`  → unchanged ${toPosixRel(ROOT, CONTRAST_TABLE_PATH)}`)
+  }
   if (contrastResult.outOfGamutNotes.length) {
     console.log(`  ⚠ out-of-gamut: ${contrastResult.outOfGamutNotes.join('; ')}`)
   }
