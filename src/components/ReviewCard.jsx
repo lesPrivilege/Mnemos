@@ -13,7 +13,8 @@ export default function ReviewCard({ card, flipped, onFlip, swipeOffset }) {
 
   return (
     <div className="rv-card-wrap">
-      <div className="rv-card flip-card" aria-label={S.review.flipHint}
+      <div className="rv-card flip-card"
+        aria-expanded={flipped}
         onClick={() => { if (!swipeOffset) onFlip?.(!flipped) }}
         {...pressable(() => { if (!swipeOffset) onFlip?.(!flipped) })}>
         <div className={`flip-inner ${flipped ? 'flipped' : ''}`}>
@@ -41,7 +42,7 @@ export default function ReviewCard({ card, flipped, onFlip, swipeOffset }) {
 
         {/* Swipe overlay labels */}
         {showLabel && swipeOffset < 0 && (
-          <div style={{
+          <div aria-hidden="true" style={{
             position: 'absolute', inset: 0, display: 'flex', alignItems: 'center',
             justifyContent: 'flex-start', paddingLeft: 24, borderRadius: 'var(--r-lg)',
             background: `color-mix(in oklch, var(--danger-critical) ${Math.round(labelOpacity * 15)}%, transparent)`,
@@ -51,7 +52,7 @@ export default function ReviewCard({ card, flipped, onFlip, swipeOffset }) {
           </div>
         )}
         {showLabel && swipeOffset > 0 && (
-          <div style={{
+          <div aria-hidden="true" style={{
             position: 'absolute', inset: 0, display: 'flex', alignItems: 'center',
             justifyContent: 'flex-end', paddingRight: 24, borderRadius: 'var(--r-lg)',
             background: `color-mix(in oklch, var(--ink) ${Math.round(labelOpacity * 10)}%, transparent)`,

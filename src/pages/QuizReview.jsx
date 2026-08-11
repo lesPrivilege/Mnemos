@@ -181,7 +181,7 @@ export default function ReviewQuestion() {
         <div className="px-[18px] pt-2 pb-1 flex gap-1.5 flex-wrap">
           {MODES.map(m => (
             <button key={m.key} onClick={() => setMode(m.key)}
-              className={`chip ${mode === m.key ? 'on' : ''}`}>
+              className={`chip ${mode === m.key ? 'on' : ''}`} aria-pressed={mode === m.key}>
               {m.label}
             </button>
           ))}
@@ -229,12 +229,14 @@ export default function ReviewQuestion() {
           <span style={{ color: 'var(--ink-3)' }}> / {String(questions.length).padStart(2, '0')}</span>
         </span>
         <div className="tb-actions">
-          <button className="tb-btn" onClick={handleToggleStar} style={{ color: starred ? 'var(--accent)' : 'var(--ink-3)' }}>
+          <button className="tb-btn" onClick={handleToggleStar}
+            aria-label={starred ? S.quizReview.unstarQuestion : S.quizReview.starQuestion}
+            style={{ color: starred ? 'var(--accent)' : 'var(--ink-3)' }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill={starred ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"><path d="M12 3l2.7 5.9 6.3.6-4.8 4.5 1.5 6.5L12 17l-5.7 3.5 1.5-6.5L3 9.5l6.3-.6z" /></svg>
           </button>
           <div className="relative">
             <button className="tb-btn" onClick={() => setShowMenu(o => !o)}
-              aria-haspopup="menu" aria-expanded={showMenu}>
+              aria-label={S.common.moreActions} aria-haspopup="menu" aria-expanded={showMenu}>
               <MoreIcon size={18} />
             </button>
             {showMenu && (
@@ -258,7 +260,7 @@ export default function ReviewQuestion() {
       <div className="px-[18px] pt-2 pb-1 flex gap-1.5 flex-wrap">
         {MODES.map(m => (
           <button key={m.key} onClick={() => setMode(m.key)}
-            className={`chip ${mode === m.key ? 'on' : ''}`}>
+            className={`chip ${mode === m.key ? 'on' : ''}`} aria-pressed={mode === m.key}>
             {m.label}
           </button>
         ))}
@@ -282,7 +284,9 @@ export default function ReviewQuestion() {
 
       {/* Scrollable card area */}
       <div className="rv-card-wrap page-scroll">
-        <div className="rv-card flip-card" aria-label={S.review.flipHint}
+        <div className="rv-card flip-card"
+          aria-expanded={flipped}
+          aria-disabled={flipped ? 'true' : undefined}
           onClick={() => !flipped && setFlipped(true)}
           {...pressable(() => !flipped && setFlipped(true))}
           style={{ flex: 1, minHeight: 0 }}>

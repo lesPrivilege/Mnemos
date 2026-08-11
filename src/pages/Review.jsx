@@ -337,7 +337,7 @@ export default function Review() {
     return (
       <div className="page-fixed" style={{ background: 'var(--bg)' }}>
         <div className="topbar">
-          <button onClick={goBack} className="tb-btn"><BackIcon /></button>
+          <button onClick={goBack} className="tb-btn" aria-label={S.review.backToDeck}><BackIcon /></button>
         </div>
         <div className="page-scroll">
           <div className="done-wrap">
@@ -487,9 +487,18 @@ export default function Review() {
         </button>
       </div>
 
-      {/* Undo toast */}
+      {/* Undo toast: a persistently-mounted status node carries the announcement
+          (screen readers need a stable node to reliably notice text changes);
+          the visible pill mounts only while a toast is showing, and is a real
+          button so it's keyboard-focusable and Enter/Space-activatable. */}
+      <div role="status" style={{
+        position: 'absolute', width: 1, height: 1, margin: -1, padding: 0,
+        overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', whiteSpace: 'nowrap', border: 0,
+      }}>
+        {toast ? `${toast} ${S.review.undoToastLabel}` : ''}
+      </div>
       {toast && (
-        <div onClick={handleUndo}
+        <button onClick={handleUndo}
           style={{
             position: 'fixed', bottom: 100, left: '50%', transform: 'translateX(-50%)',
             background: 'var(--ink)', color: 'var(--bg)',
@@ -499,7 +508,7 @@ export default function Review() {
             animation: 'fadeIn var(--motion-mid)',
           }}>
           {toast} <span style={{ opacity: 0.6, marginLeft: 6 }}>{S.review.undoToastLabel}</span>
-        </div>
+        </button>
       )}
 
     </div>

@@ -5,4 +5,5 @@ export const common = {
   undo: '撤销',
   back: '返回',
   backAction: '返回上一页',
+  moreActions: '更多操作',
 }

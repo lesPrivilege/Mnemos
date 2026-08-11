@@ -17,7 +17,6 @@ export const deckDetail = {
   hoursAgo: (n) => `${n} 小时前复习`,
   daysAgo: (n) => `${n} 天前复习`,
   startReviewAction: '开始复习',
-  moreActions: '更多操作',
   notFound: '卡组未找到',
   notFoundHint: '它可能已被删除或尚未导入',
   emptyCardsTitle: '暂无卡片',

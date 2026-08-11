@@ -2,6 +2,8 @@ export const quizReview = {
   newWrongLabel: '新增错题',
   back: '返回',
   closeMenu: '关闭菜单',
+  starQuestion: '收藏题目',
+  unstarQuestion: '取消收藏题目',
   practicedLabel: '已练',
   masteredRateLabel: '掌握率',
   newWrongPrefix: '新增错题 ',

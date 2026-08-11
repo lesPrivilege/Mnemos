@@ -187,7 +187,7 @@ export default function DeckDetail() {
           </button>
           <div className="relative">
             <button onClick={() => setShowDeckMenu((open) => !open)}
-              className="tb-btn" aria-label={S.deckDetail.moreActions} aria-haspopup="menu" aria-expanded={showDeckMenu}>
+              className="tb-btn" aria-label={S.common.moreActions} aria-haspopup="menu" aria-expanded={showDeckMenu}>
               <MoreIcon />
             </button>
             {showDeckMenu && (
