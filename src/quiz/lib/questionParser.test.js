@@ -24,7 +24,7 @@ describe('parseQuestionsJson', () => {
         },
         {
           id: 'review001',
-          type: 'calculation',
+          type: 'review',
           chapter: '第3章 CPU',
           answer: '42',
         },

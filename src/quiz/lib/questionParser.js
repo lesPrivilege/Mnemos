@@ -58,11 +58,6 @@ export function parseQuestionsJson(jsonString, filePath) {
       continue
     }
 
-    // 向后兼容：旧类型映射到新类型
-    if (item.type === 'calculation' || item.type === 'coding' || item.type === 'essay') {
-      item.type = 'review'
-    }
-
     // 验证类型
     if (!['choice', 'review'].includes(item.type)) {
       errors.push(S.questionParser.skipUnknownType(item.id, item.type))
