@@ -906,34 +906,23 @@ a { color: inherit; text-decoration: none; }
    编码；「弱」独得一图标——它是唯一需人动手的一档。替旧四件同源之物
    （meta 行 × 2、learned/total 进度条、「进度 N%」行）。 */
 .dd-tiers {
-  margin: 14px 18px 0;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border);
-  display: flex; flex-direction: column; gap: 5px;
-}
-.dd-tiers-head {
-  display: flex; align-items: baseline; justify-content: space-between;
-  margin-bottom: 3px;
-}
-.dd-tiers-head .t {
-  font-family: var(--font-ui); font-size: var(--text-xs);
-  letter-spacing: 0.04em; color: var(--ink-3);
-}
-.dd-tiers-head .m {
-  font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--ink-2);
+  display: flex; flex-direction: column;
 }
 .dd-tier-row {
   display: grid;
-  grid-template-columns: 2.6em minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border-soft);
 }
 .dd-tier-row .k {
   display: inline-flex; align-items: center; gap: 3px;
   font-family: var(--font-ui); font-size: var(--text-sm); color: var(--ink-2);
+  min-width: 2em;
 }
 .dd-tier-row .bar {
-  height: 4px; min-width: 2px;
+  height: 4px;
   border-radius: var(--r-sm);
   justify-self: start;
 }
@@ -944,6 +933,65 @@ a { color: inherit; text-decoration: none; }
 /* 暂停归警示声部——它是「此卡不参与调度」之状态，非熟练度之一档 */
 .dd-tier-row.paused .k { color: var(--warn); }
 .dd-tier-row.paused .bar { background: var(--warn); }
+
+.dd-screen { gap: 14px; }
+.dd-editor {
+  padding: 14px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-md);
+  background: var(--bg-card);
+}
+.dd-filters {
+  display: flex; gap: 6px; padding: 2px 0; flex-wrap: wrap;
+}
+.dd-filter {
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  font-family: var(--font-ui); font-size: var(--text-sm); color: var(--ink-2);
+}
+.dd-filter.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.dd-card-list { display: flex; flex-direction: column; }
+.dd-card-shell { position: relative; }
+.dd-card-row {
+  display: grid;
+  grid-template-columns: 13px minmax(0, 1fr) auto;
+  gap: 11px;
+  align-items: center;
+  padding: 11px 2px;
+  border-bottom: 1px solid var(--border-soft);
+  text-align: left;
+  width: 100%;
+  position: relative;
+  cursor: pointer;
+}
+.dd-card-row .q {
+  min-width: 0;
+  font-family: var(--font-zh); font-size: var(--text-md); color: var(--ink);
+  line-height: var(--leading-normal);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.dd-card-row .t {
+  font-family: var(--font-ui); font-size: var(--text-2xs); color: var(--ink-3);
+}
+.dd-card-row .t.weak {
+  color: var(--ink); font-weight: 500;
+  display: inline-flex; align-items: center; gap: 3px;
+}
+.dd-card-row .star { color: var(--accent); display: flex; }
+.dd-card-row .blank { width: 13px; }
+.dd-card-shell .dd-card-tools {
+  position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+  padding-left: 12px;
+  background: var(--bg);
+}
+.dd-filter-empty {
+  padding: 30px 4px;
+  text-align: center;
+  font-family: var(--font-zh); font-size: var(--text-sm); color: var(--ink-3);
+}
+.dd-batch-actions { display: flex; gap: 8px; margin-top: 2px; }
 
 /* ─────── 活动页（记-31）───────
    旧此屏有六件同源之物：三数字 hero、三同心环、月历、90 日热力、模块条、
