@@ -3,11 +3,10 @@ import { S } from '../lib/strings'
 import { pressable } from '../lib/a11y'
 import '../styles/markdown.css'
 
-export default function ReviewCard({ card, index, flipped, onFlip, swipeOffset }) {
+export default function ReviewCard({ card, flipped, onFlip, swipeOffset }) {
   const frontHtml = useRenderedMarkdown(card.front)
   const backHtml = useRenderedMarkdown(card.back)
 
-  const pos = String(index + 1).padStart(2, '0')
   const absDx = Math.abs(swipeOffset || 0)
   const showLabel = flipped && absDx > 24
   const labelOpacity = Math.min(1, (absDx - 24) / 72)
@@ -20,27 +19,21 @@ export default function ReviewCard({ card, index, flipped, onFlip, swipeOffset }
         <div className={`flip-inner ${flipped ? 'flipped' : ''}`}>
           {/* FRONT */}
           <div className="flip-face">
-            <span className="corner">
-              <span className="num">{pos}</span>
-              <span>问</span>
-            </span>
             <div className="body">
-              <div className="front-q card-content" style={{ maxHeight: '40vh', overflowY: 'auto' }}
+              <div className="front-q card-content"
                 dangerouslySetInnerHTML={{ __html: frontHtml }} />
             </div>
+            <div className="rv-flip-hint">{S.review.showAnswerHint}</div>
           </div>
 
           {/* Back keeps the prompt above the answer without exposing pattern labels. */}
           <div className="flip-face flip-back-face">
-            <span className="corner">
-              <span className="num">{pos}</span>
-              <span>答</span>
-            </span>
+            <span className="rv-seal">答</span>
             <div className="body back">
-              <div className="card-content font-zh text-xl text-ink-2" style={{ maxHeight: '20vh', overflowY: 'auto' }}
+              <div className="front-q card-content"
                 dangerouslySetInnerHTML={{ __html: frontHtml }} />
-              <div className="divider-srs" aria-hidden="true" />
-              <div className="back-a card-content" style={{ maxHeight: '35vh', overflowY: 'auto' }}
+              <div className="rv-rule" aria-hidden="true" />
+              <div className="back-a card-content"
                 dangerouslySetInnerHTML={{ __html: backHtml }} />
             </div>
           </div>
@@ -69,9 +62,6 @@ export default function ReviewCard({ card, index, flipped, onFlip, swipeOffset }
         )}
       </div>
 
-      {!flipped && (
-        <div className="rv-flip-hint">{S.review.flipHint}</div>
-      )}
     </div>
   )
 }

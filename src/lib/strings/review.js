@@ -13,8 +13,9 @@ export const review = {
   nextDueValue: (date, count) => `${date} · ${count} 张`,
   continueNext: (name) => `继续 ${name}`,
   again: '重来',
-  remember: '记住',
+  remember: '良好',
   flipHint: '轻点翻面',
+  showAnswerHint: '轻点显示答案',
   hard: '困难',
   easy: '容易',
   later: '稍后', // used as a control-flow sentinel via === in Review.jsx's predictInterval(), not decorative-only text
@@ -30,4 +31,11 @@ export const review = {
   undoToast: '已撤销',
   undoToastLabel: '撤销',
   learningPrefix: '学习中 · ',
+  leaveReview: '退出复习',
+  starCard: '收藏卡片',
+  unstarCard: '取消收藏卡片',
+  unreadableTitle: '这张卡的内容读不出来',
+  unreadableHint: '答案字段是空的，已跳过并留存原样。可以先看下一张，稍后在卡组里补上；本次进度不受影响。',
+  nextCard: '看下一张',
+  editCard: '去编辑',
 }

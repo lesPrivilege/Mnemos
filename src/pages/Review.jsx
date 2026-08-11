@@ -1,7 +1,7 @@
 import { useParams, Link, useSearchParams } from 'react-router-dom'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import ReviewCard from '../components/ReviewCard'
-import { BackIcon, CheckIcon } from '../components/Icons'
+import { BackIcon, CheckIcon, AlertIcon } from '../components/Icons'
 import { getDueCards } from '../lib/scheduler'
 import { getCards, getDeck, updateCardSM2, getCardSM2, restoreCardSM2, toggleStar } from '../lib/storage'
 import { sm2 } from '../lib/sm2'
@@ -14,17 +14,8 @@ import { saveReviewSession, clearReviewSession } from '../lib/reviewSession'
 import { hapticLight, hapticSuccess, hapticWarning } from '../lib/haptics'
 import { S } from '../lib/strings'
 
-function predictInterval(card, quality, passCount) {
-  // Learning card first pass Good: reinserts, doesn't schedule
-  // S.review.later is a control-flow sentinel here, not decorative copy —
-  // the caller below compares against it with ===. Keep both sides pointed
-  // at this same key if it's ever touched during a wording pass.
-  if (card.repetitions === 0 && quality === 4 && passCount === 0) return S.review.later
-  const result = sm2(card, quality)
-  return result.interval
-}
-
 const UNDO_LABELS = { 1: S.review.again, 2: S.review.hard, 4: S.review.remember, 5: S.review.easy }
+const RATE_KEYS = { 1: '1', 2: '2', 4: '4', 5: '5' }
 
 /** 时长成句：不足一分只报秒，逾一分报「N 分 M 秒」——完成屏读的是节奏不是精度。 */
 function formatDuration(ms) {
@@ -263,6 +254,9 @@ export default function Review() {
     if (e.key === ' ' || e.key === 'Enter') {
       e.preventDefault()
       handleFlip(!flipped)
+    } else if (flipped && ['1', '2', '4', '5'].includes(e.key)) {
+      e.preventDefault()
+      handleRate(Number(e.key))
     } else if (e.key === 'ArrowRight' && flipped) {
       e.preventDefault()
       handleRate(4)
@@ -401,49 +395,51 @@ export default function Review() {
   const card = dueCards[currentIndex]
   const isLearning = card.repetitions === 0
   const passCount = passesRef.current.get(card.id) || 0
+  const unreadable = !card.back?.trim()
+
+  const skipUnreadable = () => {
+    setFlipped(false)
+    setDueCards((prev) => prev.filter((_, index) => index !== currentIndex))
+    setCurrentIndex((prev) => Math.max(0, Math.min(prev, dueCards.length - 2)))
+  }
 
   return (
     <div className="page-fixed" style={{ background: 'var(--bg)' }}>
-      {/* Header */}
-      <div className="topbar">
-        <button onClick={goBack} className="tb-btn">
-          <BackIcon />
+      {/* Progress bar */}
+      <div className="rv-progress">
+        <div className="bar" style={{ transform: `scaleX(${dueCards.length ? (currentIndex + 1) / dueCards.length : 0})` }} />
+      </div>
+
+      {/* Meta */}
+      <div className="rv-meta">
+        <button onClick={goBack} className="rv-meta-btn" aria-label={S.review.leaveReview}>
+          <BackIcon size={15} />
         </button>
-        <span className="tb-text" style={{ flex: 1, textAlign: 'center' }}>
+        <span className="crumb">
           {deckName || S.review.title}
+          {card.chapter && <><span className="div">·</span>{card.chapter}</>}
+          {isLearning && <><span className="div">·</span><span className="learning">{S.review.learningPrefix}{passCount + 1}/2</span></>}
         </span>
         <button onClick={() => {
           toggleStar(card.id)
           setDueCards(prev => prev.map((c, i) => i === currentIndex ? { ...c, starred: !c.starred } : c))
         }}
-          className="tb-btn"
+          className="rv-meta-btn"
+          aria-label={card.starred ? S.review.unstarCard : S.review.starCard}
           style={{ color: card.starred ? 'var(--accent)' : 'var(--ink-3)' }}>
-          <svg width="18" height="18" viewBox="0 0 24 24"
+          <svg width="15" height="15" viewBox="0 0 24 24"
             fill={card.starred ? 'currentColor' : 'none'}
             stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round">
             <path d="M12 3l2.7 5.9 6.3.6-4.8 4.5 1.5 6.5L12 17l-5.7 3.5 1.5-6.5L3 9.5l6.3-.6z" />
           </svg>
         </button>
-      </div>
-
-      {/* Progress bar */}
-      <div className="rv-progress">
-        <div className="bar" style={{ transform: `scaleX(${dueCards.length ? currentIndex / dueCards.length : 0})` }} />
-      </div>
-
-      {/* Meta */}
-      <div className="rv-meta">
-        <span className="crumb">
-          {card.chapter && <>{card.chapter}{card.section && <span className="div">/</span>}{card.section}</>}
-          {isLearning && <span style={{ marginLeft: 8, fontSize: 'var(--text-2xs)', color: 'var(--accent)', fontWeight: 500 }}>{S.review.learningPrefix}{passCount + 1}/2</span>}
-        </span>
         <span className="pos">
           <span className="now">{String(currentIndex + 1).padStart(2, '0')}</span> / {String(dueCards.length).padStart(2, '0')}
         </span>
       </div>
 
       {/* Card — scrollable internally */}
-      <div className="rv-card-wrap page-scroll"
+      <div className="rv-gesture"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -451,30 +447,43 @@ export default function Review() {
           transform: `translateX(${swipeOffset}px) rotate(${swipeOffset / 40}deg)`,
           transition: swipeRef.current.committed ? 'transform var(--motion-mid)' : (Math.abs(swipeOffset) < 5 ? 'transform var(--motion-quick)' : 'none'),
         } : undefined}>
-        <ReviewCard
-          card={card}
-          index={currentIndex}
-          total={dueCards.length}
-          flipped={flipped}
-          onFlip={handleFlip}
-          swipeOffset={swipeOffset}
-        />
+        {unreadable ? (
+          <div className="rv-card-wrap">
+            <div className="notice" role="alert">
+              <span className="ic"><AlertIcon size={17} /></span>
+              <div>
+                <div className="t">{S.review.unreadableTitle}</div>
+                <div className="d">{S.review.unreadableHint}</div>
+                <div className="a">
+                  <button onClick={skipUnreadable}>{S.review.nextCard}</button>
+                  <Link to={`/deck/${id}`} className="ghost">{S.review.editCard}</Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <ReviewCard
+            card={card}
+            flipped={flipped}
+            onFlip={handleFlip}
+            swipeOffset={swipeOffset}
+          />
+        )}
       </div>
 
       {/* Fixed bottom rating buttons */}
-      <div className="rate shrink-0" style={{ paddingBottom: 'max(18px, env(safe-area-inset-bottom))' }}>
-        <button onClick={() => handleRate(1)} disabled={!flipped} className="rate-btn rate-again">
-          <span>{S.review.again}</span><span className="iv">{predictInterval(card, 1, passCount)}d</span>
+      <div className="rate shrink-0" style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom))' }}>
+        <button onClick={() => handleRate(1)} disabled={!flipped || unreadable} className="rate-btn rate-again">
+          <span>{S.review.again}</span><span className="k">{RATE_KEYS[1]}</span>
         </button>
-        <button onClick={() => handleRate(2)} disabled={!flipped} className="rate-btn rate-hard">
-          <span>{S.review.hard}</span><span className="iv">{predictInterval(card, 2, passCount)}d</span>
+        <button onClick={() => handleRate(2)} disabled={!flipped || unreadable} className="rate-btn rate-hard">
+          <span>{S.review.hard}</span><span className="k">{RATE_KEYS[2]}</span>
         </button>
-        <button onClick={() => handleRate(4)} disabled={!flipped} className="rate-btn rate-good">
-          {/* S.review.later compared via === below is a control-flow sentinel (predictInterval's "no interval yet" case), not decorative text — see predictInterval() */}
-          <span>{S.review.remember}</span><span className="iv">{predictInterval(card, 4, passCount) === S.review.later ? S.review.later : `${predictInterval(card, 4, passCount)}d`}</span>
+        <button onClick={() => handleRate(4)} disabled={!flipped || unreadable} className="rate-btn rate-good">
+          <span>{S.review.remember}</span><span className="k">{RATE_KEYS[4]}</span>
         </button>
-        <button onClick={() => handleRate(5)} disabled={!flipped} className="rate-btn rate-easy">
-          <span>{S.review.easy}</span><span className="iv">{predictInterval(card, 5, passCount)}d</span>
+        <button onClick={() => handleRate(5)} disabled={!flipped || unreadable} className="rate-btn rate-easy">
+          <span>{S.review.easy}</span><span className="k">{RATE_KEYS[5]}</span>
         </button>
       </div>
 

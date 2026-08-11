@@ -548,8 +548,10 @@ a { color: inherit; text-decoration: none; }
 /* ─────── Review progress ─────── */
 .rv-progress {
   position: relative;
-  height: 4px;
+  height: 3px;
   background: var(--bg-raised);
+  flex-shrink: 0;
+  margin-top: env(safe-area-inset-top, 0px);
 }
 .rv-progress .bar {
   width: 100%; height: 100%; background: var(--accent);
@@ -560,7 +562,8 @@ a { color: inherit; text-decoration: none; }
 /* ─────── Review meta ─────── */
 .rv-meta {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 18px 0;
+  padding: 8px 16px 0;
+  gap: 8px;
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--ink-3);
@@ -569,22 +572,56 @@ a { color: inherit; text-decoration: none; }
   font-family: var(--font-ui);
   color: var(--ink-2);
   font-size: var(--text-sm);
-  display: flex; align-items: center; gap: 6px;
+  display: flex; align-items: center; gap: 5px;
+  flex: 1;
   min-width: 0;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 .rv-meta .crumb .div { color: var(--ink-4); flex-shrink: 0; }
+.rv-meta .crumb .learning { color: var(--accent); font-size: var(--text-2xs); font-weight: 500; }
 .rv-meta .pos { letter-spacing: 0.06em; flex-shrink: 0; white-space: nowrap; }
-.rv-meta .pos .now { color: var(--ink); font-weight: 500; }
+.rv-meta .pos .now { color: var(--accent); font-weight: 500; }
+.rv-meta-btn {
+  width: 24px; height: 24px; flex: 0 0 24px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: var(--r-sm); color: var(--ink-3);
+}
+.rv-meta-btn:active { background: var(--bg-raised); }
+
+.notice {
+  display: grid; grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px; align-items: start;
+  padding: 12px;
+  border: 2px solid var(--danger);
+  border-radius: var(--r-md);
+  background: var(--danger-soft);
+}
+.notice .ic { color: var(--danger); margin-top: 1px; }
+.notice .t { font-family: var(--font-ui); font-size: var(--text-md); color: var(--ink); font-weight: 500; }
+.notice .d {
+  font-family: var(--font-zh); font-size: var(--text-sm); color: var(--ink-2);
+  line-height: var(--leading-relaxed); margin-top: 3px;
+}
+.notice .a { margin-top: 9px; display: flex; gap: 7px; }
+.notice .a button,
+.notice .a a {
+  font-family: var(--font-ui); font-size: var(--text-sm); color: var(--danger);
+  border: 1px solid var(--danger); border-radius: var(--r-md); padding: 5px 10px;
+}
+.notice .a .ghost { color: var(--ink-2); border-color: var(--border); }
 
 /* ─────── Review card ─────── */
+.rv-gesture {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column;
+}
 .rv-card-wrap {
   flex: 1; min-height: 0;
   display: flex; flex-direction: column;
-  padding: 18px;
-  gap: 14px;
+  padding: 14px 16px;
+  gap: 13px;
 }
 .rv-card {
   flex: 1; min-height: 0;
@@ -592,30 +629,18 @@ a { color: inherit; text-decoration: none; }
   /* 叶之边栏为主界 */
   border: 1px solid var(--border);
   border-radius: var(--r-md);
-  padding: 22px 20px 20px;
+  padding: 20px 16px;
   position: relative;
   display: flex; flex-direction: column;
+  overflow-y: auto;
   box-shadow: var(--shadow-sm);
   cursor: pointer;
-}
-.rv-card .corner {
-  position: absolute; top: 14px; left: 16px;
-  font-size: var(--text-2xs);
-  letter-spacing: 0.1em;
-  color: var(--ink-3);
-  font-family: var(--font-ui);
-  display: flex; gap: 6px; align-items: center;
-}
-.rv-card .corner .num {
-  font-family: var(--font-mono);
-  color: var(--accent); font-weight: 500; letter-spacing: 0.02em;
 }
 .rv-card .body {
   flex: 1; min-height: 0;
   display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start;
   text-align: left;
-  gap: 14px;
-  padding: 28px 8px 24px;
+  padding: 0;
   overflow-y: auto;
 }
 .rv-card .front-q {
@@ -623,27 +648,33 @@ a { color: inherit; text-decoration: none; }
   font-size: var(--text-2xl);
   font-weight: 500;
   color: var(--ink);
-  line-height: 1.6;
-  letter-spacing: 0.02em;
+  line-height: var(--leading-relaxed);
+  margin-top: 26px;
 }
 .rv-card .back-a {
   font-family: var(--font-zh);
   font-size: var(--text-xl);
-  line-height: 1.85;
+  line-height: var(--leading-relaxed);
   color: var(--ink);
   text-align: left;
-  letter-spacing: 0.01em;
+  margin-top: 14px;
   align-self: stretch;
   min-height: 0;
   overflow-y: auto;
 }
 .rv-card .back-a strong { color: var(--ink); font-weight: 500; }
-.rv-card .divider-srs {
-  width: 100%; padding: 0 8px;
-  display: flex; align-items: center; gap: 10px;
+.rv-seal {
+  position: absolute; top: 13px; left: 13px;
+  width: 19px; height: 19px;
+  border: 1px solid var(--accent); border-radius: var(--r-sm);
+  color: var(--accent);
+  font-family: var(--font-zh); font-size: var(--text-xs); font-weight: 500;
+  display: flex; align-items: center; justify-content: center;
 }
-.rv-card .divider-srs::before, .rv-card .divider-srs::after {
-  content:""; flex: 1; height: 1px; background: var(--border-soft);
+.rv-rule {
+  height: 1px; flex-shrink: 0;
+  background: var(--border-soft);
+  margin: 16px 0;
 }
 .rv-flip-hint {
   text-align: center;
@@ -651,7 +682,8 @@ a { color: inherit; text-decoration: none; }
   font-size: var(--text-2xs);
   color: var(--ink-3);
   letter-spacing: 0.14em;
-  font-weight: 500;
+  margin-top: auto;
+  padding-top: 16px;
 }
 
 /* ─────── Flip state ─────── */
@@ -669,23 +701,24 @@ a { color: inherit; text-decoration: none; }
 
 /* ─────── Rate buttons ─────── */
 .rate {
-  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px;
-  padding: 0 18px 18px;
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px;
+  padding: 0 16px 16px;
 }
 .rate-btn {
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
   min-width: 0;
-  padding: 12px 6px;
+  padding: 11px 4px;
   border-radius: var(--r-md);
   border: 1px solid;
   font-family: var(--font-ui);
   font-weight: 500;
   font-size: var(--text-lg);
+  line-height: normal;
   transition: transform var(--motion-quick), background var(--motion-quick), opacity var(--motion-mid);
 }
 .rate-btn:active { transform: scale(0.96); }
 /* 未见答不评：翻面前评分行占位不动、声压降 */
-.rate-btn:disabled { opacity: 0.35; cursor: default; }
+.rate-btn:disabled { opacity: 0.4; cursor: default; }
 .rate-btn:disabled:active { transform: none; }
 .rate-btn:hover:not(:disabled) { filter: brightness(0.97); }
 :root.dark .rate-btn:hover:not(:disabled) { filter: brightness(1.1); }
@@ -1780,16 +1813,17 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
 
 /* ─────── Rate additions ─────── */
 /* 「重来」重置间隔——有后果之动作，取真红（记-25）。「重来」计数同声部。 */
-.rate-again { background: var(--danger-critical-soft); color: var(--danger-critical); border-color: color-mix(in oklch, var(--danger-critical) 22%, transparent); }
-.rate-hard { background: var(--rate-hard-soft); color: var(--rate-hard); border-color: color-mix(in oklch, var(--rate-hard) 22%, transparent); }
-.rate-good { background: var(--ink); color: var(--bg); border-color: var(--ink); }
-.rate-easy { background: var(--good-soft); color: var(--good); border-color: color-mix(in oklch, var(--good) 22%, transparent); }
+.rate-again { background: var(--danger-critical-soft); color: var(--danger-critical); border-color: var(--danger-critical); }
+.rate-hard { background: var(--rate-hard-soft); color: var(--rate-hard); border-color: var(--rate-hard); }
+.rate-good { background: var(--bg-raised); color: var(--ink-2); border-color: var(--ink-2); }
+.rate-easy { background: var(--good-soft); color: var(--good); border-color: var(--good); }
 /* Review.jsx's real SM-2 interval-day prediction keeps this mono; QuizReview.jsx
    overrides its two literal-English usages (MISSED/GOT IT) to --font-ui inline —
    same class, different content per site, not solvable with a selector alone. */
-.rate-btn .iv {
+.rate-btn .iv,
+.rate-btn .k {
   font-family: var(--font-mono); font-size: var(--text-2xs);
-  opacity: 0.65; letter-spacing: 0.06em;
+  color: inherit; font-weight: 400; letter-spacing: 0.06em;
 }
 
 /* ─────── Filters ─────── */
