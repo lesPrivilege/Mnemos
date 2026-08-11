@@ -319,7 +319,9 @@ export default function Import() {
 
   const handleReadingPaste = () => {
     if (!pasteMd.trim()) return
-    const fakeFile = new File([pasteMd], 'pasted.md', { type: 'text/markdown' })
+    const h1Match = pasteMd.match(/^#\s+(.+)$/m)
+    const filename = h1Match ? `${h1Match[1].trim()}.md` : 'pasted.md'
+    const fakeFile = new File([pasteMd], filename, { type: 'text/markdown' })
     processReadingFile(fakeFile)
   }
 
@@ -811,15 +813,25 @@ export default function Import() {
           </>
         )}
 
+        {importTab === 'json' && (
+          <div className="text-md text-ink-2 leading-relaxed font-zh text-center py-2 tracking-[0.04em]">
+            {S.import.quizGuideLead}<Link to="/prompt-guide?tab=quiz" style={{ color: 'var(--accent)' }}>{S.import.viewQuizGuideLink}</Link>
+          </div>
+        )}
         {importTab === 'md' && (
           <div className="text-md text-ink-2 leading-relaxed font-zh text-center py-2 tracking-[0.04em]">
             {S.import.notSureHowToPrepare}<Link to="/prompt-guide" style={{ color: 'var(--accent)' }}>{S.import.viewCardGuideLink}</Link>
           </div>
         )}
         {importTab === 'reading' && (
-          <div className="text-md text-ink-3 leading-relaxed font-zh text-center py-2 tracking-[0.04em]">
-            {S.import.manageInReadingNote}
-          </div>
+          <>
+            <div className="text-md text-ink-2 leading-relaxed font-zh text-center py-2 tracking-[0.04em]">
+              {S.import.readingGuideLead}<Link to="/prompt-guide?tab=reading" style={{ color: 'var(--accent)' }}>{S.import.viewReadingGuideLink}</Link>
+            </div>
+            <div className="text-md text-ink-3 leading-relaxed font-zh text-center py-2 tracking-[0.04em]">
+              {S.import.manageInReadingNote}
+            </div>
+          </>
         )}
 
         {/* Restore entry — persistent at bottom */}

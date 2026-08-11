@@ -1,0 +1,30 @@
+export const promptGuide = {
+  title: 'AI 制作指南',
+  intro: '复制下方 prompt 给任意 AI（Claude · GPT · DeepSeek · Kimi），附上你的材料，产出可直接导入的文件。',
+  tabs: {
+    general: '通用卡',
+    vocab: '单词卡',
+    quiz: '题库',
+    reading: '文档',
+  },
+  pasteHint: {
+    general: '把 prompt 粘进对话框，接着粘上你的笔记，一起发送。',
+    vocab: '把 prompt 粘进对话框，接着粘上词表，一起发送。',
+    quiz: '把 prompt 粘进对话框，接着粘上学习材料，一起发送；AI 输出存为 .json 文件后导入。',
+    reading: '把 prompt 粘进对话框，接着粘上材料，一起发送；输出存为 .md 导入，或直接粘贴。',
+  },
+  placeholderNote: {
+    general: '模板中的方括号由 AI 按你的材料填写，无需手动修改。',
+    vocab: '模板中的方括号由 AI 按你的材料填写，无需手动修改。',
+    quiz: '模板中的示例内容由 AI 按你的材料替换，无需手动修改。',
+    reading: '模板中的示例内容由 AI 按你的材料替换，无需手动修改。',
+  },
+  ankiCardLabel: '也可以直接导入 Anki 导出',
+  ankiCardBody: '闪卡 tab 支持 Anki 导出的 .txt / .csv 文件，自动识别 header 指令、HTML 字段和 cloze 挖空。无需转换为 Markdown。',
+  copyPrompt: '复制 Prompt',
+  copied: '已复制',
+  copyFailed: '复制失败，请长按预览区选取',
+  whyTitle: '为什么是复制',
+  whyBody: 'Mnemos 不内置 AI。prompt 与解析器同源于一份格式契约，任何 AI 的输出都能导入；复制对每家 AI 一视同仁，不依赖任何厂商接口。模板里的格式规则请照抄不改——解析器按同一套规则读取，擅自改动会导致导入失败。',
+  footerNote: '导入时 · 选择文件或粘贴',
+}

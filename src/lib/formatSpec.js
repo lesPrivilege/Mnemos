@@ -1,7 +1,9 @@
 /**
- * FORMAT.md 单一事实来源
- * Prompt 模板和解析规则都从这里读取
- * 修改规则只需改这一个文件
+ * 三模块 prompt 模板单一事实来源
+ * 闪卡（PROMPT_TEMPLATE / VOCAB_PROMPT_TEMPLATE）规则与 src/lib/mdParser.js 镜像；
+ * 题库（QUIZ_PROMPT_TEMPLATE）契约与 src/quiz/lib/questionParser.js 镜像；
+ * 阅读（READING_PROMPT_TEMPLATE）规则与 src/reading/lib/importer.js、src/reading/lib/renderDoc.js 镜像。
+ * 改动任一模板时，两侧需同步更新。
  */
 
 export const PROMPT_TEMPLATE = `你是一个知识结构化助手。请将我提供的笔记内容转换为以下格式：
@@ -39,7 +41,17 @@ export const PROMPT_TEMPLATE = `你是一个知识结构化助手。请将我提
 - 不要添加原文没有的内容
 - 不要添加编号、emoji、装饰性符号
 - 不要添加引用、脚注、来源标注或任何 [1] [2] 格式的引用标记
-- 公式用 LaTeX：行内公式用反引号包裹 \`$公式$\`，块级公式用 \`$$公式$$\``
+- 公式用 LaTeX：行内公式用反引号包裹 \`$公式$\`，块级公式用 \`$$公式$$\`
+
+## 示例
+
+# 生物
+## 细胞代谢
+* 光合作用
+  绿色植物利用光能将二氧化碳和水合成有机物并释放氧气的过程。
+  * 场所：叶绿体
+* 卡尔文循环
+  光合作用暗反应阶段，在叶绿体基质中将 CO₂ 固定为有机物，关键酶为 RuBisCO。`
 
 export const VOCAB_PROMPT_TEMPLATE = `你是一个词汇学习助手。请将提供的单词列表转换为以下格式：
 
@@ -54,19 +66,19 @@ export const VOCAB_PROMPT_TEMPLATE = `你是一个词汇学习助手。请将提
 ### 卡片正面（顶层列表项）
 - 顶层列表项后跟单词本身（即卡片正面）
 - 单词下方缩进一行，用反引号包裹音标：\`[ɪg'zɑːmpəl]\`
-- 音标是正面的一部分，复习时无需翻面即可确认发音
 
 ### 卡片背面（缩进内容）
 - 词性 + 中文释义（必须），格式：**adj.** 释义
 - 多个义项按词性分组，每个义项一行
-- 英文例句 + 中文翻译，用 blockquote > 标记：
-  > This is an example sentence.
-  > 这是一个例句。
 - 常见搭配/词组：**搭配**：look after, look for, look into
 - 派生词：**派生**：examination n. 考试
 - 词根词缀拆解（可选）：**词根**：*spec-* (Latin: spectare = to look)
 - 同义词/反义词（可选）：**同义词**：instance, sample | **反义词**：—
 - 助记提示（可选）：*把 example 拆成 ex-(向外) + ample(充足)，向外拿出充足的例子*
+- 英文例句 + 中文翻译，用 blockquote > 标记：
+  > This is an example sentence.
+  > 这是一个例句。
+- 例句引用块放在每张卡背面的最后（引用块会吞并紧随其后的普通行）
 
 ### 内容要求
 - 保持原文语言（英文单词输出英文内容，中文释义可以双语）
@@ -74,4 +86,78 @@ export const VOCAB_PROMPT_TEMPLATE = `你是一个词汇学习助手。请将提
 - 不要添加引用、脚注或来源标注
 - 音标使用 IPA 或 DJ 音标，放在反引号内
 - 派生词、搭配、词根、同反义词、助记都是可选的——只提供有据可查的内容
-- 如果某个单词没有例句或搭配，可以省略对应行，但至少要有词性和释义`
+- 如果某个单词没有例句或搭配，可以省略对应行，但至少要有词性和释义
+
+## 示例
+
+# 核心词汇
+* example
+  \`[ɪɡˈzɑːmpəl]\`
+  **n.** 例子；榜样；**vt.** 作为…的例子
+  **搭配**：for example, set an example
+  **派生**：exemplary adj. 典范的
+  > This is a classic example of supply and demand.
+  > 这是供需关系的经典例子。`
+
+export const QUIZ_PROMPT_TEMPLATE = `你是一个出题助手。请根据我提供的学习材料出题，输出 questions.json 文件内容（一个 JSON 数组，不要输出 JSON 之外的任何文字）：
+
+[
+  {
+    "id": "ch01-主题词-choice001",
+    "subject": "科目名",
+    "chapter": "1 章节名",
+    "type": "choice",
+    "question": "题干",
+    "options": ["A. 选项一", "B. 选项二", "C. 选项三", "D. 选项四"],
+    "answer": "A",
+    "explanation": "为什么选 A，1-3 句话"
+  },
+  {
+    "id": "ch01-主题词-review001",
+    "subject": "科目名",
+    "chapter": "1 章节名",
+    "type": "review",
+    "question": "简答或计算题干",
+    "answer": "参考答案要点，可多句",
+    "explanation": "解题思路或易错点"
+  }
+]
+
+## 规则
+
+### 必需字段
+- 每题必须有全局唯一的 id 和 type，缺失该题会被跳过
+- id 用 chNN-主题-类型NNN 格式（如 ch02-数据表示-choice003），小节名会从中自动提取
+- type 只有两种："choice"（选择题）、"review"（问答/计算/简答）；没有判断、填空
+
+### 选择题（choice）
+- options 是字符串数组，每项以 "A. " "B. " 等字母加点开头
+- answer 只写字母，如 "A"
+- 多选题同样用 choice：answer 写全部正确选项字母，如 "ABD"
+- 干扰项须合理，不出「以上都对/都不对」
+
+### 问答题（review）
+- answer 写参考答案要点；不需要 options
+
+### 通用
+- subject 写科目短名（中文即可，如 "操作系统"），全卷保持一致
+- chapter 写 "数字 章节名"（如 "2 数据的表示和运算"），导入时自动补「第N章」
+- explanation 讲清为什么，1-3 句
+- 保持材料原文语言
+- 题目数量与材料体量相称，覆盖主要知识点，不凑数`
+
+export const READING_PROMPT_TEMPLATE = `你是一个讲义整理助手。请将我提供的材料整理为一篇可通读的学习文档（Markdown）：
+
+# 文档标题
+## 章
+### 节
+
+正文是连贯的段落行文，不是要点罗列。
+
+## 规则
+- 标题只用 # / ## / ### 三级（用于生成目录），不用更深层级
+- 行文完整连贯，保留推导与论证过程；关键结论可用 > 引用块标出
+- 公式用 LaTeX：行内 $公式$，块级 $$公式$$
+- 保持材料原文语言
+- 删除与内容无关的开场白、过渡语、总结客套
+- 不要添加原文没有的内容，不要加引用标记`

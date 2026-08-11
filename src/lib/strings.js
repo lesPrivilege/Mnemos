@@ -43,6 +43,7 @@ import { readingStats } from './strings/readingStats'
 import { readingStorage } from './strings/readingStorage'
 import { settings } from './strings/settings'
 import { importStrings } from './strings/import'
+import { promptGuide } from './strings/promptGuide'
 
 export const S = {
   common,
@@ -83,4 +84,5 @@ export const S = {
   readingStorage,
   settings,
   import: importStrings,
+  promptGuide,
 }
