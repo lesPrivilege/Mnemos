@@ -120,7 +120,7 @@ export default function ReadingHomeBody({ h }) {
           <div className="seg-inline">
             {[{ key: 'created', label: R.createdSort }, { key: 'recent', label: R.recentSort }].map((s) => (
               <button key={s.key} onClick={() => h.setSortBy(s.key)}
-                className={h.sortBy === s.key ? 'on' : ''}>{s.label}</button>
+                className={h.sortBy === s.key ? 'on' : ''} aria-pressed={h.sortBy === s.key}>{s.label}</button>
             ))}
           </div>
         ) : (

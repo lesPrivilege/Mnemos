@@ -315,19 +315,19 @@ export default function Settings() {
         <div className="settings-card">
           <div className="lbl">{S.settings.appearanceHeading}</div>
           <div className="seg">
-            <button onClick={() => setDark(false)} className={!dark ? 'on' : ''} aria-label={S.settings.themeLight}>
+            <button onClick={() => setDark(false)} className={!dark ? 'on' : ''} aria-label={S.settings.themeLight} aria-pressed={!dark}>
               <SunIcon size={16} /> {S.settings.themeLight}
             </button>
-            <button onClick={() => setDark(true)} className={dark ? 'on' : ''} aria-label={S.settings.themeDark}>
+            <button onClick={() => setDark(true)} className={dark ? 'on' : ''} aria-label={S.settings.themeDark} aria-pressed={dark}>
               <MoonIcon size={16} /> {S.settings.themeDark}
             </button>
           </div>
           <div className="lbl" style={{ marginTop: 6 }}>{S.settings.contentFontLabel}</div>
           <div className="seg">
-            <button onClick={() => setContentSong(false)} className={!contentSong ? 'on' : ''} aria-label={S.settings.contentFontFangsong}>
+            <button onClick={() => setContentSong(false)} className={!contentSong ? 'on' : ''} aria-label={S.settings.contentFontFangsong} aria-pressed={!contentSong}>
               {S.settings.contentFontFangsong}
             </button>
-            <button onClick={() => setContentSong(true)} className={contentSong ? 'on' : ''} aria-label={S.settings.contentFontSong}>
+            <button onClick={() => setContentSong(true)} className={contentSong ? 'on' : ''} aria-label={S.settings.contentFontSong} aria-pressed={contentSong}>
               {S.settings.contentFontSong}
             </button>
           </div>

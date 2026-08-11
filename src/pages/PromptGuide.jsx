@@ -73,7 +73,7 @@ export default function PromptGuide() {
 
         <div className="seg">
           {TABS.map((key) => (
-            <button key={key} onClick={() => setTab(key)} className={tab === key ? 'on' : ''}>
+            <button key={key} onClick={() => setTab(key)} className={tab === key ? 'on' : ''} aria-pressed={tab === key}>
               {S.promptGuide.tabs[key]}
             </button>
           ))}

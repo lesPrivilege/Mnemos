@@ -14,6 +14,7 @@ import { useBackButton } from '../lib/useBackButton'
 import { isNative } from '../lib/platform'
 import { useToast, Toast } from '../components/Toast'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
+import { pressable } from '../lib/a11y'
 import { S } from '../lib/strings'
 
 export default function Import() {
@@ -362,8 +363,8 @@ export default function Import() {
             <div className="settings-card">
               <div className="lbl">{S.import.importModeHeading}</div>
               <div className="seg">
-                <button onClick={() => setJsonMode('merge')} className={jsonMode === 'merge' ? 'on' : ''}>{S.import.mergeData}</button>
-                <button onClick={() => setJsonMode('replace')} className={jsonMode === 'replace' ? 'on' : ''}>{S.import.replaceAll}</button>
+                <button onClick={() => setJsonMode('merge')} className={jsonMode === 'merge' ? 'on' : ''} aria-pressed={jsonMode === 'merge'}>{S.import.mergeData}</button>
+                <button onClick={() => setJsonMode('replace')} className={jsonMode === 'replace' ? 'on' : ''} aria-pressed={jsonMode === 'replace'}>{S.import.replaceAll}</button>
               </div>
               {jsonMode === 'replace' && (
                 <div className="rounded-md p-3 font-zh text-xs leading-relaxed"
@@ -437,10 +438,10 @@ export default function Import() {
           <div className="settings-card">
             <div className="lbl">{S.import.importModeHeading}</div>
             <div className="seg">
-              <button onClick={() => setJsonMode('merge')} className={jsonMode === 'merge' ? 'on' : ''}>
+              <button onClick={() => setJsonMode('merge')} className={jsonMode === 'merge' ? 'on' : ''} aria-pressed={jsonMode === 'merge'}>
                 {S.import.mergeData}
               </button>
-              <button onClick={() => setJsonMode('replace')} className={jsonMode === 'replace' ? 'on' : ''}>
+              <button onClick={() => setJsonMode('replace')} className={jsonMode === 'replace' ? 'on' : ''} aria-pressed={jsonMode === 'replace'}>
                 {S.import.replaceAll}
               </button>
             </div>
@@ -504,8 +505,8 @@ export default function Import() {
           <div className="settings-card">
             <div className="lbl">{S.import.importModeHeading}</div>
             <div className="seg">
-              <button onClick={() => setJsonMode('merge')} className={jsonMode === 'merge' ? 'on' : ''}>{S.import.mergeData}</button>
-              <button onClick={() => setJsonMode('replace')} className={jsonMode === 'replace' ? 'on' : ''}>{S.import.replaceAll}</button>
+              <button onClick={() => setJsonMode('merge')} className={jsonMode === 'merge' ? 'on' : ''} aria-pressed={jsonMode === 'merge'}>{S.import.mergeData}</button>
+              <button onClick={() => setJsonMode('replace')} className={jsonMode === 'replace' ? 'on' : ''} aria-pressed={jsonMode === 'replace'}>{S.import.replaceAll}</button>
             </div>
             {jsonMode === 'replace' && (
               <div className="rounded-md p-3 font-zh text-xs leading-relaxed"
@@ -566,8 +567,8 @@ export default function Import() {
               <>
                 <div className="kv-row"><span className="k">{S.import.duplicateCardsLabel}</span><span className="v" style={{ color: 'var(--warn)' }}>{dedup.count}</span></div>
                 <div className="seg">
-                  <button onClick={() => setSkipDup(true)} className={skipDup ? 'on' : ''}>{S.import.skipDuplicates}</button>
-                  <button onClick={() => setSkipDup(false)} className={!skipDup ? 'on' : ''}>{S.import.importAll}</button>
+                  <button onClick={() => setSkipDup(true)} className={skipDup ? 'on' : ''} aria-pressed={skipDup}>{S.import.skipDuplicates}</button>
+                  <button onClick={() => setSkipDup(false)} className={!skipDup ? 'on' : ''} aria-pressed={!skipDup}>{S.import.importAll}</button>
                 </div>
               </>
             )}
@@ -665,13 +666,13 @@ export default function Import() {
       <main className="flex-1 overflow-y-auto p-[18px] flex flex-col gap-4">
         {/* Tab toggle */}
         <div className="seg">
-          <button onClick={() => setImportTab('json')} className={importTab === 'json' ? 'on' : ''}>
+          <button onClick={() => setImportTab('json')} className={importTab === 'json' ? 'on' : ''} aria-pressed={importTab === 'json'}>
             {S.import.quizTabLabel}
           </button>
-          <button onClick={() => setImportTab('md')} className={importTab === 'md' ? 'on' : ''}>
+          <button onClick={() => setImportTab('md')} className={importTab === 'md' ? 'on' : ''} aria-pressed={importTab === 'md'}>
             {S.import.mdTabLabel}
           </button>
-          <button onClick={() => setImportTab('reading')} className={importTab === 'reading' ? 'on' : ''}>
+          <button onClick={() => setImportTab('reading')} className={importTab === 'reading' ? 'on' : ''} aria-pressed={importTab === 'reading'}>
             {S.import.readingTabLabel}
           </button>
         </div>
@@ -687,6 +688,7 @@ export default function Import() {
             <div className="settings-card">
               <div className="lbl">{S.import.fileImportHeading}</div>
               <div onClick={() => fileInputRef.current?.click()}
+                {...pressable(() => fileInputRef.current?.click())}
                 onDragOver={handleDropzoneDragOver} onDragLeave={handleDropzoneDragLeave} onDrop={handleDropzoneDrop}
                 className={`dropzone ${dragging ? 'dragging' : ''}`}>
                 <div className="icon"><UploadIcon size={18} /></div>
@@ -719,6 +721,7 @@ export default function Import() {
             <div className="settings-card">
               <div className="lbl">{S.import.fileImportHeading}</div>
               <div onClick={() => fileInputRef.current?.click()}
+                {...pressable(() => fileInputRef.current?.click())}
                 onDragOver={handleDropzoneDragOver} onDragLeave={handleDropzoneDragLeave} onDrop={handleDropzoneDrop}
                 className={`dropzone ${dragging ? 'dragging' : ''}`}>
                 <div className="icon"><UploadIcon size={18} /></div>
@@ -755,6 +758,7 @@ export default function Import() {
             <div className="settings-card">
               <div className="lbl">{S.import.fileImportHeading}</div>
               <div onClick={() => fileInputRef.current?.click()}
+                {...pressable(() => fileInputRef.current?.click())}
                 onDragOver={handleDropzoneDragOver} onDragLeave={handleDropzoneDragLeave} onDrop={handleDropzoneDrop}
                 className={`dropzone ${dragging ? 'dragging' : ''}`}>
                 <div className="icon"><UploadIcon size={18} /></div>
@@ -786,6 +790,7 @@ export default function Import() {
             <div className="settings-card">
               <div className="lbl">{S.import.fileImportHeading}</div>
               <div onClick={() => fileInputRef.current?.click()}
+                {...pressable(() => fileInputRef.current?.click())}
                 onDragOver={handleDropzoneDragOver} onDragLeave={handleDropzoneDragLeave} onDrop={handleDropzoneDrop}
                 className={`dropzone ${dragging ? 'dragging' : ''}`}>
                 <div className="icon"><UploadIcon size={18} /></div>
@@ -836,6 +841,7 @@ export default function Import() {
 
         {/* Restore entry — persistent at bottom */}
         <div onClick={() => setImportTab('restore')}
+          {...pressable(() => setImportTab('restore'))}
           className="flex items-center justify-between p-3.5 rounded-md border cursor-pointer hover:bg-bg-raised transition-colors mt-auto"
           style={{ borderColor: 'var(--border-soft)', background: 'var(--bg-card)' }}>
           <div>

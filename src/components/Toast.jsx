@@ -1,5 +1,4 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { S } from '../lib/strings'
 
 export function useToast() {
   const [toast, setToast] = useState(null)
@@ -16,12 +15,11 @@ export function useToast() {
   return { toast, showToast }
 }
 
-export function Toast({ message, onClick }) {
+export function Toast({ message }) {
   if (!message) return null
   return (
-    <div className="toast" onClick={onClick} style={{ cursor: onClick ? 'pointer' : 'default' }}>
+    <div className="toast">
       {message}
-      {onClick && <span style={{ opacity: 0.6, marginLeft: 6 }}>{S.common.undo}</span>}
     </div>
   )
 }

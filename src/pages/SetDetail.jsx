@@ -10,6 +10,7 @@ import { tierCountsForQuestions } from '../quiz/lib/questionStats'
 import StructureTree from '../components/StructureTree'
 import { useBackButton } from '../lib/useBackButton'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
+import { pressable } from '../lib/a11y'
 import { S } from '../lib/strings'
 
 export default function SetDetail() {
@@ -188,8 +189,8 @@ export default function SetDetail() {
         {/* View toggle */}
         <div style={{ padding: '6px 18px' }}>
           <div className="seg" style={{ maxWidth: 160 }}>
-            <button onClick={() => setViewMode('list')} className={viewMode === 'list' ? 'on' : ''}>{S.setDetail.listView}</button>
-            <button onClick={() => setViewMode('tree')} className={viewMode === 'tree' ? 'on' : ''}>{S.setDetail.treeView}</button>
+            <button onClick={() => setViewMode('list')} className={viewMode === 'list' ? 'on' : ''} aria-pressed={viewMode === 'list'}>{S.setDetail.listView}</button>
+            <button onClick={() => setViewMode('tree')} className={viewMode === 'tree' ? 'on' : ''} aria-pressed={viewMode === 'tree'}>{S.setDetail.treeView}</button>
           </div>
         </div>
 
@@ -217,6 +218,7 @@ export default function SetDetail() {
               return (
                 <div key={ch.name}>
                   <div className="card-row" onClick={() => setExpandedChapter(isOpen ? null : ch.name)}
+                    {...pressable(() => setExpandedChapter(isOpen ? null : ch.name))}
                     style={{ fontWeight: 500 }}>
                     <span className={`ch-caret ${isOpen ? 'open' : ''}`} style={{ position: 'absolute', left: 8 }}>›</span>
                     <span className="front" style={{ fontWeight: 500, paddingLeft: 8 }}>{ch.name}</span>
