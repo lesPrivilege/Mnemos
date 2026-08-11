@@ -70,6 +70,13 @@
 - **证据**：`npm run check` 全绿（26 文件 205 测试，新增练习会话三测与阅读拒篇两测），collate 四门 0 FAIL 基线不增，`vite build` 成功；collate 连跑两遍，第二遍 `unchanged`，工作树不再被 check 弄脏。
 - **未尽（记档）**：`SetDetail` 视图切换（list/tree）与 `ReadingHomeBody` 排序 `.seg` 段控未补 `aria-pressed`（非筛选 chip，另批）；`SetDetail` 章节目录 `.card-row` 之 `onClick` 展开亦无键盘径路（非本轮所列，另批）。
 
+### 记 2026-08-11-40 · 全库单选切换语义收口（记-39 未尽清账）
+
+- **改何**：把全库所有「单选切换」控件补齐 `aria-pressed`（与视觉 `on` 同源）：记-39 未尽之 `SetDetail` 视图切换（list/tree）与 `ReadingHomeBody` 排序段控，另扫出并补齐同形的 `PromptGuide` 四 tab、`Import` 三处导入模式段控＋去重策略段控＋三 tab、`Settings` 明暗纸与正文字体两段控。键盘径路同收：`SetDetail` 章节目录 `.card-row` 展开、`Import` 四枚拖放区与常驻「恢复备份」入口改用 `pressable`（role button／tabIndex／Enter·Space）。顺清死码：`Toast` 组件之 `onClick` 分支无任何调用方（撤销反馈已于记-38 改真 button），退役。
+- **据何**：记-39 未尽清账；全库一致性（记-38 判准）——chip／dd-filter／seg 皆单选切换，态必须对读屏可闻。
+- **判准**：一切单选切换钮 `aria-pressed` 与视觉态同源；一切点击型 div 入 Tab 序、Enter/Space 可激活；无死分支。底栏导航用 `Link`＋`aria-current`，属导航非切换，不加 pressed。
+- **证据**：`npm run check` 全绿（27 文件 207 测试），collate 四门 0 FAIL 基线不增，`vite build` 成功。
+
 ### 记 2026-08-11-38 · 复习主链路之读屏语义
 
 - **改何**：纯语义层一笔，视觉零动。复习卡与练习卡的翻面容器撤去 `aria-label`（`role="button"` 属内容命名之角色，作者名一设即遮蔽卡面正文，读屏用户听不到题与答；`visibility:hidden` 本已把非当前面逐出可及性树，撤名后可及名自然只由当前面得出）；翻面之态由 `aria-pressed` 改 `aria-expanded`——翻面是「显出被藏之物」的 disclosure，非控件自身二值之 toggle，练习卡单向翻面者另加 `aria-disabled` 明示已无可为。撤销 toast 拆为两物：常驻空 `role="status"` 节点承播报（读屏器于「插入即带内容」之 live region 播报不可靠，节点须先在），可见药丸改真 `<button>` 得焦点与键盘径路。练习页收藏钮去 `aria-pressed` 只留变名（与复习页既有正写对齐，名与态互斥则择一）。评分四钮回归纯内容命名，快捷键数字对读屏器可闻。icon-only 之返回、收藏、更多三钮补可及名；筛选 chip 补 `aria-pressed`；拖拽覆层字加 `aria-hidden`。
