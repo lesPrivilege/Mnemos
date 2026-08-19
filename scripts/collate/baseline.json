@@ -1,16 +1,6 @@
 [
   {
     "gate": "source-single",
-    "file": "pages/Home.jsx",
-    "match": "tion: drag?.locked === 'x' ? 'none' : 'transform 360ms cubic-bezier(.2,.8,.2,1)',"
-  },
-  {
-    "gate": "source-single",
-    "file": "pages/Home.jsx",
-    "match": "transition: drag?.locked === 'x' ? 'none' : 'transform 360ms cubic-bezier(.2,.8,.2,1)',"
-  },
-  {
-    "gate": "source-single",
     "file": "pages/Settings.jsx",
     "match": "background: `oklch(60% 0.10 ${60 + hue * 55})`,"
   }

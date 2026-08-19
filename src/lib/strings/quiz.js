@@ -19,5 +19,6 @@ export const quiz = {
   backAction: '返回',
   wrongReviewAction: '错题回顾',
   anotherRoundAction: '再来一组',
+  continueToday: (stage) => `接着${stage}`,
   noQuestions: '暂无题目',
 }

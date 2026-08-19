@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { ArrowLIcon, CheckIcon } from '../components/Icons'
+import { CheckIcon } from '../components/Icons'
 import { FocusHeader } from '../components/FocusHeader'
 import { getActivityDashboard, getHeatmapData } from '../lib/activity'
-import { useBackButton } from '../lib/useBackButton'
 import { S } from '../lib/strings'
 
 function percent(done, total) {
@@ -166,14 +165,12 @@ function HeatmapGrid() {
 }
 
 export default function Activity() {
-  const { goBack } = useBackButton()
   const data = getActivityDashboard()
   const maxModule = Math.max(1, data.totals.recall, data.totals.practice, data.totals.reading)
 
   return (
-    <div className="page-fixed">
+    <div className="page-fixed primary-tab-screen">
       <header className="topbar">
-        <button onClick={goBack} className="tb-btn" aria-label={S.activity.back}><ArrowLIcon size={18} /></button>
         <h1 className="zh">{S.activity.pageTitle}</h1>
       </header>
 

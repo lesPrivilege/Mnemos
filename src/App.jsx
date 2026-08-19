@@ -25,16 +25,20 @@ import { ActionNotice } from './components/ActionNotice'
 import { S } from './lib/strings'
 
 const bottomTabs = [
-  { key: 'quiz', label: S.home.practiceZh, to: '/?tab=quiz', icon: <Icon d="M5 5h5v5H5zM14 5h5v5h-5zM5 14h5v5H5zM14 14h5v5h-5z" /> },
-  { key: 'flashcard', label: S.home.recallZh, to: '/?tab=flashcard', icon: <Icon d="M7 5h10a2 2 0 012 2v10M5 7h10a2 2 0 012 2v10H7a2 2 0 01-2-2z" /> },
-  { key: 'reading', label: S.home.readingZh, to: '/?tab=reading', icon: <Icon d="M5 5h7a3 3 0 013 3v11a3 3 0 00-3-3H5zM19 5h-4a3 3 0 00-3 3" /> },
+  { key: 'today', label: S.home.todayTab, to: '/', icon: <Icon d="M5 12l4 4L19 6" /> },
+  { key: 'materials', label: S.home.materialsTab, to: '/?view=materials', icon: <Icon d="M5 5h7a3 3 0 013 3v11a3 3 0 00-3-3H5zM19 5h-4a3 3 0 00-3 3" /> },
+  { key: 'activity', label: S.home.activityTab, to: '/activity', icon: <Icon d="M5 18V11M12 18V6M19 18V9" /> },
 ]
 
 function AppShell() {
   const location = useLocation()
   const params = new URLSearchParams(location.search)
-  const activeTab = params.get('tab') || sessionStorage.getItem('mnemos-home-tab') || 'flashcard'
-  const showBottomTabs = location.pathname === '/'
+  const activeTab = location.pathname === '/activity'
+    ? 'activity'
+    : location.pathname === '/' && (params.get('view') === 'materials' || params.has('tab'))
+      ? 'materials'
+      : 'today'
+  const showBottomTabs = location.pathname === '/' || location.pathname === '/activity'
 
   return (
     <>

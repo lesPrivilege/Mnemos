@@ -10,6 +10,7 @@ import { isRecall } from '../lib/cardUtils'
 import { useBackButton } from '../lib/useBackButton'
 import { recordEvent } from '../lib/derive/events'
 import { sessionSummary, todayFocus } from '../lib/derive'
+import { todayJourney } from '../lib/derive/today'
 import { saveReviewSession, clearReviewSession } from '../lib/reviewSession'
 import { hapticLight, hapticSuccess, hapticWarning } from '../lib/haptics'
 import { S } from '../lib/strings'
@@ -333,6 +334,7 @@ export default function Review() {
     const nextDeck = focus.primary && focus.primary.deckId !== id && !focus.primary.all
       ? { deckId: focus.primary.deckId, name: focus.breakdown[0]?.name }
       : null
+    const nextStage = nextDeck ? null : todayJourney().stages.find((stage) => stage.key !== 'recall' && stage.route)
 
     return (
       <div className="page-fixed" style={{ background: 'var(--bg)' }}>
@@ -384,7 +386,9 @@ export default function Review() {
               <Link to={`/browse/${id}`} className="btn btn-ghost">{S.review.browseCards}</Link>
               {nextDeck
                 ? <Link to={`/review/${nextDeck.deckId}`} className="btn btn-primary">{S.review.continueNext(nextDeck.name)}</Link>
-                : <button className="btn btn-primary" onClick={goBack}>{S.review.backToDeck}</button>}
+                : nextStage
+                  ? <Link to={nextStage.route} className="btn btn-primary">{S.review.continueToday(S.home.today.stageLabel[nextStage.key])}</Link>
+                  : <button className="btn btn-primary" onClick={goBack}>{S.review.backToDeck}</button>}
             </div>
           </div>
         </div>

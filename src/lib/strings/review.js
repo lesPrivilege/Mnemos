@@ -12,6 +12,7 @@ export const review = {
   nextDue: '下次到期',
   nextDueValue: (date, count) => `${date} · ${count} 张`,
   continueNext: (name) => `继续 ${name}`,
+  continueToday: (stage) => `接着${stage}`,
   again: '重来',
   remember: '良好',
   flipHint: '轻点翻面',

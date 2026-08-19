@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { getQuizQuestions, submitAnswer } from '../quiz/lib/quizEngine'
 import { saveLastSession, loadLastSession, clearLastSession, toggleStar, isStarred, deleteQuestion, loadStarred, loadQuestions } from '../quiz/lib/storage'
 import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
 import RenderMarkdown from '../quiz/components/RenderMarkdown'
 import { BackIcon, CheckIcon, XIcon, StarIcon, MoreIcon, TrashIcon } from '../components/Icons'
 import { recordEvent } from '../lib/derive/events'
+import { todayJourney } from '../lib/derive/today'
 import { useBackButton } from '../lib/useBackButton'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 import { hapticLight, hapticWarning, hapticSuccess } from '../lib/haptics'
@@ -235,6 +236,7 @@ export default function Quiz() {
   // Done screen
   if (finished || (questions.length === 0 && results.length > 0)) {
     const correct = results.filter(r => r.correct === true).length
+    const nextStage = todayJourney().stages.find((stage) => stage.key !== 'practice' && stage.route)
     return (
       <div className="page-fixed" style={{ background: 'var(--bg)' }}>
         <div className="topbar">
@@ -267,7 +269,9 @@ export default function Quiz() {
               <button className="btn btn-ghost" onClick={() => goBack()}>{S.quiz.backAction}</button>
               {results.some(r => !r.correct)
                 ? <button className="btn btn-primary" onClick={() => { setMode('wrong'); load('wrong') }}>{S.quiz.wrongReviewAction}</button>
-                : <button className="btn btn-primary" onClick={() => load(mode)}>{S.quiz.anotherRoundAction}</button>}
+                : nextStage
+                  ? <Link to={nextStage.route} className="btn btn-primary">{S.quiz.continueToday(S.home.today.stageLabel[nextStage.key])}</Link>
+                  : <button className="btn btn-primary" onClick={() => load(mode)}>{S.quiz.anotherRoundAction}</button>}
             </div>
           </div>
         </div>
