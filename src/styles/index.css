@@ -1092,6 +1092,7 @@ a { color: inherit; text-decoration: none; }
   transition: background var(--motion-quick);
 }
 .ch-row:hover { background: var(--bg-raised); }
+.set-chapter-row { width: 100%; text-align: left; }
 .ch-caret {
   width: 16px; height: 16px;
   display: inline-flex; align-items: center; justify-content: center;

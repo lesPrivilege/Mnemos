@@ -10,7 +10,6 @@ import { tierCountsForQuestions } from '../quiz/lib/questionStats'
 import StructureTree from '../components/StructureTree'
 import { useBackButton } from '../lib/useBackButton'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
-import { pressable } from '../lib/a11y'
 import { S } from '../lib/strings'
 import { buildQuizRoute } from '../quiz/lib/routes'
 import { isInWrongBook } from '../quiz/lib/quizEngine'
@@ -390,19 +389,19 @@ export default function SetDetail() {
               const chStarred = starredByChapter[ch.name] || 0
               return (
                 <div key={ch.name}>
-                  <div className="card-row" onClick={() => setExpandedChapter(isOpen ? null : ch.name)}
-                    {...pressable(() => setExpandedChapter(isOpen ? null : ch.name))}
-                    style={{ fontWeight: 500 }}>
-                    <span className={`ch-caret ${isOpen ? 'open' : ''}`} style={{ position: 'absolute', left: 8 }}>›</span>
-                    <span className="front" style={{ fontWeight: 500, paddingLeft: 8 }}>{ch.name}</span>
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-2xs)', color: 'var(--ink-3)' }}>
+                  <button type="button" className="ch-row set-chapter-row"
+                    onClick={() => setExpandedChapter(isOpen ? null : ch.name)}
+                    aria-expanded={isOpen}>
+                    <span className={`ch-caret ${isOpen ? 'open' : ''}`}>›</span>
+                    <span className="ch-name">{ch.name}</span>
+                    <span className="ch-count">
                       {ch.total}{S.setDetail.countSuffix}
                       {ch.choice > 0 && <span style={{ marginLeft: 6 }}>{S.setDetail.choicePrefixShort}{ch.choice}</span>}
                       {ch.review > 0 && <span style={{ marginLeft: 6 }}>{S.setDetail.reviewPrefixShort}{ch.review}</span>}
                       {ch.wrong > 0 && <span style={{ color: 'var(--danger)', marginLeft: 6 }}>{ch.wrong}{S.setDetail.wrongSuffix}</span>}
                       {chStarred > 0 && <span style={{ color: 'var(--accent)', marginLeft: 6 }}>{chStarred}★</span>}
                     </span>
-                  </div>
+                  </button>
                   {isOpen && (
                     <div style={{ paddingLeft: 16 }}>
                       {ch.choice > 0 && (

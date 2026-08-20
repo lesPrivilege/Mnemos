@@ -172,7 +172,7 @@ describe('SetDetail FloatingBar actions', () => {
     render(<SetDetail />)
 
     fireEvent.click(screen.getByRole('button', { name: '选择 · 1' }))
-    const chapterRow = screen.getByText('第一章').closest('.card-row')
+    const chapterRow = screen.getByText('第一章').closest('.set-chapter-row')
     expect(chapterRow?.textContent).not.toContain('★')
   })
 
