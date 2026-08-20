@@ -1,22 +1,34 @@
+import { useLayoutEffect, useRef } from 'react'
+
 // FloatingBar — fixed overlay action bar for detail screens.
-// Renders children in a compact raised bar anchored to the app shell.
-export default function FloatingBar({ children }) {
+// Reports its live block size to the owning shell so scroll content can clear
+// the overlay even when Dynamic Type or translated labels make it taller.
+export default function FloatingBar({ children, ...props }) {
+  const barRef = useRef(null)
+
+  useLayoutEffect(() => {
+    const bar = barRef.current
+    const shell = bar?.closest('.page-fill, .page-fixed')
+    if (!bar || !shell) return undefined
+
+    const reportBlockSize = () => {
+      shell.style.setProperty('--floating-bar-block-size', `${Math.ceil(bar.getBoundingClientRect().height)}px`)
+    }
+
+    reportBlockSize()
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(reportBlockSize)
+    observer?.observe(bar)
+    window.addEventListener('resize', reportBlockSize)
+
+    return () => {
+      observer?.disconnect()
+      window.removeEventListener('resize', reportBlockSize)
+      shell.style.removeProperty('--floating-bar-block-size')
+    }
+  }, [])
+
   return (
-    <div
-      className="fixed left-1/2 z-30 flex flex-col gap-2"
-      style={{
-        width: 'min(calc(100% - 24px), 456px)',
-        transform: 'translateX(-50%)',
-        bottom: 'max(12px, env(safe-area-inset-bottom))',
-        padding: '12px 14px',
-        borderRadius: 'var(--r-xl)',
-        background: 'var(--surface-chrome-bg)',
-        backdropFilter: 'var(--surface-chrome-blur)',
-        WebkitBackdropFilter: 'var(--surface-chrome-blur)',
-        border: '1px solid var(--border-soft)',
-        boxShadow: 'none',
-      }}
-    >
+    <div ref={barRef} className="floating-bar" {...props}>
       {children}
     </div>
   )

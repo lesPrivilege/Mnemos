@@ -12,6 +12,7 @@ import { useBackButton } from '../lib/useBackButton'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 import { pressable } from '../lib/a11y'
 import { S } from '../lib/strings'
+import { buildQuizRoute } from '../quiz/lib/routes'
 
 export default function SetDetail() {
   const { subject } = useParams()
@@ -113,18 +114,17 @@ export default function SetDetail() {
   return (
       <div className="page-fill">
       {/* Header */}
-      <header className="topbar">
-        <button onClick={goBack} className="tb-btn"><BackIcon /></button>
+      <header className="topbar" style={showMenu ? { zIndex: 50 } : undefined}>
+        <button onClick={goBack} className="tb-btn" aria-label={S.common.back}><BackIcon /></button>
         <h1 className="zh" style={{ flex: 1, paddingLeft: 4 }}>{subjectName}</h1>
         <div className="tb-actions">
           <div className="relative">
             <button onClick={() => setShowMenu(o => !o)} className="tb-btn"
-              aria-haspopup="menu" aria-expanded={showMenu}>
+              aria-label={S.common.moreActions} aria-haspopup="menu" aria-expanded={showMenu}>
               <MoreIcon />
             </button>
             {showMenu && (
               <>
-                <button className="fixed inset-0 z-10 cursor-default" onClick={() => setShowMenu(false)} aria-label={S.setDetail.closeMenu} />
                 <div className="absolute right-0 top-9 z-20 min-w-[176px] rounded-md bg-bg-card border border-border-soft overflow-hidden"
                   role="menu"
                   style={{ border: '1px solid var(--border-soft)' }}>
@@ -143,7 +143,11 @@ export default function SetDetail() {
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto" style={{ paddingBottom: 140 }}>
+      {showMenu && (
+        <button className="fixed inset-0 z-40 cursor-default" onClick={() => setShowMenu(false)} aria-label={S.setDetail.closeMenu} />
+      )}
+
+      <main className="flex-1 overflow-y-auto" inert={showMenu ? '' : undefined}>
         {/* Stats section */}
         <div style={{ padding: '14px 0 0' }}>
           <div className="dd-head">
@@ -201,12 +205,10 @@ export default function SetDetail() {
               <StructureTree
                 nodes={treeNodes}
                 onLeafTap={(node) => {
-                  const params = new URLSearchParams()
-                  if (node.chapter) params.set('chapter', node.chapter)
-                  if (node.section) params.set('section', node.section)
-                  const qs = params.toString()
-                  const base = typeCounts.choice > 0 ? `/quiz/${subject}` : `/quiz-review/${subject}`
-                  navigate(`${base}?${qs}`)
+                  navigate(buildQuizRoute(typeCounts.choice > 0 ? 'quiz' : 'quiz-review', subject, {
+                    chapter: node.chapter,
+                    section: node.section,
+                  }))
                 }}
               />
             </div>
@@ -233,7 +235,7 @@ export default function SetDetail() {
                   {isOpen && (
                     <div style={{ paddingLeft: 16 }}>
                       {ch.choice > 0 && (
-                        <Link to={`/quiz/${subject}?chapter=${encodeURIComponent(ch.name)}`}
+                        <Link to={buildQuizRoute('quiz', subject, { chapter: ch.name })}
                           className="card-row">
                           <span className="q-tag-mini choice">{S.setDetail.choiceTagMini}</span>
                           <span className="front" style={{ fontSize: 'var(--text-md)' }}>{S.setDetail.choiceLabelWithCount(ch.choice)}</span>
@@ -241,7 +243,7 @@ export default function SetDetail() {
                         </Link>
                       )}
                       {ch.review > 0 && (
-                        <Link to={`/quiz-review/${subject}?chapter=${encodeURIComponent(ch.name)}`}
+                        <Link to={buildQuizRoute('quiz-review', subject, { chapter: ch.name })}
                           className="card-row">
                           <span className="q-tag-mini review">{S.setDetail.reviewTagMini}</span>
                           <span className="front" style={{ fontSize: 'var(--text-md)' }}>{S.setDetail.reviewLabelWithCount(ch.review)}</span>
@@ -264,10 +266,10 @@ export default function SetDetail() {
       </main>
 
       {/* Floating action bar */}
-      <FloatingBar>
+      <FloatingBar inert={showMenu ? '' : undefined}>
         <div className="dd-cta" style={{ margin: 0 }}>
           {typeCounts.choice > 0 ? (
-            <button className="dd-cta-main" onClick={() => navigate(`/quiz/${subject}`)}>
+            <button className="dd-cta-main" onClick={() => navigate(buildQuizRoute('quiz', subject))}>
               <div className="left">
                 <span className="lead"><span className="num">{typeCounts.choice + typeCounts.review}</span>{S.setDetail.countSuffix}</span>
                 <span className="sub">{S.setDetail.beginPracticeLabel}</span>
@@ -275,7 +277,7 @@ export default function SetDetail() {
               <span className="arr">→</span>
             </button>
           ) : typeCounts.review > 0 ? (
-            <button className="dd-cta-main" onClick={() => navigate(`/quiz-review/${subject}`)}>
+            <button className="dd-cta-main" onClick={() => navigate(buildQuizRoute('quiz-review', subject))}>
               <div className="left">
                 <span className="lead"><span className="num">{typeCounts.review}</span>{S.setDetail.countSuffix}</span>
                 <span className="sub">{S.setDetail.beginPracticeLabel}</span>
@@ -292,10 +294,10 @@ export default function SetDetail() {
           )}
         </div>
         <div className="dd-secondary" style={{ margin: 0 }}>
-          <Link to={`/wrong?subject=${subject}`} className="dd-action">
+          <Link to={`/wrong?subject=${encodeURIComponent(subject)}`} className="dd-action">
             <RefreshIcon size={18} /><span className="lab">{S.setDetail.wrongAction}</span>
           </Link>
-          <Link to={`/starred?subject=${subject}`} className="dd-action">
+          <Link to={`/starred?subject=${encodeURIComponent(subject)}`} className="dd-action">
             <StarIcon size={18} /><span className="lab">{S.setDetail.starredAction}</span>
           </Link>
           <Link to="/import?tab=json" className="dd-action"><UploadIcon size={18} /><span className="lab">{S.setDetail.importAction}</span></Link>

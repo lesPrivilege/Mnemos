@@ -126,6 +126,9 @@
   --sp-9: 32px;
   --sp-10: 48px;
 
+  /* 高频触控目标：按钮、顶栏操作与段控共用的最小可触面积。 */
+  --hit-target: 44px;
+
   /* ─────── 竖向缩放谱（记-21；横向已拒，主令 2026-07-24）───────
      一栏之宽有度，余宽让给天地，不让行拉长——手机既定之行款不动，
      宽屏只加白。四级各有其度：
@@ -251,6 +254,24 @@
   --surface-raised:        var(--bg-raised);
   --surface-overlay:       var(--bg-card);
   --scrim:                 oklch(5% 0.01 240 / 0.52);
+}
+
+/* Chrome accessibility fallbacks stay at the semantic-token layer so every
+   consumer (including opaque topbars) responds without component exceptions. */
+@media (prefers-reduced-transparency: reduce) {
+  :root,
+  :root.dark {
+    --surface-chrome-bg: var(--bg-card);
+    --surface-chrome-blur: none;
+  }
+}
+@media (prefers-contrast: more) {
+  :root,
+  :root.dark {
+    --surface-chrome-bg: var(--bg-card);
+    --surface-chrome-blur: none;
+    --surface-chrome-border: var(--border-strong);
+  }
 }
 
 /* ─────── Reduced motion ───────

@@ -47,6 +47,14 @@ export default function Reader() {
   const pendingPct = useRef(null)
   const completedRef = useRef(false)
 
+  useEffect(() => {
+    if (showBars) return
+    const active = document.activeElement
+    if (active?.closest('.topbar, .reader-bottom')) {
+      scrollRef.current?.focus({ preventScroll: true })
+    }
+  }, [showBars])
+
   // ── Load document + session ─────────────────────────
 
   const loadContent = (d) => {
@@ -299,7 +307,7 @@ export default function Reader() {
       />
 
       {/* Content */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto"
+      <div ref={scrollRef} tabIndex={-1} className="flex-1 overflow-y-auto"
         onClick={handleTapContent} onScroll={handleScroll}
         onMouseUp={handleMouseUp} onTouchEnd={handleTouchEnd}
         style={{ paddingBottom: barHidden ? 'max(20px, env(safe-area-inset-bottom))' : 'max(100px, env(safe-area-inset-bottom))' }}>
@@ -332,7 +340,7 @@ export default function Reader() {
       )}
 
       {/* Bottom bar — toggles with topbar */}
-      <div className="reader-bottom" style={{
+      <div className="reader-bottom" inert={barHidden ? '' : undefined} aria-hidden={barHidden} style={{
         flexShrink: 0,
         transition: 'opacity var(--motion-mid), transform var(--motion-mid)',
         opacity: barHidden ? 0 : 1,

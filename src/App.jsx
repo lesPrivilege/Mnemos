@@ -84,7 +84,6 @@ function AppShell() {
               </Link>
             ))}
           </div>
-          <div className="bottom-tabs-indicator" aria-hidden="true" />
         </nav>
       )}
     </>
