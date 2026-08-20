@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const state = vi.hoisted(() => ({ docs: [] }))
@@ -61,6 +61,32 @@ beforeEach(() => {
 afterEach(cleanup)
 
 describe('CollectionDetail document mutation guards', () => {
+  it('enters the operation group, traps focus, and restores the trigger on Escape', async () => {
+    render(<CollectionDetail />)
+    const trigger = await screen.findByRole('button', { name: '更多操作' })
+    trigger.focus()
+    fireEvent.click(trigger)
+
+    const group = await screen.findByRole('group', { name: '更多操作' })
+    const item = within(group).getByRole('button', { name: '置顶集合' })
+    await waitFor(() => expect(document.activeElement).toBe(item))
+    const topbar = document.querySelector('.topbar')
+    const backgroundButtons = [...topbar.querySelectorAll('button')].filter(button => !group.contains(button))
+    expect(backgroundButtons.length).toBeGreaterThan(0)
+    expect(backgroundButtons.every(button => button.hasAttribute('inert'))).toBe(true)
+    expect(topbar.querySelector('h1')?.getAttribute('aria-hidden')).toBe('true')
+    expect(item.hasAttribute('inert')).toBe(false)
+    const dismiss = screen.getByRole('button', { name: '关闭菜单' })
+    expect(dismiss.classList.contains('menu-backdrop')).toBe(true)
+    expect(dismiss.className).toContain('fixed')
+    expect(dismiss.className).toContain('inset-0')
+    expect(dismiss.closest('.topbar')).toBeNull()
+    expect(dismiss.tabIndex).toBe(-1)
+    fireEvent.keyDown(document, { key: 'Escape' })
+    await waitFor(() => expect(screen.queryByRole('group', { name: '更多操作' })).toBeNull())
+    expect(document.activeElement).toBe(trigger)
+  })
+
   it('shows saving state and prevents add re-entry until durable completion', async () => {
     const commit = deferred()
     mocks.addDocument.mockReturnValueOnce(commit.promise)

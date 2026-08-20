@@ -1,17 +1,24 @@
-import { useState, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { S } from '../lib/strings'
+import { useOverlayFocus } from '../lib/useOverlayFocus'
 
 export function useConfirm() {
   const [confirmState, setConfirmState] = useState(null)
 
-  const confirm = useCallback((opts) => {
+  const confirm = useCallback((opts = {}) => {
     return new Promise((resolve) => {
+      const activeElement = typeof document !== 'undefined' ? document.activeElement : null
+      const requestedReturnFocus = Object.prototype.hasOwnProperty.call(opts, 'returnFocus')
+        ? opts.returnFocus
+        : activeElement
       setConfirmState({
         title: opts.title || S.common.confirmOperation,
         message: opts.message || '',
         confirmLabel: opts.confirmLabel || S.common.confirm,
         cancelLabel: opts.cancelLabel || S.common.cancel,
         destructive: opts.destructive ?? true,
+        returnFocus: requestedReturnFocus && typeof requestedReturnFocus.focus === 'function' ? requestedReturnFocus : null,
         onResult: (result) => { setConfirmState(null); resolve(result) },
       })
     })
@@ -21,12 +28,33 @@ export function useConfirm() {
 }
 
 export function ConfirmSheet({ state }) {
+  const overlayRef = useRef(null)
+  const cancelRef = useRef(null)
+  const triggerRef = useRef(null)
+  if (state?.returnFocus) triggerRef.current = state.returnFocus
+
+  useEffect(() => {
+    const appRoot = document.getElementById('root')
+    if (!state || !appRoot) return undefined
+    const wasInert = Boolean(appRoot.inert)
+    appRoot.inert = true
+    return () => { appRoot.inert = wasInert }
+  }, [state])
+
+  useOverlayFocus({
+    open: Boolean(state),
+    overlayRef,
+    triggerRef,
+    initialFocusRef: cancelRef,
+    onEscape: () => state?.onResult(false),
+  })
+
   if (!state) return null
   const { title, message, confirmLabel, cancelLabel, destructive, onResult } = state
-  return (
+  const overlay = (
     <>
-      <div className="confirm-backdrop" onClick={() => onResult(false)} />
-      <div className="confirm-sheet" role="dialog" aria-modal="true" aria-labelledby="confirm-sheet-title">
+      <div className="confirm-backdrop" onClick={() => onResult(false)} aria-hidden="true" />
+      <div ref={overlayRef} className="confirm-sheet" role="dialog" aria-modal="true" aria-labelledby="confirm-sheet-title" tabIndex="-1">
         <div id="confirm-sheet-title" style={{ fontFamily: 'var(--font-zh)', fontSize: 'var(--text-lg)', fontWeight: 500, color: 'var(--ink)', marginBottom: 4 }}>
           {title}
         </div>
@@ -37,7 +65,7 @@ export function ConfirmSheet({ state }) {
         )}
         {!message && <div style={{ height: 12 }} />}
         <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={() => onResult(false)} style={{
+          <button ref={cancelRef} onClick={() => onResult(false)} style={{
             flex: 1, padding: '10px 0', borderRadius: 'var(--r-lg)', border: '1px solid var(--border)',
             background: 'var(--bg)', color: 'var(--ink)', fontFamily: 'var(--font-zh)', fontSize: 'var(--text-lg)', fontWeight: 500,
           }}>{cancelLabel}</button>
@@ -51,4 +79,5 @@ export function ConfirmSheet({ state }) {
       </div>
     </>
   )
+  return typeof document !== 'undefined' ? createPortal(overlay, document.body) : overlay
 }

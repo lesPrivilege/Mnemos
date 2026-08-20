@@ -1372,8 +1372,8 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
     /* 唯一消费处。幕不入收束——其职在遮蔽身后全部，须铺满视口（记-22 之三）；
        前版只在通用收束上排除了幕，会话页那条漏排，致会话页删除确认时幕仅
        560 且贴左，大半视口不暗（雠实测）。此处唯一，故排除亦唯一。 */
-    .page-fill > *:not(.topbar):not(.confirm-backdrop),
-    .page-fixed > *:not(.topbar):not(.confirm-backdrop) {
+    .page-fill > *:not(.topbar):not(.confirm-backdrop):not(.menu-backdrop),
+    .page-fixed > *:not(.topbar):not(.confirm-backdrop):not(.menu-backdrop) {
       width: 100%;
       max-width: var(--col-current);
       margin-inline: auto;

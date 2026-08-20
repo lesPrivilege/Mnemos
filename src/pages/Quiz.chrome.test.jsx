@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const state = vi.hoisted(() => ({ starred: false }))
@@ -87,5 +87,66 @@ describe('quiz session chrome', () => {
     expect(document.querySelector('.flip-face .corner')?.textContent).toBe('解答')
     expect(screen.getByRole('button', { name: '收藏题目' })).toBeTruthy()
     expect(screen.getByRole('button', { name: '更多操作' })).toBeTruthy()
+  })
+
+  it('keeps the choice operation group modal to the trigger', async () => {
+    render(<Quiz />)
+    await screen.findByText('选择题题面')
+    const trigger = screen.getByRole('button', { name: '更多操作' })
+    trigger.focus()
+    fireEvent.click(trigger)
+
+    const group = await screen.findByRole('group', { name: '更多操作' })
+    const item = within(group).getByRole('button', { name: '删除题目' })
+    await waitFor(() => expect(document.activeElement).toBe(item))
+    const topbar = document.querySelector('.topbar')
+    const backgroundButtons = [...topbar.querySelectorAll('button')].filter(button => !group.contains(button))
+    expect(backgroundButtons.length).toBeGreaterThan(0)
+    expect(backgroundButtons.every(button => button.hasAttribute('inert'))).toBe(true)
+    expect(topbar.querySelector('h1')?.getAttribute('aria-hidden')).toBe('true')
+    expect(item.hasAttribute('inert')).toBe(false)
+    expect(screen.getByRole('main').getAttribute('inert')).toBe('')
+    const dismiss = screen.getByRole('button', { name: '关闭菜单' })
+    expect(dismiss.classList.contains('menu-backdrop')).toBe(true)
+    expect(dismiss.className).toContain('fixed')
+    expect(dismiss.className).toContain('inset-0')
+    expect(dismiss.closest('.topbar')).toBeNull()
+    expect(dismiss.tabIndex).toBe(-1)
+
+    fireEvent.keyDown(item, { key: 'Tab' })
+    expect(document.activeElement).toBe(item)
+    fireEvent.keyDown(document, { key: 'Escape' })
+    await waitFor(() => expect(screen.queryByRole('group', { name: '更多操作' })).toBeNull())
+    expect(document.activeElement).toBe(trigger)
+  })
+
+  it('keeps the review operation group modal to the trigger', async () => {
+    render(<ReviewQuestion />)
+    await screen.findByText('解答题题面')
+    const trigger = screen.getByRole('button', { name: '更多操作' })
+    trigger.focus()
+    fireEvent.click(trigger)
+
+    const group = await screen.findByRole('group', { name: '更多操作' })
+    const item = within(group).getByRole('button', { name: '删除题目' })
+    await waitFor(() => expect(document.activeElement).toBe(item))
+    const topbar = document.querySelector('.topbar')
+    const backgroundButtons = [...topbar.querySelectorAll('button')].filter(button => !group.contains(button))
+    expect(backgroundButtons.length).toBeGreaterThan(0)
+    expect(backgroundButtons.every(button => button.hasAttribute('inert'))).toBe(true)
+    expect(item.hasAttribute('inert')).toBe(false)
+    expect(document.querySelector('.rv-card-wrap')?.getAttribute('inert')).toBe('')
+    const dismiss = screen.getByRole('button', { name: '关闭菜单' })
+    expect(dismiss.classList.contains('menu-backdrop')).toBe(true)
+    expect(dismiss.className).toContain('fixed')
+    expect(dismiss.className).toContain('inset-0')
+    expect(dismiss.closest('.topbar')).toBeNull()
+    expect(dismiss.tabIndex).toBe(-1)
+
+    fireEvent.keyDown(item, { key: 'Tab', shiftKey: true })
+    expect(document.activeElement).toBe(item)
+    fireEvent.keyDown(document, { key: 'Escape' })
+    await waitFor(() => expect(screen.queryByRole('group', { name: '更多操作' })).toBeNull())
+    expect(document.activeElement).toBe(trigger)
   })
 })

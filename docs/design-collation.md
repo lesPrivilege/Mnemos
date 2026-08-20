@@ -96,6 +96,12 @@
 - **判准**：同一时刻、同一范围、同一数值只设一处权威读数；顶栏不为填满而复述卡面。移除重复信息不得顺手删掉阶段、题型或结果。图标的造型不承担名称，控件状态改变时名称也须随之准确改变。
 - **证据**：两类会话组件回归锁住 `.rv-meta` 的唯一位置读数、顶栏与卡角不再复述，以及收藏／更多按钮的可及名；统一门禁 41 文件、294 测试全绿，四门 0 FAIL，production build 成功。
 
+### 记 2026-08-20-50 · 浮层接管焦点，也须归还现场
+
+- **改何**：详情与两类练习页的更多操作由半成品 `menu/menuitem` 降为命名操作组与原生 list／link／button；共享 `useOverlayFocus` 负责打开聚焦首项、Tab 双向圈闭、Escape 退出与关闭后回原触发器。幕布移出顶栏的 fixed containing block，统一为 `.menu-backdrop`，并从宽屏内容栏收束规则中排除。菜单打开时正文、固定操作区与非 overlay 顶栏控件真正 inert，标题退出可及树。`ConfirmSheet` portal 至 `body`，对应用根暂置 inert，安全的取消动作先得焦点；菜单动作先卸载操作组，再以显式 `returnFocus` 打开确认层，避免两套 focus trap 并存。
+- **判准**：overlay 的完整性不由 z-index 单独成立；须同时满足空间覆盖、焦点所有权、键盘退出、幕后隔离和现场归还。未实现 Arrow/Home/End 与 roving focus 时不得声称 ARIA menu。关闭幕保留可及名称，既可点击也可由读屏称名；其不进入 Tab 环，不替代 Escape。全视口幕不得受 `--col-current` 限宽。
+- **证据**：组件回归覆盖四菜单 focus-in、Tab／Shift+Tab、Escape、scrim 点击、幕后 inert、菜单 action 可聚焦、菜单→dialog 无双 trap、确认层安全焦点／Escape／backdrop／断开 trigger，以及 CSS 两类 page shell 对 `.menu-backdrop` 的排除；独立审校发现并封住宽屏幕布被内容栏限宽之讹。统一门禁 43 文件、304 测试全绿，四门 0 FAIL，production build 成功。
+
 ### 记 2026-08-20-47 · SetDetail 浮层从减，入口各归其位
 
 - **改何**：`SetDetail` 保留真正覆盖滚动内容的 `FloatingBar`，但由「一主钮＋错题／收藏／导入三格」收为一主行动，唯有真实错题时再出现一个 44px 全宽次行动。收藏与导入归顶栏 overflow；空题库不再陈列失效主钮，直接以「导入题库」为主行动。混合题库的主钮只报告并进入选择题，纯解答题明确进入解答会话，不以总数冒充单一路由的交付量。

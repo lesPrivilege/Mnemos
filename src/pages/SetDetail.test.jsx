@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const state = vi.hoisted(() => ({
@@ -131,7 +131,7 @@ describe('SetDetail FloatingBar actions', () => {
     expect(screen.queryByRole('button', { name: /收藏/ })).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: '更多操作' }))
 
-    const starredMenuItem = screen.getByRole('menuitem', { name: '收藏' })
+    const starredMenuItem = screen.getByRole('link', { name: '收藏' })
     expect(starredMenuItem.getAttribute('href')).toBe('/starred?subject=%E6%95%B0%E5%AD%A6%2F%E5%9F%BA%E7%A1%80')
   })
 
@@ -176,18 +176,66 @@ describe('SetDetail FloatingBar actions', () => {
     expect(chapterRow?.textContent).not.toContain('★')
   })
 
-  it('keeps import in the top-bar menu and makes the menu state inert and dismissible', () => {
+  it('keeps import in the top-bar menu and makes the menu state inert and dismissible', async () => {
     renderSet({ choice: 1 })
 
-    fireEvent.click(screen.getByRole('button', { name: '更多操作' }))
-    const importMenuItem = screen.getByRole('menuitem', { name: /导入/ })
+    const trigger = screen.getByRole('button', { name: '更多操作' })
+    trigger.focus()
+    fireEvent.click(trigger)
+    const importMenuItem = screen.getByRole('link', { name: /导入/ })
     expect(importMenuItem.getAttribute('href')).toBe(importPath)
     expect(importMenuItem.dataset.routerState).toContain(subjectPath)
     expect(screen.getByRole('main').getAttribute('inert')).toBe('')
     expect(document.querySelector('.floating-bar')?.getAttribute('inert')).toBe('')
 
-    fireEvent.click(screen.getByRole('button', { name: '关闭菜单' }))
-    expect(screen.queryByRole('menu')).toBeNull()
+    const dismiss = screen.getByRole('button', { name: '关闭菜单' })
+    expect(dismiss.classList.contains('menu-backdrop')).toBe(true)
+    fireEvent.click(dismiss)
+    await waitFor(() => expect(screen.queryByRole('group', { name: '更多操作' })).toBeNull())
     expect(screen.getByRole('main').getAttribute('inert')).toBeNull()
+    await waitFor(() => expect(document.activeElement).toBe(trigger))
+  })
+
+  it('enters the operation group, traps focus, and restores the trigger on Escape', async () => {
+    renderSet({ choice: 1 })
+    const trigger = screen.getByRole('button', { name: '更多操作' })
+    trigger.focus()
+    fireEvent.click(trigger)
+
+    const group = await screen.findByRole('group', { name: '更多操作' })
+    const items = [...group.querySelectorAll('a[href], button:not([disabled])')]
+    await waitFor(() => expect(document.activeElement).toBe(items[0]))
+    const topbar = document.querySelector('.topbar')
+    const backgroundButtons = [...topbar.querySelectorAll('button')].filter(button => !group.contains(button))
+    expect(backgroundButtons.length).toBeGreaterThan(0)
+    expect(backgroundButtons.every(button => button.hasAttribute('inert'))).toBe(true)
+    expect(topbar.querySelector('h1')?.getAttribute('aria-hidden')).toBe('true')
+    expect(items.every(item => !item.hasAttribute('inert'))).toBe(true)
+    const dismiss = screen.getByRole('button', { name: '关闭菜单' })
+    expect(dismiss.classList.contains('menu-backdrop')).toBe(true)
+    expect(dismiss.className).toContain('fixed')
+    expect(dismiss.className).toContain('inset-0')
+    expect(dismiss.closest('.topbar')).toBeNull()
+    expect(dismiss.tabIndex).toBe(-1)
+    fireEvent.keyDown(items[0], { key: 'Tab', shiftKey: true })
+    expect(document.activeElement).toBe(items[items.length - 1])
+    fireEvent.keyDown(document, { key: 'Escape' })
+    await waitFor(() => expect(screen.queryByRole('group', { name: '更多操作' })).toBeNull())
+    expect(document.activeElement).toBe(trigger)
+  })
+
+  it('closes the menu before confirming a destructive action and pins return focus', async () => {
+    renderSet({ choice: 1 })
+    const trigger = screen.getByRole('button', { name: '更多操作' })
+    trigger.focus()
+    fireEvent.click(trigger)
+
+    await screen.findByRole('group', { name: '更多操作' })
+    const decision = new Promise(() => {})
+    mocks.confirm.mockReturnValueOnce(decision)
+    fireEvent.click(screen.getByRole('button', { name: '删除科目' }))
+
+    await waitFor(() => expect(screen.queryByRole('group', { name: '更多操作' })).toBeNull())
+    expect(mocks.confirm).toHaveBeenCalledWith(expect.objectContaining({ returnFocus: trigger }))
   })
 })

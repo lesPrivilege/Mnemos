@@ -12,6 +12,7 @@ import { buildQuizRoute } from '../quiz/lib/routes'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 import { hapticLight, hapticWarning, hapticSuccess } from '../lib/haptics'
 import { S } from '../lib/strings'
+import { useOverlayFocus } from '../lib/useOverlayFocus'
 import '../styles/markdown.css'
 
 const MODES = [
@@ -48,8 +49,17 @@ export default function Quiz() {
   const [starred, setStarred] = useState(false)
   const [explainOpen, setExplainOpen] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
+  const menuTriggerRef = useRef(null)
+  const menuRef = useRef(null)
   const pendingQid = useRef(initialQid)
   const sessionRef = useRef(null)
+
+  useOverlayFocus({
+    open: showMenu,
+    overlayRef: menuRef,
+    triggerRef: menuTriggerRef,
+    onEscape: () => setShowMenu(false),
+  })
 
   const load = useCallback((m) => {
     const qid = pendingQid.current
@@ -211,7 +221,7 @@ export default function Quiz() {
   const handleDeleteQuestion = async () => {
     if (!currentQuestion) return
     setShowMenu(false)
-    const ok = await confirm({ title: S.quiz.deleteQuestionTitle, message: S.quiz.deleteQuestionMessage, confirmLabel: S.quiz.confirmDelete })
+    const ok = await confirm({ title: S.quiz.deleteQuestionTitle, message: S.quiz.deleteQuestionMessage, confirmLabel: S.quiz.confirmDelete, returnFocus: menuTriggerRef.current })
     if (!ok) return
     const idToDelete = currentQuestion.id
     deleteQuestion(idToDelete)
@@ -312,39 +322,43 @@ export default function Quiz() {
   return (
     <div className="page-fixed" style={{ background: 'var(--bg)' }}>
       {/* Topbar */}
-      <div className="topbar">
-        <button className="tb-btn" onClick={() => goBack()} aria-label={S.quizPage.back}><BackIcon /></button>
-        <h1 className="zh" style={{ flex: 1, paddingLeft: 4 }}>{chapter || getSubjectDisplayName(subject)}</h1>
+      <div className="topbar" style={showMenu ? { zIndex: 50, pointerEvents: 'none' } : undefined}>
+        <button className="tb-btn" inert={showMenu ? '' : undefined} onClick={() => goBack()} aria-label={S.quizPage.back}><BackIcon /></button>
+        <h1 className="zh" aria-hidden={showMenu ? 'true' : undefined} style={{ flex: 1, paddingLeft: 4 }}>{chapter || getSubjectDisplayName(subject)}</h1>
         <div className="tb-actions">
           <button className="tb-btn" onClick={handleToggleStar}
+            inert={showMenu ? '' : undefined}
             aria-label={starred ? S.quizPage.unstarQuestion : S.quizPage.starQuestion}
             style={{ color: starred ? 'var(--accent)' : 'var(--ink-3)' }}>
             <StarIcon size={18} filled={starred} />
           </button>
           <div className="relative">
-            <button className="tb-btn" onClick={() => setShowMenu(o => !o)}
-              aria-label={S.common.moreActions} aria-haspopup="menu" aria-expanded={showMenu}>
+            <button ref={menuTriggerRef} className="tb-btn" inert={showMenu ? '' : undefined} onClick={() => setShowMenu(o => !o)}
+              aria-label={S.common.moreActions} aria-expanded={showMenu}>
               <MoreIcon size={18} />
             </button>
             {showMenu && (
-              <>
-                <button className="fixed inset-0 z-10 cursor-default" onClick={() => setShowMenu(false)} aria-label={S.quizPage.closeMenu} />
-                <div className="absolute right-0 top-9 z-20 min-w-[160px] rounded-md bg-bg-card border border-border-soft overflow-hidden"
-                  role="menu"
-                  style={{ border: '1px solid var(--border-soft)' }}>
-                  <button onClick={handleDeleteQuestion}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-danger hover:bg-bg-raised transition-colors" role="menuitem">
+              <div ref={menuRef} className="absolute right-0 top-9 z-20 min-w-[160px] rounded-md bg-bg-card border border-border-soft overflow-hidden"
+                role="group" aria-label={S.common.moreActions}
+                style={{ border: '1px solid var(--border-soft)', pointerEvents: 'auto' }}>
+                <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+                  <li><button onClick={handleDeleteQuestion}
+                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-danger hover:bg-bg-raised transition-colors">
                     <TrashIcon size={15} /> {S.quiz.deleteQuestion}
-                  </button>
-                </div>
-              </>
+                  </button></li>
+                </ul>
+              </div>
             )}
           </div>
         </div>
       </div>
 
+      {showMenu && (
+        <button tabIndex="-1" className="menu-backdrop fixed inset-0 z-40 cursor-default" onClick={() => setShowMenu(false)} aria-label={S.quizPage.closeMenu} />
+      )}
+
       {/* Mode chips */}
-      <div className="px-[18px] pt-2 pb-1 flex gap-1.5 flex-wrap">
+      <div inert={showMenu ? '' : undefined} className="px-[18px] pt-2 pb-1 flex gap-1.5 flex-wrap">
         {MODES.map(m => (
           <button key={m.key} onClick={() => setMode(m.key)}
             className={`chip ${mode === m.key ? 'on' : ''}`} aria-pressed={mode === m.key}>
@@ -354,12 +368,12 @@ export default function Quiz() {
       </div>
 
       {/* Progress */}
-      <div className="rv-progress">
+      <div inert={showMenu ? '' : undefined} className="rv-progress">
         <div className="bar" style={{ transform: `scaleX(${questions.length ? currentIndex / questions.length : 0})` }} />
       </div>
 
       {/* Meta */}
-      <div className="rv-meta">
+      <div inert={showMenu ? '' : undefined} className="rv-meta">
         <span className="crumb">
           <span className="q-tag choice">{S.quizPage.choiceLabel}{isMultiAnswer(currentQuestion) && S.quizPage.multiAnswerSuffix}</span>
           {currentQuestion.chapter}
@@ -370,7 +384,7 @@ export default function Quiz() {
       </div>
 
       {/* Scrollable content */}
-      <main className="page-scroll p-[18px] flex flex-col gap-3">
+      <main inert={showMenu ? '' : undefined} className="page-scroll p-[18px] flex flex-col gap-3">
         {/* Question card */}
         <div className="qa-card">
           <span className="corner">
@@ -442,7 +456,7 @@ export default function Quiz() {
       </main>
 
       {/* Fixed bottom action */}
-      <div className="p-[18px] pt-0 shrink-0" style={{ paddingBottom: 'max(18px, env(safe-area-inset-bottom))' }}>
+      <div inert={showMenu ? '' : undefined} className="p-[18px] pt-0 shrink-0" style={{ paddingBottom: 'max(18px, env(safe-area-inset-bottom))' }}>
         {!submitted ? (
           <button onClick={handleSubmit}
             disabled={isMultiAnswer(currentQuestion) ? !(selectedAnswer instanceof Set && selectedAnswer.size > 0) : !selectedAnswer}

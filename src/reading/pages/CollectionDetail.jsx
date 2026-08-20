@@ -9,6 +9,7 @@ import { useToast, Toast } from '../../components/Toast'
 import { useConfirm, ConfirmSheet } from '../../components/ConfirmSheet'
 import { S } from '../../lib/strings'
 import { pressable } from '../../lib/a11y'
+import { useOverlayFocus } from '../../lib/useOverlayFocus'
 
 export default function CollectionDetail() {
   const { id } = useParams()
@@ -25,8 +26,17 @@ export default function CollectionDetail() {
   const [newDocTitle, setNewDocTitle] = useState('')
   const [newDocContent, setNewDocContent] = useState('')
   const [showMenu, setShowMenu] = useState(false)
+  const menuTriggerRef = useRef(null)
+  const menuRef = useRef(null)
   const [documentMutation, setDocumentMutation] = useState(null)
   const documentMutationRef = useRef(false)
+
+  useOverlayFocus({
+    open: showMenu,
+    overlayRef: menuRef,
+    triggerRef: menuTriggerRef,
+    onEscape: () => setShowMenu(false),
+  })
 
   const beginDocumentMutation = (next) => {
     if (documentMutationRef.current) return false
@@ -137,7 +147,7 @@ export default function CollectionDetail() {
 
   const handleDeleteCollection = async () => {
     setShowMenu(false)
-    const ok = await confirm({ title: S.collectionDetail.deleteCollectionTitle, message: S.collectionDetail.deleteCollectionMessage(col?.name), confirmLabel: S.collectionDetail.confirmDelete })
+    const ok = await confirm({ title: S.collectionDetail.deleteCollectionTitle, message: S.collectionDetail.deleteCollectionMessage(col?.name), confirmLabel: S.collectionDetail.confirmDelete, returnFocus: menuTriggerRef.current })
     if (!ok) return
     deleteCollection(id)
     navigate('/?tab=reading')
@@ -152,26 +162,29 @@ export default function CollectionDetail() {
   return (
     <div className="page-fill">
       {/* Topbar */}
-      <header className="topbar" style={showMenu ? { zIndex: 50 } : undefined}>
-        <button onClick={goBack} className="tb-btn" aria-label={S.common.back}><BackIcon /></button>
-        <h1 className="flex-1 font-zh text-xl font-medium text-ink truncate pl-1">{col.name}</h1>
+      <header className="topbar" style={showMenu ? { zIndex: 50, pointerEvents: 'none' } : undefined}>
+        <button onClick={goBack} className="tb-btn" inert={showMenu ? '' : undefined} aria-label={S.common.back}><BackIcon /></button>
+        <h1 className="flex-1 font-zh text-xl font-medium text-ink truncate pl-1" aria-hidden={showMenu ? 'true' : undefined}>{col.name}</h1>
         <div className="tb-actions">
           <div className="relative">
-            <button onClick={() => setShowMenu(o => !o)} className="tb-btn" aria-label={S.common.moreActions} aria-haspopup="menu" aria-expanded={showMenu}>
+            <button ref={menuTriggerRef} onClick={() => setShowMenu(o => !o)} className="tb-btn" inert={showMenu ? '' : undefined} aria-label={S.common.moreActions} aria-expanded={showMenu}>
               <MoreIcon />
             </button>
             {showMenu && (
               <>
-                <div className="absolute right-0 top-9 z-20 min-w-[168px] rounded-md bg-bg-card border border-border-soft overflow-hidden"
-                  role="menu" style={{ border: '1px solid var(--border-soft)' }}>
-                  <button onClick={handleTogglePin}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">
-                    <PinIcon size={15} /> {col.pinned ? S.collectionDetail.unpinCollection : S.collectionDetail.pinCollection}
-                  </button>
-                  <button onClick={handleDeleteCollection}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-danger hover:bg-bg-raised transition-colors" role="menuitem">
-                    <TrashIcon size={15} /> {S.collectionDetail.deleteCollection}
-                  </button>
+                <div ref={menuRef} className="absolute right-0 top-9 z-20 min-w-[168px] rounded-md bg-bg-card border border-border-soft overflow-hidden"
+                  role="group" aria-label={S.common.moreActions}
+                  style={{ border: '1px solid var(--border-soft)', pointerEvents: 'auto' }}>
+                  <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+                    <li><button onClick={handleTogglePin}
+                      className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors">
+                      <PinIcon size={15} /> {col.pinned ? S.collectionDetail.unpinCollection : S.collectionDetail.pinCollection}
+                    </button></li>
+                    <li><button onClick={handleDeleteCollection}
+                      className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-danger hover:bg-bg-raised transition-colors">
+                      <TrashIcon size={15} /> {S.collectionDetail.deleteCollection}
+                    </button></li>
+                  </ul>
                 </div>
               </>
             )}
@@ -180,7 +193,7 @@ export default function CollectionDetail() {
       </header>
 
       {showMenu && (
-        <button className="fixed inset-0 z-40 cursor-default" onClick={() => setShowMenu(false)} aria-label={S.collectionDetail.closeMenu} />
+        <button tabIndex="-1" className="menu-backdrop fixed inset-0 z-40 cursor-default" onClick={() => setShowMenu(false)} aria-label={S.collectionDetail.closeMenu} />
       )}
 
       <main className="flex-1 overflow-y-auto" inert={showMenu ? '' : undefined}>

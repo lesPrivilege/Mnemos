@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { BackIcon, RefreshIcon, UploadIcon, ArrowRIcon, MoreIcon, TrashIcon, StarIcon } from '../components/Icons'
 import FloatingBar from '../components/FloatingBar'
@@ -14,6 +14,7 @@ import { pressable } from '../lib/a11y'
 import { S } from '../lib/strings'
 import { buildQuizRoute } from '../quiz/lib/routes'
 import { isInWrongBook } from '../quiz/lib/quizEngine'
+import { useOverlayFocus } from '../lib/useOverlayFocus'
 
 function questionType(question) {
   return question.type === 'choice' ? 'choice' : 'review'
@@ -186,10 +187,18 @@ export default function SetDetail() {
   const [expandedChapter, setExpandedChapter] = useState(null)
   const [showMenu, setShowMenu] = useState(false)
   const [viewMode, setViewMode] = useState('list')
+  const menuTriggerRef = useRef(null)
+  const menuRef = useRef(null)
+  useOverlayFocus({
+    open: showMenu,
+    overlayRef: menuRef,
+    triggerRef: menuTriggerRef,
+    onEscape: () => setShowMenu(false),
+  })
 
   const handleDeleteSubject = async () => {
     setShowMenu(false)
-    const ok = await confirm({ title: S.setDetail.deleteSubjectTitle, message: S.setDetail.deleteSubjectMessage(getSubjectDisplayName(subject)), confirmLabel: S.setDetail.confirmDelete })
+    const ok = await confirm({ title: S.setDetail.deleteSubjectTitle, message: S.setDetail.deleteSubjectMessage(getSubjectDisplayName(subject)), confirmLabel: S.setDetail.confirmDelete, returnFocus: menuTriggerRef.current })
     if (ok) {
       deleteSubject(subject)
       navigate('/?tab=quiz')
@@ -198,7 +207,7 @@ export default function SetDetail() {
 
   const handleResetProgress = async () => {
     setShowMenu(false)
-    const ok = await confirm({ title: S.setDetail.resetProgressTitle, message: S.setDetail.resetProgressMessage(getSubjectDisplayName(subject)), confirmLabel: S.setDetail.confirmReset, destructive: false })
+    const ok = await confirm({ title: S.setDetail.resetProgressTitle, message: S.setDetail.resetProgressMessage(getSubjectDisplayName(subject)), confirmLabel: S.setDetail.confirmReset, destructive: false, returnFocus: menuTriggerRef.current })
     if (ok) {
       clearSubjectProgress(subject)
     }
@@ -268,38 +277,40 @@ export default function SetDetail() {
   return (
       <div className="page-fill">
       {/* Header */}
-      <header className="topbar" style={showMenu ? { zIndex: 50 } : undefined}>
-        <button onClick={goBack} className="tb-btn" aria-label={S.common.back}><BackIcon /></button>
-        <h1 className="zh" style={{ flex: 1, paddingLeft: 4 }}>{subjectName}</h1>
+      <header className="topbar" style={showMenu ? { zIndex: 50, pointerEvents: 'none' } : undefined}>
+        <button onClick={goBack} className="tb-btn" inert={showMenu ? '' : undefined} aria-label={S.common.back}><BackIcon /></button>
+        <h1 className="zh" aria-hidden={showMenu ? 'true' : undefined} style={{ flex: 1, paddingLeft: 4 }}>{subjectName}</h1>
         <div className="tb-actions">
           <div className="relative">
-            <button onClick={() => setShowMenu(o => !o)} className="tb-btn"
-              aria-label={S.common.moreActions} aria-haspopup="menu" aria-expanded={showMenu}>
+            <button ref={menuTriggerRef} onClick={() => setShowMenu(o => !o)} className="tb-btn" inert={showMenu ? '' : undefined}
+              aria-label={S.common.moreActions} aria-expanded={showMenu}>
               <MoreIcon />
             </button>
             {showMenu && (
               <>
-                <div className="absolute right-0 top-9 z-20 min-w-[176px] rounded-md bg-bg-card border border-border-soft overflow-hidden"
-                  role="menu"
-                  style={{ border: '1px solid var(--border-soft)' }}>
-                  <Link to={importRoute} state={importState} onClick={() => setShowMenu(false)}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">
-                    <UploadIcon size={15} /> {S.setDetail.importAction}
-                  </Link>
-                  {starredCount > 0 && (
-                    <Link to={`/starred?subject=${encodeURIComponent(subject)}`} onClick={() => setShowMenu(false)}
-                      className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">
-                      <StarIcon size={15} /> {S.setDetail.starredAction}
-                    </Link>
-                  )}
-                  <button onClick={handleResetProgress}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">
-                    <RefreshIcon size={15} /> {S.setDetail.resetProgressAction}
-                  </button>
-                  <button onClick={handleDeleteSubject}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-danger hover:bg-bg-raised transition-colors" role="menuitem">
-                    <TrashIcon size={15} /> {S.setDetail.deleteSubjectAction}
-                  </button>
+                <div ref={menuRef} className="absolute right-0 top-9 z-20 min-w-[176px] rounded-md bg-bg-card border border-border-soft overflow-hidden"
+                  role="group" aria-label={S.common.moreActions}
+                  style={{ border: '1px solid var(--border-soft)', pointerEvents: 'auto' }}>
+                  <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+                    <li><Link to={importRoute} state={importState} onClick={() => setShowMenu(false)}
+                      className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors">
+                      <UploadIcon size={15} /> {S.setDetail.importAction}
+                    </Link></li>
+                    {starredCount > 0 && (
+                      <li><Link to={`/starred?subject=${encodeURIComponent(subject)}`} onClick={() => setShowMenu(false)}
+                        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors">
+                        <StarIcon size={15} /> {S.setDetail.starredAction}
+                      </Link></li>
+                    )}
+                    <li><button onClick={handleResetProgress}
+                      className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors">
+                      <RefreshIcon size={15} /> {S.setDetail.resetProgressAction}
+                    </button></li>
+                    <li><button onClick={handleDeleteSubject}
+                      className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-danger hover:bg-bg-raised transition-colors">
+                      <TrashIcon size={15} /> {S.setDetail.deleteSubjectAction}
+                    </button></li>
+                  </ul>
                 </div>
               </>
             )}
@@ -308,7 +319,7 @@ export default function SetDetail() {
       </header>
 
       {showMenu && (
-        <button className="fixed inset-0 z-40 cursor-default" onClick={() => setShowMenu(false)} aria-label={S.setDetail.closeMenu} />
+        <button tabIndex="-1" className="menu-backdrop fixed inset-0 z-40 cursor-default" onClick={() => setShowMenu(false)} aria-label={S.setDetail.closeMenu} />
       )}
 
       <main className="flex-1 overflow-y-auto" inert={showMenu ? '' : undefined}>
