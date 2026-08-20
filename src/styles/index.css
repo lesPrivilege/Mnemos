@@ -1985,15 +1985,21 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
 }
 .dd-secondary {
   margin: 0 18px;
-  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px;
-  padding: 6px; background: var(--bg-card);
-  border: 1px solid var(--border-soft); border-radius: var(--r-md);
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;
 }
 .dd-action {
   display: flex; flex-direction: column; align-items: center; gap: 4px;
   padding: 10px 4px; border-radius: var(--r-lg);
   color: var(--ink-2);
   transition: background var(--motion-quick), color var(--motion-quick);
+}
+.dd-secondary .dd-action {
+  min-height: var(--hit-target);
+  padding: 8px 10px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-md);
+  flex-direction: row;
+  justify-content: center;
 }
 .dd-action-wide {
   width: 100%; min-height: var(--hit-target);
