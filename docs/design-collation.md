@@ -70,6 +70,27 @@
 - **四问**：声部预算——accent 只标当前一级入口与「接下来」，未扩司；行款——手机单栏、宽屏仍止 `--col-list` 480；记号——路径点只表当前／已清／随后三态，非装饰；态——无资料、今日已清、中断、待处理、旧深链、明暗纸与 reduced-motion 均有落点。
 - **证据**：新增 `todayJourney` 四测，覆盖最新中断、三级回落、今日已清与失效现场；完整 `npm run check` 通过（28 文件、211 测试，四门 0 FAIL，构建成功）。390×844 明暗两纸与 768×1024 明纸浏览器目验：底栏无覆盖、活动页可滚至底、宽屏内容栏实测 480px；资料三分类 `aria-pressed` 与一级底栏 `aria-current` 对读一致。控制台除既有 React Router v7 future-flag 警告外无错误。
 
+### 记 2026-08-20-42 · 返回服从目录，不服从偶然历史
+
+- **改何**：`resolveParent(pathname, search, returnTo)` 立为返回契约单源。三类资料对象各回其资料分类；复习、浏览、练习与解答会话先回所属对象；阅读器有文集即回文集、无文集才回阅读资料；导入与 AI 制作指南按真实 tab／目标归源，卡组定向制作指南透传 deckId。搜索、设置等横切页可承接调用方显式传入的站内 `returnTo`，但拒绝外部 URL、协议相对 `//` 与非字符串值；无父级之根不造返回，未知深链保守归根。首页进入搜索／设置、今日路径进入会话／导入时均显式携来源。所有自由字符串在生产 path／query 时先编码，故含 `&`、`/`、`?`、`#` 的科目与集合名不截断目录。所有 icon-only 返回与更多钮补齐可及名。
+- **据何**：浏览器历史只回答「刚从哪里来」，不回答「此页在产品里属于哪里」；刷新、深链与跨模块完成后若只用 `navigate(-1)`，同一页会随机退出应用、回错模块或落入空历史。目录关系须由产品定义，临时来源只可在可信站内范围内覆盖。
+- **判准**：对象页与会话页的上一级由路径结构唯一决定；横切页优先回显式来源；返回动作不依赖历史是否存在。可见后退图标必须有读屏名称，视觉与路由契约各自独立成立。
+- **证据**：父级纯函数矩阵 32 测覆盖三级资料、会话、reader 文集、导入 tabs／deckId、制作指南上下文、恶意来源与未知深链；生产路由构造另以三测锁住 subject 斜杠、无 chapter 的 section 与含 `&/#` 的 qid。390×844 实页点验：资料练习→设置→返回仍在练习分类；题库对象返回精确落 `?view=materials&kind=quiz`；阅读器返回精确落所属文集。
+
+### 记 2026-08-20-43 · 阅读正文写定后方可称成功
+
+- **改何**：阅读文档增删改为可等待、可失败的 Promise 契约。新增先等 IndexedDB 正文事务 `complete`，再公开带 `hasBody` 的 localStorage 元数据；元数据失败则补偿删除正文。删除依次清正文、高亮、书签与元数据，任一步失败均抛出带 operation／stage／cause／rollbackFailures 的 `ReadingStorageError`，并按 id 合并恢复快照。文档突变串行化，且 await 之后重读元数据，避免等待正文时并发更新被陈旧快照覆盖。`idbSet`／`idbDel` 只在事务完成时返回真；所有直接调用方均 await，并有 ref 单飞闩锁、disabled／aria-busy 与进行中文案；成功后才刷新或跳转，失败保留输入并显式告知。系统返回离页后的旧 Promise 不再 toast 或夺回路由；正文失败会回收本次临时文集。示例包的并发请求合并为同一 Promise，先写阅读再写同步模块。旧内嵌正文迁移也只在 IDB 确认后删除唯一副本。
+- **据何**：内存或 request `onsuccess` 不等于事务已经写定；界面先报成功、磁盘后失败，是数据工具最重的失信。阅读正文与元数据虽跨 IndexedDB／localStorage，不能拥有真正跨库事务，仍须把可观察成功点推迟到最晚的已确认步骤，并以补偿与错误面收窄裂缝。
+- **判准**：正文未确认则文档不得公开；删除未确认则不得静默；同一动作 pending 时不可重入，离页后的完成不得改写新页面。并发突变不互相覆盖。突发进程强杀的跨存储窗口、旧 `deleteCollection` 的 fire-and-forget、`idbGet` 对缺值／读取失败的同形，以及 backup import／merge 先写 localStorage 后写 IDB 的跨存储原子性，明确留账，不伪称绝对闭环。
+- **证据**：失败注入、关联清理、并发新增、删除回滚、pending 重入、unmount stale completion、临时文集回收、示例并发合并、迁移保本、IDB abort／error／不可用及「正文待写期间同步更新不丢失」均有回归测试；统一门禁 35 文件、270 测试全绿，四门 0 FAIL，production build 成功。
+
+### 记 2026-08-20-44 · Apple 材质只给局部功能层
+
+- **改何**：一级底栏由贴边通幅条改为四边有界的局部浮动功能层：手机四周 12px、宽屏止 480px、1px 全边界、圆角仍止既有 10px；详情页 `FloatingBar` 同用 `--surface-chrome-*` 材质语法，并以 ResizeObserver 把真实栏高回报所属滚动区，始终留 12px 净空。假 Home Indicator 删除，顶栏依判例一保持不透明。新增 `--hit-target: 44px` 统一顶栏、普通按钮、配重与资料分类的最小触控高；底栏各项 48px。高频操作只留 `--motion-quick` 的 `scale(.97)` 按压与既有色变，不设移动 indicator、弹簧、bounce、形变图标或页间滑动。`prefers-reduced-transparency` 与 `prefers-contrast: more` 在 token 层退为实底、无 blur、强边界。顶栏菜单打开时，全视口关闭幕高于浮栏，main／浮栏 inert；沉浸阅读 chrome 隐藏时同以 inert＋aria-hidden 退出焦点与可及树。
+- **据何**：Apple design 借的是反馈、空间一致、功能材质与偏好降级，不是把 native 外观搬到 Web。底栏是悬于内容上的真实功能层，半透明能说明层级；顶栏下有正文滚动，既判已证渗色，仍须实底。Morphicons 与 clear glass 皆有新语义／新材质成本，本轮没有信息架构上的必要，故不采。
+- **判准**：材质只落承担浮动功能的局部 chrome，不铺整面、不加影；无 blur 时层级仍靠实底与边界成立。高频导航不为装饰运动付注意力税；反馈不得改布局，reduced motion 继续由全局门收束。触控目标不小于 44px，视觉边界不仿造系统 Home Indicator。
+- **证据**：实页量测：320×568 底栏 296×62、390×844 为 366×62、768×1024 居中 480×62；三档左右／底各 12px、主项高 48px、资料分类高 44px、内容底 inset 96px、横向溢出为零、假 indicator 为零。SetDetail 浮栏实高 180px 时 main 自动补 204px；回归锁住文字放大 180→272px 的同步补偿。菜单关闭幕实测 390×844 且浮栏中心命中关闭幕；阅读 chrome 隐／显时返回与目录的命名 role 数为 0／1。实页截图对读成立。
+
 ### 记 2026-08-11-39 · 场景恢复推广到练习/阅读，记-38 未尽收口
 
 - **改何**：四事。① **练习中断恢复**：`QuizPage`（选择）与 `QuizReview`（解答）两页皆在真退出（未完成）时把原队列、位置与已答记录落盘（复用 `examprep-last-session`，加 24h 过期，同 `reviewSession` 之裁量）；再入同一题域同模式即按原队列续行，落在「首个未答题」。**已答记录 `results` 只用于重建 UI 位置与完成屏统计，绝不可重放 `submitAnswer`／`markQuestion`**——重放会重复计分、错乱 streak（已调研之硬结论）。同时补上练习页缺失的「已提交题不可重提」对称防护（`handleSubmit` 卫 `submitted || results 已有此题`，与 Review「未见答不评」同构），并令删除题目后前跃至首个未答题，不再停在已答题上。② **阅读「不再提示」持久化**：`dismissedContinue` 由内存态改为按篇落盘（`reading-dismissed-continue` 存被拒文档 id）——拒的是「这一篇」，另读他篇提示自然复现；阅读位置本就随文档持久化（`scrollPct`／`lastReadAt`），此记只补「哪篇被拒」。③ **记-38 未尽收口**：`QuizPage`／`SetDetail`／`Wrong`／`CollectionDetail` 四处筛选 chip 补 `aria-pressed`，另顺手把同形的 `DeckDetail` `dd-filter` 四枚补齐（记-38 所列四处之外的漏网，全库统一）；卡组详情 `<h1 onClick>` 补键盘径路（`pressable`：role button、tabIndex、Enter/Space，复用既有习语）。④ **既有小病**：`collate` 只在「表体」变时才重写 `docs/contrast-table.md`——牌记 commit 行随 HEAD 变动，此前每次跑 check 都弄脏工作树；表体相同则保留上次生成时的牌记（那一次提交确产出这一份表，更如实）。
