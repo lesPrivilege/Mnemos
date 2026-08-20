@@ -60,7 +60,7 @@ export default function PromptGuide() {
   return (
     <div className="page-fill">
       <header className="topbar">
-        <button onClick={goBack} className="tb-btn">
+        <button onClick={goBack} className="tb-btn" aria-label={S.common.back}>
           <BackIcon />
         </button>
         <h1 className="flex-1 font-zh text-xl font-medium text-ink pl-1">{S.promptGuide.title}</h1>

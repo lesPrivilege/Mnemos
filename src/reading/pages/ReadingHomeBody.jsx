@@ -72,7 +72,7 @@ export default function ReadingHomeBody({ h }) {
       <div className="rows">
         {h.searchResults.map(({ doc, snippet }) => (
           <button key={doc.id} className="deck"
-            onClick={() => navigate(`/reading/doc/${doc.id}?col=${doc.collectionId}`)}>
+            onClick={() => navigate(`/reading/doc/${doc.id}?col=${encodeURIComponent(doc.collectionId)}`)}>
             <span className="deck-glyph">{doc.title.charAt(0)}</span>
             <span className="deck-meta">
               <span className="deck-name">{doc.title}</span>
@@ -93,7 +93,7 @@ export default function ReadingHomeBody({ h }) {
         unit={isEmpty ? R.emptyUnit : R.pendingUnit}
         sub={isEmpty ? null : R.weekSummary(weekly.totalThisWeek, allDocs.length)}
         cta={resumeDoc ? {
-          to: `/reading/doc/${resumeDoc.id}?col=${resumeDoc.collectionId}`,
+          to: `/reading/doc/${resumeDoc.id}?col=${encodeURIComponent(resumeDoc.collectionId)}`,
           label: h.continueDoc ? R.continueReading : R.startReadingAction,
         } : null}
       />
@@ -101,7 +101,7 @@ export default function ReadingHomeBody({ h }) {
       {h.continueDoc && !h.dismissedContinue && (
         <div className="resume">
           <button className="resume-body"
-            onClick={() => navigate(`/reading/doc/${h.continueDoc.id}?col=${h.continueDoc.collectionId}`)}>
+            onClick={() => navigate(`/reading/doc/${h.continueDoc.id}?col=${encodeURIComponent(h.continueDoc.collectionId)}`)}>
             <span className="resume-name">{h.continueDoc.title}</span>
             <span className="resume-meta">
               {R.continueReading}<span className="sep">·</span>{h.continueDoc.scrollPct}%

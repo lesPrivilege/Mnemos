@@ -58,6 +58,15 @@ describe('todayJourney', () => {
     expect(todayJourney()).toMatchObject({ primary: null, hasMaterial: true, isComplete: true, totalItems: 0 })
   })
 
+  it('encodes collection ids when producing a reader query', () => {
+    getDocuments.mockReturnValue([{ id: 'doc1', collectionId: 'East Asia/R&D', title: '第一章', scrollPct: 0, createdAt: '2026-08-01' }])
+
+    expect(todayJourney().primary).toMatchObject({
+      key: 'reading',
+      route: '/reading/doc/doc1?col=East%20Asia%2FR%26D',
+    })
+  })
+
   it('does not resume sessions whose material has been deleted', () => {
     loadReviewSession.mockReturnValue({ deckId: 'missing', deckName: '旧卡组', savedAt: 200 })
     loadLastSession.mockReturnValue({ subject: 'missing', route: '/quiz/missing', timestamp: 300 })

@@ -7,6 +7,7 @@ import { getCards, getDecks } from '../lib/storage'
 import RenderMarkdown from '../quiz/components/RenderMarkdown'
 import { BackIcon, SearchIcon } from '../components/Icons'
 import { S } from '../lib/strings'
+import { buildQuizRoute } from '../quiz/lib/routes'
 import '../styles/markdown.css'
 
 export default function Search() {
@@ -86,7 +87,7 @@ export default function Search() {
                 <div className="flex flex-col gap-1.5">
                   {group.items.map(q => (
                     <div key={q.id} className="bg-bg-card rounded-lg p-3 border cursor-pointer" style={{ borderColor: 'var(--border-soft)' }}
-                      onClick={() => navigate(q.type === 'choice' ? `/quiz/${q.subject}?chapter=${encodeURIComponent(q.chapter)}` : `/quiz-review/${q.subject}?chapter=${encodeURIComponent(q.chapter)}`)}>
+                      onClick={() => navigate(buildQuizRoute(q.type === 'choice' ? 'quiz' : 'quiz-review', q.subject, { chapter: q.chapter }))}>
                       <div className="text-md text-ink card-content line-clamp-2"><RenderMarkdown content={q.question || q.id} /></div>
                     </div>
                   ))}

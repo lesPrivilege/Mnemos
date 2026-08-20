@@ -57,7 +57,7 @@ export function todayJourney() {
     },
     continueDocument && {
       key: 'reading',
-      route: `/reading/doc/${continueDocument.id}?col=${continueDocument.collectionId}`,
+      route: `/reading/doc/${continueDocument.id}?col=${encodeURIComponent(continueDocument.collectionId)}`,
       title: continueDocument.title,
       timestamp: Date.parse(continueDocument.lastReadAt) || 0,
       kind: 'resume',
@@ -87,9 +87,9 @@ export function todayJourney() {
       key: 'reading',
       count: pendingDocuments.length,
       route: continueDocument
-        ? `/reading/doc/${continueDocument.id}?col=${continueDocument.collectionId}`
+        ? `/reading/doc/${continueDocument.id}?col=${encodeURIComponent(continueDocument.collectionId)}`
         : pendingDocuments[0]
-          ? `/reading/doc/${pendingDocuments[0].id}?col=${pendingDocuments[0].collectionId}`
+          ? `/reading/doc/${pendingDocuments[0].id}?col=${encodeURIComponent(pendingDocuments[0].collectionId)}`
           : null,
       interrupted: Boolean(continueDocument),
       title: continueDocument?.title || pendingDocuments[0]?.title || null,

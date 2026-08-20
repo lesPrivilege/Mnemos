@@ -8,6 +8,7 @@ import RenderMarkdown from '../quiz/components/RenderMarkdown'
 import { BackIcon, TrashIcon } from '../components/Icons'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 import { S } from '../lib/strings'
+import { buildQuizRoute } from '../quiz/lib/routes'
 import '../styles/markdown.css'
 
 function questionsToCards(questions) {
@@ -108,7 +109,7 @@ export default function Wrong() {
                     title={S.wrong.deleteQuestion}>
                     <TrashIcon size={14} />
                   </button>
-                  <button onClick={() => navigate(q.type === 'choice' ? `/quiz/${q.subject}?mode=wrong&qid=${q.id}` : `/quiz-review/${q.subject}?mode=wrong&qid=${q.id}`)}
+                  <button onClick={() => navigate(buildQuizRoute(q.type === 'choice' ? 'quiz' : 'quiz-review', q.subject, { mode: 'wrong', qid: q.id }))}
                     className="px-3 py-1 rounded-full text-xs font-medium" style={{ border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--ink)' }}>{S.wrong.redo}</button>
                 </div>
               </div>

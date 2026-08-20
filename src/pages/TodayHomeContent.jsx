@@ -41,7 +41,7 @@ export default function TodayHomeContent() {
           title={T.emptyTitle}
           hint={T.emptyHint}
         >
-          <Link to="/import" className="btn btn-primary">{T.importAction}</Link>
+          <Link to="/import" state={{ returnTo: '/' }} className="btn btn-primary">{T.importAction}</Link>
           <Link to="/?view=materials" className="btn btn-ghost">{T.openMaterials}</Link>
         </EmptyState>
       </div>
@@ -60,7 +60,7 @@ export default function TodayHomeContent() {
           {journey.isComplete && <span className="today-check" aria-hidden="true"><CheckIcon size={18} /></span>}
         </div>
         {journey.primary && (
-          <Link to={journey.primary.route} className="today-primary">
+          <Link to={journey.primary.route} state={{ returnTo: '/' }} className="today-primary">
             <span>
               <em>{T.nextLabel}</em>
               {primaryCopy(journey.primary)}

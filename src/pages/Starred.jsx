@@ -7,6 +7,7 @@ import RenderMarkdown from '../quiz/components/RenderMarkdown'
 import { BackIcon, StarIcon, TrashIcon } from '../components/Icons'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 import { S } from '../lib/strings'
+import { buildQuizRoute } from '../quiz/lib/routes'
 import '../styles/markdown.css'
 
 export default function Starred() {
@@ -53,7 +54,7 @@ export default function Starred() {
         ) : (
            items.map(q => (
             <div key={q.id} className="bg-bg-card rounded-lg p-4 border cursor-pointer group" style={{ borderColor: 'var(--border-soft)' }}
-              onClick={() => navigate(q.type === 'choice' ? `/quiz/${q.subject}?mode=starred&qid=${q.id}` : `/quiz-review/${q.subject}?mode=starred&qid=${q.id}`)}>
+              onClick={() => navigate(buildQuizRoute(q.type === 'choice' ? 'quiz' : 'quiz-review', q.subject, { mode: 'starred', qid: q.id }))}>
               <div className="flex items-start justify-between gap-2 mb-2">
                 <div className="text-xs text-ink-3 font-zh">{getSubjectDisplayName(q.subject)} · {q.chapter}</div>
                 <div className="flex items-center gap-1.5">

@@ -8,6 +8,7 @@ import { BackIcon, CheckIcon, XIcon, StarIcon, MoreIcon, TrashIcon } from '../co
 import { recordEvent } from '../lib/derive/events'
 import { todayJourney } from '../lib/derive/today'
 import { useBackButton } from '../lib/useBackButton'
+import { buildQuizRoute } from '../quiz/lib/routes'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 import { hapticLight, hapticWarning, hapticSuccess } from '../lib/haptics'
 import { S } from '../lib/strings'
@@ -116,7 +117,7 @@ export default function Quiz() {
     if (loaded.length > 0) {
       saveLastSession({
         subject, chapter, section, mode: m,
-        route: `/quiz/${subject}${chapter ? `?chapter=${encodeURIComponent(chapter)}` : ''}${section ? `&section=${encodeURIComponent(section)}` : ''}`,
+        route: buildQuizRoute('quiz', subject, { chapter, section }),
       })
     }
   }, [subject, chapter, section])
@@ -147,7 +148,7 @@ export default function Quiz() {
       }
       saveLastSession({
         subject: s.subject, chapter: s.chapter, section: s.section, mode: s.mode,
-        route: `/quiz/${s.subject}${s.chapter ? `?chapter=${encodeURIComponent(s.chapter)}` : ''}${s.section ? `&section=${encodeURIComponent(s.section)}` : ''}`,
+        route: buildQuizRoute('quiz', s.subject, { chapter: s.chapter, section: s.section }),
         questionIds: s.questions.map((q) => q.id),
         currentIndex: answeredCount,
         results: s.results,

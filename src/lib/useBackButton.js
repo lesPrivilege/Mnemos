@@ -3,86 +3,134 @@ import { useEffect, useCallback, useRef } from 'react'
 import { App } from '@capacitor/app'
 import { isNative } from './platform'
 
-// Declarative route hierarchy: [childPattern, parentPattern]
-// Ordered: more specific routes first. :param segments match any value.
-// To add a new route, append a [child, parent] pair — no logic changes needed.
+const MATERIALS_PARENTS = {
+  flashcard: '/?view=materials&kind=flashcard',
+  quiz: '/?view=materials&kind=quiz',
+  reading: '/?view=materials&kind=reading',
+}
+
+// Declarative canonical hierarchy. Session-like routes keep their object parent;
+// each top-level material object returns to its own materials category.
 const ROUTES = [
-  ['/review/:id',          '/deck/:id'],
-  ['/browse/:id',          '/deck/:id'],
-  ['/deck/:id',            '/'],
+  ['/review/:id',           ({ id }) => `/deck/${id}`],
+  ['/browse/:id',           ({ id }) => `/deck/${id}`],
+  ['/deck/:id',             () => MATERIALS_PARENTS.flashcard],
 
-  ['/quiz/:subject',       '/set/:subject'],
-  ['/quiz-review/:subject','/set/:subject'],
-  ['/set/:subject',        '/'],
+  ['/quiz/:subject',        ({ subject }) => `/set/${subject}`],
+  ['/quiz-review/:subject', ({ subject }) => `/set/${subject}`],
+  ['/set/:subject',         () => MATERIALS_PARENTS.quiz],
 
-  ['/reading/doc/:id',     '/collection/:id'],
-  ['/collection/:id',      '/'],
+  ['/reading/doc/:id',      (_params, query) => collectionParent(query)],
+  ['/collection/:id',       () => MATERIALS_PARENTS.reading],
 
-  ['/prompt-guide',        '/import'],
-  ['/import',              '/'],
+  ['/prompt-guide',         (_params, query) => promptGuideParent(query)],
+  ['/import',               (_params, query) => importParent(query)],
 
-  ['/activity',            '/'],
-  ['/settings',            '/'],
-  ['/wrong',               '/'],
-  ['/starred',             '/'],
-  ['/search',              '/'],
+  ['/activity',             () => '/'],
+  ['/settings',             () => '/'],
+  ['/wrong',                (_params, query) => subjectUtilityParent(query)],
+  ['/starred',              (_params, query) => subjectUtilityParent(query)],
+  ['/search',               () => '/'],
 ]
 
+function normalizedSegments(pathname) {
+  const normalized = pathname !== '/' ? pathname.replace(/\/+$/, '') : pathname
+  return normalized.split('/')
+}
+
 function matchRoute(pattern, pathname) {
-  const segs = pattern.split('/')
-  const paths = pathname.split('/')
-  if (segs.length !== paths.length) return false
-  for (let i = 0; i < segs.length; i++) {
-    if (segs[i].startsWith(':')) continue
-    if (segs[i] !== paths[i]) return false
+  const patternSegments = pattern.split('/')
+  const pathSegments = normalizedSegments(pathname)
+  if (patternSegments.length !== pathSegments.length) return null
+
+  const params = {}
+  for (let i = 0; i < patternSegments.length; i++) {
+    const segment = patternSegments[i]
+    if (segment.startsWith(':')) {
+      params[segment.slice(1)] = pathSegments[i]
+    } else if (segment !== pathSegments[i]) {
+      return null
+    }
   }
-  return true
+  return params
 }
 
-function resolve(pattern, pathname) {
-  return pattern.replace(/:(\w+)/g, (_, key) => {
-    const idx = pattern.split('/').findIndex(s => s === `:${key}`)
-    return pathname.split('/')[idx] || `:${key}`
-  })
+function asSearchParams(search) {
+  if (search instanceof URLSearchParams) return search
+  return new URLSearchParams(search || '')
 }
 
-function getParent(pathname, searchParams) {
-  for (const [child, parent] of ROUTES) {
-    if (!matchRoute(child, pathname)) continue
+function encodedQueryValue(query, key) {
+  const value = query.get(key)
+  return value ? encodeURIComponent(value) : null
+}
 
-    // Resolve :params in parent from current pathname
-    let resolved = resolve(parent, pathname)
+function collectionParent(query) {
+  const collectionId = encodedQueryValue(query, 'col')
+  return collectionId ? `/collection/${collectionId}` : MATERIALS_PARENTS.reading
+}
 
-    // Special: /reading/doc/:id parent is /collection/:id — resolve from ?col= param
-    if (parent === '/collection/:id') {
-      const colId = searchParams.get('col')
-      resolved = colId ? `/collection/${colId}` : '/?tab=reading'
-    }
+function subjectUtilityParent(query) {
+  const subject = encodedQueryValue(query, 'subject')
+  return subject ? `/set/${subject}` : MATERIALS_PARENTS.quiz
+}
 
-    // Special: /import?deckId=X → parent is /deck/X, not /
-    if (child === '/import' && searchParams) {
-      const deckId = searchParams.get('deckId')
-      if (deckId) resolved = `/deck/${deckId}`
-    }
+function importParent(query) {
+  // A deck-scoped import is subordinate to that deck, irrespective of its tab.
+  const deckId = encodedQueryValue(query, 'deckId')
+  if (deckId) return `/deck/${deckId}`
 
-    // Special: subject-scoped quiz utilities return to the subject detail.
-    if ((child === '/wrong' || child === '/starred') && searchParams) {
-      const subject = searchParams.get('subject')
-      if (subject) resolved = `/set/${subject}`
-    }
+  switch (query.get('tab')) {
+    case 'md':
+      return MATERIALS_PARENTS.flashcard
+    case 'reading':
+      return MATERIALS_PARENTS.reading
+    case 'restore':
+      return '/settings'
+    case 'json':
+    default:
+      // Import's own default tab is JSON (quiz), including a cold /import deep link.
+      return MATERIALS_PARENTS.quiz
+  }
+}
 
-    return resolved
+function promptGuideParent(query) {
+  const guideTab = query.get('tab')
+  const importQuery = new URLSearchParams()
+  importQuery.set('tab', guideTab === 'quiz' ? 'json' : guideTab === 'reading' ? 'reading' : 'md')
+
+  // Preserve deck scope if a future/contextual guide link supplies it.
+  const deckId = query.get('deckId')
+  if (deckId) importQuery.set('deckId', deckId)
+
+  return `/import?${importQuery.toString()}`
+}
+
+function isSafeInternalReturnTo(returnTo) {
+  return typeof returnTo === 'string' && returnTo.startsWith('/') && !returnTo.startsWith('//')
+}
+
+/**
+ * Resolve a deterministic parent without consulting browser history.
+ * A verified in-app source may override the canonical hierarchy; untrusted or
+ * absent state falls back to a stable parent suitable for cold-start deep links.
+ */
+export function resolveParent(pathname, search = '', returnTo = null) {
+  if (isSafeInternalReturnTo(returnTo)) return returnTo
+
+  const query = asSearchParams(search)
+  for (const [pattern, parentFor] of ROUTES) {
+    const params = matchRoute(pattern, pathname)
+    if (params) return parentFor(params, query)
   }
 
-  // Root or unknown → no parent
   return pathname === '/' ? null : '/'
 }
 
 export function useBackButton() {
   const navigate = useNavigate()
-  const { pathname, search } = useLocation()
-  const searchParams = new URLSearchParams(search)
-  const parent = getParent(pathname, searchParams)
+  const { pathname, search, state } = useLocation()
+  const parent = resolveParent(pathname, search, state?.returnTo)
 
   // Use refs so the native listener (registered once) always reads current values
   const parentRef = useRef(parent)

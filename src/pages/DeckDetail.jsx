@@ -157,7 +157,7 @@ export default function DeckDetail() {
       <div className="page-fill">
       {/* Header */}
       <header className="topbar">
-        <button onClick={goBack} className="tb-btn">
+        <button onClick={goBack} className="tb-btn" aria-label={S.common.back}>
           <BackIcon />
         </button>
         {editingName ? (

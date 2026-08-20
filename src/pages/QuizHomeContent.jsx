@@ -37,7 +37,7 @@ function SubjectRow({ subject }) {
   const ratio = stats.total > 0 ? stats.done / stats.total : 0
 
   return (
-    <Link to={`/set/${subject}`} className="deck">
+    <Link to={`/set/${encodeURIComponent(subject)}`} className="deck">
       <span className="deck-glyph">{getSubjectDisplayName(subject).charAt(0)}</span>
       <span className="deck-meta">
         <span className="deck-name">{getSubjectDisplayName(subject)}</span>
@@ -96,7 +96,7 @@ export function QuizHomeContent() {
   const cta = hasWrong
     ? { to: '/wrong', label: Q.practiceWrongAction }
     : firstSubject
-      ? { to: `/set/${firstSubject}`, label: Q.startPracticeAction }
+      ? { to: `/set/${encodeURIComponent(firstSubject)}`, label: Q.startPracticeAction }
       : null
 
   return (
