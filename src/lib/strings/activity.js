@@ -21,6 +21,8 @@ export const activity = {
   /* 热力图 */
   heatmapTitle: '热力',
   heatmapDays: '90 天',
+  datePickerLabel: '选择日期',
+  datePickerPlaceholder: '选择一天查看详情',
   dayLabelsShort: ['日', '一', '二', '三', '四', '五', '六'],
   monthNames: ['', '1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
   recallDetailPrefix: '记忆 ',

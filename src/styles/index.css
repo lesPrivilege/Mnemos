@@ -1870,6 +1870,35 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   padding: 14px;
   display: flex; flex-direction: column; gap: 12px;
 }
+.activity-date-picker {
+  min-width: 0;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.activity-date-picker label {
+  flex: 0 0 auto;
+  color: var(--ink-2);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+}
+.activity-date-picker select {
+  min-width: 0;
+  min-height: var(--hit-target);
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+}
+.activity-heatmap-scroll {
+  min-width: 0;
+  max-width: 100%;
+}
 @media (min-width: 720px) and (orientation: portrait) {
   .activity-content {
     display: grid;

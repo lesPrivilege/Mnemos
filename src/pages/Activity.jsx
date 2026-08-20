@@ -57,8 +57,9 @@ function localWeekday(dateStr) {
 
 function HeatmapGrid() {
   const { days } = getHeatmapData()
-  const [selected, setSelected] = useState(null)
+  const [selectedDate, setSelectedDate] = useState('')
   const scrollerRef = useRef(null)
+  const selected = days.find(day => day.date === selectedDate) || null
 
   // Newest week visible by default
   useEffect(() => {
@@ -102,7 +103,19 @@ function HeatmapGrid() {
         <div className="section-title">{S.activity.heatmapTitle}</div>
         <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-2xs)', color: 'var(--ink-3)' }}>{S.activity.heatmapDays}</span>
       </div>
-      <div ref={scrollerRef} style={{ overflowX: 'auto', paddingBottom: 4 }}>
+      <div className="activity-date-picker">
+        <label htmlFor="activity-date">{S.activity.datePickerLabel}</label>
+        <select
+          id="activity-date"
+          value={selectedDate}
+          onChange={(event) => setSelectedDate(event.target.value)}
+          aria-label={S.activity.datePickerLabel}
+        >
+          <option value="">{S.activity.datePickerPlaceholder}</option>
+          {days.map(day => <option key={day.date} value={day.date}>{day.date}</option>)}
+        </select>
+      </div>
+      <div ref={scrollerRef} className="activity-heatmap-scroll" aria-hidden="true" style={{ overflowX: 'auto', paddingBottom: 4 }}>
         <div style={{ display: 'inline-flex', flexDirection: 'column', gap: 2, minWidth: weeks.length * 14 + 20 }}>
           {/* Month labels */}
           <div style={{ display: 'flex', gap: 2, paddingLeft: 18 }}>
@@ -131,7 +144,8 @@ function HeatmapGrid() {
                   const lv = level(day.total)
                   return (
                     <div key={di}
-                      onClick={() => setSelected(selected?.date === day.date ? null : day)}
+                      className="activity-heatmap-cell"
+                      onClick={() => setSelectedDate(selected?.date === day.date ? '' : day.date)}
                       style={{
                         width: 14, height: 14, borderRadius: 'var(--r-md)',
                         background: HEATMAP_LEVELS[lv],
@@ -149,8 +163,8 @@ function HeatmapGrid() {
         </div>
       </div>
       {/* Detail line */}
-      {selected && (
-        <div style={{ marginTop: 8, fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--ink-2)', display: 'flex', gap: 8, alignItems: 'center' }}>
+      <div className="activity-detail" aria-live="polite" style={{ marginTop: selected ? 8 : 0, fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--ink-2)', display: 'flex', gap: 8, alignItems: 'center' }}>
+        {selected && <>
           <span>{selected.date}</span>
           <span style={{ color: 'var(--ink-4)' }}>·</span>
           <span>{S.activity.recallDetailPrefix}{selected.recall}</span>
@@ -158,8 +172,8 @@ function HeatmapGrid() {
           <span>{S.activity.practiceDetailPrefix}{selected.practice}</span>
           <span style={{ color: 'var(--ink-4)' }}>·</span>
           <span>{S.activity.readingDetailPrefix}{selected.reading} min</span>
-        </div>
-      )}
+        </>}
+      </div>
     </section>
   )
 }

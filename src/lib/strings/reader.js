@@ -14,4 +14,13 @@ export const reader = {
   loading: '加载中...',
   saveHighlight: '保存高亮',
   settings: '设置',
+  fontSizeSetting: '字号',
+  lineHeightSetting: '行距',
+  marginsSetting: '边距',
+  decreaseFontSize: '减小字号',
+  increaseFontSize: '增大字号',
+  decreaseLineHeight: '减小行距',
+  increaseLineHeight: '增大行距',
+  decreaseMargins: '减小边距',
+  increaseMargins: '增大边距',
 }

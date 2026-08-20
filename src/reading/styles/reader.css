@@ -66,3 +66,61 @@
   opacity: 1;
   pointer-events: auto;
 }
+
+/* Reading controls stay compact as a three-column group, while each stepper
+   keeps the platform hit target. The columns may shrink; the actions do not. */
+.reader-settings {
+  width: 100%;
+  max-width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--bg);
+  border-top: 1px solid var(--border-soft);
+}
+
+.reader-setting-group {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.reader-setting-label {
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px;
+  color: var(--ink-3);
+  font-family: var(--font-ui);
+  font-size: var(--text-2xs);
+  white-space: nowrap;
+}
+
+.reader-setting-actions {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2px;
+}
+
+.reader-stepper {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  justify-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  color: var(--ink-2);
+  font-size: var(--text-sm);
+}
+
+.reader-stepper:disabled {
+  cursor: default;
+  opacity: 0.4;
+}

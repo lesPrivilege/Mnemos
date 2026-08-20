@@ -23,6 +23,12 @@ const BOTTOM_BTNS = [
   { key: 'bookmarks',  label: S.reader.bookmarksTab },
 ]
 
+const READING_LIMITS = {
+  fontSize: { min: 14, max: 24 },
+  lineHeight: { min: 1.4, max: 2.2 },
+  margins: { min: 12, max: 40 },
+}
+
 export default function Reader() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -349,39 +355,33 @@ export default function Reader() {
       }}>
         {/* Settings expansion */}
         {settingsOpen && (
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16,
-            padding: '8px 18px',
-            background: 'var(--bg)', borderTop: '1px solid var(--border-soft)',
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span className="font-mono text-2xs text-ink-3 w-5 text-right">{settings.fontSize}</span>
-              <button onClick={() => handleUpdateSettings({ fontSize: Math.max(14, settings.fontSize - 1) })}
-                className="w-6 h-6 rounded flex items-center justify-center text-ink-3 hover:text-ink text-xs border"
-                style={{ borderColor: 'var(--border)' }}>A-</button>
-              <button onClick={() => handleUpdateSettings({ fontSize: Math.min(24, settings.fontSize + 1) })}
-                className="w-6 h-6 rounded flex items-center justify-center text-ink-3 hover:text-ink text-xs border"
-                style={{ borderColor: 'var(--border)' }}>A+</button>
+          <div className="reader-settings">
+            <div className="reader-setting-group" role="group" aria-label={S.reader.fontSizeSetting}>
+              <div className="reader-setting-label"><span>{S.reader.fontSizeSetting}</span><span className="font-mono" aria-live="polite">{settings.fontSize}</span></div>
+              <div className="reader-setting-actions">
+                <button onClick={() => handleUpdateSettings({ fontSize: Math.max(READING_LIMITS.fontSize.min, settings.fontSize - 1) })}
+                  className="reader-stepper" aria-label={S.reader.decreaseFontSize} disabled={settings.fontSize <= READING_LIMITS.fontSize.min}>A−</button>
+                <button onClick={() => handleUpdateSettings({ fontSize: Math.min(READING_LIMITS.fontSize.max, settings.fontSize + 1) })}
+                  className="reader-stepper" aria-label={S.reader.increaseFontSize} disabled={settings.fontSize >= READING_LIMITS.fontSize.max}>A+</button>
+              </div>
             </div>
-            <div style={{ width: 1, height: 20, background: 'var(--border-soft)' }} />
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span className="font-mono text-2xs text-ink-3 w-5 text-right">{settings.lineHeight.toFixed(1)}</span>
-              <button onClick={() => handleUpdateSettings({ lineHeight: Math.max(1.4, +(settings.lineHeight - 0.1).toFixed(1)) })}
-                className="w-6 h-6 rounded flex items-center justify-center text-ink-3 hover:text-ink text-xs border"
-                style={{ borderColor: 'var(--border)' }}>-</button>
-              <button onClick={() => handleUpdateSettings({ lineHeight: Math.min(2.2, +(settings.lineHeight + 0.1).toFixed(1)) })}
-                className="w-6 h-6 rounded flex items-center justify-center text-ink-3 hover:text-ink text-xs border"
-                style={{ borderColor: 'var(--border)' }}>+</button>
+            <div className="reader-setting-group" role="group" aria-label={S.reader.lineHeightSetting}>
+              <div className="reader-setting-label"><span>{S.reader.lineHeightSetting}</span><span className="font-mono" aria-live="polite">{settings.lineHeight.toFixed(1)}</span></div>
+              <div className="reader-setting-actions">
+                <button onClick={() => handleUpdateSettings({ lineHeight: Math.max(READING_LIMITS.lineHeight.min, +(settings.lineHeight - 0.1).toFixed(1)) })}
+                  className="reader-stepper" aria-label={S.reader.decreaseLineHeight} disabled={settings.lineHeight <= READING_LIMITS.lineHeight.min}>−</button>
+                <button onClick={() => handleUpdateSettings({ lineHeight: Math.min(READING_LIMITS.lineHeight.max, +(settings.lineHeight + 0.1).toFixed(1)) })}
+                  className="reader-stepper" aria-label={S.reader.increaseLineHeight} disabled={settings.lineHeight >= READING_LIMITS.lineHeight.max}>+</button>
+              </div>
             </div>
-            <div style={{ width: 1, height: 20, background: 'var(--border-soft)' }} />
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span className="font-mono text-2xs text-ink-3 w-5 text-right">{settings.margins}</span>
-              <button onClick={() => handleUpdateSettings({ margins: Math.max(12, settings.margins - 4) })}
-                className="w-6 h-6 rounded flex items-center justify-center text-ink-3 hover:text-ink text-xs border"
-                style={{ borderColor: 'var(--border)' }}>-</button>
-              <button onClick={() => handleUpdateSettings({ margins: Math.min(40, settings.margins + 4) })}
-                className="w-6 h-6 rounded flex items-center justify-center text-ink-3 hover:text-ink text-xs border"
-                style={{ borderColor: 'var(--border)' }}>+</button>
+            <div className="reader-setting-group" role="group" aria-label={S.reader.marginsSetting}>
+              <div className="reader-setting-label"><span>{S.reader.marginsSetting}</span><span className="font-mono" aria-live="polite">{settings.margins}</span></div>
+              <div className="reader-setting-actions">
+                <button onClick={() => handleUpdateSettings({ margins: Math.max(READING_LIMITS.margins.min, settings.margins - 4) })}
+                  className="reader-stepper" aria-label={S.reader.decreaseMargins} disabled={settings.margins <= READING_LIMITS.margins.min}>−</button>
+                <button onClick={() => handleUpdateSettings({ margins: Math.min(READING_LIMITS.margins.max, settings.margins + 4) })}
+                  className="reader-stepper" aria-label={S.reader.increaseMargins} disabled={settings.margins >= READING_LIMITS.margins.max}>+</button>
+              </div>
             </div>
           </div>
         )}

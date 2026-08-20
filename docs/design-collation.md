@@ -102,6 +102,12 @@
 - **判准**：overlay 的完整性不由 z-index 单独成立；须同时满足空间覆盖、焦点所有权、键盘退出、幕后隔离和现场归还。未实现 Arrow/Home/End 与 roving focus 时不得声称 ARIA menu。关闭幕保留可及名称，既可点击也可由读屏称名；其不进入 Tab 环，不替代 Escape。全视口幕不得受 `--col-current` 限宽。
 - **证据**：组件回归覆盖四菜单 focus-in、Tab／Shift+Tab、Escape、scrim 点击、幕后 inert、菜单 action 可聚焦、菜单→dialog 无双 trap、确认层安全焦点／Escape／backdrop／断开 trigger，以及 CSS 两类 page shell 对 `.menu-backdrop` 的排除；独立审校发现并封住宽屏幕布被内容栏限宽之讹。统一门禁 43 文件、304 测试全绿，四门 0 FAIL，production build 成功。
 
+### 记 2026-08-20-51 · 密图另给等价路径，小钮不得以密为由失尺
+
+- **改何**：Reader 的字号、行距、边距由六枚 24px 小钮重排为三列 stepper；每组有标签、当前值与两枚 44×44px 原生按钮，达到上下限即 disabled。Activity 的 90 日热力图保留 14px 视觉密度但整块退出可及树，不制造 90 个 Tab 停点；另设一枚 44px 原生日期 select，视觉点击与键盘／读屏选择共用 `selectedDate`，常驻 `aria-live="polite"` 详情随之更新。
+- **判准**：高密数据图不靠重叠 hitbox 伪造 44px，也不把每个像素格都变成键盘债；须提供同数据、同状态、同结果的清楚等价路径。频繁调节控件仍须有真实 44px 命中面、独立名称与边界禁用。窄屏以重排解决，不以横滚或缩小目标解决。
+- **证据**：静态几何在 320px 下给三组各约 94.7px，每组 `44×2+2=90px` 可容；回归覆盖六钮尺寸、三组／六钮名称、三类 min/max、热力图整体 `aria-hidden`、select 90 日＋占位、两条选择路径同步及常驻 live region。独立审校判无 P1/P2；200%+ Dynamic Type 仍列发布真机量测。统一门禁 45 文件、308 测试全绿，四门 0 FAIL，production build 成功。
+
 ### 记 2026-08-20-47 · SetDetail 浮层从减，入口各归其位
 
 - **改何**：`SetDetail` 保留真正覆盖滚动内容的 `FloatingBar`，但由「一主钮＋错题／收藏／导入三格」收为一主行动，唯有真实错题时再出现一个 44px 全宽次行动。收藏与导入归顶栏 overflow；空题库不再陈列失效主钮，直接以「导入题库」为主行动。混合题库的主钮只报告并进入选择题，纯解答题明确进入解答会话，不以总数冒充单一路由的交付量。
