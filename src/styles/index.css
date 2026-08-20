@@ -1393,6 +1393,12 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
    ═══════════════════════════════════════════════════ */
 
 /* ─────── App shell / L0 bottom tabs ─────── */
+:root {
+  /* Fallback for WebViews without ResizeObserver. The runtime value written
+     by BottomTabs supersedes this and already includes the safe area. */
+  --bottom-tabs-fallback-block-size: calc(96px + env(safe-area-inset-bottom, 0px));
+}
+
 .bottom-tabs {
   position: fixed;
   left: 50%;
@@ -1493,12 +1499,12 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(var(--bottom-tabs-block-size, var(--bottom-tabs-fallback-block-size)) + var(--sp-4));
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
 }
 .primary-tab-screen > .page-scroll {
-  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(var(--bottom-tabs-block-size, var(--bottom-tabs-fallback-block-size)) + var(--sp-4));
 }
 
 .materials-home { min-height: 100%; }
@@ -1531,7 +1537,6 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
 .materials-content { min-height: 0; }
 
 .today-screen { gap: var(--sp-8); }
-.today-empty { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
 .today-focus {
   display: flex;
   flex-direction: column;
@@ -1709,7 +1714,6 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   flex: 1 0 100%;
   overflow-y: auto;
   height: 100%;
-  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
 }
 
 /* ─────── 焦点行（版1，记-31）───────

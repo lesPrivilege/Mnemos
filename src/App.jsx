@@ -1,4 +1,4 @@
-import { HashRouter, Link, Routes, Route, useLocation } from 'react-router-dom'
+import { HashRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import ErrorBoundary from './components/ErrorBoundary'
 import NotFoundPage from './components/NotFoundPage'
@@ -22,6 +22,7 @@ import Reader from './reading/pages/Reader'
 import CollectionDetail from './reading/pages/CollectionDetail'
 import { Icon } from './components/Icons'
 import { ActionNotice } from './components/ActionNotice'
+import BottomTabs from './components/BottomTabs'
 import { S } from './lib/strings'
 
 const bottomTabs = [
@@ -69,23 +70,7 @@ function AppShell() {
           />
         } />
       </Routes>
-      {showBottomTabs && (
-        <nav className="bottom-tabs" aria-label="主导航">
-          <div className="bottom-tabs-row">
-            {bottomTabs.map((tab) => (
-              <Link
-                key={tab.key}
-                to={tab.to}
-                className={`bottom-tab ${activeTab === tab.key ? 'on' : ''}`}
-                aria-current={activeTab === tab.key ? 'page' : undefined}
-              >
-                {tab.icon}
-                <span>{tab.label}</span>
-              </Link>
-            ))}
-          </div>
-        </nav>
-      )}
+      <BottomTabs activeTab={activeTab} tabs={bottomTabs} visible={showBottomTabs} />
     </>
   )
 }

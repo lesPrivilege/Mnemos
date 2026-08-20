@@ -84,12 +84,18 @@
 - **判准**：正文未确认则文档不得公开；删除未确认则不得静默；同一动作 pending 时不可重入，离页后的完成不得改写新页面。并发突变不互相覆盖。突发进程强杀的跨存储窗口、旧 `deleteCollection` 的 fire-and-forget、`idbGet` 对缺值／读取失败的同形，以及 backup import／merge 先写 localStorage 后写 IDB 的跨存储原子性，明确留账，不伪称绝对闭环。
 - **证据**：失败注入、关联清理、并发新增、删除回滚、pending 重入、unmount stale completion、临时文集回收、示例并发合并、迁移保本、IDB abort／error／不可用及「正文待写期间同步更新不丢失」均有回归测试；统一门禁 35 文件、270 测试全绿，四门 0 FAIL，production build 成功。
 
+### 记 2026-08-20-46 · L0 底栏实高归壳，固定避让退役
+
+- **改何**：`BottomTabs` 从 `AppShell` 中独立成壳层组件，以 `useLayoutEffect` 与 `ResizeObserver` 量取附着底栏的真实 border-box 高度，写入 `#root` 的运行时 `--bottom-tabs-block-size`；L0 卸载时同步清理。`.home-scroll` 与活动页 `.page-scroll` 两个真实滚动所有者消费此值并留一档小净空；今日空态不再重复让位，无消费者的旧 `.tab-pane` 不列入闭环。
+- **判准**：实测高度已经包含大字增高与 `safe-area-inset-bottom`，正文不得重复计算 safe area。无 `ResizeObserver` 时仍须首量，并监听 `window`／`visualViewport` resize；首帧或不可测时才用 `96px + safe-area` 保守回退。此契约只属于 L0 attached 目录，不得与详情 `--floating-bar-block-size` 混用。
+- **证据**：回归覆盖 48→112px 高度变化、L0 显隐与卸载清理、无 ResizeObserver 的 window／visualViewport 重量、不可测回退，以及仅两处滚动所有者消费。真页量得普通态 nav 49px、运行时变量 49px、正文避让 57px；进入 Reader 后变量清空，返回 L0 后恢复。统一门禁 36 文件、275 测试全绿，四门 0 FAIL；真实刘海 safe area 与 200% 系统字仍留发布真机验收。
+
 ### 记 2026-08-20-45 · L0 一级目录附着，局部浮层从严
 
 - **改何**：递修记-44 对层级的分类，**本施工笔仅改 L0 一级底栏，`FloatingBar` 不动**。`.bottom-tabs` 归应用壳：贴应用外框底边通幅附着，取不透明 `--bg`、仅上边界、无外轮廓、无圆角、无投影与 blur；`.bottom-tabs-row` 仍以 `--col-list` 为最大宽度居中。L0 仍是 `Link` 导航，以 `aria-current` 表示当前位置。各滚动区现有 `96px + safe-area` 避让本笔保留；以实测栏高取代固定假设，另列下一施工笔。
 - **据何**：Pro review 对读当前生产 selector 后指出，四边留白、全边界、圆角与半透明材质把应用级目录误作一张浮动卡；它与详情页局部动作栏不是同一语义。当前 `src/App.jsx` 的 `.bottom-tabs` 已是导航壳，`src/styles/index.css` 以 `.bottom-tabs`／`.bottom-tabs-row` 分别表达框架表面与内部目录行。
 - **判准**：一级目录属于应用壳，不属于 overlay；半透明／blur 只给真正遮着局部内容的功能层。保留记-44 已证的 `44px` 通用触控目标、L0 项 `48px`、safe area、按压 `--motion-quick`、reduced-motion／reduced-transparency／高对比降级，以及不设移动 indicator、Morphicons、弹簧、bounce、形变图标与页间滑动。详情 `FloatingBar` 继续以 `--surface-chrome-*` 作局部材质，继续由 ResizeObserver 写入真实 `--floating-bar-block-size`；其圆角、净空、inert 与可及树规则均不因本笔改变。
-- **证据**：源码核查锁定 `src/App.jsx:73` 的 `nav`＋`Link`／`aria-current`、`src/styles/index.css` 的 `.bottom-tabs` 附着几何与 `.bottom-tabs-row` `--col-list` 上限；详情 `FloatingBar` 选择器保持原有动态高度契约。实施验收仍须在 320／390／430／768／834px、明暗两纸与 200% 字体复量：通幅边界、48px 行、safe area、内容末行不被遮挡、无横向溢出，并跑完整门禁。L0 真实高度所有权未在本笔完成，不得以此条伪称闭环。
+- **证据**：源码核查锁定 `src/App.jsx:73` 的 `nav`＋`Link`／`aria-current`、`src/styles/index.css` 的 `.bottom-tabs` 附着几何与 `.bottom-tabs-row` `--col-list` 上限；详情 `FloatingBar` 选择器保持原有动态高度契约。实施验收仍须在 320／390／430／768／834px、明暗两纸与 200% 字体复量：通幅边界、48px 行、safe area、内容末行不被遮挡、无横向溢出，并跑完整门禁。L0 真实高度所有权未在本笔完成，后由记-46 收口；不得以本条单独伪称闭环。
 
 ### 记 2026-08-20-44 · Apple 材质只给局部功能层
 
