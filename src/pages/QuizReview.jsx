@@ -313,10 +313,6 @@ export default function ReviewQuestion() {
       {/* Topbar */}
       <div className="topbar">
         <button className="tb-btn" onClick={() => goBack()} aria-label={S.quizReview.back}><BackIcon /></button>
-        <span className="font-mono text-xs">
-          <span style={{ color: 'var(--ink)', fontWeight: 500 }}>{String(currentIndex + 1).padStart(2, '0')}</span>
-          <span style={{ color: 'var(--ink-3)' }}> / {String(questions.length).padStart(2, '0')}</span>
-        </span>
         <div className="tb-actions">
           <button className="tb-btn" onClick={handleToggleStar}
             aria-label={starred ? S.quizReview.unstarQuestion : S.quizReview.starQuestion}
@@ -383,7 +379,6 @@ export default function ReviewQuestion() {
             {/* FRONT */}
             <div className="flip-face">
               <span className="corner">
-                <span className="num">{String(currentIndex + 1).padStart(2, '0')}</span>
                 <span>{S.quizReview.reviewTagLabel}</span>
               </span>
               <div className="body">
@@ -396,7 +391,6 @@ export default function ReviewQuestion() {
             {/* BACK */}
             <div className="flip-face flip-back-face">
               <span className="corner">
-                <span className="num">{String(currentIndex + 1).padStart(2, '0')}</span>
                 <span>{S.quizReview.referenceMark}</span>
               </span>
               <div className="body back">

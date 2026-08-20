@@ -315,18 +315,15 @@ export default function Quiz() {
       <div className="topbar">
         <button className="tb-btn" onClick={() => goBack()} aria-label={S.quizPage.back}><BackIcon /></button>
         <h1 className="zh" style={{ flex: 1, paddingLeft: 4 }}>{chapter || getSubjectDisplayName(subject)}</h1>
-        <span className="font-mono text-xs">
-          <span style={{ color: 'var(--ink)', fontWeight: 500 }}>{currentIndex + 1}</span>
-          <span style={{ color: 'var(--ink-3)' }}> / {questions.length}</span>
-        </span>
         <div className="tb-actions">
           <button className="tb-btn" onClick={handleToggleStar}
+            aria-label={starred ? S.quizPage.unstarQuestion : S.quizPage.starQuestion}
             style={{ color: starred ? 'var(--accent)' : 'var(--ink-3)' }}>
             <StarIcon size={18} filled={starred} />
           </button>
           <div className="relative">
             <button className="tb-btn" onClick={() => setShowMenu(o => !o)}
-              aria-haspopup="menu" aria-expanded={showMenu}>
+              aria-label={S.common.moreActions} aria-haspopup="menu" aria-expanded={showMenu}>
               <MoreIcon size={18} />
             </button>
             {showMenu && (
@@ -377,7 +374,6 @@ export default function Quiz() {
         {/* Question card */}
         <div className="qa-card">
           <span className="corner">
-            <span className="num">{String(currentIndex + 1).padStart(2, '0')}</span>
             <span><span className="font-zh">{S.quizPage.choiceLabel}</span>{isMultiAnswer(currentQuestion) && <span style={{ marginLeft: 6, fontSize: 'var(--text-2xs)', background: 'var(--accent-soft)', color: 'var(--accent)', padding: '1px 5px', borderRadius: 'var(--r-md)' }}>{S.quizPage.multiAnswerBadge}</span>}</span>
           </span>
           <div className="qa-stem" style={{ maxHeight: '22dvh', overflowY: 'auto' }}>

@@ -1,6 +1,8 @@
 export const quizPage = {
   back: '返回',
   closeMenu: '关闭菜单',
+  starQuestion: '收藏题目',
+  unstarQuestion: '取消收藏题目',
   subjectHeadingSuffix: ' · 选择题',
   filterHint: '请更换筛选条件',
   choiceLabel: '选择',
