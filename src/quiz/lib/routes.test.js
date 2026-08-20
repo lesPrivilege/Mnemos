@@ -11,6 +11,11 @@ describe('buildQuizRoute', () => {
       .toBe('/quiz-review/R%26D?section=A%2FB')
   })
 
+  it('preserves an explicit empty chapter or section scope', () => {
+    expect(buildQuizRoute('quiz', 'research', { chapter: '', section: '' }))
+      .toBe('/quiz/research?chapter=&section=')
+  })
+
   it('encodes imported question ids as query data', () => {
     expect(buildQuizRoute('quiz', 'research', { mode: 'wrong', qid: 'R&D#1' }))
       .toBe('/quiz/research?mode=wrong&qid=R%26D%231')

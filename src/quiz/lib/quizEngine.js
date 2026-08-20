@@ -40,9 +40,9 @@ export function getQuizQuestions(opts) {
   const progress = loadProgress()
 
   let filtered = questions
-  if (subject) filtered = filtered.filter(q => q.subject === subject)
-  if (chapter) filtered = filtered.filter(q => q.chapter === chapter)
-  if (section) filtered = filtered.filter(q => q.section === section)
+  if (subject !== undefined && subject !== null) filtered = filtered.filter(q => q.subject === subject)
+  if (chapter !== undefined && chapter !== null) filtered = filtered.filter(q => (q.chapter || '') === chapter)
+  if (section !== undefined && section !== null) filtered = filtered.filter(q => (q.section || '') === section)
   if (type) filtered = filtered.filter(q => q.type === type)
 
   switch (mode) {

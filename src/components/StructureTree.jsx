@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { S } from '../lib/strings'
 import { MasteryMeter } from './MasteryMeter'
 
@@ -10,21 +10,28 @@ function TierMeter({ tiers }) {
 
 function TreeNode({ node, depth, onLeafTap }) {
   const [open, setOpen] = useState(depth === 0) // chapters start expanded
+  const disclosureId = useId().replaceAll(':', '')
   const hasChildren = node.children && node.children.length > 0
   const isLeaf = !hasChildren
+  const groupId = hasChildren ? `structure-tree-group-${disclosureId}` : undefined
 
   return (
-    <div>
-      <div
+    <li>
+      <button
+        type="button"
         onClick={() => {
           if (isLeaf) onLeafTap?.(node)
           else setOpen(v => !v)
         }}
+        aria-expanded={hasChildren ? open : undefined}
+        aria-controls={groupId}
         style={{
           display: 'flex', alignItems: 'center', gap: 8,
           padding: '8px 12px', paddingLeft: `${depth * 16 + 12}px`,
-          cursor: 'pointer', borderBottom: '1px solid var(--border-soft)',
+          width: '100%', textAlign: 'left', cursor: 'pointer',
+          border: 0, borderBottom: '1px solid var(--border-soft)',
           background: 'transparent',
+          color: 'inherit', font: 'inherit',
           transition: 'background var(--motion-quick)',
         }}
         onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-raised)'}
@@ -37,7 +44,7 @@ function TreeNode({ node, depth, onLeafTap }) {
             fontFamily: 'var(--font-ui)', fontSize: 'var(--text-sm)', color: 'var(--ink-3)',
             transform: open ? 'rotate(90deg)' : 'rotate(0deg)',
             transition: 'transform var(--motion-quick)',
-          }}>›</span>
+        }} aria-hidden="true">›</span>
         ) : (
           <span style={{ width: 16 }} />
         )}
@@ -50,17 +57,17 @@ function TreeNode({ node, depth, onLeafTap }) {
 
         {/* Tier bar */}
         {node.tiers && <TierMeter tiers={node.tiers} />}
-      </div>
+      </button>
 
       {/* Children */}
-      {hasChildren && open && (
-        <div>
+      {hasChildren && (
+        <ul id={groupId} hidden={!open} style={{ listStyle: 'none', margin: 0, padding: 0 }}>
           {node.children.map((child, i) => (
             <TreeNode key={child.id || i} node={child} depth={depth + 1} onLeafTap={onLeafTap} />
           ))}
-        </div>
+        </ul>
       )}
-    </div>
+    </li>
   )
 }
 
@@ -80,10 +87,10 @@ export default function StructureTree({ nodes, onLeafTap }) {
   }
 
   return (
-    <div style={{ borderTop: '1px solid var(--border-soft)' }}>
+    <ul style={{ borderTop: '1px solid var(--border-soft)', listStyle: 'none', margin: 0, padding: 0 }}>
       {nodes.map((node, i) => (
         <TreeNode key={node.id || i} node={node} depth={0} onLeafTap={onLeafTap} />
       ))}
-    </div>
+    </ul>
   )
 }

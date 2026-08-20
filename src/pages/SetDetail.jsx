@@ -15,6 +15,168 @@ import { S } from '../lib/strings'
 import { buildQuizRoute } from '../quiz/lib/routes'
 import { isInWrongBook } from '../quiz/lib/quizEngine'
 
+function questionType(question) {
+  return question.type === 'choice' ? 'choice' : 'review'
+}
+
+function questionMatchesType(question, type) {
+  return type === null || questionType(question) === type
+}
+
+function summarizeChapterQuestions(name, questions, progress) {
+  let done = 0
+  let correct = 0
+  let wrong = 0
+  let choice = 0
+  let review = 0
+
+  for (const question of questions) {
+    const status = progress[question.id]?.status || 'todo'
+    if (status !== 'todo') done++
+    if (status === 'correct') correct++
+    if (status === 'wrong') wrong++
+    if (questionType(question) === 'choice') choice++
+    else review++
+  }
+
+  return {
+    name,
+    total: questions.length,
+    done,
+    correct,
+    wrong,
+    choice,
+    review,
+    accuracy: done > 0 ? correct / done : 0,
+    chapterValue: questions[0]?.chapter || '',
+  }
+}
+
+function treeTypeLabel(type, count) {
+  return type === 'choice'
+    ? S.setDetail.choiceTreeLabel(count)
+    : S.setDetail.reviewTreeLabel(count)
+}
+
+function makeTreeScopeNode({ id, label, questions, progress, chapter, section }) {
+  const byType = new Map()
+  for (const question of questions) {
+    const type = questionType(question)
+    if (!byType.has(type)) byType.set(type, [])
+    byType.get(type).push(question)
+  }
+
+  const typeLeaves = ['choice', 'review']
+    .filter(type => byType.has(type))
+    .map(type => {
+      const typeQuestions = byType.get(type)
+      return {
+        id: `${id}::${type}`,
+        label: treeTypeLabel(type, typeQuestions.length),
+        count: typeQuestions.length,
+        tiers: tierCountsForQuestions(typeQuestions, progress),
+        chapter,
+        section,
+        quizType: type,
+      }
+    })
+
+  if (typeLeaves.length === 1) {
+    // A homogeneous scope can stay compact, but the leaf still carries the
+    // route kind so it cannot accidentally enter the other quiz flow.
+    return {
+      ...typeLeaves[0],
+      id,
+      label,
+    }
+  }
+
+  return {
+    id,
+    label,
+    count: questions.length,
+    tiers: tierCountsForQuestions(questions, progress),
+    chapter,
+    section,
+    children: typeLeaves,
+  }
+}
+
+/**
+ * Build the structure tree from the exact question scope currently visible
+ * in SetDetail. Every leaf has a quizType; mixed chapter/section scopes get
+ * one leaf per type instead of silently choosing one route.
+ */
+export function buildSetDetailTreeNodes(questions, progress) {
+  const chapterMap = new Map()
+  for (const question of questions) {
+    const chapter = question.chapter || ''
+    if (!chapterMap.has(chapter)) chapterMap.set(chapter, new Map())
+    const sectionMap = chapterMap.get(chapter)
+    const section = question.section || ''
+    if (!sectionMap.has(section)) sectionMap.set(section, [])
+    sectionMap.get(section).push(question)
+  }
+
+  return [...chapterMap.entries()].map(([chapter, sectionMap]) => {
+    const chapterLabel = chapter || S.setDetail.uncategorized
+    const chapterQuestions = [...sectionMap.values()].flat()
+    const sectionNodes = [...sectionMap.entries()]
+      .filter(([section]) => section !== '')
+      .map(([section, sectionQuestions]) => makeTreeScopeNode({
+        id: `${chapter}::${section}`,
+        label: section,
+        questions: sectionQuestions,
+        progress,
+        chapter,
+        section,
+      }))
+    const uncategorizedQuestions = sectionMap.get('') || []
+
+    if (uncategorizedQuestions.length === 0) {
+      return {
+        id: chapter,
+        label: chapterLabel,
+        count: chapterQuestions.length,
+        tiers: tierCountsForQuestions(chapterQuestions, progress),
+        chapter,
+        section: '',
+        children: sectionNodes,
+      }
+    }
+
+    if (sectionNodes.length === 0) {
+      return makeTreeScopeNode({
+        id: chapter,
+        label: chapterLabel,
+        questions: uncategorizedQuestions,
+        progress,
+        chapter,
+        section: '',
+      })
+    }
+
+    sectionNodes.unshift(makeTreeScopeNode({
+      id: `${chapter}::`,
+      label: S.setDetail.uncategorized,
+      questions: uncategorizedQuestions,
+      progress,
+      chapter,
+      section: '',
+    }))
+
+    return {
+      id: chapter,
+      label: chapterLabel,
+      count: chapterQuestions.length,
+      tiers: tierCountsForQuestions(chapterQuestions, progress),
+      chapter,
+      section: '',
+      children: sectionNodes,
+    }
+  })
+}
+
 export default function SetDetail() {
   const { subject } = useParams()
   const navigate = useNavigate()
@@ -46,6 +208,9 @@ export default function SetDetail() {
   const chapters = getChapterList(subject)
   const questions = loadQuestions().filter(q => q.subject === subject)
   const starredIds = new Set(loadStarred())
+  const progress = loadProgress()
+  const filterType = filter === 'choice' || filter === 'review' ? filter : null
+  const visibleQuestions = questions.filter(question => questionMatchesType(question, filterType))
 
   const subjectName = getSubjectDisplayName(subject)
   const typeCounts = { choice: 0, review: 0 }
@@ -54,58 +219,42 @@ export default function SetDetail() {
     typeCounts.review += ch.review
   }
 
-  const starredChapterNames = new Set(
-    questions.filter(q => starredIds.has(q.id) && q.chapter).map(q => q.chapter)
-  )
   const starredCount = questions.filter(q => starredIds.has(q.id)).length
-  const starredByChapter = questions.reduce((map, q) => {
+  const starredByChapter = visibleQuestions.reduce((map, q) => {
     if (starredIds.has(q.id)) map[q.chapter || S.setDetail.uncategorized] = (map[q.chapter || S.setDetail.uncategorized] || 0) + 1
     return map
   }, {})
 
-  // Build tree nodes for structure view
-  const progress = loadProgress()
   const wrongBookCount = questions.filter(q => isInWrongBook(progress[q.id])).length
-  const treeNodes = (() => {
-    const chapterMap = new Map()
-    for (const q of questions) {
-      const ch = q.chapter || S.setDetail.uncategorized
-      if (!chapterMap.has(ch)) chapterMap.set(ch, new Map())
-      const secMap = chapterMap.get(ch)
-      const sec = q.section || ''
-      if (!secMap.has(sec)) secMap.set(sec, [])
-      secMap.get(sec).push(q)
-    }
-    return [...chapterMap.entries()].map(([ch, secMap]) => {
-      const chQs = [...secMap.values()].flat()
-      const chTiers = tierCountsForQuestions(chQs, progress)
-      const children = [...secMap.entries()]
-        .filter(([sec]) => sec !== '')
-        .map(([sec, secQs]) => ({
-          id: `${ch}::${sec}`,
-          label: sec,
-          count: secQs.length,
-          tiers: tierCountsForQuestions(secQs, progress),
-          chapter: ch,
-          section: sec,
-        }))
-      const noSecQs = secMap.get('') || []
-      if (noSecQs.length > 0 && children.length === 0) {
-        return { id: ch, label: ch, count: chQs.length, tiers: chTiers, chapter: ch, section: '' }
-      }
-      if (noSecQs.length > 0) {
-        children.unshift({ id: `${ch}::`, label: S.setDetail.uncategorized, count: noSecQs.length, tiers: tierCountsForQuestions(noSecQs, progress), chapter: ch, section: '' })
-      }
-      return { id: ch, label: ch, count: chQs.length, tiers: chTiers, children }
-    })
-  })()
+  const treeNodes = buildSetDetailTreeNodes(visibleQuestions, progress)
 
-  const filteredChapters = chapters.filter(ch => {
-    if (filter === 'choice') return ch.choice > 0
-    if (filter === 'review') return ch.review > 0
-    if (filter === 'starred') return starredChapterNames.has(ch.name)
-    return true
-  })
+  const questionsByChapter = new Map()
+  const chapterRouteValues = new Map()
+  for (const question of visibleQuestions) {
+    const chapter = question.chapter || S.setDetail.uncategorized
+    if (!questionsByChapter.has(chapter)) questionsByChapter.set(chapter, [])
+    questionsByChapter.get(chapter).push(question)
+  }
+  for (const question of questions) {
+    const chapter = question.chapter || S.setDetail.uncategorized
+    if (!chapterRouteValues.has(chapter)) chapterRouteValues.set(chapter, question.chapter || '')
+  }
+  const listChapters = chapters.map(ch => ({
+    ...ch,
+    // Keep the raw storage value for the route. The display label "未分类"
+    // must never become a query constraint for an empty chapter.
+    chapterValue: chapterRouteValues.has(ch.name) ? chapterRouteValues.get(ch.name) : ch.name,
+  }))
+  const filteredChapters = filterType
+    ? listChapters
+      .map(ch => {
+        const chapterQuestions = questionsByChapter.get(ch.name) || []
+        return chapterQuestions.length > 0
+          ? summarizeChapterQuestions(ch.name, chapterQuestions, progress)
+          : null
+      })
+      .filter(Boolean)
+    : listChapters
 
   const accuracy = stats.done > 0 ? Math.round((stats.done - stats.wrong) / stats.done * 100) : 0
   const importRoute = '/import?tab=json'
@@ -198,10 +347,6 @@ export default function SetDetail() {
                 {S.setDetail.reviewFilterPrefix}{typeCounts.review}
               </button>
             )}
-            <button onClick={() => setFilter('starred')} className={`chip ${filter === 'starred' ? 'on' : ''}`} aria-pressed={filter === 'starred'}>
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l2.7 5.9 6.3.6-4.8 4.5 1.5 6.5L12 17l-5.7 3.5 1.5-6.5L3 9.5l6.3-.6z" /></svg>
-              {S.setDetail.starredFilterPrefix}{starredCount}
-            </button>
           </div>
         </div>
 
@@ -220,7 +365,7 @@ export default function SetDetail() {
               <StructureTree
                 nodes={treeNodes}
                 onLeafTap={(node) => {
-                  navigate(buildQuizRoute(typeCounts.choice > 0 ? 'quiz' : 'quiz-review', subject, {
+                  navigate(buildQuizRoute(node.quizType === 'choice' ? 'quiz' : 'quiz-review', subject, {
                     chapter: node.chapter,
                     section: node.section,
                   }))
@@ -250,7 +395,7 @@ export default function SetDetail() {
                   {isOpen && (
                     <div style={{ paddingLeft: 16 }}>
                       {ch.choice > 0 && (
-                        <Link to={buildQuizRoute('quiz', subject, { chapter: ch.name })}
+                        <Link to={buildQuizRoute('quiz', subject, { chapter: ch.chapterValue ?? ch.name })}
                           className="card-row">
                           <span className="q-tag-mini choice">{S.setDetail.choiceTagMini}</span>
                           <span className="front" style={{ fontSize: 'var(--text-md)' }}>{S.setDetail.choiceLabelWithCount(ch.choice)}</span>
@@ -258,7 +403,7 @@ export default function SetDetail() {
                         </Link>
                       )}
                       {ch.review > 0 && (
-                        <Link to={buildQuizRoute('quiz-review', subject, { chapter: ch.name })}
+                        <Link to={buildQuizRoute('quiz-review', subject, { chapter: ch.chapterValue ?? ch.name })}
                           className="card-row">
                           <span className="q-tag-mini review">{S.setDetail.reviewTagMini}</span>
                           <span className="front" style={{ fontSize: 'var(--text-md)' }}>{S.setDetail.reviewLabelWithCount(ch.review)}</span>
@@ -272,7 +417,7 @@ export default function SetDetail() {
             })}
             {filteredChapters.length === 0 && (
               <div style={{ padding: '24px', textAlign: 'center', color: 'var(--ink-3)', fontSize: 'var(--text-md)' }}>
-                {filter === 'starred' ? S.setDetail.emptyStarredChapters : S.setDetail.emptyChapters}
+                {S.setDetail.emptyChapters}
               </div>
             )}
           </div>

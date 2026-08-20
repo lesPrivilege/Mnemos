@@ -128,10 +128,52 @@ describe('SetDetail FloatingBar actions', () => {
     renderSet({ choice: 1, starredIds: ['q1'] })
 
     expect(document.querySelectorAll('.dd-action')).toHaveLength(0)
+    expect(screen.queryByRole('button', { name: /收藏/ })).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: '更多操作' }))
 
     const starredMenuItem = screen.getByRole('menuitem', { name: '收藏' })
     expect(starredMenuItem.getAttribute('href')).toBe('/starred?subject=%E6%95%B0%E5%AD%A6%2F%E5%9F%BA%E7%A1%80')
+  })
+
+  it('filters chapter rows and expanded sub-actions by the selected question type', () => {
+    state.chapters = [
+      { name: '第一章', total: 3, done: 0, correct: 0, wrong: 0, choice: 2, review: 1 },
+      { name: '第二章', total: 1, done: 0, correct: 0, wrong: 0, choice: 0, review: 1 },
+    ]
+    state.questions = [
+      { id: 'choice-1', subject: '数学/基础', chapter: '第一章', type: 'choice', question: '选择一' },
+      { id: 'choice-2', subject: '数学/基础', chapter: '第一章', type: 'choice', question: '选择二' },
+      { id: 'review-1', subject: '数学/基础', chapter: '第一章', type: 'review', question: '解答一' },
+      { id: 'review-2', subject: '数学/基础', chapter: '第二章', type: 'review', question: '解答二' },
+    ]
+    state.stats = { total: 4, done: 0, correct: 0, wrong: 0 }
+    state.progress = {}
+    state.starred = []
+    render(<SetDetail />)
+
+    fireEvent.click(screen.getByRole('button', { name: '选择 · 2' }))
+    expect(screen.getByText('第一章')).toBeTruthy()
+    expect(screen.queryByText('第二章')).toBeNull()
+
+    fireEvent.click(screen.getByText('第一章'))
+    expect(screen.getByText('选择题 (2题)')).toBeTruthy()
+    expect(screen.queryByText('解答题 (1题)')).toBeNull()
+  })
+
+  it('counts only visible-type stars on filtered chapter rows', () => {
+    state.chapters = [{ name: '第一章', total: 2, done: 0, correct: 0, wrong: 0, choice: 1, review: 1 }]
+    state.questions = [
+      { id: 'choice-1', subject: '数学/基础', chapter: '第一章', type: 'choice', question: '选择一' },
+      { id: 'review-1', subject: '数学/基础', chapter: '第一章', type: 'review', question: '解答一' },
+    ]
+    state.stats = { total: 2, done: 0, correct: 0, wrong: 0 }
+    state.progress = {}
+    state.starred = ['review-1']
+    render(<SetDetail />)
+
+    fireEvent.click(screen.getByRole('button', { name: '选择 · 1' }))
+    const chapterRow = screen.getByText('第一章').closest('.card-row')
+    expect(chapterRow?.textContent).not.toContain('★')
   })
 
   it('keeps import in the top-bar menu and makes the menu state inert and dismissible', () => {

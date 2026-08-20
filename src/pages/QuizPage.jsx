@@ -25,8 +25,10 @@ const MODES = [
 export default function Quiz() {
   const { subject } = useParams()
   const [searchParams] = useSearchParams()
-  const chapter = searchParams.get('chapter')
-  const section = searchParams.get('section')
+  const chapter = searchParams.has('chapter') ? searchParams.get('chapter') : undefined
+  const section = searchParams.has('section') ? searchParams.get('section') : undefined
+  const chapterForSession = chapter === undefined ? null : chapter
+  const sectionForSession = section === undefined ? null : section
   const initialQid = searchParams.get('qid')
   const initialMode = searchParams.get('mode')
   const { goBack } = useBackButton()
@@ -62,7 +64,7 @@ export default function Quiz() {
     const saved = qid ? null : loadLastSession()
     if (
       saved && saved.mode === m && saved.subject === subject &&
-      saved.chapter === (chapter || null) && saved.section === (section || null) &&
+      saved.chapter === chapterForSession && saved.section === sectionForSession &&
       Array.isArray(saved.questionIds) && saved.questionIds.length > 0
     ) {
       const byId = new Map(loadQuestions().map((q) => [q.id, q]))
@@ -116,7 +118,7 @@ export default function Quiz() {
     setExplainOpen(false)
     if (loaded.length > 0) {
       saveLastSession({
-        subject, chapter, section, mode: m,
+        subject, chapter: chapterForSession, section: sectionForSession, mode: m,
         route: buildQuizRoute('quiz', subject, { chapter, section }),
       })
     }
@@ -132,7 +134,7 @@ export default function Quiz() {
   // 中断会话：真退出（未完成）时落盘一次。sessionRef 每帧持最新态，
   // 避免逐次答题都写 localStorage。
   useEffect(() => {
-    sessionRef.current = { finished, questions, results, mode, subject, chapter, section }
+    sessionRef.current = { finished, questions, results, mode, subject, chapter: chapterForSession, section: sectionForSession }
   })
 
   useEffect(() => {

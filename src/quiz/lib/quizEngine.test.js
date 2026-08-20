@@ -101,6 +101,23 @@ describe('quizEngine', () => {
     ).toEqual(['q1'])
   })
 
+  it('keeps absent and explicitly empty chapter/section scopes distinct', () => {
+    const uncategorized = {
+      id: 'q5',
+      subject: 'os',
+      chapter: '',
+      section: '',
+      type: 'choice',
+      answer: 'C',
+    }
+    loadQuestions.mockReturnValue([...questions, uncategorized])
+
+    expect(getQuizQuestions({ subject: 'os', mode: 'sequential', limit: 10 }).map(q => q.id))
+      .toEqual(['q1', 'q2', 'q4', 'q5'])
+    expect(getQuizQuestions({ subject: 'os', chapter: '', section: '', type: 'choice', mode: 'sequential', limit: 10 }).map(q => q.id))
+      .toEqual(['q5'])
+  })
+
   it('shuffles random questions before limiting', () => {
     expect(getQuizQuestions({ mode: 'random', limit: 2 }).map((question) => question.id)).toEqual([
       'q1',
