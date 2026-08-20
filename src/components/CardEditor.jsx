@@ -109,7 +109,7 @@ export default function CardEditor({ initial, onSave, onCancel }) {
             onChange={(e) => setFront(e.target.value)}
             placeholder={S.cardEditor.frontPlaceholder}
             rows={3}
-            className="w-full p-3 rounded-lg border border-border bg-bg-card text-ink
+            className="w-full p-3 rounded-md border border-border bg-bg-card text-ink
               font-zh text-md placeholder:text-ink-2/50
               focus:outline-none focus:border-accent resize-none"
           />
@@ -134,7 +134,7 @@ export default function CardEditor({ initial, onSave, onCancel }) {
             onChange={(e) => setBack(e.target.value)}
             placeholder={S.cardEditor.backPlaceholder}
             rows={3}
-            className="w-full p-3 rounded-lg border border-border bg-bg-card text-ink
+            className="w-full p-3 rounded-md border border-border bg-bg-card text-ink
               font-zh text-md placeholder:text-ink-2/50
               focus:outline-none focus:border-accent resize-none"
           />
@@ -144,7 +144,7 @@ export default function CardEditor({ initial, onSave, onCancel }) {
       <div className="flex justify-end gap-2">
         <button
           type="submit"
-          className="px-4 py-2 rounded-lg font-medium text-md font-body
+          className="px-4 py-2 rounded-md font-medium text-md font-body
             bg-ink text-bg active:scale-[0.97] transition-transform
             disabled:opacity-40"
           disabled={!front.trim() || !back.trim()}
@@ -155,7 +155,7 @@ export default function CardEditor({ initial, onSave, onCancel }) {
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 rounded-lg font-medium text-md font-body
+            className="px-4 py-2 rounded-md font-medium text-md font-body
               border border-border text-ink-2
               active:scale-[0.97] transition-transform"
           >

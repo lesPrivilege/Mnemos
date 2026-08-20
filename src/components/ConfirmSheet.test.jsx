@@ -71,6 +71,8 @@ describe('ConfirmSheet overlay contract', () => {
     const dialog = await screen.findByRole('dialog', { name: '确认删除' })
     const cancel = within(dialog).getByRole('button', { name: '取消' })
     const confirm = within(dialog).getByRole('button', { name: '确认' })
+    expect(cancel.style.borderRadius).toBe('var(--r-md)')
+    expect(confirm.style.borderRadius).toBe('var(--r-md)')
     await waitFor(() => expect(document.activeElement).toBe(cancel))
     expect(root.inert).toBe(true)
 

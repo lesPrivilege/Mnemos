@@ -66,11 +66,11 @@ export function ConfirmSheet({ state }) {
         {!message && <div style={{ height: 12 }} />}
         <div style={{ display: 'flex', gap: 8 }}>
           <button ref={cancelRef} onClick={() => onResult(false)} style={{
-            flex: 1, padding: '10px 0', borderRadius: 'var(--r-lg)', border: '1px solid var(--border)',
+            flex: 1, padding: '10px 0', borderRadius: 'var(--r-md)', border: '1px solid var(--border)',
             background: 'var(--bg)', color: 'var(--ink)', fontFamily: 'var(--font-zh)', fontSize: 'var(--text-lg)', fontWeight: 500,
           }}>{cancelLabel}</button>
           <button onClick={() => onResult(true)} style={{
-            flex: 1, padding: '10px 0', borderRadius: 'var(--r-lg)', border: 'none',
+            flex: 1, padding: '10px 0', borderRadius: 'var(--r-md)', border: 'none',
             /* 有后果之动作取真红；寻常确认取墨——accent 不作按钮底色（判例四） */
             background: destructive ? 'var(--danger-critical)' : 'var(--ink)',
             color: 'var(--bg)', fontFamily: 'var(--font-zh)', fontSize: 'var(--text-lg)', fontWeight: 500,
