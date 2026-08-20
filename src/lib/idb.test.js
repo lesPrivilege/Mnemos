@@ -49,6 +49,20 @@ function forcePutErrorOnce() {
   return spy
 }
 
+function forceDeleteErrorOnce() {
+  return vi.spyOn(FDBObjectStore.prototype, 'delete').mockImplementationOnce(function mockDelete() {
+    const request = new FDBRequest()
+    request.source = this
+    request.transaction = this.transaction
+    request.error = new DOMException('forced failure', 'UnknownError')
+    queueMicrotask(() => {
+      request.readyState = 'done'
+      if (typeof request.onerror === 'function') request.onerror(new Event('error'))
+    })
+    return request
+  })
+}
+
 describe('idb.js IndexedDB helper', () => {
   beforeEach(() => {
     vi.resetModules()
@@ -94,5 +108,30 @@ describe('idb.js IndexedDB helper', () => {
     const { idbSet } = await import('./idb')
 
     expect(await idbSet('kv', 'some-key', 'some-value')).toBe(false)
+  })
+
+  it('idbDel resolves true only after deleting from an available store', async () => {
+    const { idbDel, idbGet, idbSet } = await import('./idb')
+    await idbSet('kv', 'some-key', 'some-value')
+
+    expect(await idbDel('kv', 'some-key')).toBe(true)
+    expect(await idbGet('kv', 'some-key')).toBeUndefined()
+  })
+
+  it('idbDel resolves false when the underlying delete request errors', async () => {
+    const { idbDel } = await import('./idb')
+    const spy = forceDeleteErrorOnce()
+
+    expect(await idbDel('kv', 'some-key')).toBe(false)
+    expect(spy).toHaveBeenCalled()
+  })
+
+  it('idbDel resolves false when IndexedDB is unavailable', async () => {
+    vi.unstubAllGlobals()
+    vi.stubGlobal('indexedDB', undefined)
+    vi.resetModules()
+    const { idbDel } = await import('./idb')
+
+    expect(await idbDel('kv', 'some-key')).toBe(false)
   })
 })

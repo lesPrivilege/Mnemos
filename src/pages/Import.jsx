@@ -6,7 +6,7 @@ import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
 import { addDeck, addCard, getDeck, getCards, getDecks, importData, mergeData, loadData } from '../lib/storage'
 import { parseMdToCards } from '../lib/mdParser'
 import { parseAnkiToCards } from '../lib/ankiParser'
-import { getCollections, addCollection, addDocument } from '../reading/lib/storage'
+import { getCollections, addCollection, addDocument, deleteCollection } from '../reading/lib/storage'
 import { importReadingData, mergeReadingData } from '../reading/lib/backup'
 import { readFileAsDocument, ACCEPT as READING_ACCEPT } from '../reading/lib/importer'
 import { BackIcon, UploadIcon, PasteIcon } from '../components/Icons'
@@ -26,6 +26,9 @@ export default function Import() {
   const fileInputRef = useRef(null)
   const mdTargetDeckId = searchParams.get('deckId')
   const mdTargetDeck = mdTargetDeckId ? getDeck(mdTargetDeckId) : null
+  const mdGuideParams = new URLSearchParams({ tab: 'general' })
+  if (mdTargetDeckId) mdGuideParams.set('deckId', mdTargetDeckId)
+  const mdGuideRoute = `/prompt-guide?${mdGuideParams.toString()}`
   const [importTab, setImportTab] = useState(() => {
     const tab = searchParams.get('tab')
     if (tab === 'md') return 'md'
@@ -58,6 +61,14 @@ export default function Import() {
   const [readingCollection, setReadingCollection] = useState('')
   const [readingCollections, setReadingCollections] = useState([])
   const [readingNewColName, setReadingNewColName] = useState('')
+  const [readingCommitPending, setReadingCommitPending] = useState(false)
+  const readingCommitRef = useRef(false)
+  const importMountedRef = useRef(true)
+
+  useEffect(() => {
+    importMountedRef.current = true
+    return () => { importMountedRef.current = false }
+  }, [])
 
   // ---- JSON (quiz) state ----
   const [previewData, setPreviewData] = useState(null)
@@ -326,25 +337,40 @@ export default function Import() {
     processReadingFile(fakeFile)
   }
 
-  const handleConfirmReading = () => {
-    if (!readingPreview) return
+  const handleConfirmReading = async () => {
+    if (!readingPreview || readingCommitRef.current) return
     let colId = readingCollection
+    let temporaryCollectionId = null
 
-    // Create new collection if needed
-    if (!colId) {
-      if (readingNewColName.trim()) {
-        const col = addCollection(readingNewColName.trim())
-        colId = col.id
-      } else {
-        showToast(S.import.selectOrCreateCollection)
-        return
-      }
+    if (!colId && !readingNewColName.trim()) {
+      showToast(S.import.selectOrCreateCollection)
+      return
     }
 
-    addDocument(colId, readingPreview.title, readingPreview.content, readingPreview.format)
-    showToast(S.import.importedDocSummary(readingPreview.title, readingPreview.format.toUpperCase()))
-    reset()
-    navigate('/?tab=reading')
+    const preview = readingPreview
+    readingCommitRef.current = true
+    setReadingCommitPending(true)
+    try {
+      // Create only after claiming the pending gate. If the body fails, this
+      // attempt-owned empty collection is removed before the error is shown.
+      if (!colId) {
+        const col = addCollection(readingNewColName.trim())
+        colId = col.id
+        temporaryCollectionId = col.id
+      }
+      await addDocument(colId, preview.title, preview.content, preview.format)
+      if (!importMountedRef.current) return
+      showToast(S.import.importedDocSummary(preview.title, preview.format.toUpperCase()))
+      navigate('/?tab=reading')
+    } catch {
+      if (temporaryCollectionId) {
+        try { deleteCollection(temporaryCollectionId) } catch { /* keep the write failure visible */ }
+      }
+      if (importMountedRef.current) showToast(S.import.readingSaveFailed)
+    } finally {
+      readingCommitRef.current = false
+      if (importMountedRef.current) setReadingCommitPending(false)
+    }
   }
 
   // ---- Preview mode: JSON quiz ----
@@ -353,7 +379,7 @@ export default function Import() {
     return (
       <div className="page-fill">
         <header className="topbar">
-          <button onClick={reset} className="tb-btn">
+          <button onClick={reset} className="tb-btn" aria-label={S.common.back}>
             <BackIcon />
           </button>
           <h1 className="flex-1 font-zh text-xl font-medium text-ink pl-1">{quizBackupData ? S.import.quizBackupPreviewTitle : S.import.jsonImportPreviewTitle}</h1>
@@ -429,7 +455,7 @@ export default function Import() {
     return (
       <div className="page-fill">
         <header className="topbar">
-          <button onClick={reset} className="tb-btn">
+          <button onClick={reset} className="tb-btn" aria-label={S.common.back}>
             <BackIcon />
           </button>
           <h1 className="flex-1 font-zh text-xl font-medium text-ink pl-1">{S.import.jsonImportPreviewTitle}</h1>
@@ -498,7 +524,7 @@ export default function Import() {
     return (
       <div className="page-fill">
         <header className="topbar">
-          <button onClick={reset} className="tb-btn"><BackIcon /></button>
+          <button onClick={reset} className="tb-btn" aria-label={S.common.back}><BackIcon /></button>
           <h1 className="flex-1 font-zh text-xl font-medium text-ink pl-1">{S.import.fullBackupPreviewTitle}</h1>
         </header>
         <main className="flex-1 overflow-y-auto p-[18px] flex flex-col gap-4">
@@ -550,7 +576,7 @@ export default function Import() {
     return (
       <div className="page-fill">
         <header className="topbar">
-          <button onClick={reset} className="tb-btn">
+          <button onClick={reset} className="tb-btn" aria-label={S.common.back}>
             <BackIcon />
           </button>
           <h1 className="flex-1 font-zh text-xl font-medium text-ink pl-1">{S.import.mdPreviewTitle}</h1>
@@ -612,7 +638,7 @@ export default function Import() {
     return (
       <div className="page-fill">
         <header className="topbar">
-          <button onClick={reset} className="tb-btn"><BackIcon /></button>
+          <button onClick={reset} disabled={readingCommitPending} className="tb-btn" aria-label={S.common.back}><BackIcon /></button>
           <h1 className="flex-1 font-zh text-xl font-medium text-ink pl-1">{S.import.readingDocPreviewTitle}</h1>
         </header>
         <main className="flex-1 overflow-y-auto p-[18px] flex flex-col gap-4">
@@ -625,7 +651,7 @@ export default function Import() {
 
           <div className="settings-card">
             <div className="lbl">{S.import.importToCollectionHeading}</div>
-            <select value={readingCollection} onChange={e => setReadingCollection(e.target.value)}
+            <select value={readingCollection} onChange={e => setReadingCollection(e.target.value)} disabled={readingCommitPending}
               className="w-full py-[9px] px-3 rounded-md border bg-bg text-ink font-zh text-md outline-none focus:border-accent"
               style={{ borderColor: 'var(--border)' }}>
               <option value="">{S.import.selectCollectionPlaceholder}</option>
@@ -635,7 +661,7 @@ export default function Import() {
             </select>
             <div className="mt-2 flex items-center gap-2">
               <span className="font-zh text-xs text-ink-3">{S.import.orCreateNewLabel}</span>
-              <input value={readingNewColName} onChange={e => setReadingNewColName(e.target.value)}
+              <input value={readingNewColName} onChange={e => setReadingNewColName(e.target.value)} disabled={readingCommitPending}
                 placeholder={S.import.newCollectionNamePlaceholder}
                 className="flex-1 py-[6px] px-2 rounded border bg-bg text-ink font-zh text-xs outline-none focus:border-accent"
                 style={{ borderColor: 'var(--border)' }} />
@@ -643,8 +669,11 @@ export default function Import() {
           </div>
 
           <div className="grid grid-cols-2 gap-2">
-            <button onClick={reset} className="btn btn-ghost btn-block">{S.import.cancel}</button>
-            <button onClick={handleConfirmReading} className="btn btn-primary btn-block">{S.import.confirmImport}</button>
+            <button onClick={reset} disabled={readingCommitPending} className="btn btn-ghost btn-block">{S.import.cancel}</button>
+            <button onClick={handleConfirmReading} disabled={readingCommitPending} aria-busy={readingCommitPending}
+              className="btn btn-primary btn-block">
+              {readingCommitPending ? S.import.importingDocument : S.import.confirmImport}
+            </button>
           </div>
         </main>
         <Toast message={toast} />
@@ -657,7 +686,7 @@ export default function Import() {
   return (
     <div className="page-fill">
       <header className="topbar">
-        <button onClick={goBack} className="tb-btn">
+        <button onClick={goBack} className="tb-btn" aria-label={S.common.back}>
           <BackIcon />
         </button>
         <h1 className="flex-1 font-zh text-xl font-medium text-ink pl-1">{S.import.pageTitle}</h1>
@@ -825,7 +854,7 @@ export default function Import() {
         )}
         {importTab === 'md' && (
           <div className="text-md text-ink-2 leading-relaxed font-zh text-center py-2 tracking-[0.04em]">
-            {S.import.notSureHowToPrepare}<Link to="/prompt-guide" style={{ color: 'var(--accent)' }}>{S.import.viewCardGuideLink}</Link>
+            {S.import.notSureHowToPrepare}<Link to={mdGuideRoute} style={{ color: 'var(--accent)' }}>{S.import.viewCardGuideLink}</Link>
           </div>
         )}
         {importTab === 'reading' && (

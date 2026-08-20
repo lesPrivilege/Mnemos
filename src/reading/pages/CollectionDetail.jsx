@@ -25,6 +25,20 @@ export default function CollectionDetail() {
   const [newDocTitle, setNewDocTitle] = useState('')
   const [newDocContent, setNewDocContent] = useState('')
   const [showMenu, setShowMenu] = useState(false)
+  const [documentMutation, setDocumentMutation] = useState(null)
+  const documentMutationRef = useRef(false)
+
+  const beginDocumentMutation = (next) => {
+    if (documentMutationRef.current) return false
+    documentMutationRef.current = true
+    setDocumentMutation(next)
+    return true
+  }
+
+  const endDocumentMutation = () => {
+    documentMutationRef.current = false
+    setDocumentMutation(null)
+  }
 
   const refresh = () => {
     setCol(getCollection(id))
@@ -58,31 +72,61 @@ export default function CollectionDetail() {
   // ── Handlers ───────────────────────────────────────
 
   const handleFileImport = async (e) => {
+    const input = e.target
     const file = e.target.files?.[0]
     if (!file) return
+    if (!beginDocumentMutation({ type: 'import' })) {
+      input.value = ''
+      return
+    }
+    let parsed
     try {
-      const { title, content, format } = await readFileAsDocument(file)
-      addDocument(id, title, content, format)
+      parsed = await readFileAsDocument(file)
+    } catch {
+      showToast(S.collectionDetail.importFailedToast)
+      input.value = ''
+      endDocumentMutation()
+      return
+    }
+    try {
+      await addDocument(id, parsed.title, parsed.content, parsed.format)
       refresh()
-    } catch { showToast(S.collectionDetail.importFailedToast) }
-    e.target.value = ''
+    } catch {
+      showToast(S.collectionDetail.saveFailedToast)
+    } finally {
+      input.value = ''
+      endDocumentMutation()
+    }
   }
 
-  const handleAddDocument = (e) => {
+  const handleAddDocument = async (e) => {
     e.preventDefault()
-    if (!newDocTitle.trim() || !newDocContent.trim()) return
-    addDocument(id, newDocTitle.trim(), newDocContent.trim(), 'md')
-    setNewDocTitle('')
-    setNewDocContent('')
-    setShowNewDoc(false)
-    refresh()
+    if (!newDocTitle.trim() || !newDocContent.trim() || !beginDocumentMutation({ type: 'add' })) return
+    try {
+      await addDocument(id, newDocTitle.trim(), newDocContent.trim(), 'md')
+      setNewDocTitle('')
+      setNewDocContent('')
+      setShowNewDoc(false)
+      refresh()
+    } catch {
+      showToast(S.collectionDetail.saveFailedToast)
+    } finally {
+      endDocumentMutation()
+    }
   }
 
   const handleDeleteDocument = async (docId) => {
-    const ok = await confirm({ title: S.collectionDetail.deleteDocTitle, message: S.collectionDetail.deleteDocMessage, confirmLabel: S.collectionDetail.confirmDelete })
-    if (!ok) return
-    deleteDocument(docId)
-    refresh()
+    if (!beginDocumentMutation({ type: 'delete', docId })) return
+    try {
+      const ok = await confirm({ title: S.collectionDetail.deleteDocTitle, message: S.collectionDetail.deleteDocMessage, confirmLabel: S.collectionDetail.confirmDelete })
+      if (!ok) return
+      await deleteDocument(docId)
+      refresh()
+    } catch {
+      showToast(S.collectionDetail.deleteFailedToast)
+    } finally {
+      endDocumentMutation()
+    }
   }
 
   const handleTogglePin = () => {
@@ -108,17 +152,16 @@ export default function CollectionDetail() {
   return (
     <div className="page-fill">
       {/* Topbar */}
-      <header className="topbar">
-        <button onClick={goBack} className="tb-btn"><BackIcon /></button>
+      <header className="topbar" style={showMenu ? { zIndex: 50 } : undefined}>
+        <button onClick={goBack} className="tb-btn" aria-label={S.common.back}><BackIcon /></button>
         <h1 className="flex-1 font-zh text-xl font-medium text-ink truncate pl-1">{col.name}</h1>
         <div className="tb-actions">
           <div className="relative">
-            <button onClick={() => setShowMenu(o => !o)} className="tb-btn" aria-haspopup="menu" aria-expanded={showMenu}>
+            <button onClick={() => setShowMenu(o => !o)} className="tb-btn" aria-label={S.common.moreActions} aria-haspopup="menu" aria-expanded={showMenu}>
               <MoreIcon />
             </button>
             {showMenu && (
               <>
-                <button className="fixed inset-0 z-10 cursor-default" onClick={() => setShowMenu(false)} aria-label={S.collectionDetail.closeMenu} />
                 <div className="absolute right-0 top-9 z-20 min-w-[168px] rounded-md bg-bg-card border border-border-soft overflow-hidden"
                   role="menu" style={{ border: '1px solid var(--border-soft)' }}>
                   <button onClick={handleTogglePin}
@@ -136,7 +179,11 @@ export default function CollectionDetail() {
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto">
+      {showMenu && (
+        <button className="fixed inset-0 z-40 cursor-default" onClick={() => setShowMenu(false)} aria-label={S.collectionDetail.closeMenu} />
+      )}
+
+      <main className="flex-1 overflow-y-auto" inert={showMenu ? '' : undefined}>
         {/* Stats */}
         <div style={{ padding: '14px 0 0' }}>
           <div className="dd-head">
@@ -168,12 +215,19 @@ export default function CollectionDetail() {
             <div className="card-list">
               {sorted.map(doc => (
                 <div key={doc.id} className="card-row group"
-                  onClick={() => navigate(`/reading/doc/${doc.id}?col=${id}`)}
-                  {...pressable(() => navigate(`/reading/doc/${doc.id}?col=${id}`))}>
+                  onClick={() => navigate(`/reading/doc/${doc.id}?col=${encodeURIComponent(id)}`)}
+                  {...pressable(() => navigate(`/reading/doc/${doc.id}?col=${encodeURIComponent(id)}`))}>
                   <span className="dot-bullet" />
                   <span className="front" style={{ fontFamily: 'var(--font-ui)' }}>{doc.title}</span>
-                  <span className="font-body text-2xs text-ink-3 shrink-0">{doc.format.toUpperCase()}</span>
+                  <span className="font-body text-2xs text-ink-3 shrink-0">
+                    {documentMutation?.type === 'delete' && documentMutation.docId === doc.id
+                      ? S.collectionDetail.deleting
+                      : doc.format.toUpperCase()}
+                  </span>
                   <button onClick={(e) => { e.stopPropagation(); handleDeleteDocument(doc.id) }}
+                    disabled={Boolean(documentMutation)}
+                    aria-busy={documentMutation?.type === 'delete' && documentMutation.docId === doc.id}
+                    aria-label={S.collectionDetail.deleteDocAction(doc.title)}
                     className="hidden group-hover:inline-flex group-focus-within:inline-flex items-center justify-center w-6 h-6 rounded text-ink-3 hover:text-danger transition-colors">
                     <TrashIcon size={14} />
                   </button>
@@ -188,28 +242,32 @@ export default function CollectionDetail() {
           <div className="mx-[18px] mb-4 p-4 rounded-md border bg-bg-card flex flex-col gap-3"
             style={{ borderColor: 'var(--border-soft)' }}>
             <div className="font-zh text-2xs text-ink-3 tracking-wider">{S.collectionDetail.newDocHeading}</div>
-            <input value={newDocTitle} onChange={e => setNewDocTitle(e.target.value)}
+            <input value={newDocTitle} onChange={e => setNewDocTitle(e.target.value)} disabled={Boolean(documentMutation)}
               placeholder={S.collectionDetail.docTitlePlaceholder} autoFocus
               className="w-full py-[9px] px-3 rounded-md border bg-bg text-ink font-zh text-md outline-none focus:border-accent"
               style={{ borderColor: 'var(--border)' }} />
-            <textarea value={newDocContent} onChange={e => setNewDocContent(e.target.value)}
+            <textarea value={newDocContent} onChange={e => setNewDocContent(e.target.value)} disabled={Boolean(documentMutation)}
               placeholder={S.collectionDetail.docContentPlaceholder} rows={6}
               className="w-full p-3 rounded-md border bg-bg text-ink font-zh text-md outline-none focus:border-accent resize-none"
               style={{ borderColor: 'var(--border)' }} />
             <div className="flex gap-2 justify-end">
-              <button type="button" onClick={() => setShowNewDoc(false)} className="btn btn-ghost">{S.collectionDetail.cancel}</button>
-              <button onClick={handleAddDocument} disabled={!newDocTitle.trim() || !newDocContent.trim()}
-                className="btn btn-primary disabled:opacity-40">{S.collectionDetail.create}</button>
+              <button type="button" onClick={() => setShowNewDoc(false)} disabled={Boolean(documentMutation)} className="btn btn-ghost">{S.collectionDetail.cancel}</button>
+              <button onClick={handleAddDocument}
+                disabled={Boolean(documentMutation) || !newDocTitle.trim() || !newDocContent.trim()}
+                aria-busy={documentMutation?.type === 'add'}
+                className="btn btn-primary disabled:opacity-40">
+                {documentMutation?.type === 'add' ? S.collectionDetail.saving : S.collectionDetail.create}
+              </button>
             </div>
           </div>
         )}
       </main>
 
       {/* Fixed bottom bar */}
-      <div className="flex-shrink-0 px-[18px] pb-[14px] flex flex-col gap-2" style={{ background: 'var(--bg)' }}>
+      <div className="flex-shrink-0 px-[18px] pb-[14px] flex flex-col gap-2" inert={showMenu ? '' : undefined} style={{ background: 'var(--bg)' }}>
         <div className="dd-cta" style={{ margin: 0 }}>
           {continueDoc ? (
-            <button className="dd-cta-main" onClick={() => navigate(`/reading/doc/${continueDoc.id}?col=${id}`)}>
+            <button className="dd-cta-main" onClick={() => navigate(`/reading/doc/${continueDoc.id}?col=${encodeURIComponent(id)}`)}>
               <div className="left">
                 <span className="lead">{continueDoc.title}</span>
                 <span className="sub">{S.collectionDetail.continueReadingSuffix}</span>
@@ -226,16 +284,18 @@ export default function CollectionDetail() {
           )}
         </div>
         <div className="dd-secondary" style={{ margin: 0 }}>
-          <button onClick={() => fileInputRef.current?.click()} className="dd-action">
-            <UploadIcon size={18} /><span className="lab">{S.collectionDetail.importAction}</span>
+          <button onClick={() => fileInputRef.current?.click()} disabled={Boolean(documentMutation)}
+            aria-busy={documentMutation?.type === 'import'} className="dd-action">
+            <UploadIcon size={18} /><span className="lab">{documentMutation?.type === 'import' ? S.collectionDetail.importing : S.collectionDetail.importAction}</span>
           </button>
-          <button onClick={() => setShowNewDoc(v => !v)} className="dd-action">
+          <button onClick={() => setShowNewDoc(v => !v)} disabled={Boolean(documentMutation)} className="dd-action">
             <PlusIcon size={18} /><span className="lab">{S.collectionDetail.newAction}</span>
           </button>
         </div>
       </div>
 
-      <input ref={fileInputRef} type="file" accept=".md,.tex,.txt" onChange={handleFileImport} className="hidden" />
+      <input ref={fileInputRef} type="file" accept=".md,.tex,.txt" onChange={handleFileImport}
+        disabled={Boolean(documentMutation)} className="hidden" />
       <Toast message={toast} />
       <ConfirmSheet state={confirmState} />
     </div>

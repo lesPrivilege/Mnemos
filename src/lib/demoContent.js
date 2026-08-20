@@ -1,7 +1,7 @@
 import { localToday } from './dateUtils'
 import { loadData, saveData } from './storage'
 import { loadQuestions, saveQuestions } from '../quiz/lib/storage'
-import { addCollection, addDocument, getCollections, getDocuments } from '../reading/lib/storage'
+import { addCollection, addDocument, deleteCollection, getCollections, getDocuments } from '../reading/lib/storage'
 
 const NOW = '2026-07-05T00:00:00.000Z'
 const DEMO_DECK_ID = 'demo-phase-b-memory'
@@ -152,7 +152,7 @@ function seedQuestions() {
   return { questions: additions.length }
 }
 
-function seedReading() {
+async function seedReading() {
   let collections = 0
   let documents = 0
   const existingCollections = getCollections()
@@ -167,21 +167,40 @@ function seedReading() {
     doc.collectionId === collection.id && doc.title === demoReadingTitle
   ))
   if (!exists) {
-    addDocument(collection.id, demoReadingTitle, demoReadingContent, 'md')
+    try {
+      await addDocument(collection.id, demoReadingTitle, demoReadingContent, 'md')
+    } catch (error) {
+      // A collection created solely for this attempt must not survive an IDB
+      // body failure as an empty fragment of the demo package.
+      if (collections === 1) deleteCollection(collection.id)
+      throw error
+    }
     documents = 1
   }
 
   return { collections, documents }
 }
 
-export function seedDemoContent() {
+let seedDemoContentPending = null
+
+async function performSeedDemoContent() {
+  // The reading body is the only async/durable prerequisite. Commit it first so
+  // an IDB failure cannot leave a partly seeded flashcard/quiz demo behind.
+  const reading = await seedReading()
   const flashcard = seedFlashcards()
   const quiz = seedQuestions()
-  const reading = seedReading()
   return {
     ...flashcard,
     ...quiz,
     ...reading,
     total: flashcard.decks + flashcard.cards + quiz.questions + reading.collections + reading.documents,
   }
+}
+
+export function seedDemoContent() {
+  if (seedDemoContentPending) return seedDemoContentPending
+  seedDemoContentPending = performSeedDemoContent().finally(() => {
+    seedDemoContentPending = null
+  })
+  return seedDemoContentPending
 }

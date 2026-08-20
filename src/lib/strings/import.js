@@ -14,6 +14,8 @@ export const importStrings = {
   importFailed: '导入失败',
   selectOrCreateCollection: '请选择或创建一个集合',
   importedDocSummary: (title, format) => `导入完成！文档: ${title}，格式: ${format}`,
+  readingSaveFailed: '文档未能写入存储，导入尚未完成',
+  importingDocument: '导入中…',
   quizBackupPreviewTitle: '练习备份预览',
   jsonImportPreviewTitle: 'JSON 导入预览',
   importModeHeading: '导入方式',

@@ -12,6 +12,66 @@ const KEYS = {
 }
 
 const BODY_STORE = 'reading-doc-bodies'
+let documentMutationQueue = Promise.resolve()
+
+function enqueueDocumentMutation(operation) {
+  const result = documentMutationQueue.then(operation, operation)
+  documentMutationQueue = result.catch(() => {})
+  return result
+}
+
+export class ReadingStorageError extends Error {
+  constructor(operation, stage, cause, rollbackFailures = []) {
+    super(`Reading ${operation} failed during ${stage}`, { cause })
+    this.name = 'ReadingStorageError'
+    this.operation = operation
+    this.stage = stage
+    this.rollbackFailures = rollbackFailures
+  }
+}
+
+function requireSave(result, key) {
+  if (!result?.ok) throw new Error(result?.error || `${key} was not saved`)
+}
+
+async function restoreDeletedDocument({ docs, highlights, bookmarks, body, id }) {
+  const failures = []
+  const restore = async (stage, action) => {
+    try {
+      const result = await action()
+      if (result === false || result?.ok === false) throw new Error(`${stage} restore failed`)
+    } catch (error) {
+      failures.push({ stage, error })
+    }
+  }
+
+  if (body !== undefined) {
+    await restore('body', async () => {
+      const restored = await idbSet(BODY_STORE, id, body)
+      if (!restored || await idbGet(BODY_STORE, id) !== body) return false
+      return true
+    })
+  }
+  await restore('highlights', () => {
+    const current = load('reading-highlights', [])
+    const currentIds = new Set(current.map(item => item.id))
+    const removed = highlights.filter(item => item.docId === id && !currentIds.has(item.id))
+    return save('reading-highlights', [...current, ...removed])
+  })
+  await restore('bookmarks', () => {
+    const current = load('reading-bookmarks', [])
+    const currentIds = new Set(current.map(item => item.id))
+    const removed = bookmarks.filter(item => item.docId === id && !currentIds.has(item.id))
+    return save('reading-bookmarks', [...current, ...removed])
+  })
+  await restore('metadata', () => {
+    const current = getDocuments()
+    const deleted = docs.find(doc => doc.id === id)
+    if (!deleted || current.some(doc => doc.id === id)) return { ok: true }
+    return save(KEYS.DOCUMENTS, [...current, deleted])
+  })
+  return failures
+}
 
 // ── Collections ──────────────────────────────────────
 
@@ -95,23 +155,42 @@ export function getDocumentsByCollection(collectionId) {
 }
 
 export function addDocument(collectionId, title, content, format = 'md') {
-  const docs = getDocuments()
-  const id = crypto.randomUUID()
-  const doc = {
-    id,
-    collectionId,
-    title,
-    format,
-    hasBody: true,
-    createdAt: new Date().toISOString(),
-    lastReadAt: null,
-    scrollPct: 0,
-  }
-  docs.push(doc)
-  save(KEYS.DOCUMENTS, docs)
-  // Body to IDB (async, non-blocking)
-  idbSet(BODY_STORE, id, content).catch(() => {})
-  return doc
+  return enqueueDocumentMutation(async () => {
+    const id = crypto.randomUUID()
+    const doc = {
+      id,
+      collectionId,
+      title,
+      format,
+      hasBody: true,
+      createdAt: new Date().toISOString(),
+      lastReadAt: null,
+      scrollPct: 0,
+    }
+    let bodySaved = false
+    try {
+      bodySaved = await idbSet(BODY_STORE, id, content)
+      if (!bodySaved) throw new Error('Document body was not saved')
+
+      const docs = getDocuments()
+      docs.push(doc)
+      requireSave(save(KEYS.DOCUMENTS, docs), KEYS.DOCUMENTS)
+      return doc
+    } catch (error) {
+      const rollbackFailures = []
+      if (bodySaved) {
+        try {
+          const deleted = await idbDel(BODY_STORE, id)
+          if (!deleted || await idbGet(BODY_STORE, id) !== undefined) {
+            throw new Error('Document body rollback could not be verified', { cause: error })
+          }
+        } catch (rollbackError) {
+          rollbackFailures.push({ stage: 'body', error: rollbackError })
+        }
+      }
+      throw new ReadingStorageError('addDocument', bodySaved ? 'metadata' : 'body', error, rollbackFailures)
+    }
+  })
 }
 
 export function updateDocument(id, fields) {
@@ -123,8 +202,51 @@ export function updateDocument(id, fields) {
 }
 
 export function deleteDocument(id) {
-  save(KEYS.DOCUMENTS, getDocuments().filter(d => d.id !== id))
-  idbDel(BODY_STORE, id).catch(() => {})
+  return enqueueDocumentMutation(async () => {
+    const body = await idbGet(BODY_STORE, id)
+    let stage = 'body'
+    let docs = []
+    let highlights = []
+    let bookmarks = []
+
+    try {
+      const deleted = await idbDel(BODY_STORE, id)
+      if (!deleted || await idbGet(BODY_STORE, id) !== undefined) {
+        throw new Error('Document body deletion could not be verified')
+      }
+
+      // Load local records after the awaited IDB work so synchronous updates
+      // made while deletion was pending are not overwritten by a stale snapshot.
+      docs = getDocuments()
+      highlights = load('reading-highlights', [])
+      bookmarks = load('reading-bookmarks', [])
+
+      stage = 'highlights'
+      requireSave(
+        save('reading-highlights', highlights.filter(h => h.docId !== id)),
+        'reading-highlights',
+      )
+
+      stage = 'bookmarks'
+      requireSave(
+        save('reading-bookmarks', bookmarks.filter(b => b.docId !== id)),
+        'reading-bookmarks',
+      )
+
+      stage = 'metadata'
+      requireSave(save(KEYS.DOCUMENTS, docs.filter(d => d.id !== id)), KEYS.DOCUMENTS)
+      return { ok: true }
+    } catch (error) {
+      const rollbackFailures = await restoreDeletedDocument({
+        docs,
+        highlights,
+        bookmarks,
+        body,
+        id,
+      })
+      throw new ReadingStorageError('deleteDocument', stage, error, rollbackFailures)
+    }
+  })
 }
 
 export function toggleCollectionPin(id) {
@@ -205,7 +327,10 @@ export async function migrateBodiesToIDB() {
   let migrated = 0
   for (const doc of docs) {
     if (doc.content && !doc.hasBody) {
-      await idbSet(BODY_STORE, doc.id, doc.content)
+      const bodySaved = await idbSet(BODY_STORE, doc.id, doc.content)
+      // Inline content is the only durable copy until the IDB transaction has
+      // committed. A failed attempt remains eligible for the next migration.
+      if (!bodySaved) continue
       delete doc.content
       doc.hasBody = true
       migrated++

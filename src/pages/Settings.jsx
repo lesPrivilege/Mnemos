@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   clearAllProgress, clearQuestions,
@@ -33,7 +33,7 @@ import { useToast, Toast } from '../components/Toast'
 import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 import { S } from '../lib/strings'
 
-function ActionRow({ title, detail, action, tone = 'danger', confirm, onClick, disabled }) {
+function ActionRow({ title, detail, action, tone = 'danger', confirm, onClick, disabled, pending = false }) {
   return (
     <div className="settings-action">
       <div className="settings-action-copy">
@@ -44,6 +44,7 @@ function ActionRow({ title, detail, action, tone = 'danger', confirm, onClick, d
         type="button"
         onClick={onClick}
         disabled={disabled}
+        aria-busy={pending}
         className={`settings-action-btn ${tone} ${confirm ? 'confirm' : ''}`}
       >
         {action}
@@ -104,6 +105,8 @@ export default function Settings() {
   const [reminderTime, setReminderTimeState] = useState(() => isNative() ? getReminderTime() : '20:00')
   const [reminderError, setReminderError] = useState(null)
   const [nextReminder, setNextReminder] = useState(null)
+  const [demoSeedPending, setDemoSeedPending] = useState(false)
+  const demoSeedRef = useRef(false)
 
   const [dark, setDark] = useState(() => {
     const legacy = localStorage.getItem('mini-srs-theme')
@@ -294,17 +297,28 @@ export default function Settings() {
     }
   }
 
-  const handleSeedDemoContent = () => {
-    const result = seedDemoContent()
-    refresh()
-    showToast(S.settings.demoContentAddedToast(result.total))
+  const handleSeedDemoContent = async () => {
+    if (demoSeedRef.current) return
+    demoSeedRef.current = true
+    setDemoSeedPending(true)
+    try {
+      const result = await seedDemoContent()
+      refresh()
+      showToast(S.settings.demoContentAddedToast(result.total))
+    } catch {
+      refresh()
+      showToast(S.settings.demoContentFailedToast)
+    } finally {
+      demoSeedRef.current = false
+      setDemoSeedPending(false)
+    }
   }
 
   return (
     <div className="page-fill">
       {/* Topbar */}
       <header className="topbar">
-        <button onClick={goBack} className="tb-btn">
+        <button onClick={goBack} className="tb-btn" aria-label={S.common.back}>
           <BackIcon />
         </button>
         <h1 className="flex-1 font-body text-xl font-semibold text-ink pl-1">{S.settings.title}</h1>
@@ -338,9 +352,11 @@ export default function Settings() {
           <ActionRow
             title={S.settings.demoContentTitle}
             detail={S.settings.demoContentDetail}
-            action={S.settings.demoContentAction}
+            action={demoSeedPending ? S.settings.demoContentPendingAction : S.settings.demoContentAction}
             tone="neutral"
             onClick={handleSeedDemoContent}
+            disabled={demoSeedPending}
+            pending={demoSeedPending}
           />
         </section>
 

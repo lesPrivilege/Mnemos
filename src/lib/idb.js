@@ -47,21 +47,47 @@ export async function idbSet(store, key, val) {
   const db = await openDB()
   if (!db) return false
   return new Promise((resolve) => {
-    const tx = db.transaction(store, 'readwrite')
-    const req = tx.objectStore(store).put(val, key)
-    req.onsuccess = () => resolve(true)
-    req.onerror = () => resolve(false)
+    let settled = false
+    const finish = (result) => {
+      if (settled) return
+      settled = true
+      resolve(result)
+    }
+    try {
+      const tx = db.transaction(store, 'readwrite')
+      const req = tx.objectStore(store).put(val, key)
+      // A request may succeed before its transaction later aborts. Only expose
+      // the write after the transaction itself commits.
+      tx.oncomplete = () => finish(true)
+      tx.onerror = () => finish(false)
+      tx.onabort = () => finish(false)
+      req.onerror = () => finish(false)
+    } catch {
+      finish(false)
+    }
   })
 }
 
 export async function idbDel(store, key) {
   const db = await openDB()
-  if (!db) return
+  if (!db) return false
   return new Promise((resolve) => {
-    const tx = db.transaction(store, 'readwrite')
-    const req = tx.objectStore(store).delete(key)
-    req.onsuccess = () => resolve()
-    req.onerror = () => resolve()
+    let settled = false
+    const finish = (result) => {
+      if (settled) return
+      settled = true
+      resolve(result)
+    }
+    try {
+      const tx = db.transaction(store, 'readwrite')
+      const req = tx.objectStore(store).delete(key)
+      tx.oncomplete = () => finish(true)
+      tx.onerror = () => finish(false)
+      tx.onabort = () => finish(false)
+      req.onerror = () => finish(false)
+    } catch {
+      finish(false)
+    }
   })
 }
 

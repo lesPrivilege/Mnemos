@@ -35,4 +35,5 @@ export function load(key, fallback) {
 export function save(key, data) {
   const result = saveJson(key, data, { label: S.readingStorage.unsaved(key) })
   if (result.ok && key !== READING_SCHEMA_VERSION_KEY) writeSchemaVersion()
+  return result
 }

@@ -1,6 +1,12 @@
 export const collectionDetail = {
   closeMenu: '关闭菜单',
   importFailedToast: '文件导入失败，请检查文件格式',
+  saveFailedToast: '文档未能写入存储，请重试',
+  deleteFailedToast: '文档未完整删除，请重试或重新打开后检查',
+  saving: '保存中…',
+  importing: '导入中…',
+  deleting: '删除中…',
+  deleteDocAction: (title) => `删除文档「${title}」`,
   deleteDocTitle: '删除文档',
   deleteDocMessage: '删除这篇文档？此操作不可撤销。',
   confirmDelete: '确认删除',
