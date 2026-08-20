@@ -1397,20 +1397,30 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
   position: fixed;
   left: 50%;
   right: auto;
-  bottom: max(12px, env(safe-area-inset-bottom, 0px));
+  bottom: 0;
   z-index: 20;
-  width: min(calc(100% - 24px), var(--col-list));
+  width: min(100%, var(--col-list));
   transform: translateX(-50%);
-  padding: 6px;
-  border: 1px solid var(--surface-chrome-border);
-  border-radius: var(--r-xl);
-  background: var(--surface-chrome-bg);
-  backdrop-filter: var(--surface-chrome-blur);
-  -webkit-backdrop-filter: var(--surface-chrome-blur);
+  padding: 0 0 env(safe-area-inset-bottom, 0px);
+  border: 0;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--bg);
   box-shadow: none;
+}
+
+/* The app frame expands to the reading measure only in portrait tablet
+   widths; keep the attached L0 surface on that same frame rather than
+   letting it fall back to the 480px list measure. */
+@media (min-width: 720px) and (orientation: portrait) {
+  .bottom-tabs {
+    width: min(100%, calc(var(--col-read) + var(--gutter-wide) * 2));
+  }
 }
 .bottom-tabs-row {
   display: grid;
+  width: min(100%, var(--col-list));
+  margin-inline: auto;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 2px;
 }
@@ -1435,6 +1445,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
 }
 .bottom-tab.on {
   color: var(--accent);
+  font-weight: 600;
 }
 .bottom-tab:active { transform: scale(0.97); }
 
@@ -1473,7 +1484,8 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
 @media (prefers-contrast: more) {
   /* The floating layers take their stronger full boundary from
      --surface-chrome-border; the opaque topbar has its own boundary. */
-  .topbar { border-color: var(--border-strong); }
+  .topbar,
+  .bottom-tabs { border-color: var(--border-strong); }
 }
 
 /* ─────── 今日／资料一级入口（记-41）─────── */
