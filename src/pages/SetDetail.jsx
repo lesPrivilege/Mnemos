@@ -13,6 +13,7 @@ import { useConfirm, ConfirmSheet } from '../components/ConfirmSheet'
 import { pressable } from '../lib/a11y'
 import { S } from '../lib/strings'
 import { buildQuizRoute } from '../quiz/lib/routes'
+import { isInWrongBook } from '../quiz/lib/quizEngine'
 
 export default function SetDetail() {
   const { subject } = useParams()
@@ -64,6 +65,7 @@ export default function SetDetail() {
 
   // Build tree nodes for structure view
   const progress = loadProgress()
+  const wrongBookCount = questions.filter(q => isInWrongBook(progress[q.id])).length
   const treeNodes = (() => {
     const chapterMap = new Map()
     for (const q of questions) {
@@ -106,6 +108,9 @@ export default function SetDetail() {
   })
 
   const accuracy = stats.done > 0 ? Math.round((stats.done - stats.wrong) / stats.done * 100) : 0
+  const importRoute = '/import?tab=json'
+  const returnTo = `/set/${encodeURIComponent(subject)}`
+  const importState = { returnTo }
 
   if (!subject) {
     return <NotFoundPage title={S.setDetail.notFound} />
@@ -128,6 +133,16 @@ export default function SetDetail() {
                 <div className="absolute right-0 top-9 z-20 min-w-[176px] rounded-md bg-bg-card border border-border-soft overflow-hidden"
                   role="menu"
                   style={{ border: '1px solid var(--border-soft)' }}>
+                  <Link to={importRoute} state={importState} onClick={() => setShowMenu(false)}
+                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">
+                    <UploadIcon size={15} /> {S.setDetail.importAction}
+                  </Link>
+                  {starredCount > 0 && (
+                    <Link to={`/starred?subject=${encodeURIComponent(subject)}`} onClick={() => setShowMenu(false)}
+                      className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">
+                      <StarIcon size={15} /> {S.setDetail.starredAction}
+                    </Link>
+                  )}
                   <button onClick={handleResetProgress}
                     className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left text-md font-body text-ink-2 hover:bg-bg-raised hover:text-ink transition-colors" role="menuitem">
                     <RefreshIcon size={15} /> {S.setDetail.resetProgressAction}
@@ -271,8 +286,8 @@ export default function SetDetail() {
           {typeCounts.choice > 0 ? (
             <button className="dd-cta-main" onClick={() => navigate(buildQuizRoute('quiz', subject))}>
               <div className="left">
-                <span className="lead"><span className="num">{typeCounts.choice + typeCounts.review}</span>{S.setDetail.countSuffix}</span>
-                <span className="sub">{S.setDetail.beginPracticeLabel}</span>
+                <span className="lead"><span className="num">{typeCounts.choice}</span>{S.setDetail.countSuffix}</span>
+                <span className="sub">{S.setDetail.beginChoiceLabel}</span>
               </div>
               <span className="arr">→</span>
             </button>
@@ -280,28 +295,25 @@ export default function SetDetail() {
             <button className="dd-cta-main" onClick={() => navigate(buildQuizRoute('quiz-review', subject))}>
               <div className="left">
                 <span className="lead"><span className="num">{typeCounts.review}</span>{S.setDetail.countSuffix}</span>
-                <span className="sub">{S.setDetail.beginPracticeLabel}</span>
+                <span className="sub">{S.setDetail.beginReviewLabel}</span>
               </div>
               <span className="arr">→</span>
             </button>
           ) : (
-            <div className="dd-cta-main" style={{ opacity: 0.5, cursor: 'default' }}>
+            <Link to={importRoute} state={importState} className="dd-cta-main">
               <div className="left">
-                <span className="lead">{S.setDetail.noQuestions}</span>
+                <span className="lead">{S.setDetail.importQuestionsLabel}</span>
                 <span className="sub">{S.setDetail.importFirstLabel}</span>
               </div>
-            </div>
+              <span className="arr">→</span>
+            </Link>
           )}
         </div>
-        <div className="dd-secondary" style={{ margin: 0 }}>
-          <Link to={`/wrong?subject=${encodeURIComponent(subject)}`} className="dd-action">
-            <RefreshIcon size={18} /><span className="lab">{S.setDetail.wrongAction}</span>
+        {wrongBookCount > 0 && (
+          <Link to={`/wrong?subject=${encodeURIComponent(subject)}`} className="dd-action dd-action-wide">
+            <RefreshIcon size={18} /><span className="lab">{S.setDetail.wrongAction(wrongBookCount)}</span>
           </Link>
-          <Link to={`/starred?subject=${encodeURIComponent(subject)}`} className="dd-action">
-            <StarIcon size={18} /><span className="lab">{S.setDetail.starredAction}</span>
-          </Link>
-          <Link to="/import?tab=json" className="dd-action"><UploadIcon size={18} /><span className="lab">{S.setDetail.importAction}</span></Link>
-        </div>
+        )}
       </FloatingBar>
       <ConfirmSheet state={confirmState} />
     </div>

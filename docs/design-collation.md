@@ -84,6 +84,12 @@
 - **判准**：正文未确认则文档不得公开；删除未确认则不得静默；同一动作 pending 时不可重入，离页后的完成不得改写新页面。并发突变不互相覆盖。突发进程强杀的跨存储窗口、旧 `deleteCollection` 的 fire-and-forget、`idbGet` 对缺值／读取失败的同形，以及 backup import／merge 先写 localStorage 后写 IDB 的跨存储原子性，明确留账，不伪称绝对闭环。
 - **证据**：失败注入、关联清理、并发新增、删除回滚、pending 重入、unmount stale completion、临时文集回收、示例并发合并、迁移保本、IDB abort／error／不可用及「正文待写期间同步更新不丢失」均有回归测试；统一门禁 35 文件、270 测试全绿，四门 0 FAIL，production build 成功。
 
+### 记 2026-08-20-47 · SetDetail 浮层从减，入口各归其位
+
+- **改何**：`SetDetail` 保留真正覆盖滚动内容的 `FloatingBar`，但由「一主钮＋错题／收藏／导入三格」收为一主行动，唯有真实错题时再出现一个 44px 全宽次行动。收藏与导入归顶栏 overflow；空题库不再陈列失效主钮，直接以「导入题库」为主行动。混合题库的主钮只报告并进入选择题，纯解答题明确进入解答会话，不以总数冒充单一路由的交付量。
+- **判准**：浮层中每个动作都须在滚动中持续可达才有席位；已有正文筛选或管理菜单者不得重复。错题数与 Wrong 页共用 `isInWrongBook`，收藏在有内容时仍须可达；从对象页发起的 JSON 导入，确认后按 `useBackButton` 的可信 `parent` 回原科目，冷启动则回资料·练习。
+- **证据**：回归覆盖 choice／review／mixed／empty、错题状态已改为 correct 但尚未连续答对两次、收藏入口、菜单 inert／scrim、导入来源返回与冷启动父级。统一门禁 38 文件、283 测试全绿，四门 0 FAIL；FloatingBar 本体、材质、ResizeObserver 与内容净空未改。结构树混合题型路由、章节筛选子项语义及菜单 Escape／焦点圈闭另笔，不夹带于本改。
+
 ### 记 2026-08-20-46 · L0 底栏实高归壳，固定避让退役
 
 - **改何**：`BottomTabs` 从 `AppShell` 中独立成壳层组件，以 `useLayoutEffect` 与 `ResizeObserver` 量取附着底栏的真实 border-box 高度，写入 `#root` 的运行时 `--bottom-tabs-block-size`；L0 卸载时同步清理。`.home-scroll` 与活动页 `.page-scroll` 两个真实滚动所有者消费此值并留一档小净空；今日空态不再重复让位，无消费者的旧 `.tab-pane` 不列入闭环。

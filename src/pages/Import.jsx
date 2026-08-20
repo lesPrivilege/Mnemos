@@ -19,7 +19,7 @@ import { S } from '../lib/strings'
 
 export default function Import() {
   const navigate = useNavigate()
-  const { goBack } = useBackButton()
+  const { goBack, parent } = useBackButton()
   const { toast, showToast } = useToast()
   const { confirmState, confirm } = useConfirm()
   const [searchParams] = useSearchParams()
@@ -237,7 +237,7 @@ export default function Import() {
       showToast(S.import.importSummary(result.added, result.duplicates))
     }
     reset()
-    navigate('/?tab=quiz')
+    navigate(parent)
   }
 
   // ---- MD handlers (flashcard) ----
