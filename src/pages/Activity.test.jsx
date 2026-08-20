@@ -42,10 +42,13 @@ describe('Activity heatmap accessible date path', () => {
   it('keeps the dense grid visual-only and exposes one 44px native date selector', () => {
     render(<Activity />)
 
+    const heatmapSection = document.querySelector('.activity-section')
     const select = screen.getByRole('combobox', { name: '选择日期' })
     const cells = [...document.querySelectorAll('.activity-heatmap-cell')]
     const scroller = document.querySelector('.activity-heatmap-scroll')
 
+    expect(heatmapSection?.classList.contains('act-section')).toBe(true)
+    expect(heatmapSection?.style.background).toBe('')
     expect(cells).toHaveLength(90)
     expect(scroller.getAttribute('aria-hidden')).toBe('true')
     expect(cells.every(cell => cell.getAttribute('role') === null)).toBe(true)

@@ -1867,9 +1867,9 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
 .activity-content > .focus { margin: 0 18px; }
 .activity-section-head span { color: var(--ink-3); }
 .activity-section {
-  padding: 14px;
   display: flex; flex-direction: column; gap: 12px;
 }
+.activity-section .activity-section-head { margin-bottom: 10px; }
 .activity-date-picker {
   min-width: 0;
   max-width: 100%;
@@ -1898,6 +1898,18 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
 .activity-heatmap-scroll {
   min-width: 0;
   max-width: 100%;
+}
+.activity-heatmap-cell {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-sm);
+}
+.activity-heatmap-cell.selected {
+  border-color: var(--ink);
+  outline: 1px solid var(--ink);
+  outline-offset: 1px;
 }
 @media (min-width: 720px) and (orientation: portrait) {
   .activity-content {

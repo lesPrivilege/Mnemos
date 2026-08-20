@@ -98,8 +98,8 @@ function HeatmapGrid() {
   })
 
   return (
-    <section className="activity-section" style={{ background: 'var(--bg-card)', borderRadius: 'var(--r-lg)', border: '1px solid var(--border-soft)', padding: '14px' }}>
-      <div className="activity-section-head" style={{ marginBottom: 10 }}>
+    <section className="act-section activity-section">
+      <div className="activity-section-head">
         <div className="section-title">{S.activity.heatmapTitle}</div>
         <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-2xs)', color: 'var(--ink-3)' }}>{S.activity.heatmapDays}</span>
       </div>
@@ -144,14 +144,10 @@ function HeatmapGrid() {
                   const lv = level(day.total)
                   return (
                     <div key={di}
-                      className="activity-heatmap-cell"
+                      className={`activity-heatmap-cell${selected?.date === day.date ? ' selected' : ''}`}
                       onClick={() => setSelectedDate(selected?.date === day.date ? '' : day.date)}
                       style={{
-                        width: 14, height: 14, borderRadius: 'var(--r-md)',
                         background: HEATMAP_LEVELS[lv],
-                        cursor: 'pointer',
-                        border: selected?.date === day.date ? '1px solid var(--ink)' : '1px solid var(--border-soft)',
-                        boxShadow: selected?.date === day.date ? '0 0 0 1px var(--bg), 0 0 0 2px var(--ink)' : 'none',
                       }}
                       title={S.activity.cellTitle(day)}
                     />
