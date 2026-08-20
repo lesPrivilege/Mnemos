@@ -41,11 +41,10 @@ semantic    --surface-chrome, --ink-2      角色命名，組件唯一消費層
 component   tab bar / sheet / card         只用 semantic，零硬編碼
 ```
 
-- **表面材質已提升為一等 token**：`--surface-chrome-bg/-blur/-border`（bar 類，
-  AppShell 底部 tab bar 已消費）/ `--surface-raised`（卡片）/ `--surface-overlay`
-  （sheet），各自封裝背景+模糊+邊框組合。液態玻璃在 web 層 =
-  `backdrop-filter: blur() saturate()` 的一種 surface 實現。材質抽象在位後，
-  跟進 Liquid Glass / Material You 只改 token 定義文件。
+- **表面材質已提升為一等 token**：`--surface-chrome-bg/-blur/-border` 保留給真正覆蓋內容的
+  局部 overlay（現為詳情 `FloatingBar`），`--surface-raised` 司低層表面，
+  `--surface-overlay` 司 sheet。L0 底部目錄經記-45 改判為 attached 實底，不再消費
+  `--surface-chrome-*`；平台材質外觀不得只靠改 token 便進入產品，仍須按語義、偏好降級與真機證據另案。
 - **動效 token**：`--motion-quick` / `--motion-gentle` 沿用，Phase B 新增
   `--motion-slow`（420ms，翻卡/圖表/進度）。全局 `prefers-reduced-motion`
   已落地（`tokens.css` 對 `*` 統一清零 animation/transition duration，
@@ -102,12 +101,14 @@ token 表）。啟動前提：功能盤完（P2 導圖、R4+1 等在跑事項收
 
 原則：**路由是唯一事實源，Home 排版只是殼之一。**
 
-狀態（2026-07-05）：手機 L0 shell 已落地為底部 tab；三個 Home 模式走
-`/?tab=quiz|flashcard|reading`，L1/L2 push 頁隱藏底欄；`useBackButton` 已把三模塊
-根路由對回對應 Home tab。iPad sidebar 仍只保留在 Phase B 設計資產中，未實作。
+狀態（2026-08-20）：手機 L0 shell 為「今日／資料／活動」attached 底部目錄；資料頁再以
+`kind=flashcard|quiz|reading` 分類，舊 `?tab=` 只作兼容深鏈。L1/L2 push 頁隱藏底欄；
+`useBackButton` 已建立可信站內來源優先、冷啟動回 canonical parent 的返回契約。
+iPad sidebar 仍只保留在 Phase B 設計資產中，未實作。
 
-- tab bar / FloatingBar / 頂欄收斂為 AppShell 層；頁面組件不感知殼的存在。
-  未來 iOS 換原生 tab bar、iPad 換 sidebar、bar 懸浮半透明——只動殼。
+- tab bar / FloatingBar / 頂欄雖由殼層統籌，語義不可混同：L0 目錄 attached，
+  `FloatingBar` 唯真正上下文 overlay；未來 iOS 換原生 tab bar 或 iPad 換 sidebar 仍只動殼，
+  但「懸浮半透明」不得因平台流行外貌自動取得准入。
 - **多級視圖縮放編排（豎向，2026-07-24 主令）**：以 L0 首頁 / L1 列表 / L2 會話 /
   閱讀四級定縮放譜——各級在 390 / 480 / ~744 / ~834pt 豎向寬度下的欄寬、字階檔、
   天地邊距取值成一張表（值入底本，不散落媒體查詢字面量）；復習卡與題卡限寬居中，

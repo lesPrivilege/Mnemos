@@ -84,12 +84,20 @@
 - **判准**：正文未确认则文档不得公开；删除未确认则不得静默；同一动作 pending 时不可重入，离页后的完成不得改写新页面。并发突变不互相覆盖。突发进程强杀的跨存储窗口、旧 `deleteCollection` 的 fire-and-forget、`idbGet` 对缺值／读取失败的同形，以及 backup import／merge 先写 localStorage 后写 IDB 的跨存储原子性，明确留账，不伪称绝对闭环。
 - **证据**：失败注入、关联清理、并发新增、删除回滚、pending 重入、unmount stale completion、临时文集回收、示例并发合并、迁移保本、IDB abort／error／不可用及「正文待写期间同步更新不丢失」均有回归测试；统一门禁 35 文件、270 测试全绿，四门 0 FAIL，production build 成功。
 
+### 记 2026-08-20-45 · L0 一级目录附着，局部浮层从严
+
+- **改何**：递修记-44 对层级的分类，**本施工笔仅改 L0 一级底栏，`FloatingBar` 不动**。`.bottom-tabs` 归应用壳：贴应用外框底边通幅附着，取不透明 `--bg`、仅上边界、无外轮廓、无圆角、无投影与 blur；`.bottom-tabs-row` 仍以 `--col-list` 为最大宽度居中。L0 仍是 `Link` 导航，以 `aria-current` 表示当前位置。各滚动区现有 `96px + safe-area` 避让本笔保留；以实测栏高取代固定假设，另列下一施工笔。
+- **据何**：Pro review 对读当前生产 selector 后指出，四边留白、全边界、圆角与半透明材质把应用级目录误作一张浮动卡；它与详情页局部动作栏不是同一语义。当前 `src/App.jsx` 的 `.bottom-tabs` 已是导航壳，`src/styles/index.css` 以 `.bottom-tabs`／`.bottom-tabs-row` 分别表达框架表面与内部目录行。
+- **判准**：一级目录属于应用壳，不属于 overlay；半透明／blur 只给真正遮着局部内容的功能层。保留记-44 已证的 `44px` 通用触控目标、L0 项 `48px`、safe area、按压 `--motion-quick`、reduced-motion／reduced-transparency／高对比降级，以及不设移动 indicator、Morphicons、弹簧、bounce、形变图标与页间滑动。详情 `FloatingBar` 继续以 `--surface-chrome-*` 作局部材质，继续由 ResizeObserver 写入真实 `--floating-bar-block-size`；其圆角、净空、inert 与可及树规则均不因本笔改变。
+- **证据**：源码核查锁定 `src/App.jsx:73` 的 `nav`＋`Link`／`aria-current`、`src/styles/index.css` 的 `.bottom-tabs` 附着几何与 `.bottom-tabs-row` `--col-list` 上限；详情 `FloatingBar` 选择器保持原有动态高度契约。实施验收仍须在 320／390／430／768／834px、明暗两纸与 200% 字体复量：通幅边界、48px 行、safe area、内容末行不被遮挡、无横向溢出，并跑完整门禁。L0 真实高度所有权未在本笔完成，不得以此条伪称闭环。
+
 ### 记 2026-08-20-44 · Apple 材质只给局部功能层
 
 - **改何**：一级底栏由贴边通幅条改为四边有界的局部浮动功能层：手机四周 12px、宽屏止 480px、1px 全边界、圆角仍止既有 10px；详情页 `FloatingBar` 同用 `--surface-chrome-*` 材质语法，并以 ResizeObserver 把真实栏高回报所属滚动区，始终留 12px 净空。假 Home Indicator 删除，顶栏依判例一保持不透明。新增 `--hit-target: 44px` 统一顶栏、普通按钮、配重与资料分类的最小触控高；底栏各项 48px。高频操作只留 `--motion-quick` 的 `scale(.97)` 按压与既有色变，不设移动 indicator、弹簧、bounce、形变图标或页间滑动。`prefers-reduced-transparency` 与 `prefers-contrast: more` 在 token 层退为实底、无 blur、强边界。顶栏菜单打开时，全视口关闭幕高于浮栏，main／浮栏 inert；沉浸阅读 chrome 隐藏时同以 inert＋aria-hidden 退出焦点与可及树。
 - **据何**：Apple design 借的是反馈、空间一致、功能材质与偏好降级，不是把 native 外观搬到 Web。底栏是悬于内容上的真实功能层，半透明能说明层级；顶栏下有正文滚动，既判已证渗色，仍须实底。Morphicons 与 clear glass 皆有新语义／新材质成本，本轮没有信息架构上的必要，故不采。
 - **判准**：材质只落承担浮动功能的局部 chrome，不铺整面、不加影；无 blur 时层级仍靠实底与边界成立。高频导航不为装饰运动付注意力税；反馈不得改布局，reduced motion 继续由全局门收束。触控目标不小于 44px，视觉边界不仿造系统 Home Indicator。
 - **证据**：实页量测：320×568 底栏 296×62、390×844 为 366×62、768×1024 居中 480×62；三档左右／底各 12px、主项高 48px、资料分类高 44px、内容底 inset 96px、横向溢出为零、假 indicator 为零。SetDetail 浮栏实高 180px 时 main 自动补 204px；回归锁住文字放大 180→272px 的同步补偿。菜单关闭幕实测 390×844 且浮栏中心命中关闭幕；阅读 chrome 隐／显时返回与目录的命名 role 数为 0／1。实页截图对读成立。
+- **递修（记-45，2026-08-20）**：本记把 L0 一级底栏与详情 `FloatingBar` 并列为「局部浮动功能层」的分类撤销。记-44 所载的 44／48px、safe area、偏好降级、无 indicator／Morphicons、动态高度与浮栏可及性证据继续有效；仅 L0 的浮动几何、半透明材质与归类由记-45 改写，`FloatingBar` 不在本笔施工范围内。
 
 ### 记 2026-08-11-39 · 场景恢复推广到练习/阅读，记-38 未尽收口
 
