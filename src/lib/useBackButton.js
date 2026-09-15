@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useEffect, useCallback, useRef } from 'react'
 import { App } from '@capacitor/app'
+import { closeTopOverlay } from './overlayStack'
 import { isNative } from './platform'
 
 const MATERIALS_PARENTS = {
@@ -152,6 +153,7 @@ export function useBackButton() {
 
     App.addListener('backButton', () => {
       if (removed) return
+      if (closeTopOverlay()) return
       const p = parentRef.current
       if (p) {
         navigateRef.current(p)

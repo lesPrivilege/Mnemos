@@ -1,3 +1,4 @@
+import { rangeAtOffset, quoteCandidates } from './sourceAnchor'
 // Highlight anchoring — resolve highlights to DOM ranges and repaint them
 // Uses textOffset/length (primary) or selectedText occurrence (fallback)
 
@@ -27,101 +28,26 @@ function wrapRange(range, hlId) {
     mark.style.cssText = MARK_CSS
     range.surroundContents(mark)
   } catch {
-    // Multi-element fallback: wrap each intersecting text node
-    const tree = document.createTreeWalker(
-      range.commonAncestorContainer,
-      NodeFilter.SHOW_TEXT
-    )
-    let node = tree.currentNode
-    while (node) {
-      if (range.intersectsNode(node)) {
-        const r = document.createRange()
-        if (node === range.startContainer) r.setStart(node, range.startOffset)
-        else r.setStartBefore(node)
-        if (node === range.endContainer) r.setEnd(node, range.endOffset)
-        else r.setEndAfter(node)
-        const mark = document.createElement('mark')
-        mark.setAttribute('data-hl-id', hlId)
-        mark.style.cssText = MARK_CSS
-        try { r.surroundContents(mark) } catch {}
-      }
-      node = tree.nextNode()
+    // Snapshot intersecting text nodes before mutating the DOM; never wrap the
+    // common ancestor itself (it can include text outside the selection).
+    const tree = document.createTreeWalker(range.commonAncestorContainer, NodeFilter.SHOW_TEXT)
+    const nodes = []
+    for (let node = tree.nextNode(); node; node = tree.nextNode()) {
+      if (range.intersectsNode(node)) nodes.push(node)
+    }
+    const parts = nodes.map(node => ({ node,
+      start: node === range.startContainer ? range.startOffset : 0,
+      end: node === range.endContainer ? range.endOffset : node.textContent.length }))
+    for (const { node, start, end } of parts.reverse()) {
+      if (end <= start) continue
+      const part = document.createRange()
+      part.setStart(node, start); part.setEnd(node, end)
+      const mark = document.createElement('mark')
+      mark.setAttribute('data-hl-id', hlId)
+      mark.style.cssText = MARK_CSS
+      part.surroundContents(mark)
     }
   }
-}
-
-/**
- * Resolve a DOM Range from a textOffset + length by walking text nodes.
- * Returns null if the offset is out of bounds.
- */
-function resolveFromOffset(container, textOffset, length) {
-  const tree = document.createTreeWalker(container, NodeFilter.SHOW_TEXT)
-  let charCount = 0
-  let startNode = null, startOffset = 0
-  let endNode = null, endOffset = 0
-
-  let node = tree.nextNode()
-  while (node) {
-    const nodeLen = node.textContent.length
-    if (!startNode && charCount + nodeLen > textOffset) {
-      startNode = node
-      startOffset = textOffset - charCount
-    }
-    if (startNode && charCount + nodeLen >= textOffset + length) {
-      endNode = node
-      endOffset = textOffset + length - charCount
-      break
-    }
-    charCount += nodeLen
-    node = tree.nextNode()
-  }
-
-  if (!startNode || !endNode) return null
-
-  const range = document.createRange()
-  range.setStart(startNode, startOffset)
-  range.setEnd(endNode, endOffset)
-  return range
-}
-
-/**
- * Resolve a DOM Range by searching for selectedText (nth-occurrence fallback).
- * Returns null if not found.
- */
-function resolveFromText(container, selectedText) {
-  const fullText = container.textContent
-  const lower = fullText.toLowerCase()
-  const target = selectedText.toLowerCase()
-  const idx = lower.indexOf(target)
-  if (idx === -1) return null
-
-  const tree = document.createTreeWalker(container, NodeFilter.SHOW_TEXT)
-  let charCount = 0
-  let startNode = null, startOffset = 0
-  let endNode = null, endOffset = 0
-
-  let node = tree.nextNode()
-  while (node) {
-    const nodeLen = node.textContent.length
-    if (!startNode && charCount + nodeLen > idx) {
-      startNode = node
-      startOffset = idx - charCount
-    }
-    if (startNode && charCount + nodeLen >= idx + selectedText.length) {
-      endNode = node
-      endOffset = idx + selectedText.length - charCount
-      break
-    }
-    charCount += nodeLen
-    node = tree.nextNode()
-  }
-
-  if (!startNode || !endNode) return null
-
-  const range = document.createRange()
-  range.setStart(startNode, startOffset)
-  range.setEnd(endNode, endOffset)
-  return range
 }
 
 /**
@@ -144,12 +70,17 @@ export function repaintHighlights(container, highlights) {
 
     // Primary: offset-based resolution
     if (hl.textOffset >= 0 && hl.length > 0) {
-      range = resolveFromOffset(container, hl.textOffset, hl.length)
+      if (container.textContent.slice(hl.textOffset, hl.textOffset + hl.length) === hl.selectedText) {
+        range = rangeAtOffset(container, hl.textOffset, hl.length)
+      }
     }
 
     // Fallback: text-occurrence resolution
     if (!range && hl.selectedText) {
-      range = resolveFromText(container, hl.selectedText)
+      const candidates = quoteCandidates(container.textContent, hl)
+      const contextual = candidates.filter(candidate => candidate.contextMatches)
+      const match = contextual.length === 1 ? contextual[0] : candidates.length === 1 ? candidates[0] : null
+      if (match) range = rangeAtOffset(container, match.offset, match.length)
     }
 
     if (range) {

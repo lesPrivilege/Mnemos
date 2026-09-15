@@ -1,3 +1,5 @@
+import SourceLens from '../components/SourceLens'
+import { loadSourceDocument } from '../reading/lib/loadSourceDocument'
 import { useParams, Link, useSearchParams } from 'react-router-dom'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import ReviewCard from '../components/ReviewCard'
@@ -36,6 +38,7 @@ export default function Review() {
   const [stats, setStats] = useState({ again: 0, hard: 0, good: 0, easy: 0 })
   const [deckName, setDeckName] = useState('')
   const [flipped, setFlipped] = useState(false)
+  const [sourceOpen, setSourceOpen] = useState(false)
   const flippedRef = useRef(false)
   useEffect(() => { flippedRef.current = flipped }, [flipped])
   const [toast, setToast] = useState(null)
@@ -245,6 +248,7 @@ export default function Review() {
   }, [currentIndex, dueCards.length])
 
   const handleKeyDown = useCallback((e) => {
+    if (e.isComposing || document.querySelector('[role="dialog"]') || e.target.closest?.('button, a, input, textarea, select')) return
     // Undo: Ctrl+Z / Cmd+Z
     if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
       e.preventDefault()
@@ -474,6 +478,9 @@ export default function Review() {
           />
         )}
       </div>
+
+      {card.source && <div className="reader-receipt"><button onClick={() => setSourceOpen(true)}>查看原文</button></div>}
+      <SourceLens source={card.source} open={sourceOpen} onClose={() => setSourceOpen(false)} loadDocument={loadSourceDocument} />
 
       {/* Fixed bottom rating buttons */}
       <div className="rate shrink-0" style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom))' }}>

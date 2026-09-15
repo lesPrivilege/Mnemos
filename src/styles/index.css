@@ -2195,3 +2195,20 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
 }
 .qa-explain-caret.open { transform: rotate(90deg); }
 .qa-explain-body { margin-top: 8px; }
+
+/* Context editing and source inspection share a single local surface. */
+.context-dialog-scrim { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; background: var(--scrim); padding: var(--sp-7); }
+.context-dialog { width: 100%; max-width: var(--col-session); max-height: 90dvh; overflow: auto; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r-xl); padding: var(--sp-8); }
+.context-dialog > header { display: flex; gap: var(--sp-7); align-items: center; justify-content: space-between; margin-bottom: var(--sp-7); }
+.context-dialog h2 { font-size: var(--text-2xl); }
+.context-dialog button { min-height: var(--hit-target); }
+.card-draft-editor { display: grid; gap: var(--sp-7); }
+.card-draft-editor label { display: grid; gap: var(--sp-4); font-size: var(--text-md); }
+.card-draft-editor textarea, .card-draft-editor select, .card-draft-editor input { width: 100%; min-height: var(--hit-target); border: 1px solid var(--border); border-radius: var(--r-md); background: var(--bg-card); color: var(--ink); padding: var(--sp-6); }
+.card-draft-editor textarea { min-height: calc(var(--hit-target) * 2); font-family: var(--font-zh); font-size: var(--text-xl); resize: vertical; }
+.card-draft-actions { display: flex; flex-wrap: wrap; gap: var(--sp-6); }
+.source-lens { display: grid; gap: var(--sp-7); }
+.source-quote { font-family: var(--font-zh); color: var(--ink-2); padding: var(--sp-7); background: var(--bg-raised); }
+.source-candidate { display: block; width: 100%; text-align: left; padding: var(--sp-6); border-bottom: 1px solid var(--border-soft); font-size: var(--text-md); }
+
+.context-dialog :focus-visible { outline-color: var(--ink); }

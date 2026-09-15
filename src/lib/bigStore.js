@@ -7,6 +7,7 @@ const KV_STORE = 'kv'
 const records = new Map()
 const cache = new Map()
 const pendingWrites = new Set()
+const confirmedLocks = new Set()
 
 let hydrated = false
 let hydratePromise = null
@@ -153,6 +154,7 @@ export function getCached(key) {
 
 export function setCached(key, value) {
   requireHydrated()
+  if (confirmedLocks.has(key)) throw new Error('正在保存同一资料，请稍后重试。')
   const config = requireRecord(key)
   const normalized = normalizeRecord(config, value)
   cache.set(key, normalized)
@@ -165,4 +167,22 @@ export function setCached(key, value) {
 
 export async function flushBigStoreWritesForTests() {
   await Promise.all([...pendingWrites])
+}
+
+// A bounded transactional path for actions whose UI promises durable success.
+// Lock synchronous writers before awaiting old writes so no stale snapshot can
+// be queued after this transaction. Readers keep seeing the last committed cache.
+export async function updateCachedConfirmed(key, update) {
+  requireHydrated()
+  const config = requireRecord(key)
+  if (confirmedLocks.has(key)) throw new Error('正在保存同一资料，请稍后重试。')
+  confirmedLocks.add(key)
+  try {
+    await Promise.all([...pendingWrites])
+    const next = normalizeRecord(config, update(cloneJson(cache.get(key))))
+    const confirmed = await scheduleIdbSet(key, next)
+    if (!confirmed) throw new Error('保存失败，输入已保留。请重试。')
+    cache.set(key, next)
+    return cloneJson(next)
+  } finally { confirmedLocks.delete(key) }
 }

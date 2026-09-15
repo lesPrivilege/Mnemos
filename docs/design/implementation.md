@@ -22,7 +22,7 @@ Mnemos 阅读基线 `13628e7eb5a946045661401bfa4e53c00f92be1e`。Courtwork 参�
 |---|---|---|---|
 | MX-00 入账 | Design 入口、来源清单、规则递修记录、grammar 注册 | 本包 `docs/design/`；README/CLAUDE/roadmap 增加短指针；kanli/collation 只改明确条款 | 来源可定位；无双份 token 权威；未启动未选整站重构 |
 | MX-01 样板底座 | 独立启动、合成 fixture、主题/偏好/重置、首个真实组件 | 提议 `design.html` 与 `src/design/`，复用 bounded presentational scene；必要的 Vite 构建配置 | 不读写生产存储，不启动 App 的备份/提醒；使用共享组件与真实状态 |
-| MX-02 阅读闭环 | 选区工具条、局部制卡、source link、返回恢复 | Reader、ReaderPanels、现有 Import/卡片存储接缝、最小 source-link store、备份接线 | 保存卡片后重启仍能回到来源；失败不丢稿；返回恢复原位 |
+| MX-02 阅读闭环 | 选区工具条、局部制卡、source link、返回恢复 | Reader、ReaderPanels、现有 Import/卡片存储接缝、卡片内嵌 source 字段（裁定 59）、备份接线 | 保存卡片后重启仍能回到来源；失败不丢稿；返回恢复原位 |
 | MX-03 复习手感 | 显答、评价轨、回执、真实撤销、触觉 | Review 与 ReviewCard；完整现有 undo/requeue 回归 | quality/SM-2/learning 语义不变；重复输入不双写；可中断 |
 | MX-04 资料与本次学习 | 搜索强化、多选、托盘、排序与继续 | Home/资料、Search、类型化 plan store | 不改 due；拖拽有按钮/键盘替代；失效条目不误认 |
 | MX-05 活动与参数 | 日期筛选、热图/明细联动；可选阅读参数预览 | Activity、derive 投影、Settings/reader settings 的最小切片 | 真实口径，零/缺失分离；字号预览取消可恢复 |

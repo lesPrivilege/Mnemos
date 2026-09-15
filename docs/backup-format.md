@@ -98,6 +98,28 @@ Current shape:
 Deck-level flashcard export uses the same shape, with one deck and that deck's
 cards.
 
+### Optional `cards[].source`
+
+New reading cards embed their source in the same IndexedDB record as the card.
+Legacy cards without this field remain valid. Version `1`, kind `document` has
+`id` (document ID), optional `highlightId`, `quote`, `textOffset` (UTF-16 offset),
+`length` (quote length), optional `contextBefore` / `contextAfter`, and
+`contentFingerprint` (SHA-256 of rendered text). Exact navigation requires both
+the fingerprint and the quote at that offset to match. Changed text presents
+explicit candidates instead of silently selecting the first occurrence.
+
+Malformed anchors become `{version: 1, kind: "unresolved", quote, unresolved: true}`.
+Merge remaps document and highlight IDs together; missing mappings retain the
+quote and mark the link unresolved. Colliding reading IDs with different content
+receive fresh IDs and `importedFromId`; equivalent repeated imports reuse them.
+Highlight records may additionally carry `contextBefore` and `contextAfter`.
+
+The import screen awaits the flashcard IndexedDB commit before reporting success.
+A full restore spans multiple stores and is **not globally atomic**: a later
+failure can leave earlier module writes or orphan document bodies. Errors remain
+visible and retry is supported; a successful card transaction is atomic only
+within its flashcard record.
+
 ## Quiz Payload
 
 Current shape:

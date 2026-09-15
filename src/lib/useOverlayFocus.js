@@ -9,10 +9,11 @@ const FOCUSABLE = [
   '[tabindex]:not([tabindex="-1"])',
 ].join(',')
 
-function focusLater(element) {
+function focusLater(element, preserveInside = null) {
   if (!element || typeof element.focus !== 'function') return () => {}
   const timer = setTimeout(() => {
     if (typeof document !== 'undefined' && !document.contains(element)) return
+    if (preserveInside?.contains(document.activeElement) && document.activeElement !== preserveInside) return
     element.focus()
   }, 0)
   return () => clearTimeout(timer)
@@ -42,7 +43,7 @@ export function useOverlayFocus({ open, overlayRef, triggerRef, initialFocusRef,
     wasOpen.current = true
     const overlay = overlayRef.current
     const initial = initialFocusRef?.current || overlay?.querySelector(FOCUSABLE) || overlay
-    const cancelFocus = focusLater(initial)
+    const cancelFocus = focusLater(initial, overlay)
 
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') {

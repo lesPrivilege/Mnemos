@@ -1,5 +1,6 @@
 // Reader panels — TOC, highlights, bookmarks, settings
 // Shared shell with slide-from-left animation
+import { useState } from 'react'
 import { S } from '../../lib/strings'
 
 export function TocPanel({ toc, onJump }) {
@@ -25,7 +26,7 @@ export function TocPanel({ toc, onJump }) {
   )
 }
 
-export function HighlightsPanel({ highlights, onDelete }) {
+export function HighlightsPanel({ highlights, onDelete, onCreate, onNote }) {
   return (
     <div className="reader-panel-inner">
       <div className="panel-header">{S.readerPanels.highlightsHeader(highlights.length)}</div>
@@ -42,6 +43,8 @@ export function HighlightsPanel({ highlights, onDelete }) {
             <span className="reader-excerpt-label">摘录</span>
             <p>{h.selectedText}</p>
           </blockquote>
+          {onNote && <HighlightNote highlight={h} onSave={onNote} />}
+          {onCreate && <div className="reader-excerpt-actions"><button onClick={() => onCreate(h)}>制成卡片</button></div>}
           {h.note && <div className="font-zh text-xs text-ink-2 mt-2 italic">{h.note}</div>}
           <div className="flex items-center justify-between mt-2">
             <span className="font-mono text-2xs text-ink-3">
@@ -118,3 +121,12 @@ export function BookmarksPanel({ bookmarks, onJump, onDelete, onAddBookmark, onE
   )
 }
 
+
+function HighlightNote({ highlight, onSave }) {
+  const [note, setNote] = useState(highlight.note || '')
+  const [error, setError] = useState('')
+  return <details><summary>编辑摘录笔记</summary><form className="reader-note" onSubmit={event => {
+    event.preventDefault()
+    try { onSave(highlight.id, note); setError('') } catch (failure) { setError(failure.message) }
+  }}><label>笔记<textarea value={note} onChange={event => setNote(event.target.value)}/></label><button type="submit">保存笔记</button>{error && <p role="alert">{error}</p>}</form></details>
+}

@@ -1,7 +1,7 @@
 // localStorage 读写封装
 // 数据结构: { decks: Deck[], cards: Card[] }
 import { localToday } from './dateUtils'
-import { getCached, registerBigRecord, setCached } from './bigStore'
+import { getCached, registerBigRecord, setCached, updateCachedConfirmed } from './bigStore'
 import { S } from './strings'
 
 const STORAGE_KEY = 'mnemos-data'
@@ -38,8 +38,38 @@ function normalizeData(data) {
   return {
     version: SCHEMA_VERSION,
     decks: data.decks,
-    cards: data.cards,
+    cards: data.cards.map(card => card.source ? { ...card, source: normalizeSource(card.source) } : card),
   }
+}
+
+export function normalizeSource(source) {
+  const valid = source?.version === 1 && source.kind === 'document' && typeof source.id === 'string' && source.id &&
+    typeof source.quote === 'string' && source.quote && Number.isInteger(source.textOffset) && source.textOffset >= 0 &&
+    Number.isInteger(source.length) && source.length === source.quote.length &&
+    typeof source.contentFingerprint === 'string' && /^[a-f0-9]{64}$/.test(source.contentFingerprint)
+  return valid ? source : { version: 1, kind: 'unresolved', quote: typeof source?.quote === 'string' ? source.quote : '', unresolved: true }
+}
+
+export async function addSourcedCardConfirmed(draft) {
+  if (!draft.id || !draft.front?.trim() || !draft.back?.trim()) throw new Error('请填写问题与答案。')
+  const source = normalizeSource(draft.source)
+  if (source.unresolved) throw new Error('来源定位未准备好，请关闭后重新选择摘录。')
+  const result = await updateCachedConfirmed(STORAGE_KEY, data => {
+    if (data.cards.some(card => card.id === draft.id)) return data
+    let deck = data.decks.find(item => item.id === draft.deckId)
+    if (draft.deckId && !deck) throw new Error('卡组已不存在，请重新选择卡组。')
+    const now = new Date().toISOString()
+    if (!deck) {
+      if (!draft.deckName?.trim()) throw new Error('请填写新卡组名称。')
+      deck = { id: crypto.randomUUID(), name: draft.deckName.trim(), pinned: false, createdAt: now }
+      data.decks.push(deck)
+    }
+    data.cards.push({ id: draft.id, deckId: deck.id, front: draft.front.trim(), back: draft.back.trim(),
+      type: 'recall', chapter: draft.chapter || '', section: '', easiness: 2.5, interval: 0, repetitions: 0,
+      starred: false, lapses: 0, suspended: false, leech: false, dueDate: localToday(), createdAt: now, updatedAt: now, source })
+    return data
+  })
+  return result.cards.find(card => card.id === draft.id)
 }
 
 export function getDailyLimit() {
@@ -221,9 +251,8 @@ export function parseImportData(jsonString) {
   }
 }
 
-export function mergeData(importedData) {
+function mergeInto(data, importedData, sourceMaps = null) {
   const imported = normalizeData(importedData)
-  const data = loadData()
   const now = new Date().toISOString()
   const existingDeckIds = new Set(data.decks.map((deck) => deck.id))
   const existingCardIds = new Set(data.cards.map((card) => card.id))
@@ -251,6 +280,7 @@ export function mergeData(importedData) {
     existingCardIds.add(id)
     data.cards.push({
       ...card,
+      ...(card.source ? { source: remapSource(card.source, sourceMaps) } : {}),
       id,
       deckId,
       type: card.type || 'recall',
@@ -267,7 +297,20 @@ export function mergeData(importedData) {
     })
   }
 
-  saveData(data)
+  return data
+}
+
+export function mergeData(importedData, sourceMaps = null) {
+  saveData(mergeInto(loadData(), importedData, sourceMaps))
+}
+
+export async function mergeDataConfirmed(importedData, sourceMaps = null) {
+  return updateCachedConfirmed(STORAGE_KEY, data => mergeInto(data, importedData, sourceMaps))
+}
+
+export async function importDataConfirmed(importedData) {
+  const data = typeof importedData === 'string' ? JSON.parse(importedData) : importedData
+  return updateCachedConfirmed(STORAGE_KEY, () => normalizeData(data))
 }
 
 export function togglePin(id) {
@@ -308,4 +351,10 @@ export function resetDeckProgress(deckId) {
     }
   }
   saveData(data)
+}
+
+function remapSource(source, maps) {
+  if (!maps?.documentIds?.[source.id] || (source.highlightId && !maps.highlightIds?.[source.highlightId])) return { ...source, unresolved: true }
+  return { ...source, id: maps.documentIds[source.id],
+    ...(source.highlightId ? { highlightId: maps.highlightIds?.[source.highlightId] } : {}) }
 }

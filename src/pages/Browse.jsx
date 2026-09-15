@@ -1,3 +1,5 @@
+import SourceLens from '../components/SourceLens'
+import { loadSourceDocument } from '../reading/lib/loadSourceDocument'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { getCards, toggleStar, toggleSuspended } from '../lib/storage'
@@ -56,10 +58,12 @@ export default function Browse() {
   const [searchParams] = useSearchParams()
   const chapterFilter = searchParams.get('chapter')
   const sectionFilter = searchParams.get('section')
+  const requestedCardId = searchParams.get('card')
   const { goBack } = useBackButton()
   const [cards, setCards] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
+  const [sourceOpen, setSourceOpen] = useState(false)
   const touchStartX = useRef(null)
 
   useEffect(() => {
@@ -67,8 +71,8 @@ export default function Browse() {
     if (chapterFilter) all = all.filter(c => c.chapter === chapterFilter)
     if (sectionFilter) all = all.filter(c => c.section === sectionFilter)
     setCards(all)
-    setCurrentIndex(0)
-  }, [id, chapterFilter, sectionFilter])
+    setCurrentIndex(Math.max(0, all.findIndex(card => card.id === requestedCardId)))
+  }, [id, chapterFilter, sectionFilter, requestedCardId])
 
   useEffect(() => {
     setFlipped(false)
@@ -87,6 +91,7 @@ export default function Browse() {
   }, [currentIndex])
 
   const handleKeyDown = useCallback((e) => {
+    if (e.isComposing || document.querySelector('[role="dialog"]') || e.target.closest?.('button, a, input, textarea, select')) return
     if (e.key === 'ArrowRight') goNext()
     else if (e.key === 'ArrowLeft') goPrev()
     else if (e.key === ' ' || e.key === 'Enter') {
@@ -203,6 +208,9 @@ export default function Browse() {
           </div>
         </div>
       </div>
+
+      {card.source && <div className="reader-receipt"><button onClick={() => setSourceOpen(true)}>查看原文</button></div>}
+      <SourceLens source={card.source} open={sourceOpen} onClose={() => setSourceOpen(false)} loadDocument={loadSourceDocument} />
 
       {/* Navigation */}
       <div className="grid grid-cols-2 gap-2 px-[18px] pb-[18px]">

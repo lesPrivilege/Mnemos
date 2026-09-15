@@ -1,12 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
 import { HighlightsPanel, TocPanel } from '../reading/components/ReaderPanels'
 import { renderDoc, extractToc } from '../reading/lib/renderDoc'
+import CardDraftEditor from '../components/CardDraftEditor'
+import SourceLens from '../components/SourceLens'
+import { fingerprintText, captureTextSelection } from '../reading/lib/sourceAnchor'
 import { createMemoryAdapter } from './adapter'
 import reading from './fixtures/reading.md?raw'
 
 const states = [['ready', '阅读正文'], ['empty', '空资料'], ['long', '长标题'], ['repeat', '重复摘句'], ['formula', '公式'], ['plain', '无笔记摘录'], ['noted', '已有笔记'], ['failed', '保存失败'], ['missing', '来源失效']]
 const quote = '记住结论并不等于能够解释结论。'
 const title = '线性变换与面积'
+const fixtureDecks = [{ id: 'fixture-linear', name: '线性代数' }, { id: 'fixture-reading', name: '阅读摘录' }]
+const loadFixtureDocument = async () => ({ title, content: reading.replace(/^# .*\n/, ''), format: 'md' })
+const missingFixtureDocument = async () => null
 const date = '2026-09-16T03:00:00+08:00'
 
 export default function Showroom() {
@@ -30,7 +36,7 @@ export default function Showroom() {
       </div>
     </header>
     <ReadingScene key={`${scenario}-${version}`} scenario={scenario} layout={layout}/>
-    <footer className="showroom-footer">MX-01 · {typeof __MNEMOS_BUILD__ === 'undefined' ? '测试' : `${__MNEMOS_BUILD__.version} / ${__MNEMOS_BUILD__.commit}`} · 原创 fixture / 2026-09-16 · 产品持久来源关联待 MX-02</footer>
+    <footer className="showroom-footer">MX-02 · {typeof __MNEMOS_BUILD__ === 'undefined' ? '测试' : `${__MNEMOS_BUILD__.version} / ${__MNEMOS_BUILD__.commit}`} · 原创 fixture / 2026-09-16 · 共享编辑与来源组件 · 样板数据不写入用户库</footer>
   </div>
 }
 
@@ -40,13 +46,11 @@ function ReadingScene({ scenario, layout }) {
   const [selection, setSelection] = useState(null)
   const [highlights, setHighlights] = useState(() => ['plain', 'noted', 'repeat', 'failed', 'missing'].includes(scenario) ? [{ id: 'excerpt-seed', selectedText: quote, note: scenario === 'plain' ? '' : '为什么知道结论还不足以解释它？', createdAt: date, paragraph: 5 }] : [])
   const [draft, setDraft] = useState(null)
-  const [error, setError] = useState('')
+  const [sourceOpen, setSourceOpen] = useState(false)
   const [saved, setSaved] = useState(null)
   const [notice, setNotice] = useState('')
   const article = useRef(null)
-  const editor = useRef(null)
   const returnTarget = useRef(null)
-  const savedLock = useRef(false)
   const adapter = useRef(null)
   if (!adapter.current) adapter.current = createMemoryAdapter({ failOnce: scenario === 'failed' })
   useEffect(() => {
@@ -54,45 +58,38 @@ function ReadingScene({ scenario, layout }) {
     renderDoc(reading.replace(/^# .*\n/, '')).then(value => { if (active) setHtml(value) }).catch(() => { if (active) setRenderError(true) })
     return () => { active = false }
   }, [])
-  useEffect(() => { if (draft) editor.current?.focus() }, [draft?.id])
   useEffect(() => {
     if (scenario !== 'formula' || !html) return
     const heading = article.current?.querySelector('#一次拉伸')
     if (heading) { heading.tabIndex = -1; heading.focus(); heading.scrollIntoView({ block: 'start' }) }
   }, [html, scenario])
   function selectText() {
-    const selected = window.getSelection()
-    if (!selected?.rangeCount || selected.isCollapsed) return
-    const range = selected.getRangeAt(0)
-    if (!article.current?.contains(range.commonAncestorContainer)) return
+    const captured = captureTextSelection(article.current)
+    if (!captured) return
+    const range = window.getSelection().getRangeAt(0)
     const paragraphs = [...article.current.querySelectorAll('p')]
-    const paragraph = paragraphs.findIndex(p => p.contains(range.startContainer))
-    setSelection({ selectedText: selected.toString(), paragraph })
+    setSelection({ ...captured, paragraph: paragraphs.findIndex(p => p.contains(range.startContainer)) })
   }
   function excerpt(value) {
     const item = { ...value, id: `excerpt-${highlights.length}-${Date.now()}`, createdAt: date, note: '' }
     setHighlights(list => [...list, item]); setSelection(null); setNotice('摘录已保存到本场景。')
   }
-  function edit(item, event) {
+  async function edit(item, event) {
     returnTarget.current = event.currentTarget
-    savedLock.current = false
-    setSaved(null); setError(''); setDraft({ id: item.id, front: item.note || '', back: item.selectedText, paragraph: item.paragraph, deck: '线性代数' })
+    const paragraph = article.current?.querySelectorAll('p')[item.paragraph]
+    let offset = item.textOffset
+    const text = article.current?.textContent || ''
+    if (offset == null && paragraph) {
+      const range = document.createRange(); range.selectNodeContents(article.current); range.setEnd(paragraph, 0)
+      offset = range.toString().length
+    }
+    const source = { version: 1, kind: 'document', id: 'fixture-doc', quote: item.selectedText,
+      textOffset: offset ?? 0, length: item.selectedText.length, contentFingerprint: await fingerprintText(text) }
+    setSaved(null); setDraft({ id: crypto.randomUUID(), front: item.note || '', back: item.selectedText,
+      source, deckId: 'fixture-linear', deckName: '线性代数' })
   }
-  function close() { setDraft(null); setError(''); returnTarget.current?.focus() }
-  function save(event) {
-    event.preventDefault()
-    if (savedLock.current) return
-    try {
-      const card = adapter.current.save(draft)
-      savedLock.current = true; setSaved(card); setDraft(null); setError(''); setNotice('卡片已保存到本场景。'); returnTarget.current?.focus()
-    } catch (failure) { setError(failure.message) }
-  }
-  function source() {
-    if (scenario === 'missing') { setNotice('原文已不可用，摘句仍保留在卡片中。'); return }
-    const target = article.current?.querySelectorAll('p')[saved.paragraph]
-    if (!target) { setNotice('此摘句没有可用段落定位。'); return }
-    target.tabIndex = -1; target.focus(); target.scrollIntoView({ block: 'center' }); setNotice('已返回摘句所在段落。')
-  }
+  function close() { setDraft(null); returnTarget.current?.focus() }
+  function savedCard(card) { setSaved(card); setDraft(null); setNotice('卡片已保存到本场景。'); returnTarget.current?.focus() }
   if (scenario === 'empty') return <main className="showroom-empty"><h2>还没有阅读材料</h2><p>选择“阅读正文”场景，体验摘录与制卡。</p></main>
   return <main className={`showroom-scene ${layout}`}>
     <section className="showroom-reading" aria-label="原文">
@@ -105,13 +102,9 @@ function ReadingScene({ scenario, layout }) {
     <aside className="showroom-excerpts" aria-label="摘录与卡片">
       <HighlightsPanel highlights={highlights} onDelete={id => { setHighlights(items => items.filter(item => item.id !== id)); setNotice('摘录已移除。') }}/>
       {highlights.map((item, index) => <button className="showroom-create" key={item.id} onClick={event => edit(item, event)}>将摘录 {index + 1} 制成卡片</button>)}
-      {draft && <form className="showroom-editor" onSubmit={save} onKeyDown={event => { if (event.key === 'Escape') close() }} aria-label="卡片草稿">
-        <h2>卡片草稿</h2><label>问题<textarea ref={editor} required value={draft.front} onChange={e => setDraft({ ...draft, front: e.target.value })}/></label>
-        <label>答案<textarea required value={draft.back} onChange={e => setDraft({ ...draft, back: e.target.value })}/></label>
-        <label>卡组<select value={draft.deck} onChange={e => setDraft({ ...draft, deck: e.target.value })}><option>线性代数</option><option>阅读摘录</option></select></label>
-        {error && <p role="alert">{error}</p>}<div className="showroom-actions"><button type="submit" className="primary">{error ? '重试保存' : '保存卡片'}</button><button type="button" onClick={close}>取消</button></div>
-      </form>}
-      {saved && <section className="showroom-saved" aria-label="已保存卡片"><h2>{saved.front}</h2><p>{saved.back}</p><p>卡组：{saved.deck}</p><button onClick={source}>查看原文</button></section>}
+      {draft && <section className="showroom-editor"><h2>卡片草稿</h2><CardDraftEditor key={draft.id} initialDraft={draft} decks={fixtureDecks} onSave={value => adapter.current.save(value)} onSaved={savedCard} onCancel={close}/></section>}
+      {saved && <section className="showroom-saved" aria-label="已保存卡片"><h2>{saved.front}</h2><p>{saved.back}</p><p>卡组：{fixtureDecks.find(deck => deck.id === saved.deckId)?.name || saved.deckName}</p><button onClick={() => setSourceOpen(true)}>查看原文</button></section>}
+      <SourceLens source={saved?.source} open={sourceOpen} onClose={() => setSourceOpen(false)} loadDocument={scenario === 'missing' ? missingFixtureDocument : loadFixtureDocument}/>
       <p className="showroom-notice" role="status">{notice}</p>
     </aside>
   </main>

@@ -34,13 +34,13 @@ export async function exportReadingData() {
 export async function importReadingData(data) {
   if (!data || typeof data !== 'object') return
   for (const key of ALL_KEYS) {
-    if (key in data) save(key, data[key])
+    if (key in data) { const result = save(key, data[key]); if (!result.ok) throw new Error(result.error || '阅读资料恢复失败。') }
   }
   // Restore document bodies to IndexedDB
   if (data.bodies) {
     const docs = getDocuments()
     for (const [id, body] of Object.entries(data.bodies)) {
-      await idbSet(BODY_STORE, id, body)
+      if (!await idbSet(BODY_STORE, id, body)) throw new Error('原文恢复失败，部分资料已恢复，请重试。')
     }
     // Ensure restored docs have hasBody flag and no embedded content
     const updated = docs.map(d => {
@@ -50,7 +50,8 @@ export async function importReadingData(data) {
       }
       return d
     })
-    save('reading-documents', updated)
+    const result = save('reading-documents', updated)
+    if (!result.ok) throw new Error(result.error || '阅读资料恢复失败。')
   }
 }
 
@@ -70,63 +71,54 @@ export function clearAllReadingData() {
 }
 
 export async function mergeReadingData(data) {
-  if (!data || typeof data !== 'object') return
-  for (const key of ALL_KEYS) {
-    if (!(key in data)) continue
-    const incoming = data[key]
-    const existing = load(key, null)
-
-    // Collections + Documents: merge by id, skip duplicates
-    if (key === 'reading-collections' || key === 'reading-documents') {
-      if (!Array.isArray(incoming) || !Array.isArray(existing)) {
-        save(key, incoming)
-        continue
-      }
-      const ids = new Set(existing.map(item => item.id))
-      for (const item of incoming) {
-        if (!ids.has(item.id)) existing.push(item)
-      }
-      save(key, existing)
-      continue
-    }
-
-    // Stats: keep existing if already present (don't overwrite real stats with backup)
-    if (key === 'reading-stats') {
-      if (!existing || !existing.totalMinutes) save(key, incoming)
-      continue
-    }
-
-    // Highlights, Bookmarks, Settings: simple merge by id where applicable, else replace
-    if ((key === 'reading-highlights' || key === 'reading-bookmarks') && Array.isArray(incoming) && Array.isArray(existing)) {
-      const ids = new Set(existing.map(item => item.id))
-      for (const item of incoming) {
-        if (!ids.has(item.id)) existing.push(item)
-      }
-      save(key, existing)
-      continue
-    }
-
-    // Settings: keep existing, import only if missing
-    if (key === 'reading-settings') {
-      if (!existing) save(key, incoming)
-      continue
-    }
-
-    save(key, incoming)
+  if (!data || typeof data !== 'object') return { documentIds: {}, highlightIds: {} }
+  const maps = { collectionIds: {}, documentIds: {}, highlightIds: {} }
+  const merged = {}
+  const newDocuments = new Set()
+  async function sameObject(key, previous, incoming) {
+    const fields = key === 'reading-collections' ? ['name', 'icon'] : key === 'reading-documents' ? ['title', 'format', 'collectionId'] : key === 'reading-highlights' ? ['docId', 'selectedText', 'textOffset', 'length', 'note', 'contextSnippet', 'contextBefore', 'contextAfter'] : ['docId', 'title', 'scrollPct']
+    if (fields.some(field => previous[field] !== incoming[field])) return false
+    if (key !== 'reading-documents') return true
+    const incomingBody = data.bodies?.[incoming.id] ?? incoming.content
+    return typeof incomingBody === 'string' && await getDocumentContent(previous.id) === incomingBody
   }
-  // Restore document bodies to IndexedDB (merge: only write for docs that were just merged in)
-  if (data.bodies) {
-    const docs = getDocuments()
-    for (const [id, body] of Object.entries(data.bodies)) {
-      await idbSet(BODY_STORE, id, body)
-    }
-    const updated = docs.map(d => {
-      if (data.bodies[d.id] && (d.content || !d.hasBody)) {
-        const { content: _content, ...rest } = d
-        return { ...rest, hasBody: true }
+  for (const [key, mapName] of [['reading-collections', 'collectionIds'], ['reading-documents', 'documentIds'], ['reading-highlights', 'highlightIds'], ['reading-bookmarks', null]]) {
+    const existing = load(key, []) || []
+    const ids = new Set(existing.map(item => item.id))
+    const incoming = Array.isArray(data[key]) ? data[key] : []
+    merged[key] = [...existing]
+    for (const item of incoming) {
+      const translated = { ...item,
+        ...(item.collectionId ? { collectionId: maps.collectionIds[item.collectionId] || item.collectionId } : {}),
+        ...(item.docId ? { docId: maps.documentIds[item.docId] || item.docId } : {}) }
+      let equivalent = null
+      for (const previous of merged[key]) {
+        if ((previous.id === item.id || previous.importedFromId === item.id) && await sameObject(key, previous, translated)) { equivalent = previous; break }
       }
-      return d
-    })
-    save('reading-documents', updated)
+      if (equivalent) { if (mapName) maps[mapName][item.id] = equivalent.id; continue }
+      let id = item.id || crypto.randomUUID()
+      while (ids.has(id)) id = crypto.randomUUID()
+      ids.add(id)
+      if (mapName) maps[mapName][item.id] = id
+      if (key === 'reading-documents') newDocuments.add(id)
+      merged[key].push({ ...translated, id, ...(id !== item.id ? { importedFromId: item.id } : {}) })
+    }
   }
+  // Bodies precede metadata. A failed body cannot become a successful linked doc.
+  for (const [oldId, newId] of Object.entries(maps.documentIds)) {
+    if (!newDocuments.has(newId)) continue
+    const body = data.bodies?.[oldId]
+    if (body != null && !await idbSet(BODY_STORE, newId, body)) throw new Error('原文恢复失败，请重试。已写入部分资料可能保留。')
+  }
+  for (const [key, value] of Object.entries(merged)) {
+    const result = save(key, value)
+    if (!result.ok) throw new Error(result.error || '阅读资料合并失败。')
+  }
+  for (const key of ['reading-stats', 'reading-settings']) {
+    if (!load(key, null) && data[key]) {
+      const result = save(key, data[key])
+      if (!result.ok) throw new Error(result.error || '阅读设置恢复失败。')
+    }
+  }
+  return maps
 }

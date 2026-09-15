@@ -1,16 +1,21 @@
 // Reader — immersive reading with auto-hide chrome
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { getDocument, getDocumentContent, updateReadingProgress, getReadingSettings, updateReadingSettings } from '../lib/storage'
 import { useBackButton } from '../../lib/useBackButton'
 import NotFoundPage from '../../components/NotFoundPage'
 import { renderDoc, extractToc } from '../lib/renderDoc'
-import { getHighlightsByDoc, addHighlight, deleteHighlight } from '../lib/highlights'
+import { getHighlightsByDoc, addHighlight, deleteHighlight, updateHighlight } from '../lib/highlights'
 import { repaintHighlights } from '../lib/highlightAnchor'
 import { getBookmarksByDoc, addBookmark, deleteBookmark } from '../lib/bookmarks'
 import { startSession, endSession, markDocCompleted, touchSession } from '../lib/stats'
 import { exportHighlightsMd } from '../lib/exportHighlights'
 import { downloadBlob } from '../../lib/utils'
+import { captureTextSelection, fingerprintText } from '../lib/sourceAnchor'
+import { getDecks, addSourcedCardConfirmed } from '../../lib/storage'
+import CardDraftEditor from '../../components/CardDraftEditor'
+import ContextDialog from '../../components/ContextDialog'
+import SelectionActions from '../components/SelectionActions'
 import ReaderToolbar from '../components/ReaderToolbar'
 import { TocPanel, HighlightsPanel, BookmarksPanel } from '../components/ReaderPanels'
 import { S } from '../../lib/strings'
@@ -47,6 +52,9 @@ export default function Reader() {
   const [highlights, setHighlights] = useState([])
   const [bookmarks, setBookmarks] = useState([])
   const [toast, setToast] = useState(null)
+  const [draft, setDraft] = useState(null)
+  const [savingCard, setSavingCard] = useState(false)
+  const [savedCard, setSavedCard] = useState(null)
   const scrollRef = useRef(null)
   const toastTimer = useRef(null)
   const persistTimer = useRef(null)
@@ -146,6 +154,7 @@ export default function Reader() {
 
   // Tap content → toggle all chrome (topbar + bottom bar)
   const handleTapContent = (e) => {
+    if (window.getSelection()?.toString()) return
     if (e.target.closest('.reader-panel') || e.target.closest('.reader-bottom')) return
     setShowBars(v => !v)
   }
@@ -159,50 +168,52 @@ export default function Reader() {
   }, [])
 
   const getSelection = useCallback(() => {
-    const sel = window.getSelection()
-    const text = sel?.toString().trim()
-    if (text && text.length > 0) {
-      const range = sel.getRangeAt(0)
-      const rect = range.getBoundingClientRect()
-      setSelection({ text, rect })
-    } else {
-      setSelection(null)
-    }
-  }, [])
-
-  const handleMouseUp = useCallback(() => setTimeout(getSelection, 10), [getSelection])
-  const handleTouchEnd = useCallback(() => setTimeout(getSelection, 50), [getSelection])
-
-  const handleSaveHighlight = () => {
-    if (!selection || !doc) return
     const container = scrollRef.current?.querySelector('.card-content')
-    const rendered = container?.textContent || scrollRef.current?.textContent || doc.content || ''
-    const idx = rendered.toLowerCase().indexOf(selection.text.toLowerCase())
-    const start = Math.max(0, idx - 60)
-    const end = Math.min(rendered.length, idx + selection.text.length + 60)
-    const snippet = (start > 0 ? '...' : '') + rendered.slice(start, end) + (end < rendered.length ? '...' : '')
+    setSelection(captureTextSelection(container))
+  }, [])
+  useEffect(() => {
+    document.addEventListener('selectionchange', getSelection)
+    return () => document.removeEventListener('selectionchange', getSelection)
+  }, [getSelection])
+  const handleMouseUp = getSelection
+  const handleTouchEnd = getSelection
 
-    // Compute textOffset from the selection range within the content container
-    let textOffset = -1
-    let hlLength = selection.text.length
-    try {
-      const sel = window.getSelection()
-      if (sel && sel.rangeCount > 0 && container) {
-        const range = sel.getRangeAt(0)
-        const preRange = document.createRange()
-        preRange.selectNodeContents(container)
-        preRange.setEnd(range.startContainer, range.startOffset)
-        textOffset = preRange.toString().length
-        hlLength = range.toString().length
-      }
-    } catch {}
-
-    addHighlight(doc.id, selection.text, snippet, textOffset, hlLength)
+  const saveSelectedExcerpt = () => {
+    if (!selection || !doc) return null
+    const snapshot = selection
+    const snippet = `${snapshot.contextBefore}${snapshot.selectedText}${snapshot.contextAfter}`
+    const highlight = addHighlight(doc.id, snapshot.selectedText, snippet, snapshot.textOffset, snapshot.length, snapshot)
     setHighlights(getHighlightsByDoc(doc.id))
     setSelection(null)
     window.getSelection()?.removeAllRanges()
-    setActivePanel('highlights')
     showToast(S.reader.savedHighlightToast)
+    return highlight
+  }
+  const handleSaveHighlight = () => {
+    try { saveSelectedExcerpt() } catch (error) { showToast(error.message) }
+  }
+  const openDraft = async highlight => {
+    if (!highlight || !doc) return
+    const text = scrollRef.current?.querySelector('.card-content')?.textContent || ''
+    if (text.slice(highlight.textOffset, highlight.textOffset + highlight.length) !== highlight.selectedText) {
+      showToast('原文已变化，请重新选择这段摘句。'); return
+    }
+    const contentFingerprint = await fingerprintText(text)
+    setActivePanel(null)
+    setSelection(null)
+    const decks = getDecks()
+    setDraft({ id: crypto.randomUUID(), front: highlight.note || '', back: highlight.selectedText,
+      deckId: decks[0]?.id || '', deckName: doc.title || '阅读摘录', chapter: doc.title,
+      source: { version: 1, kind: 'document', id: doc.id, highlightId: highlight.id,
+        quote: highlight.selectedText, textOffset: highlight.textOffset, length: highlight.length,
+        contextBefore: highlight.contextBefore || '', contextAfter: highlight.contextAfter || '', contentFingerprint } })
+  }
+  const handleCreateSelection = async () => {
+    try { await openDraft(saveSelectedExcerpt()) } catch (error) { showToast(error.message) }
+  }
+  const handleNote = (highlightId, note) => {
+    updateHighlight(highlightId, { note })
+    setHighlights(getHighlightsByDoc(doc.id))
   }
 
   // ── Handlers ────────────────────────────────────────
@@ -247,8 +258,10 @@ export default function Reader() {
     showToast(S.reader.exportedHighlightsToast)
   }
 
-  const handleGenerateFlashcards = () => {
+  const handleGenerateFlashcards = async () => {
     if (!doc || !highlights.length) return
+    const text = scrollRef.current?.querySelector('.card-content')?.textContent || ''
+    const contentFingerprint = await fingerprintText(text)
     const cards = highlights.map(h => {
       let front, back
       if (h.note) {
@@ -259,7 +272,9 @@ export default function Reader() {
         back = h.contextSnippet || ''
       }
       back += S.reader.flashcardSourceAttribution(doc.title)
-      return { front, back, type: 'recall', chapter: doc.title || '', section: '' }
+      const source = h.textOffset >= 0 && text.slice(h.textOffset, h.textOffset + h.length) === h.selectedText
+        ? { version: 1, kind: 'document', id: doc.id, highlightId: h.id, quote: h.selectedText, textOffset: h.textOffset, length: h.length, contentFingerprint, contextBefore: h.contextBefore || '', contextAfter: h.contextAfter || '' } : null
+      return { id: crypto.randomUUID(), front, back, type: 'recall', chapter: doc.title || '', section: '', ...(source ? { source } : {}) }
     })
     navigate('/import?tab=md', { state: { prefillCards: cards, prefillDeckName: `${S.reader.flashcardDeckNamePrefix}${doc.title}` } })
   }
@@ -287,34 +302,15 @@ export default function Reader() {
 
       <ReaderToolbar title={doc.title} showBars={showBars} onBack={goBack} />
 
-      {/* Panels */}
-      <div className={`reader-panel ${activePanel === 'toc' ? 'open' : ''}`}>
-        <TocPanel toc={toc} onJump={handleJumpToHeading} />
-      </div>
-      <div className={`reader-panel ${activePanel === 'highlights' ? 'open' : ''}`}>
-        <HighlightsPanel highlights={highlights} onDelete={handleDeleteHighlight} />
-      </div>
-      <div className={`reader-panel ${activePanel === 'bookmarks' ? 'open' : ''}`}>
-        <BookmarksPanel
-          bookmarks={bookmarks}
-          onJump={handleJumpToBookmark}
-          onDelete={handleDeleteBookmark}
-          onAddBookmark={handleAddBookmark}
-          onExportHighlights={highlights.length > 0 ? handleExportHighlights : null}
-          onGenerateFlashcards={highlights.length > 0 ? handleGenerateFlashcards : null}
-        />
-      </div>
-
-      {/* Backdrop to close panels */}
-      <div
-        className={`reader-backdrop ${activePanel ? 'visible' : ''}`}
-        style={{ position: 'fixed', inset: 0, zIndex: 14, background: 'var(--scrim)' }}
-        onClick={() => setActivePanel(null)}
-      />
+      <ContextDialog open={Boolean(activePanel)} title={BOTTOM_BTNS.find(button => button.key === activePanel)?.label || ''} onClose={() => setActivePanel(null)}>
+        {activePanel === 'toc' && <TocPanel toc={toc} onJump={handleJumpToHeading} />}
+        {activePanel === 'highlights' && <HighlightsPanel highlights={highlights} onDelete={handleDeleteHighlight} onNote={handleNote} onCreate={openDraft} />}
+        {activePanel === 'bookmarks' && <BookmarksPanel bookmarks={bookmarks} onJump={handleJumpToBookmark} onDelete={handleDeleteBookmark} onAddBookmark={handleAddBookmark} onExportHighlights={highlights.length > 0 ? handleExportHighlights : null} onGenerateFlashcards={highlights.length > 0 ? handleGenerateFlashcards : null} />}
+      </ContextDialog>
 
       {/* Content */}
       <div ref={scrollRef} tabIndex={-1} className="flex-1 overflow-y-auto"
-        onClick={handleTapContent} onScroll={handleScroll}
+        onClick={handleTapContent} onScroll={() => { setSelection(null); handleScroll() }}
         onMouseUp={handleMouseUp} onTouchEnd={handleTouchEnd}
         style={{ paddingBottom: barHidden ? 'max(20px, env(safe-area-inset-bottom))' : 'max(100px, env(safe-area-inset-bottom))' }}>
         {html ? (
@@ -329,21 +325,11 @@ export default function Reader() {
         )}
       </div>
 
-      {/* Floating highlight save button */}
-      {selection && (
-        <button
-          onClick={handleSaveHighlight}
-          className="fixed z-50 px-3.5 py-1.5 rounded-md font-zh text-md font-medium border border-border-soft"
-          style={{
-            background: 'var(--ink)', color: 'var(--bg)',
-            border: '1px solid var(--border-strong)',
-            left: Math.max(8, Math.min(selection.rect.left, window.innerWidth - 130)),
-            top: Math.min(selection.rect.bottom + 8, window.innerHeight - 60),
-            animation: 'fadeIn var(--motion-mid)',
-          }}>
-          {S.reader.saveHighlight}
-        </button>
-      )}
+      <SelectionActions selection={draft ? null : selection} onExcerpt={handleSaveHighlight} onCreate={handleCreateSelection} onClose={() => setSelection(null)} />
+      <ContextDialog open={Boolean(draft)} dismissible={!savingCard} title="制成卡片" onClose={() => setDraft(null)}>
+        {draft && <CardDraftEditor key={draft.id} initialDraft={draft} decks={getDecks()} onSave={addSourcedCardConfirmed} onPendingChange={setSavingCard} onCancel={() => setDraft(null)} onSaved={card => { setSavedCard(card); setDraft(null) }} />}
+      </ContextDialog>
+      {savedCard && <div className="reader-receipt"><span role="status">卡片已保存</span><Link to={`/browse/${savedCard.deckId}?card=${savedCard.id}`} state={{ returnTo: `/reading/doc/${doc.id}` }}>查看卡片</Link><button onClick={() => setSavedCard(null)}>收起</button></div>}
 
       {/* Bottom bar — toggles with topbar */}
       <div className="reader-bottom" inert={barHidden ? '' : undefined} aria-hidden={barHidden} style={{

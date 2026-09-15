@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams, useLocation, Link } from 'react-router-do
 import { addQuestions, importData as importQuizData, mergeImportData as mergeQuizData, loadStarred, saveStarred, loadProgress, saveProgress } from '../quiz/lib/storage'
 import { parseQuestionsJson, getQuestionsStats } from '../quiz/lib/questionParser'
 import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
-import { addDeck, addCard, getDeck, getCards, getDecks, importData, mergeData, loadData } from '../lib/storage'
+import { addDeck, addCard, addSourcedCardConfirmed, getDeck, getCards, getDecks, importDataConfirmed, mergeDataConfirmed, loadData } from '../lib/storage'
 import { parseMdToCards } from '../lib/mdParser'
 import { parseAnkiToCards } from '../lib/ankiParser'
 import { getCollections, addCollection, addDocument, deleteCollection } from '../reading/lib/storage'
@@ -83,6 +83,8 @@ export default function Import() {
   const [quizBackupData, setQuizBackupData] = useState(null)
   const [jsonMode, setJsonMode] = useState('merge')
   const [skipDup, setSkipDup] = useState(false)
+  const mdImportLock = useRef(false)
+  const mdImportDeck = useRef(null)
 
   const dedup = useMemo(() => {
     if (!mdPreview) return { count: 0, filtered: [] }
@@ -267,48 +269,64 @@ export default function Import() {
       showToast(S.import.noCardsDetected)
       return
     }
+    mdImportDeck.current = null
     setMdPreview({ cards, defaultName: deckName || defaultName })
     setMdDeckName(mdTargetDeck?.name || deckName || defaultName)
   }
 
-  const handleConfirmMd = () => {
-    if (!mdPreview || mdPreview.cards.length === 0) return
+  const handleConfirmMd = async () => {
+    if (!mdPreview?.cards.length || mdImportLock.current) return
     const name = mdDeckName.trim() || mdPreview.defaultName
     const cardsToImport = skipDup ? dedup.filtered : mdPreview.cards
-    const deck = mdTargetDeck || addDeck(name)
-    for (const card of cardsToImport) {
-      addCard(deck.id, card.front, card.back, card.type, card.chapter, card.section)
-    }
-    showToast(S.import.importedDeckSummary(deck.name, cardsToImport.length, skipDup && dedup.count > 0 ? S.import.skippedDuplicatesSuffix(dedup.count) : ''))
-    reset()
-    navigate(mdTargetDeck ? `/deck/${mdTargetDeck.id}` : '/?tab=flashcard')
+    if (!cardsToImport.length) return
+    mdImportLock.current = true
+    try {
+      let deck = mdTargetDeck || mdImportDeck.current
+      for (const card of cardsToImport) {
+        if (card.source) {
+          const saved = await addSourcedCardConfirmed({ ...card, id: card.id, deckId: deck?.id || '', deckName: name })
+          deck = { id: saved.deckId, name }
+        } else {
+          deck ||= addDeck(name)
+          addCard(deck.id, card.front, card.back, card.type, card.chapter, card.section)
+        }
+        mdImportDeck.current = deck
+      }
+      showToast(S.import.importedDeckSummary(deck.name, cardsToImport.length, skipDup && dedup.count > 0 ? S.import.skippedDuplicatesSuffix(dedup.count) : ''))
+      mdImportDeck.current = null
+      reset()
+      navigate(mdTargetDeck ? `/deck/${mdTargetDeck.id}` : '/?tab=flashcard')
+    } catch (failure) { showToast(failure.message || '保存失败，预览已保留，请重试。') }
+    finally { mdImportLock.current = false }
   }
 
   const handleConfirmJsonBackup = async () => {
     const isFull = !!fullBackupPreview
     const data = isFull ? fullBackupPreview : jsonPreviewData
     if (!data) return
+    try {
     if (jsonMode === 'replace') {
       const ok = await confirm({ title: S.import.replaceAllTitle, message: S.import.replaceAllDataMessage, confirmLabel: S.import.confirmReplace })
       if (!ok) return
       if (isFull) {
-        importData(data.flashcard)
+        await importDataConfirmed(data.flashcard)
         if (data.quiz) importQuizData(JSON.stringify(data.quiz))
         if (data.reading) await importReadingData(data.reading)
       } else {
-        importData(data)
+        await importDataConfirmed(data)
       }
     } else {
       if (isFull) {
-        mergeData(data.flashcard)
+        const sourceMaps = data.reading ? await mergeReadingData(data.reading) : null
+        await mergeDataConfirmed(data.flashcard, sourceMaps)
         if (data.quiz) mergeQuizData(JSON.stringify(data.quiz))
-        if (data.reading) await mergeReadingData(data.reading)
       } else {
-        mergeData(data)
+        await mergeDataConfirmed(data)
       }
     }
     reset()
     navigate('/?tab=flashcard')
+    } catch (failure) { setErrors([failure.message || '恢复未完成，请重试。部分资料可能已写入。']) }
   }
 
   // ---- Reading handlers ----

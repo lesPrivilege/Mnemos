@@ -11,7 +11,7 @@ export function getAllHighlights() {
   return load(KEY, [])
 }
 
-export function addHighlight(docId, selectedText, contextSnippet = '', textOffset = -1, length = 0) {
+export function addHighlight(docId, selectedText, contextSnippet = '', textOffset = -1, length = 0, anchor = {}) {
   const highlights = load(KEY, [])
   const highlight = {
     id: crypto.randomUUID(),
@@ -21,10 +21,13 @@ export function addHighlight(docId, selectedText, contextSnippet = '', textOffse
     textOffset,
     length,
     note: '',
+    contextBefore: anchor.contextBefore || '',
+    contextAfter: anchor.contextAfter || '',
     createdAt: new Date().toISOString(),
   }
   highlights.push(highlight)
-  save(KEY, highlights)
+  const result = save(KEY, highlights)
+  if (!result.ok) throw new Error(result.error || '摘录未保存，请重试。')
   return highlight
 }
 
@@ -32,7 +35,8 @@ export function updateHighlight(id, fields) {
   const highlights = load(KEY, [])
   const h = highlights.find(x => x.id === id)
   if (h) Object.assign(h, fields)
-  save(KEY, highlights)
+  const result = save(KEY, highlights)
+  if (!result.ok) throw new Error(result.error || '笔记未保存，请重试。')
   return h
 }
 
