@@ -2212,3 +2212,11 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
 .source-candidate { display: block; width: 100%; text-align: left; padding: var(--sp-6); border-bottom: 1px solid var(--border-soft); font-size: var(--text-md); }
 
 .context-dialog :focus-visible { outline-color: var(--ink); }
+
+/* The question stays in place while the answer opens in document flow. */
+.rv-reveal { cursor: auto; display: block; }
+.rv-reveal .front-q { margin-top: 0; }
+.rv-reveal-button { margin-top: var(--sp-6); }
+.rv-answer-label { font-family: var(--font-ui); font-size: var(--text-sm); color: var(--ink-3); }
+.rv-reveal section:focus-visible { outline: 1px solid var(--ink-3); outline-offset: var(--sp-1); }
+.rv-reveal .back-a { overflow: visible; }

@@ -3,11 +3,12 @@ import { HighlightsPanel, TocPanel } from '../reading/components/ReaderPanels'
 import { renderDoc, extractToc } from '../reading/lib/renderDoc'
 import CardDraftEditor from '../components/CardDraftEditor'
 import SourceLens from '../components/SourceLens'
+import ReviewCard from '../components/ReviewCard'
 import { fingerprintText, captureTextSelection } from '../reading/lib/sourceAnchor'
 import { createMemoryAdapter } from './adapter'
 import reading from './fixtures/reading.md?raw'
 
-const states = [['ready', '阅读正文'], ['empty', '空资料'], ['long', '长标题'], ['repeat', '重复摘句'], ['formula', '公式'], ['plain', '无笔记摘录'], ['noted', '已有笔记'], ['failed', '保存失败'], ['missing', '来源失效']]
+const states = [['ready', '阅读正文'], ['empty', '空资料'], ['long', '长标题'], ['repeat', '重复摘句'], ['formula', '公式'], ['plain', '无笔记摘录'], ['noted', '已有笔记'], ['failed', '保存失败'], ['missing', '来源失效'], ['answer', '复习显答']]
 const quote = '记住结论并不等于能够解释结论。'
 const title = '线性变换与面积'
 const fixtureDecks = [{ id: 'fixture-linear', name: '线性代数' }, { id: 'fixture-reading', name: '阅读摘录' }]
@@ -35,7 +36,7 @@ export default function Showroom() {
         <button onClick={() => setVersion(v => v + 1)}>重置场景</button>
       </div>
     </header>
-    <ReadingScene key={`${scenario}-${version}`} scenario={scenario} layout={layout}/>
+    {scenario === 'answer' ? <AnswerScene key={version}/> : <ReadingScene key={`${scenario}-${version}`} scenario={scenario} layout={layout}/>}
     <footer className="showroom-footer">MX-02 · {typeof __MNEMOS_BUILD__ === 'undefined' ? '测试' : `${__MNEMOS_BUILD__.version} / ${__MNEMOS_BUILD__.commit}`} · 原创 fixture / 2026-09-16 · 共享编辑与来源组件 · 样板数据不写入用户库</footer>
   </div>
 }
@@ -107,5 +108,12 @@ function ReadingScene({ scenario, layout }) {
       <SourceLens source={saved?.source} open={sourceOpen} onClose={() => setSourceOpen(false)} loadDocument={scenario === 'missing' ? missingFixtureDocument : loadFixtureDocument}/>
       <p className="showroom-notice" role="status">{notice}</p>
     </aside>
+  </main>
+}
+
+function AnswerScene() {
+  const [flipped, setFlipped] = useState(false)
+  return <main className="showroom-answer" aria-label="复习显答样板">
+    <ReviewCard card={{ id: 'fixture-answer', front: '为什么这次变换的面积倍数是六，而不是五？', back: '两个方向分别伸长为原来的两倍与三倍。面积取乘积：$2 \\times 3 = 6$，不是边长增量的相加。' }} flipped={flipped} onFlip={setFlipped}/>
   </main>
 }

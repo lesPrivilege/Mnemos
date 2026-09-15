@@ -49,3 +49,5 @@ html:has(#design-root), body:has(#design-root) { height: auto; overflow: auto; b
 }
 
 .showroom .card-draft-editor label { margin-top: 0; }
+
+.showroom-answer { max-width: var(--col-session); margin-inline: auto; }
