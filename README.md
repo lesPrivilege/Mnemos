@@ -117,3 +117,7 @@ Mnemos/
 <p align="center">
   <sub>冷中性工作面 · 铜唯鈐印与人裁 · UI 宋（多字重）/ 正文仿宋（可切宋）· 拉丁 Times · 界行两档 · 全书无影 · 静为常，动为仪式</sub>
 </p>
+
+## UX / Motion 样板间
+
+[Design](docs/design/README.md) · [刊例](docs/design-kanli.md) · [裁定](docs/design-collation.md)。独立预览入口：`/design.html`。

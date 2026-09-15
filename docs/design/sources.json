@@ -1,0 +1,330 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-16",
+  "kind": "design_handoff",
+  "baseline": {
+    "Mnemos": "13628e7eb5a946045661401bfa4e53c00f92be1e",
+    "Courtwork": "f76dd7ec9f6cef845f67360cc0a22768ae309ca6"
+  },
+  "evidence_scope": {
+    "repository_source": "read",
+    "browser_visual_review": "not_run",
+    "application_tests": "not_run",
+    "native_device_tests": "not_run",
+    "repository_writes": "not_performed",
+    "artifact_validation": "performed separately in validation.json"
+  },
+  "sources": [
+    {
+      "id": "MN-01",
+      "repository": "lesPrivilege/Mnemos",
+      "commit": "13628e7eb5a946045661401bfa4e53c00f92be1e",
+      "path": "README.md",
+      "url": "https://github.com/lesPrivilege/Mnemos/blob/13628e7eb5a946045661401bfa4e53c00f92be1e/README.md",
+      "sections_read": "全文",
+      "purpose": "产品边界、模块、可靠性与旧截图时点",
+      "read_ref": "main_then_head_observed",
+      "blob_sha": "a351f56afa68519762bddeaee66a7ff2066d618e"
+    },
+    {
+      "id": "MN-02",
+      "repository": "lesPrivilege/Mnemos",
+      "commit": "13628e7eb5a946045661401bfa4e53c00f92be1e",
+      "path": "CLAUDE.md",
+      "url": "https://github.com/lesPrivilege/Mnemos/blob/13628e7eb5a946045661401bfa4e53c00f92be1e/CLAUDE.md",
+      "sections_read": "全文",
+      "purpose": "现行设计入口、提交与禁止自动推送",
+      "read_ref": "fixed_commit",
+      "blob_sha": "c906d972543e8b0773046f97ad5eed964a85ede6"
+    },
+    {
+      "id": "MN-03",
+      "repository": "lesPrivilege/Mnemos",
+      "commit": "13628e7eb5a946045661401bfa4e53c00f92be1e",
+      "path": "docs/design-kanli.md",
+      "url": "https://github.com/lesPrivilege/Mnemos/blob/13628e7eb5a946045661401bfa4e53c00f92be1e/docs/design-kanli.md",
+      "sections_read": "本轮返回片段：宗至行款著录语",
+      "purpose": "宗、家讳、底本与版式；延展必须显式落账",
+      "read_ref": "fixed_commit"
+    },
+    {
+      "id": "MN-04",
+      "repository": "lesPrivilege/Mnemos",
+      "commit": "13628e7eb5a946045661401bfa4e53c00f92be1e",
+      "path": "src/styles/tokens.css",
+      "url": "https://github.com/lesPrivilege/Mnemos/blob/13628e7eb5a946045661401bfa4e53c00f92be1e/src/styles/tokens.css",
+      "sections_read": "1–200 行请求；已返回色值、字体、字阶、间距、动效与表面前段",
+      "purpose": "Dystopia 精确 OKLCH、字轨、圆角、时长",
+      "read_ref": "fixed_commit"
+    },
+    {
+      "id": "MN-05",
+      "repository": "lesPrivilege/Mnemos",
+      "commit": "13628e7eb5a946045661401bfa4e53c00f92be1e",
+      "path": "package.json",
+      "url": "https://github.com/lesPrivilege/Mnemos/blob/13628e7eb5a946045661401bfa4e53c00f92be1e/package.json",
+      "sections_read": "全文",
+      "purpose": "React 18、HashRouter 相关依赖、Haptics 与既有门禁",
+      "read_ref": "fixed_commit",
+      "blob_sha": "302275bde011aee9d3dbcb61c79b773fc78793e0"
+    },
+    {
+      "id": "MN-06",
+      "repository": "lesPrivilege/Mnemos",
+      "commit": "13628e7eb5a946045661401bfa4e53c00f92be1e",
+      "path": "src/App.jsx",
+      "url": "https://github.com/lesPrivilege/Mnemos/blob/13628e7eb5a946045661401bfa4e53c00f92be1e/src/App.jsx",
+      "sections_read": "全文",
+      "purpose": "三入口与独立样板启动边界；App 挂载自动备份及提醒",
+      "read_ref": "fixed_commit",
+      "blob_sha": "afc1f848d12be3093436ad19b15b73897bfd9fe3"
+    },
+    {
+      "id": "MN-07",
+      "repository": "lesPrivilege/Mnemos",
+      "commit": "13628e7eb5a946045661401bfa4e53c00f92be1e",
+      "path": "src/reading/pages/Reader.jsx",
+      "url": "https://github.com/lesPrivilege/Mnemos/blob/13628e7eb5a946045661401bfa4e53c00f92be1e/src/reading/pages/Reader.jsx",
+      "sections_read": "1–310 行",
+      "purpose": "选择、高亮、复位、预填制卡及来源文字",
+      "read_ref": "fixed_commit",
+      "blob_sha": "02c860f7665be8dd144f67f3ed00b6753db01c6e"
+    },
+    {
+      "id": "MN-08",
+      "repository": "lesPrivilege/Mnemos",
+      "commit": "13628e7eb5a946045661401bfa4e53c00f92be1e",
+      "path": "src/reading/lib/highlights.js",
+      "url": "https://github.com/lesPrivilege/Mnemos/blob/13628e7eb5a946045661401bfa4e53c00f92be1e/src/reading/lib/highlights.js",
+      "sections_read": "全文",
+      "purpose": "现有 highlight 数据结构",
+      "read_ref": "fixed_commit",
+      "blob_sha": "f5459afe75f27e1c3a2f35d45f1a51d169e8f447"
+    },
+    {
+      "id": "MN-09",
+      "repository": "lesPrivilege/Mnemos",
+      "commit": "13628e7eb5a946045661401bfa4e53c00f92be1e",
+      "path": "src/reading/components/ReaderPanels.jsx",
+      "url": "https://github.com/lesPrivilege/Mnemos/blob/13628e7eb5a946045661401bfa4e53c00f92be1e/src/reading/components/ReaderPanels.jsx",
+      "sections_read": "全文",
+      "purpose": "目录、高亮、书签及制卡入口",
+      "read_ref": "fixed_commit",
+      "blob_sha": "a0c16b614fcf1859bbe8eaeee4e877303f5fa61b"
+    },
+    {
+      "id": "MN-10",
+      "repository": "lesPrivilege/Mnemos",
+      "commit": "13628e7eb5a946045661401bfa4e53c00f92be1e",
+      "path": "src/pages/Review.jsx",
+      "url": "https://github.com/lesPrivilege/Mnemos/blob/13628e7eb5a946045661401bfa4e53c00f92be1e/src/pages/Review.jsx",
+      "sections_read": "1–155 行",
+      "purpose": "四档真实 quality、learning/requeue 与撤销前态",
+      "read_ref": "fixed_commit",
+      "blob_sha": "eb2d2762bca0df7380aca20440b34c8e695476ce"
+    },
+    {
+      "id": "CW-01",
+      "repository": "lesPrivilege/Courtwork",
+      "commit": "f76dd7ec9f6cef845f67360cc0a22768ae309ca6",
+      "path": "engineering/design/README.md",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/f76dd7ec9f6cef845f67360cc0a22768ae309ca6/engineering/design/README.md",
+      "sections_read": "全文",
+      "purpose": "Design 研究与产品、语义、实现的分层",
+      "read_ref": "main_then_head_observed",
+      "blob_sha": "f3ff2143f8694f77d3aa191bfe331490ff284dcb"
+    },
+    {
+      "id": "CW-02",
+      "repository": "lesPrivilege/Courtwork",
+      "commit": "f76dd7ec9f6cef845f67360cc0a22768ae309ca6",
+      "path": "engineering/design/scout/README.md",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/f76dd7ec9f6cef845f67360cc0a22768ae309ca6/engineering/design/scout/README.md",
+      "sections_read": "全文",
+      "purpose": "按问题消费来源与素材边界",
+      "read_ref": "main_then_head_observed",
+      "blob_sha": "29776876d9f022699074d33657525948e20bb662"
+    },
+    {
+      "id": "CW-03",
+      "repository": "lesPrivilege/Courtwork",
+      "commit": "f76dd7ec9f6cef845f67360cc0a22768ae309ca6",
+      "path": "engineering/design/atlas/README.md",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/f76dd7ec9f6cef845f67360cc0a22768ae309ca6/engineering/design/atlas/README.md",
+      "sections_read": "1–160 行请求；返回至 Projection 段后部",
+      "purpose": "Projection / Control → anatomy → visual grammar",
+      "read_ref": "main_then_head_observed"
+    },
+    {
+      "id": "CW-04",
+      "repository": "lesPrivilege/Courtwork",
+      "commit": "f76dd7ec9f6cef845f67360cc0a22768ae309ca6",
+      "path": "engineering/research/ux-polish-2026-09-08/README.md",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/f76dd7ec9f6cef845f67360cc0a22768ae309ca6/engineering/research/ux-polish-2026-09-08/README.md",
+      "sections_read": "全文",
+      "purpose": "材质、层级、联调片段边界",
+      "read_ref": "main_then_head_observed",
+      "blob_sha": "2355903c73f138216960ae9825fcea0bc556e4a7"
+    },
+    {
+      "id": "CW-05",
+      "repository": "lesPrivilege/Courtwork",
+      "commit": "f76dd7ec9f6cef845f67360cc0a22768ae309ca6",
+      "path": "engineering/research/ux-polish-2026-09-08/index.md",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/f76dd7ec9f6cef845f67360cc0a22768ae309ca6/engineering/research/ux-polish-2026-09-08/index.md",
+      "sections_read": "全文",
+      "purpose": "选择工具条、浮层、退出、焦点返回、motion 参数纪律",
+      "read_ref": "fixed_commit",
+      "blob_sha": "04655fdba6d15749ad27b9e1f673159d0a8d20ad"
+    },
+    {
+      "id": "CW-06",
+      "repository": "lesPrivilege/Courtwork",
+      "commit": "f76dd7ec9f6cef845f67360cc0a22768ae309ca6",
+      "path": "engineering/design/se-control-one-shot-2026-09-11/scout-digest.md",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/f76dd7ec9f6cef845f67360cc0a22768ae309ca6/engineering/design/se-control-one-shot-2026-09-11/scout-digest.md",
+      "sections_read": "1–160 行请求；返回 L0/L1 与 L2 前段",
+      "purpose": "渐进披露路径与历史裁决边界",
+      "read_ref": "fixed_commit"
+    },
+    {
+      "id": "CW-07",
+      "repository": "lesPrivilege/Courtwork",
+      "commit": "f76dd7ec9f6cef845f67360cc0a22768ae309ca6",
+      "path": "engineering/design/skin-injection-2026-09-10/README.md",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/f76dd7ec9f6cef845f67360cc0a22768ae309ca6/engineering/design/skin-injection-2026-09-10/README.md",
+      "sections_read": "全文",
+      "purpose": "Dystopia 是独立候选 preset；不是当前默认",
+      "read_ref": "fixed_commit",
+      "blob_sha": "dde9a87b73b0e6ec38b690748348f1702840d2ba"
+    },
+    {
+      "id": "CW-08",
+      "repository": "lesPrivilege/Courtwork",
+      "commit": "f76dd7ec9f6cef845f67360cc0a22768ae309ca6",
+      "path": "engineering/design/skin-injection-2026-09-10/skin-constitution.md",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/f76dd7ec9f6cef845f67360cc0a22768ae309ca6/engineering/design/skin-injection-2026-09-10/skin-constitution.md",
+      "sections_read": "全文",
+      "purpose": "skin 与 review、danger、focus、chart 分离",
+      "read_ref": "main_then_head_observed",
+      "blob_sha": "e9e0645103671b9a1c91aed8399951e6cfd187e9"
+    },
+    {
+      "id": "CW-09",
+      "repository": "lesPrivilege/Courtwork",
+      "commit": "f76dd7ec9f6cef845f67360cc0a22768ae309ca6",
+      "path": "engineering/design/skin-injection-2026-09-10/specimen-proposals.md",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/f76dd7ec9f6cef845f67360cc0a22768ae309ca6/engineering/design/skin-injection-2026-09-10/specimen-proposals.md",
+      "sections_read": "全文",
+      "purpose": "Dystopia cold ash / graphite 尚待冻结值来源",
+      "read_ref": "fixed_commit",
+      "blob_sha": "1dc49c2564ffa7ca5ad7c95f48e371480212e035"
+    },
+    {
+      "id": "CW-10",
+      "repository": "lesPrivilege/Courtwork",
+      "commit": "f76dd7ec9f6cef845f67360cc0a22768ae309ca6",
+      "path": "app/web/styles.css",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/f76dd7ec9f6cef845f67360cc0a22768ae309ca6/app/web/styles.css",
+      "sections_read": "1–180 行",
+      "purpose": "当前默认 lead-gray，不可当成 Dystopia",
+      "read_ref": "main_then_head_observed",
+      "blob_sha": "bd30efc42010c7fda05d552202c6dded130047f1"
+    },
+    {
+      "id": "CW-11",
+      "repository": "lesPrivilege/Courtwork",
+      "commit": "f76dd7ec9f6cef845f67360cc0a22768ae309ca6",
+      "path": "brand/README.md",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/f76dd7ec9f6cef845f67360cc0a22768ae309ca6/brand/README.md",
+      "sections_read": "1–100 行",
+      "purpose": "原始 SVG → renderer → specimen / exports 的资产工艺",
+      "read_ref": "fixed_commit",
+      "blob_sha": "9f0672e33e1f4404ecef093cf882015d88722872"
+    },
+    {
+      "id": "CW-12",
+      "repository": "lesPrivilege/Courtwork",
+      "commit": "f76dd7ec9f6cef845f67360cc0a22768ae309ca6",
+      "path": "site/README.md",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/f76dd7ec9f6cef845f67360cc0a22768ae309ca6/site/README.md",
+      "sections_read": "全文",
+      "purpose": "产品实物与发布样板固定来源、分入口与重采图",
+      "read_ref": "main_then_head_observed",
+      "blob_sha": "31a5ef065275ec1391accffe6273d000ccb72274"
+    },
+    {
+      "id": "CW-13",
+      "repository": "lesPrivilege/Courtwork",
+      "commit": "f76dd7ec9f6cef845f67360cc0a22768ae309ca6",
+      "path": "site/src/site.css",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/f76dd7ec9f6cef845f67360cc0a22768ae309ca6/site/src/site.css",
+      "sections_read": "1–120 行",
+      "purpose": "发布层独立 namespace 的例子",
+      "read_ref": "main_then_head_observed",
+      "blob_sha": "b853b77611f8337e23e9f1742dc30423014c8072"
+    }
+  ],
+  "external_sources": [
+    {
+      "id": "UP-01",
+      "url": "https://motion.dev/docs/react-layout-animations",
+      "title": "Motion · Layout animation",
+      "use": "共享对象、可中断布局转场与 transform；只做局部依赖候选",
+      "accessed": "2026-09-16",
+      "status": "official_documentation_read",
+      "installed_version": null
+    },
+    {
+      "id": "UP-02",
+      "url": "https://motion.dev/docs/react-motion-config",
+      "title": "Motion · MotionConfig",
+      "use": "显式 reducedMotion=user；默认不是自动尊重用户设置",
+      "accessed": "2026-09-16",
+      "status": "official_documentation_read",
+      "installed_version": null
+    },
+    {
+      "id": "UP-03",
+      "url": "https://react-aria.adobe.com/dnd",
+      "title": "React Aria · Drag and Drop",
+      "use": "拖拽的鼠标、触屏、键盘、读屏路径",
+      "accessed": "2026-09-16",
+      "status": "official_documentation_read",
+      "installed_version": null
+    },
+    {
+      "id": "UP-04",
+      "url": "https://react-aria.adobe.com/",
+      "title": "React Aria",
+      "use": "触控、焦点、浮层与可访问交互候选",
+      "accessed": "2026-09-16",
+      "status": "official_documentation_read",
+      "installed_version": null
+    },
+    {
+      "id": "UP-05",
+      "url": "https://developer.chrome.com/docs/web-platform/view-transitions/same-document",
+      "title": "Chrome · Same-document view transitions",
+      "use": "页级增强与 reduced-motion 回退；不能成为运行前提",
+      "accessed": "2026-09-16",
+      "status": "official_documentation_read",
+      "installed_version": null
+    }
+  ],
+  "color_basis": {
+    "source": "MN-04",
+    "authority": "src/styles/tokens.css",
+    "cw_role": "semantic and candidate-preset donor, not a frozen Dystopia numeric palette",
+    "swatch_note": "Hex values below are source comments / lineage references, not conversions of runtime OKLCH tokens."
+  },
+  "reused_assets": [],
+  "candidate_asset_families": [
+    "Courtwork brand geometry/renderer/specimen process only; no Courtwork mark adopted as Mnemos identity"
+  ],
+  "candidate_dependencies": [
+    "Motion for React, bounded spike",
+    "React Aria only for specific high-cost behaviors"
+  ],
+  "release_claim": "design package only"
+}

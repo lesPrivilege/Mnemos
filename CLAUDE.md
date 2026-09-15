@@ -17,3 +17,7 @@ Capacitor + React SRS flashcard / quiz / reading app.
 3. **Commit after build passes.** Don't batch — commit each change as soon as `vite build` succeeds.
 4. **Never push without explicit user request.** No auto-push.
 5. **Stage specific files** — no `git add -A` or `git add .`.
+
+## UX / Motion 样板间
+
+[Design](docs/design/README.md) · [刊例](docs/design-kanli.md) · [裁定](docs/design-collation.md)。独立预览入口：`/design.html`。
