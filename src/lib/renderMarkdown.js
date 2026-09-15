@@ -5,6 +5,7 @@ marked.use({ breaks: true, gfm: true })
 
 let katexModule = null
 let katexLoadPromise = null
+let mathFragments = null
 
 function escapeHtml(value) {
   return String(value)
@@ -20,7 +21,12 @@ function renderKatex(latex, displayMode = false) {
     return `<code>${escapeHtml(latex)}</code>`
   }
   try {
-    return katexModule.renderToString(latex, { displayMode, output: 'html', throwOnError: false })
+    const html = katexModule.renderToString(latex, { displayMode, output: 'html', throwOnError: false, trust: false })
+    // Only KaTeX-generated markup bypasses prose sanitization. Its positioning
+    // styles are necessary for fractions and matrices; user HTML stays filtered.
+    const marker = `mnemos-math-${crypto.randomUUID()}`
+    mathFragments.set(marker, html)
+    return `<span class="${marker}"></span>`
   } catch {
     return `<code class="katex-error">${escapeHtml(latex)}</code>`
   }
@@ -125,9 +131,16 @@ export function preloadKatex() {
 export async function renderMarkdownAsync(raw) {
   await ensureKatex(raw)
   try {
+    mathFragments = new Map()
     const html = marked.parse(raw)
-    return DOMPurify.sanitize(html, SANITIZE_CONFIG)
+    let clean = DOMPurify.sanitize(html, SANITIZE_CONFIG)
+    for (const [marker, fragment] of mathFragments) {
+      clean = clean.replace(`<span class="${marker}"></span>`, () => fragment)
+    }
+    return clean
   } catch {
     return DOMPurify.sanitize(`<p>${String(raw)}</p>`, SANITIZE_CONFIG)
+  } finally {
+    mathFragments = null
   }
 }
