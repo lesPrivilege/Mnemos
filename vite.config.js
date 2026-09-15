@@ -14,6 +14,7 @@ try {
 
 export default defineConfig({
   plugins: [react()],
+  build: { rollupOptions: { input: { app: 'index.html', design: 'design.html' } } },
   define: {
     /* 牌记 — every distributed build carries version + commit + date
        (刊例第六条); consumed by Settings 关于区. */

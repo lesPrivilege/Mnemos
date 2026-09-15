@@ -1,0 +1,112 @@
+{
+  "schema": "mnemos.design.scenarios.v1",
+  "purpose": "specimen adapter input, not production import or backup schema",
+  "clock": "2026-09-16T03:00:00+08:00",
+  "time_zone": "Asia/Singapore",
+  "synthetic": true,
+  "states": [
+    {
+      "id": "read-ready",
+      "scene": "reading",
+      "document": "reading.md",
+      "focus": "section-2"
+    },
+    {
+      "id": "quote-second-match",
+      "scene": "reading",
+      "quote": "记住结论并不等于能够解释结论。",
+      "occurrence": 2,
+      "note": "为什么知道结论还不足以解释它？"
+    },
+    {
+      "id": "save-failed",
+      "scene": "card-editor",
+      "failure": "write-rejected",
+      "retain_draft": true
+    },
+    {
+      "id": "source-missing",
+      "scene": "source-lens",
+      "source_exists": false,
+      "retain_quote": true
+    },
+    {
+      "id": "answer-hidden",
+      "scene": "review",
+      "answer_visible": false,
+      "rating_allowed": false
+    },
+    {
+      "id": "answer-shown",
+      "scene": "review",
+      "answer_visible": true,
+      "qualities": [
+        1,
+        2,
+        4,
+        5
+      ]
+    },
+    {
+      "id": "learning-requeued",
+      "scene": "review",
+      "quality": 4,
+      "learning_card": true,
+      "prior_successful_passes": 0
+    },
+    {
+      "id": "plan-missing-item",
+      "scene": "study-tray",
+      "item_refs": [
+        {
+          "kind": "document",
+          "id": "doc-fixture"
+        },
+        {
+          "kind": "deck",
+          "id": "deleted-fixture"
+        }
+      ]
+    },
+    {
+      "id": "activity-zero-and-missing",
+      "scene": "activity",
+      "buckets": [
+        {
+          "date": "2026-09-14",
+          "recorded": true,
+          "count": 0
+        },
+        {
+          "date": "2026-09-15",
+          "recorded": false,
+          "count": null
+        },
+        {
+          "date": "2026-09-16",
+          "recorded": true,
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "empty-materials",
+      "scene": "materials",
+      "items": []
+    }
+  ],
+  "preferences": [
+    "light",
+    "dark",
+    "reduced-motion",
+    "opaque-surfaces",
+    "forced-colors",
+    "text-200-percent"
+  ],
+  "safety": {
+    "production_database_access": false,
+    "reminders": false,
+    "auto_backup": false,
+    "model_calls": false
+  }
+}

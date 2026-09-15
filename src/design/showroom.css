@@ -1,0 +1,49 @@
+html:has(#design-root), body:has(#design-root) { height: auto; overflow: auto; background: var(--bg); }
+.showroom { max-width: calc(var(--col-read) + var(--col-list) + var(--gutter-wide)); margin: auto; padding: var(--sp-8); font-size: var(--text-lg); }
+.showroom-header { border-bottom: 1px solid var(--border); padding-bottom: var(--sp-8); }
+.showroom h1 { font-size: var(--text-3xl); margin: var(--sp-4) 0; }
+.showroom h2 { font-size: var(--text-2xl); line-height: var(--leading-normal); overflow-wrap: anywhere; }
+.showroom-header p, .showroom-footer { color: var(--ink-3); font-size: var(--text-md); }
+.showroom-controls { display: flex; flex-wrap: wrap; gap: var(--sp-7); margin-top: var(--sp-8); align-items: end; }
+.showroom label { display: flex; flex-direction: column; gap: var(--sp-3); font-size: var(--text-md); }
+.showroom button, .showroom select, .showroom summary { min-height: var(--hit-target); }
+.showroom button, .showroom select { border: 1px solid var(--border); border-radius: var(--r-md); padding: var(--sp-5) var(--sp-6); background: var(--bg-card); }
+.showroom button:hover { background: var(--bg-raised); }
+.showroom :focus-visible { outline: 2px solid var(--ink); outline-offset: var(--sp-1); }
+.showroom select { color: var(--ink); max-width: 100%; }
+.showroom .showroom-check { flex-direction: row; align-items: center; min-height: var(--hit-target); }
+.showroom-scene { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: var(--sp-9); padding-top: var(--sp-9); align-items: start; }
+.showroom-reading { min-width: 0; max-width: var(--col-read); }
+.showroom-document { border-bottom: 1px solid var(--border-soft); padding-bottom: var(--sp-7); }
+.showroom-document > span { color: var(--ink-3); font-size: var(--text-md); }
+.showroom summary { display: flex; align-items: center; cursor: pointer; color: var(--ink-2); }
+.showroom-article { font-family: var(--font-zh); font-size: var(--text-xl); line-height: var(--leading-relaxed); overflow-wrap: anywhere; }
+.showroom-article h1 { font-size: var(--text-2xl); }
+.showroom-article p { margin: var(--sp-7) 0; }
+.showroom-article h2 { margin-top: var(--sp-8); }
+.showroom-excerpts { border-left: 1px solid var(--border); padding-left: var(--sp-8); min-width: 0; }
+.showroom-excerpts .reader-panel-inner { padding: 0; }
+.showroom-excerpts button { min-height: var(--hit-target); }
+.showroom-excerpts .panel-header { font-size: var(--text-2xl); }
+.showroom-excerpts .panel-empty { padding: var(--sp-8) 0; color: var(--ink-3); }
+.showroom-create { display: block; margin-top: var(--sp-6); width: 100%; text-align: left; }
+.showroom-editor, .showroom-saved { margin-top: var(--sp-8); padding-top: var(--sp-8); border-top: 1px solid var(--border); }
+.showroom-editor label { margin-top: var(--sp-6); }
+.showroom textarea { resize: vertical; min-height: calc(var(--hit-target) * 2); width: 100%; padding: var(--sp-6); border: 1px solid var(--border); border-radius: var(--r-md); background: var(--bg-card); font-family: var(--font-zh); font-size: var(--text-xl); }
+.showroom-actions { display: flex; gap: var(--sp-4); margin-top: var(--sp-7); }
+.showroom button.primary, .showroom button.primary:hover { color: var(--bg); background: var(--ink); }
+.showroom-notice { margin-top: var(--sp-7); color: var(--ink-2); }
+.showroom-saved p { margin: var(--sp-7) 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.showroom-selection { border: 1px solid var(--border); padding: var(--sp-7); background: var(--bg-raised); }
+.showroom-selection p { margin-bottom: var(--sp-4); }
+.showroom-paragraphs button { display: block; width: 100%; text-align: left; margin-bottom: var(--sp-4); }
+.showroom-footer { border-top: 1px solid var(--border); margin-top: var(--sp-9); padding-top: var(--sp-7); }
+.showroom-empty { padding: var(--sp-10) 0; }
+.showroom-scene.single { grid-template-columns: minmax(0, 1fr); max-width: var(--col-read); margin: auto; }
+.showroom-scene.single .showroom-excerpts { border-left: 0; padding-left: 0; border-top: 1px solid var(--border); padding-top: var(--sp-8); }
+.showroom[data-reduced="true"] *, .showroom[data-reduced="true"] *::before, .showroom[data-reduced="true"] *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+@media (max-width: 719px) {
+  .showroom { padding: var(--sp-7); }
+  .showroom-scene { grid-template-columns: minmax(0, 1fr); }
+  .showroom-excerpts { border-left: 0; padding-left: 0; border-top: 1px solid var(--border); padding-top: var(--sp-8); }
+}
