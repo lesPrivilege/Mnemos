@@ -104,3 +104,11 @@ MX-03 尚未完成：Luna 展开确认成熟卡 Again 撤销未还原持久状�
 Luna 两轮只读审校：前述 P1 均关闭；最后两项 P2（撤销后的收藏 UI、换 deck 的 faulted）已修。实施者 computer use：390 浅色样板显答→预选困难（不提交）→确认→回执→撤销→答案焦点，使用共享 ReviewCard／RatingRail。[书影](evidence/mx03-rating-390.png)。样板回执仅在内存；真实存储逆操作由集成测试验证，尚未获独立生产浏览器／原生设备交互验收。
 
 后续仍须完成 MX-04／05／06、跨入口视觉矩阵与设备限制登记。当前 session 恢复仍沿用既有“卡组＋剩余数，重新取到期卡”合同，未宣称重启还原完整临时队列。
+
+## MX-04 · 搜索切片
+
+起始 HEAD `a9edab1`。搜索覆盖卡片、题目与文档标题；URL 保存查询与类型，输入法组合期不执行；结果不再截断 30 项。实际链接携带原搜索地址，卡片定位 card ID，题目定位 qid（subject 只在路由层编码），文档明确为标题搜索。移除原搜索提示的 ink-4 文字。
+
+Luna 只读审校无阻断；其提出的 Unicode／斜线 subject、qid、文档返回路径已加入回归。`npm run check` 55 文件／340 测试通过，lint／collate／build 通过。实施者 computer use 在真实 Search 页验证 390 宽输入等待→0结果，调整类型控件与行距后保存[书影](evidence/mx04-search-390.png)。浏览器未添加生产数据；有结果跳转由集成测试覆盖，未宣称完整视觉验收。当前目录在搜索页挂载时读取，新增资料须重新进入搜索。
+
+下一串行切片：typed plan（deck／subject／collection／document）、多选、按钮与拖拽排序、游标继续、失效项；完整备份须获得 flashcard deck ID 映射并与 reading 映射共同恢复。MX-04 尚未完成。

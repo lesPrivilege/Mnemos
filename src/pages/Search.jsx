@@ -1,125 +1,56 @@
-import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect, useMemo, useRef } from 'react'
+import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { useBackButton } from '../lib/useBackButton'
 import { loadQuestions } from '../quiz/lib/storage'
 import { getSubjectDisplayName } from '../quiz/lib/subjectNames'
 import { getCards, getDecks } from '../lib/storage'
-import RenderMarkdown from '../quiz/components/RenderMarkdown'
+import { getDocuments } from '../reading/lib/storage'
 import { BackIcon, SearchIcon } from '../components/Icons'
 import { S } from '../lib/strings'
 import { buildQuizRoute } from '../quiz/lib/routes'
-import '../styles/markdown.css'
 
 export default function Search() {
-  const navigate = useNavigate()
   const { goBack } = useBackButton()
-  const [query, setQuery] = useState('')
-  const [quizResults, setQuizResults] = useState([])
-  const [flashcardResults, setFlashcardResults] = useState([])
-  const [allQuestions, setAllQuestions] = useState([])
-  const [allCards, setAllCards] = useState([])
-  const debounceRef = useRef(null)
-
+  const location = useLocation()
+  const [params, setParams] = useSearchParams()
+  const committed = params.get('q') || ''
+  const kind = ['card', 'quiz', 'document'].includes(params.get('kind')) ? params.get('kind') : 'all'
+  const [query, setQuery] = useState(committed)
+  const [composing, setComposing] = useState(false)
+  const inputRef = useRef(null)
+  const [catalog] = useState(() => {
+    const decks = new Map(getDecks().map(deck => [deck.id, deck.name]))
+    return [
+      ...[...decks.keys()].flatMap(id => getCards(id)).map(card => ({ id: `card:${card.id}`, kind: 'card', title: card.front || '未命名卡片', detail: decks.get(card.deckId) || '', text: `${card.front || ''} ${card.back || ''}`, route: `/browse/${encodeURIComponent(card.deckId)}?card=${encodeURIComponent(card.id)}` })),
+      ...loadQuestions().map(q => ({ id: `quiz:${q.id}`, kind: 'quiz', title: q.question || q.id, detail: getSubjectDisplayName(q.subject), text: `${q.question || ''} ${q.id || ''}`, route: buildQuizRoute(q.type === 'choice' ? 'quiz' : 'quiz-review', q.subject, { chapter: q.chapter, qid: q.id }) })),
+      ...getDocuments().map(doc => ({ id: `document:${doc.id}`, kind: 'document', title: doc.title || '未命名文档', detail: '按标题检索', text: doc.title || '', route: `/reading/doc/${encodeURIComponent(doc.id)}` })),
+    ]
+  })
+  useEffect(() => { setQuery(committed) }, [committed])
   useEffect(() => {
-    const questions = loadQuestions()
-    setAllQuestions(questions)
-    const decks = getDecks()
-    const cards = []
-    for (const d of decks) {
-      for (const c of getCards(d.id)) {
-        cards.push({ ...c, deckName: d.name })
-      }
-    }
-    setAllCards(cards)
-  }, [])
-
-  useEffect(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => {
-      if (!query.trim()) { setQuizResults([]); setFlashcardResults([]); return }
-      const q = query.trim().toLowerCase()
-      setQuizResults(allQuestions.filter(item =>
-        (item.question || '').toLowerCase().includes(q) ||
-        (item.id || '').toLowerCase().includes(q)
-      ).slice(0, 30))
-      setFlashcardResults(allCards.filter(card =>
-        (card.front || '').toLowerCase().includes(q) ||
-        (card.back || '').toLowerCase().includes(q)
-      ).slice(0, 30))
+    if (composing || query === committed) return
+    const timer = setTimeout(() => {
+      const next = new URLSearchParams(params)
+      if (query) next.set('q', query); else next.delete('q')
+      setParams(next, { replace: true, state: location.state })
     }, 300)
-    return () => clearTimeout(debounceRef.current)
-  }, [query, allQuestions, allCards])
-
-  const quizGrouped = {}
-  for (const q of quizResults) {
-    const key = `${q.subject}|||${q.chapter || S.search.uncategorized}`
-    if (!quizGrouped[key]) quizGrouped[key] = { subject: q.subject, chapter: q.chapter || S.search.uncategorized, items: [] }
-    quizGrouped[key].items.push(q)
-  }
-
-  const hasResults = quizResults.length > 0 || flashcardResults.length > 0
-
-  return (
-    <div className="page-fill">
-      <div className="topbar">
-        <button className="tb-btn" onClick={() => goBack()} aria-label={S.search.back}><BackIcon /></button>
-        <div className="search" style={{ margin: 0, flex: 1 }}>
-          <SearchIcon size={16} />
-          <input value={query} onChange={e => setQuery(e.target.value)}
-            placeholder={S.search.placeholder} autoFocus />
-        </div>
-      </div>
-
-      <main className="flex-1 overflow-y-auto p-[18px]">
-        {query.trim() && !hasResults && (
-          <div className="text-center text-ink-3 py-8 font-zh tracking-[0.04em]">{S.search.noResults}</div>
-        )}
-
-        {/* Quiz results */}
-        {quizResults.length > 0 && (
-          <div className="mb-4">
-            <div className="section-title" style={{ marginBottom: 10 }}>{S.search.quizTitle} <span className="ml-1 text-ink-2" style={{ fontSize: 'var(--text-xs)', letterSpacing: 0 }}>{quizResults.length}</span></div>
-            {Object.values(quizGrouped).map(group => (
-              <div key={`q-${group.subject}|||${group.chapter}`} className="mb-3">
-                <div className="text-xs text-ink-3 font-zh mb-1.5">
-                  {getSubjectDisplayName(group.subject)} · {group.chapter}
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  {group.items.map(q => (
-                    <div key={q.id} className="bg-bg-card rounded-lg p-3 border cursor-pointer" style={{ borderColor: 'var(--border-soft)' }}
-                      onClick={() => navigate(buildQuizRoute(q.type === 'choice' ? 'quiz' : 'quiz-review', q.subject, { chapter: q.chapter }))}>
-                      <div className="text-md text-ink card-content line-clamp-2"><RenderMarkdown content={q.question || q.id} /></div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Flashcard results */}
-        {flashcardResults.length > 0 && (
-          <div className="mb-4">
-            <div className="section-title" style={{ marginBottom: 10 }}>{S.search.flashcardTitle} <span className="ml-1 text-ink-2" style={{ fontSize: 'var(--text-xs)', letterSpacing: 0 }}>{flashcardResults.length}</span></div>
-            <div className="flex flex-col gap-1.5">
-              {flashcardResults.map(card => (
-                <div key={card.id} className="bg-bg-card rounded-lg p-3 border cursor-pointer" style={{ borderColor: 'var(--border-soft)' }}
-                  onClick={() => navigate(`/deck/${card.deckId}`)}>
-                  <div className="text-xs text-ink-3 font-zh mb-1">{card.deckName}</div>
-                  <div className="text-md text-ink card-content line-clamp-1">{card.front}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {!query.trim() && (
-          <div className="text-center text-ink-3 py-8">
-            <div className="text-md">{S.search.promptTitle}</div>
-            <div className="text-xs mt-1 text-ink-4">{S.search.promptHint}</div>
-          </div>
-        )}
-      </main>
+    return () => clearTimeout(timer)
+  }, [query, committed, composing, params, setParams, location.state])
+  const results = useMemo(() => {
+    const q = committed.trim().toLowerCase()
+    return q ? catalog.filter(item => (kind === 'all' || item.kind === kind) && item.text.toLowerCase().includes(q)) : []
+  }, [catalog, committed, kind])
+  const returnTo = `${location.pathname}${location.search}`
+  const waiting = composing || query !== committed
+  return <div className="page-fill">
+    <div className="topbar">
+      <button className="tb-btn" onClick={goBack} aria-label={S.search.back}><BackIcon/></button>
+      <div className="search search-field"><SearchIcon size={16}/><input ref={inputRef} aria-label="搜索资料" value={query} onChange={e => setQuery(e.target.value)} onCompositionStart={() => setComposing(true)} onCompositionEnd={e => { setQuery(e.currentTarget.value); setComposing(false) }} placeholder="搜索题目、卡片或文档标题" autoFocus/></div>
     </div>
-  )
+    <main className="search-results">
+      <label>资料类型 <select aria-label="资料类型" value={kind} onChange={e => { const next = new URLSearchParams(params); next.set('kind', e.target.value); setParams(next, { replace: true, state: location.state }) }}><option value="all">全部</option><option value="card">卡片</option><option value="quiz">题目</option><option value="document">文档</option></select></label>
+      <p role="status">{waiting ? '正在输入…' : committed.trim() ? `找到 ${results.length} 项` : '输入关键词查找资料。文档按标题检索。'}</p>
+      {!waiting && <ul className="search-result-list">{results.map(item => <li key={item.id}><Link to={item.route} state={{ returnTo }}><span className="search-result-kind">{item.kind === 'card' ? '卡片' : item.kind === 'quiz' ? '题目' : '文档'} · {item.detail}</span><span>{item.title}</span></Link></li>)}</ul>}
+    </main>
+  </div>
 }
