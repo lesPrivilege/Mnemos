@@ -124,3 +124,8 @@
   cursor: default;
   opacity: 0.4;
 }
+
+/* 摘录用对象名与字轨区分，不以左缘色条代替语义（记-58）。 */
+.reader-excerpt-quote { margin: 0; color: var(--ink); }
+.reader-excerpt-label { display: block; margin-bottom: var(--sp-3); font-family: var(--font-ui); font-size: var(--text-xs); color: var(--ink-3); }
+.reader-excerpt-quote p { font-family: var(--font-zh); font-size: var(--text-lg); line-height: var(--leading-relaxed); }

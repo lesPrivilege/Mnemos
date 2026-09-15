@@ -38,13 +38,13 @@ export function HighlightsPanel({ highlights, onDelete }) {
         </div>
       ) : highlights.map(h => (
         <div key={h.id} className="px-3 py-3 border-b group" style={{ borderColor: 'var(--border-soft)' }}>
-          <div className="font-zh text-md text-ink leading-relaxed"
-            style={{ borderLeft: '3px solid var(--accent)', paddingLeft: 8 }}>
-            {h.selectedText}
-          </div>
+          <blockquote className="reader-excerpt-quote">
+            <span className="reader-excerpt-label">摘录</span>
+            <p>{h.selectedText}</p>
+          </blockquote>
           {h.note && <div className="font-zh text-xs text-ink-2 mt-2 italic">{h.note}</div>}
           <div className="flex items-center justify-between mt-2">
-            <span className="font-mono text-2xs text-ink-4">
+            <span className="font-mono text-2xs text-ink-3">
               {new Date(h.createdAt).toLocaleDateString()}
             </span>
             <button onClick={() => onDelete(h.id)}

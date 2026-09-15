@@ -60,10 +60,10 @@
 }
 
 .card-content blockquote {
-  border-left: 3px solid var(--accent);
-  padding-left: 12px;
+  padding: 0 var(--sp-7);
   color: var(--ink-2);
-  margin: 10px 0;
+  margin: var(--sp-7) 0;
+  font-family: var(--font-zh);
 }
 
 .card-content blockquote p {
