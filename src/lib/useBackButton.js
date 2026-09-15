@@ -128,7 +128,9 @@ export function resolveParent(pathname, search = '', returnTo = null) {
   return pathname === '/' ? null : '/'
 }
 
-export function useBackButton() {
+export function useBackButton({ canLeave } = {}) {
+  const canLeaveRef = useRef(canLeave)
+  canLeaveRef.current = canLeave
   const navigate = useNavigate()
   const { pathname, search, state } = useLocation()
   const parent = resolveParent(pathname, search, state?.returnTo)
@@ -140,6 +142,7 @@ export function useBackButton() {
   navigateRef.current = navigate
 
   const goBack = useCallback(() => {
+    if (canLeaveRef.current && !canLeaveRef.current()) return
     if (parent) {
       navigate(parent)
     }
@@ -154,6 +157,7 @@ export function useBackButton() {
     App.addListener('backButton', () => {
       if (removed) return
       if (closeTopOverlay()) return
+      if (canLeaveRef.current && !canLeaveRef.current()) return
       const p = parentRef.current
       if (p) {
         navigateRef.current(p)

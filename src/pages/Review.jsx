@@ -3,14 +3,14 @@ import { loadSourceDocument } from '../reading/lib/loadSourceDocument'
 import { useParams, Link, useSearchParams } from 'react-router-dom'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import ReviewCard from '../components/ReviewCard'
+import RatingRail from '../components/RatingRail'
 import { BackIcon, CheckIcon, AlertIcon } from '../components/Icons'
 import { getDueCards } from '../lib/scheduler'
-import { getCards, getDeck, updateCardSM2, getCardSM2, restoreCardSM2, toggleStar } from '../lib/storage'
-import { sm2 } from '../lib/sm2'
+import { getCards, getDeck, toggleStar } from '../lib/storage'
+import { commitRating, undoRating } from '../lib/reviewAction'
 import { shuffle } from '../lib/utils'
 import { isRecall } from '../lib/cardUtils'
 import { useBackButton } from '../lib/useBackButton'
-import { recordEvent } from '../lib/derive/events'
 import { sessionSummary, todayFocus } from '../lib/derive'
 import { todayJourney } from '../lib/derive/today'
 import { saveReviewSession, clearReviewSession } from '../lib/reviewSession'
@@ -18,7 +18,6 @@ import { hapticLight, hapticSuccess, hapticWarning } from '../lib/haptics'
 import { S } from '../lib/strings'
 
 const UNDO_LABELS = { 1: S.review.again, 2: S.review.hard, 4: S.review.remember, 5: S.review.easy }
-const RATE_KEYS = { 1: '1', 2: '2', 4: '4', 5: '5' }
 
 /** 时长成句：不足一分只报秒，逾一分报「N 分 M 秒」——完成屏读的是节奏不是精度。 */
 function formatDuration(ms) {
@@ -30,7 +29,6 @@ function formatDuration(ms) {
 
 export default function Review() {
   const { id } = useParams()
-  const { goBack } = useBackButton()
   const [searchParams] = useSearchParams()
   const reviewAll = searchParams.get('all') === 'true'
   const [dueCards, setDueCards] = useState([])
@@ -45,14 +43,18 @@ export default function Review() {
   const lastRef = useRef(null)
   const completedRef = useRef(false)
   const toastTimer = useRef(null)
-  const initialCountRef = useRef(0)
-  const ratedCountRef = useRef(0)
+  const [ready, setReady] = useState(false)
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState('')
+  const actionLock = useRef(false)
+  const { goBack } = useBackButton({ canLeave: () => !actionLock.current })
+  const [faulted, setFaulted] = useState(false)
+  const remainingRef = useRef(0)
+  const finishedRef = useRef(new Set())
   const passesRef = useRef(new Map()) // cardId → successful passes this session
-  // Swipe gesture state
-  const swipeRef = useRef({ startX: 0, startY: 0, locked: false, committed: false })
-  const [swipeOffset, setSwipeOffset] = useState(0)
-
   const handleFlip = useCallback((val) => {
+    if (actionLock.current) return
+    flippedRef.current = val
     setFlipped(val)
     if (val) hapticLight()
   }, [])
@@ -66,18 +68,22 @@ export default function Review() {
     } else {
       cards = shuffle(getDueCards(id))
     }
+    setFaulted(false); setError(''); setToast(null)
     setDueCards(cards)
     setStats({ again: 0, hard: 0, good: 0, easy: 0 })
     setFlipped(false)
     completedRef.current = false
-    initialCountRef.current = cards.length
-    ratedCountRef.current = 0
+    remainingRef.current = cards.length
+    setCurrentIndex(0)
+    lastRef.current = null
+    setReady(true)
     passesRef.current.clear()
+    finishedRef.current.clear()
 
     return () => {
+      clearTimeout(toastTimer.current)
       if (!completedRef.current && cards.length > 0) {
-        const remaining = Math.max(0, initialCountRef.current - ratedCountRef.current)
-        saveReviewSession({ deckId: id, deckName: deck?.name || '', dueCount: remaining || cards.length })
+        saveReviewSession({ deckId: id, deckName: deck?.name || '', dueCount: remainingRef.current })
       }
     }
   }, [id, reviewAll])
@@ -88,167 +94,52 @@ export default function Review() {
     toastTimer.current = setTimeout(() => setToast(null), 3000)
   }, [])
 
-  const handleRate = useCallback((quality) => {
+  const handleRate = useCallback(async (quality) => {
     const card = dueCards[currentIndex]
-    if (!card) return
-    // 未见答不评：评分是对照答案后的裁决（记-08）
-    if (!flippedRef.current) return
+    if (!card || !flippedRef.current || faulted || actionLock.current || ![1, 2, 4, 5].includes(quality)) return
+    actionLock.current = true
+    setPending(true); setError('')
+    try {
+      const action = await commitRating(card, quality, passesRef.current.get(card.id) || 0, id)
+      lastRef.current = { action, cardId: card.id, queue: dueCards, index: currentIndex, stats, passes: new Map(passesRef.current), finished: new Set(finishedRef.current) }
+      passesRef.current.set(card.id, action.passes)
+      if (!action.requeue && !action.card.suspended) finishedRef.current.add(card.id)
+      const next = [...dueCards]
+      if (action.requeue) next.splice(Math.min(currentIndex + 3, next.length), 0, action.card)
+      const nextIndex = currentIndex + 1
+      remainingRef.current = Math.max(0, next.length - nextIndex)
+      completedRef.current = remainingRef.current === 0
+      setDueCards(completedRef.current ? [] : next)
+      setCurrentIndex(completedRef.current ? 0 : nextIndex)
+      setStats(prev => ({ ...prev, [{ 1: 'again', 2: 'hard', 4: 'good', 5: 'easy' }[quality]]: prev[{ 1: 'again', 2: 'hard', 4: 'good', 5: 'easy' }[quality]] + 1 }))
+      flippedRef.current = false; setFlipped(false)
+      showToast(action.card.suspended ? S.review.leechToast : `${S.review.ratedToastPrefix}${UNDO_LABELS[quality]}`)
+      if (action.card.suspended) hapticWarning(); else hapticLight()
+    } catch (error) { if (error.requiresReload) setFaulted(true); setError(error.message || '保存失败，请重试。') }
+    finally { actionLock.current = false; setPending(false) }
+  }, [dueCards, currentIndex, id, stats, showToast, faulted])
 
-    // 1. 存 undo 狀態
-    const prevSM2 = getCardSM2(card.id)
-    ratedCountRef.current++
-
-    const isLearning = card.repetitions === 0
-    const passCount = passesRef.current.get(card.id) || 0
-    let graduated = false
-    let reinserted = false
-    let passDelta = 0
-
-    if (isLearning && quality >= 4) {
-      // Learning card — success path
-      if (quality === 5 || passCount >= 1) {
-        // Easy on first pass OR second pass → graduate
-        const result = sm2(card, quality)
-        updateCardSM2(card.id, result)
-        graduated = true
-        passesRef.current.delete(card.id)
-      } else {
-        // First Good pass → reinsert ~3 ahead, don't write SM-2 yet
-        passDelta = 1
-        passesRef.current.set(card.id, passCount + 1)
-        reinserted = true
-      }
-    } else if (isLearning && quality <= 2) {
-      // Learning card — fail (Again or Hard): requeue without SM-2 write
-      reinserted = true
-      // Reset pass count on failure
-      if (passCount > 0) { passDelta = -passCount; passesRef.current.set(card.id, 0) }
-    } else {
-      // Mature card or non-learning: standard SM-2
-      const result = sm2(card, quality)
-      const extras = {}
-      // Lapse counting: quality === 1 on a card that had repetitions > 0
-      if (quality === 1 && card.repetitions > 0) {
-        const newLapses = (card.lapses ?? 0) + 1
-        extras.lapses = newLapses
-        if (newLapses >= 8 && !(card.leech)) {
-          extras.leech = true
-          extras.suspended = true
-          showToast(S.review.leechToast)
-          hapticWarning()
-        }
-      }
-      updateCardSM2(card.id, { ...result, ...extras })
-      if (quality === 1) reinserted = true // Again requeue
-    }
-
-    // 2. 記錄日誌
-    recordEvent({ module: 'recall', quality, itemId: card.id, deckId: id })
-
-    // 3. 存 undo ref
-    const reinsertedAt = reinserted ? Math.min(currentIndex + 3, dueCards.length) : -1
-    lastRef.current = {
-      cardId: card.id, prevSM2, quality, removedCard: { ...card },
-      requeued: reinserted, reinsertedAt, passDelta, graduated,
-    }
-    showToast(`${S.review.ratedToastPrefix}${UNDO_LABELS[quality]}`)
-    hapticLight()
-
-    // 4. 更新 stats
-    setStats(prev => {
-      const next = { ...prev }
-      if (quality === 1) next.again++
-      else if (quality === 2) next.hard++
-      else if (quality === 4) next.good++
-      else if (quality === 5) next.easy++
-      return next
-    })
-
-    // 5. 推進卡片
-    setFlipped(false)
-    if (reinserted) {
-      const insertAt = Math.min(currentIndex + 3, dueCards.length)
-      setDueCards(prev => {
-        const next = [...prev]
-        next.splice(insertAt, 0, { ...card })
-        return next
-      })
-      if (currentIndex + 1 < dueCards.length) {
-        setCurrentIndex(currentIndex + 1)
-      } else {
-        setCurrentIndex(dueCards.length) // index after the reinserted copy
-      }
-    } else if (currentIndex + 1 < dueCards.length) {
-      setCurrentIndex(currentIndex + 1)
-    } else {
-      completedRef.current = true
-      setDueCards([])
-    }
-  }, [dueCards, currentIndex, id, showToast])
-
-  const handleUndo = useCallback(() => {
+  const handleUndo = useCallback(async () => {
     const last = lastRef.current
-    if (!last) return
-    ratedCountRef.current = Math.max(0, ratedCountRef.current - 1)
-
-    // Restore pass count
-    if (last.passDelta !== 0) {
-      const cur = passesRef.current.get(last.cardId) || 0
-      const restored = cur + last.passDelta
-      if (restored <= 0) passesRef.current.delete(last.cardId)
-      else passesRef.current.set(last.cardId, restored)
-    }
-
-    // Restore card state (SM-2 or just the original card for non-graduated learning)
-    if (last.graduated) {
-      restoreCardSM2(last.cardId, last.prevSM2)
-    } else if (!last.requeued) {
-      // Non-requeued non-graduated (shouldn't happen, but safe fallback)
-      restoreCardSM2(last.cardId, last.prevSM2)
-    }
-    // For requeued non-graduated: the card was never written, just remove the copy
-
-    lastRef.current = null
-
-    // 回退 stats
-    setStats(prev => {
-      const next = { ...prev }
-      if (last.quality === 1) next.again = Math.max(0, next.again - 1)
-      else if (last.quality === 2) next.hard = Math.max(0, next.hard - 1)
-      else if (last.quality === 4) next.good = Math.max(0, next.good - 1)
-      else if (last.quality === 5) next.easy = Math.max(0, next.easy - 1)
-      return next
-    })
-
-    if (last.requeued) {
-      // Remove the reinserted copy and step back
-      const removeAt = last.reinsertedAt >= 0 ? last.reinsertedAt : dueCards.length - 1
-      setDueCards(prev => {
-        const next = [...prev]
-        next.splice(removeAt, 1)
-        return next
-      })
-      setCurrentIndex(prev => Math.max(0, prev - 1))
-      setFlipped(true)
+    if (!last || faulted || actionLock.current) return
+    actionLock.current = true; setPending(true); setError('')
+    try {
+      await undoRating(last.action, last.cardId)
+      passesRef.current = new Map(last.passes)
+      finishedRef.current = new Set(last.finished)
+      const currentCards = new Map(getCards(id).map(card => [card.id, card]))
+      setDueCards(last.queue.map(card => ({ ...card, ...currentCards.get(card.id) }))); setCurrentIndex(last.index); setStats(last.stats)
+      remainingRef.current = last.queue.length - last.index
       completedRef.current = false
-    } else if (dueCards.length === 0 && last.removedCard) {
-      // Last card was rated — rebuild one-card queue
-      setDueCards([last.removedCard])
-      setCurrentIndex(0)
-      setFlipped(true)
-      completedRef.current = false
-    } else if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1)
-      setFlipped(true)
-    }
-
-    setToast(S.review.undoToast)
-    clearTimeout(toastTimer.current)
-    toastTimer.current = setTimeout(() => setToast(null), 2000)
-  }, [currentIndex, dueCards.length])
+      lastRef.current = null
+      flippedRef.current = true; setFlipped(true)
+      showToast(S.review.undoToast)
+    } catch (error) { if (error.requiresReload) setFaulted(true); setError(error.message || '撤销失败，请重试。') }
+    finally { actionLock.current = false; setPending(false) }
+  }, [showToast, faulted, id])
 
   const handleKeyDown = useCallback((e) => {
-    if (e.isComposing || document.querySelector('[role="dialog"]') || e.target.closest?.('button, a, input, textarea, select')) return
+    if (e.repeat || e.isComposing || document.querySelector('[role="dialog"]') || e.target.closest?.('button, a, input, textarea, select, summary')) return
     // Undo: Ctrl+Z / Cmd+Z
     if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
       e.preventDefault()
@@ -276,56 +167,16 @@ export default function Review() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [handleKeyDown])
 
-  // Swipe gesture handlers (active only when flipped)
-  const handleTouchStart = useCallback((e) => {
-    if (!flipped) return
-    const t = e.touches[0]
-    swipeRef.current = { startX: t.clientX, startY: t.clientY, locked: false, committed: false }
-  }, [flipped])
-
-  const handleTouchMove = useCallback((e) => {
-    if (!flipped) return
-    const t = e.touches[0]
-    const dx = t.clientX - swipeRef.current.startX
-    const dy = t.clientY - swipeRef.current.startY
-    if (!swipeRef.current.locked) {
-      if (Math.abs(dx) > 24 && Math.abs(dx) > 2 * Math.abs(dy)) {
-        swipeRef.current.locked = true
-      } else {
-        return
-      }
-    }
-    e.preventDefault()
-    setSwipeOffset(dx)
-  }, [flipped])
-
-  const handleTouchEnd = useCallback(() => {
-    if (!flipped || !swipeRef.current.locked) { setSwipeOffset(0); return }
-    const cardWidth = 320 // approximate; threshold = min(96, 30% of card width)
-    const threshold = Math.min(96, cardWidth * 0.3)
-    if (Math.abs(swipeOffset) >= threshold) {
-      swipeRef.current.committed = true
-      hapticLight()
-      // Animate off-screen then rate
-      const target = swipeOffset > 0 ? 400 : -400
-      setSwipeOffset(target)
-      setTimeout(() => {
-        setSwipeOffset(0)
-        handleRate(swipeOffset > 0 ? 4 : 1)
-      }, 180)
-    } else {
-      setSwipeOffset(0)
-    }
-  }, [flipped, swipeOffset, handleRate])
-
   // Clear saved session when review completes
   useEffect(() => {
-    if (dueCards.length === 0) {
+    if (ready && dueCards.length === 0) {
       completedRef.current = true
       clearReviewSession()
       hapticSuccess()
     }
-  }, [dueCards.length])
+  }, [ready, dueCards.length])
+
+  if (!ready) return <div role="status">正在准备复习…</div>
 
   // Done screen
   if (dueCards.length === 0) {
@@ -343,13 +194,13 @@ export default function Review() {
     return (
       <div className="page-fixed" style={{ background: 'var(--bg)' }}>
         <div className="topbar">
-          <button onClick={goBack} className="tb-btn" aria-label={S.review.backToDeck}><BackIcon /></button>
+          <button onClick={goBack} disabled={pending} className="tb-btn" aria-label={S.review.backToDeck}><BackIcon /></button>
         </div>
         <div className="page-scroll">
           <div className="done-wrap">
             <div className="done-mark"><CheckIcon size={20} sw={2} /></div>
             <div className="done-title">{S.review.doneTitle}</div>
-            <div className="done-sum">{S.review.doneSummary(total, formatDuration(summary?.durationMs))}</div>
+            <div className="done-sum">{`完成 ${finishedRef.current.size} 项 · 评价 ${total} 次 · ${formatDuration(summary?.durationMs)}`}</div>
 
             {/* 关系式（版1）——替旧「两个孤立数 + 四格计数」。
                 孤立的 24、92% 不回答任何问题；「较上次多 6 张」「↑4」
@@ -383,9 +234,10 @@ export default function Review() {
               )}
             </div>
 
+            {error && <p role="alert">{error}</p>}
             <div className="done-actions">
               {lastRef.current && (
-                <button className="btn btn-ghost" onClick={handleUndo}>{S.review.undoLastCard}</button>
+                <button className="btn btn-ghost" disabled={pending || faulted} onClick={handleUndo}>{S.review.undoLastCard}</button>
               )}
               <Link to={`/browse/${id}`} className="btn btn-ghost">{S.review.browseCards}</Link>
               {nextDeck
@@ -406,6 +258,8 @@ export default function Review() {
   const unreadable = !card.back?.trim()
 
   const skipUnreadable = () => {
+    if (actionLock.current) return
+    remainingRef.current = Math.max(0, dueCards.length - currentIndex - 1)
     setFlipped(false)
     setDueCards((prev) => prev.filter((_, index) => index !== currentIndex))
     setCurrentIndex((prev) => Math.max(0, Math.min(prev, dueCards.length - 2)))
@@ -420,7 +274,7 @@ export default function Review() {
 
       {/* Meta */}
       <div className="rv-meta">
-        <button onClick={goBack} className="rv-meta-btn" aria-label={S.review.leaveReview}>
+        <button onClick={goBack} disabled={pending} className="rv-meta-btn" aria-label={S.review.leaveReview}>
           <BackIcon size={15} />
         </button>
         <span className="crumb">
@@ -428,7 +282,8 @@ export default function Review() {
           {card.chapter && <><span className="div">·</span>{card.chapter}</>}
           {isLearning && <><span className="div">·</span><span className="learning">{S.review.learningPrefix}{passCount + 1}/2</span></>}
         </span>
-        <button onClick={() => {
+        <button disabled={pending} onClick={() => {
+          if (actionLock.current) return
           toggleStar(card.id)
           setDueCards(prev => prev.map((c, i) => i === currentIndex ? { ...c, starred: !c.starred } : c))
         }}
@@ -447,14 +302,7 @@ export default function Review() {
       </div>
 
       {/* Card — scrollable internally */}
-      <div className="rv-gesture"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        style={swipeOffset ? {
-          transform: `translateX(${swipeOffset}px) rotate(${swipeOffset / 40}deg)`,
-          transition: swipeRef.current.committed ? 'transform var(--motion-mid)' : (Math.abs(swipeOffset) < 5 ? 'transform var(--motion-quick)' : 'none'),
-        } : undefined}>
+      <div className="rv-gesture">
         {unreadable ? (
           <div className="rv-card-wrap">
             <div className="notice" role="alert">
@@ -474,54 +322,17 @@ export default function Review() {
             card={card}
             flipped={flipped}
             onFlip={handleFlip}
-            swipeOffset={swipeOffset}
           />
         )}
       </div>
 
-      {card.source && <div className="reader-receipt"><button onClick={() => setSourceOpen(true)}>查看原文</button></div>}
+      {card.source && <div className="reader-receipt"><button disabled={pending} onClick={() => setSourceOpen(true)}>查看原文</button></div>}
       <SourceLens source={card.source} open={sourceOpen} onClose={() => setSourceOpen(false)} loadDocument={loadSourceDocument} />
 
-      {/* Fixed bottom rating buttons */}
-      <div className="rate shrink-0" style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom))' }}>
-        <button onClick={() => handleRate(1)} disabled={!flipped || unreadable} className="rate-btn rate-again">
-          <span>{S.review.again}</span><span className="k">{RATE_KEYS[1]}</span>
-        </button>
-        <button onClick={() => handleRate(2)} disabled={!flipped || unreadable} className="rate-btn rate-hard">
-          <span>{S.review.hard}</span><span className="k">{RATE_KEYS[2]}</span>
-        </button>
-        <button onClick={() => handleRate(4)} disabled={!flipped || unreadable} className="rate-btn rate-good">
-          <span>{S.review.remember}</span><span className="k">{RATE_KEYS[4]}</span>
-        </button>
-        <button onClick={() => handleRate(5)} disabled={!flipped || unreadable} className="rate-btn rate-easy">
-          <span>{S.review.easy}</span><span className="k">{RATE_KEYS[5]}</span>
-        </button>
-      </div>
-
-      {/* Undo toast: a persistently-mounted status node carries the announcement
-          (screen readers need a stable node to reliably notice text changes);
-          the visible pill mounts only while a toast is showing, and is a real
-          button so it's keyboard-focusable and Enter/Space-activatable. */}
-      <div role="status" style={{
-        position: 'absolute', width: 1, height: 1, margin: -1, padding: 0,
-        overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', whiteSpace: 'nowrap', border: 0,
-      }}>
-        {toast ? `${toast} ${S.review.undoToastLabel}` : ''}
-      </div>
-      {toast && (
-        <button onClick={handleUndo}
-          style={{
-            position: 'fixed', bottom: 100, left: '50%', transform: 'translateX(-50%)',
-            background: 'var(--ink)', color: 'var(--bg)',
-            padding: '8px 16px', borderRadius: 999, fontSize: 'var(--text-sm)',
-            fontFamily: 'var(--font-ui)', cursor: 'pointer',
-            boxShadow: 'var(--shadow-md)', zIndex: 50,
-            animation: 'fadeIn var(--motion-mid)',
-          }}>
-          {toast} <span style={{ opacity: 0.6, marginLeft: 6 }}>{S.review.undoToastLabel}</span>
-        </button>
-      )}
-
+      {error && <p className="review-feedback" role="alert">{error}</p>}
+      <RatingRail disabled={!flipped || unreadable || pending || faulted} onRate={handleRate}/>
+      <div className="review-feedback" role="status">{pending ? '正在保存…' : toast}</div>
+      {lastRef.current && <button className="btn btn-ghost review-undo" disabled={pending || faulted} onClick={handleUndo}>撤销上一张</button>}
     </div>
   )
 }

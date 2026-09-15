@@ -175,11 +175,21 @@ export function updateCardSM2(id, sm2Result) {
   return updateCard(id, sm2Result)
 }
 
+export async function updateCardSM2Confirmed(id, fields) {
+  const data = await updateCachedConfirmed(STORAGE_KEY, data => {
+    const card = data.cards.find(card => card.id === id)
+    if (!card) throw new Error('卡片已不存在。')
+    Object.assign(card, fields)
+    return data
+  })
+  return data.cards.find(card => card.id === id)
+}
+
 export function getCardSM2(id) {
   const card = getCard(id)
   if (!card) return null
   return {
-    easiness: card.easiness, interval: card.interval, repetitions: card.repetitions, dueDate: card.dueDate,
+    updatedAt: card.updatedAt, easiness: card.easiness, interval: card.interval, repetitions: card.repetitions, dueDate: card.dueDate,
     lapses: card.lapses ?? 0, leech: card.leech ?? false, suspended: card.suspended ?? false,
   }
 }

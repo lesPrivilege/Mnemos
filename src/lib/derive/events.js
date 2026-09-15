@@ -77,7 +77,8 @@ export function readEvents() {
  */
 export function recordEvent(event) {
   const events = readEvents()
-  events.push({ id: crypto.randomUUID(), timestamp: Date.now(), ...event })
+  const entry = { ...event, id: crypto.randomUUID(), timestamp: Date.now() }
+  events.push(entry)
   const cutoff = Date.now() - MAX_AGE_DAYS * 86400000
   const kept = events.filter((e) => e.timestamp >= cutoff)
   const envelope = { schemaVersion: SCHEMA_VERSION, entries: kept }
@@ -86,8 +87,15 @@ export function recordEvent(event) {
   if (!result.ok) {
     // 存满：只留近 30 日再试一次
     const tighter = kept.filter((e) => e.timestamp >= Date.now() - 30 * 86400000)
-    writeEnvelope({ schemaVersion: SCHEMA_VERSION, entries: tighter })
+    const retry = writeEnvelope({ schemaVersion: SCHEMA_VERSION, entries: tighter })
+    return retry.ok ? entry.id : null
   }
+  return entry.id
+}
+
+export function removeEvent(id) {
+  if (!id) return false
+  return writeEnvelope({ schemaVersion: SCHEMA_VERSION, entries: readEvents().filter(event => event.id !== id) }).ok
 }
 
 /** 本地日键（YYYY-MM-DD），全派生层共用同一口径。 */

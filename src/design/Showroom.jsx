@@ -4,6 +4,7 @@ import { renderDoc, extractToc } from '../reading/lib/renderDoc'
 import CardDraftEditor from '../components/CardDraftEditor'
 import SourceLens from '../components/SourceLens'
 import ReviewCard from '../components/ReviewCard'
+import RatingRail from '../components/RatingRail'
 import { fingerprintText, captureTextSelection } from '../reading/lib/sourceAnchor'
 import { createMemoryAdapter } from './adapter'
 import reading from './fixtures/reading.md?raw'
@@ -113,7 +114,11 @@ function ReadingScene({ scenario, layout }) {
 
 function AnswerScene() {
   const [flipped, setFlipped] = useState(false)
+  const [rating, setRating] = useState(null)
   return <main className="showroom-answer" aria-label="复习显答样板">
     <ReviewCard card={{ id: 'fixture-answer', front: '为什么这次变换的面积倍数是六，而不是五？', back: '两个方向分别伸长为原来的两倍与三倍。面积取乘积：$2 \\times 3 = 6$，不是边长增量的相加。' }} flipped={flipped} onFlip={setFlipped}/>
+    <RatingRail disabled={!flipped || rating !== null} onRate={quality => { setRating(quality); setFlipped(false) }}/>
+    <p className="review-feedback" role="status">{rating !== null ? `样板评价已记录：${{ 1: '重来', 2: '困难', 4: '良好', 5: '容易' }[rating]}` : ''}</p>
+    {rating !== null && <button className="btn btn-ghost review-undo" onClick={() => { setRating(null); setFlipped(true) }}>撤销上一张</button>}
   </main>
 }
