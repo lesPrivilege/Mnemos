@@ -1,3 +1,4 @@
+import { restorePlan } from '../lib/studyPlan'
 import { useState, useRef, useMemo, useEffect } from 'react'
 import { useNavigate, useSearchParams, useLocation, Link } from 'react-router-dom'
 import { addQuestions, importData as importQuizData, mergeImportData as mergeQuizData, loadStarred, saveStarred, loadProgress, saveProgress } from '../quiz/lib/storage'
@@ -63,6 +64,8 @@ export default function Import() {
   const [readingNewColName, setReadingNewColName] = useState('')
   const [readingCommitPending, setReadingCommitPending] = useState(false)
   const readingCommitRef = useRef(false)
+  const jsonCommitRef = useRef(false)
+  const [jsonCommitPending, setJsonCommitPending] = useState(false)
   const importMountedRef = useRef(true)
 
   useEffect(() => {
@@ -303,7 +306,8 @@ export default function Import() {
   const handleConfirmJsonBackup = async () => {
     const isFull = !!fullBackupPreview
     const data = isFull ? fullBackupPreview : jsonPreviewData
-    if (!data) return
+    if (!data || jsonCommitRef.current) return
+    jsonCommitRef.current = true; setJsonCommitPending(true)
     try {
     if (jsonMode === 'replace') {
       const ok = await confirm({ title: S.import.replaceAllTitle, message: S.import.replaceAllDataMessage, confirmLabel: S.import.confirmReplace })
@@ -312,14 +316,16 @@ export default function Import() {
         await importDataConfirmed(data.flashcard)
         if (data.quiz) importQuizData(JSON.stringify(data.quiz))
         if (data.reading) await importReadingData(data.reading)
+        restorePlan(data.plan || { items: [] })
       } else {
         await importDataConfirmed(data)
       }
     } else {
       if (isFull) {
         const sourceMaps = data.reading ? await mergeReadingData(data.reading) : null
-        await mergeDataConfirmed(data.flashcard, sourceMaps)
+        const cardMaps = await mergeDataConfirmed(data.flashcard, sourceMaps)
         if (data.quiz) mergeQuizData(JSON.stringify(data.quiz))
+        if (data.plan) restorePlan(data.plan, { merge: true, maps: { ...sourceMaps, ...cardMaps } })
       } else {
         await mergeDataConfirmed(data)
       }
@@ -327,6 +333,7 @@ export default function Import() {
     reset()
     navigate('/?tab=flashcard')
     } catch (failure) { setErrors([failure.message || '恢复未完成，请重试。部分资料可能已写入。']) }
+    finally { jsonCommitRef.current = false; setJsonCommitPending(false) }
   }
 
   // ---- Reading handlers ----
@@ -517,7 +524,7 @@ export default function Import() {
               className="btn btn-ghost btn-block">
               {S.import.cancel}
             </button>
-            <button onClick={handleConfirmJsonBackup}
+            <button disabled={jsonCommitPending} onClick={handleConfirmJsonBackup}
               className="btn btn-primary btn-block">
               {S.import.confirmImport}
             </button>
@@ -582,7 +589,7 @@ export default function Import() {
           )}
           <div className="grid grid-cols-2 gap-2">
             <button onClick={reset} className="btn btn-ghost btn-block">{S.import.cancel}</button>
-            <button onClick={handleConfirmJsonBackup} className="btn btn-primary btn-block">{S.import.confirmImport}</button>
+            <button disabled={jsonCommitPending} onClick={handleConfirmJsonBackup} className="btn btn-primary btn-block">{S.import.confirmImport}</button>
           </div>
         </main>
       </div>

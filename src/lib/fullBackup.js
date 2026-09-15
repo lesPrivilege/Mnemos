@@ -3,6 +3,7 @@
 // and reading (reading-*) modules. Same permission as Import.jsx / Settings.jsx.
 import { exportData as exportFlashcardData } from './storage'
 import { exportData as exportQuizData } from '../quiz/lib/storage'
+import { loadPlan } from './studyPlan'
 import { exportReadingData } from '../reading/lib/backup'
 
 /**
@@ -19,5 +20,6 @@ export async function buildFullBackup() {
     flashcard: JSON.parse(flashcardJson),
     quiz: JSON.parse(quizJson),
     reading,
+    plan: loadPlan(),
   }
 }

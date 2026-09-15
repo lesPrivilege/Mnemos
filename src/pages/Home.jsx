@@ -1,4 +1,5 @@
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
+import StudyTray from '../components/StudyTray'
 import TodayHomeContent from './TodayHomeContent'
 import MaterialsHomeContent from './MaterialsHomeContent'
 import { SearchIcon, SettingsIcon, MnemosMark } from '../components/Icons'
@@ -26,6 +27,7 @@ export default function Home() {
       </header>
 
       <main className="home-scroll">
+        <StudyTray/>
         {showMaterials ? <MaterialsHomeContent /> : <TodayHomeContent />}
       </main>
     </div>

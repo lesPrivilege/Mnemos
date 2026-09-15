@@ -261,7 +261,7 @@ export function parseImportData(jsonString) {
   }
 }
 
-function mergeInto(data, importedData, sourceMaps = null) {
+function mergeInto(data, importedData, sourceMaps = null, outputMaps = null, importBatch = null) {
   const imported = normalizeData(importedData)
   const now = new Date().toISOString()
   const existingDeckIds = new Set(data.decks.map((deck) => deck.id))
@@ -270,11 +270,14 @@ function mergeInto(data, importedData, sourceMaps = null) {
 
   for (const deck of imported.decks) {
     const sourceId = deck.id || crypto.randomUUID()
+    const previous = importBatch && data.decks.find(item => item.importBatch === importBatch && item.importedFromId === sourceId)
+    if (previous) { deckIdMap.set(sourceId, previous.id); continue }
     const id = existingDeckIds.has(sourceId) ? crypto.randomUUID() : sourceId
     existingDeckIds.add(id)
     deckIdMap.set(sourceId, id)
     data.decks.push({
       ...deck,
+      ...(importBatch ? { importBatch, importedFromId: sourceId } : {}),
       id,
       name: deck.name || 'Imported Deck',
       pinned: deck.pinned ?? false,
@@ -284,12 +287,14 @@ function mergeInto(data, importedData, sourceMaps = null) {
 
   for (const card of imported.cards) {
     const sourceId = card.id || crypto.randomUUID()
+    if (importBatch && data.cards.some(item => item.importBatch === importBatch && item.importedFromId === sourceId)) continue
     const id = existingCardIds.has(sourceId) ? crypto.randomUUID() : sourceId
     const deckId = deckIdMap.get(card.deckId) || card.deckId
     if (!existingDeckIds.has(deckId)) continue
     existingCardIds.add(id)
     data.cards.push({
       ...card,
+      ...(importBatch ? { importBatch, importedFromId: sourceId } : {}),
       ...(card.source ? { source: remapSource(card.source, sourceMaps) } : {}),
       id,
       deckId,
@@ -307,6 +312,7 @@ function mergeInto(data, importedData, sourceMaps = null) {
     })
   }
 
+  if (outputMaps) outputMaps.deckIds = Object.fromEntries(deckIdMap)
   return data
 }
 
@@ -315,7 +321,11 @@ export function mergeData(importedData, sourceMaps = null) {
 }
 
 export async function mergeDataConfirmed(importedData, sourceMaps = null) {
-  return updateCachedConfirmed(STORAGE_KEY, data => mergeInto(data, importedData, sourceMaps))
+  const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify({ importedData, sourceMaps })))
+  const importBatch = Array.from(new Uint8Array(bytes), byte => byte.toString(16).padStart(2, '0')).join('')
+  const maps = {}
+  await updateCachedConfirmed(STORAGE_KEY, data => mergeInto(data, importedData, sourceMaps, maps, importBatch))
+  return maps
 }
 
 export async function importDataConfirmed(importedData) {

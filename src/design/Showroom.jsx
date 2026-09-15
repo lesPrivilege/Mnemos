@@ -5,11 +5,14 @@ import CardDraftEditor from '../components/CardDraftEditor'
 import SourceLens from '../components/SourceLens'
 import ReviewCard from '../components/ReviewCard'
 import RatingRail from '../components/RatingRail'
+import StudyTray from '../components/StudyTray'
+import { MemoryRouter } from 'react-router-dom'
+import { normalizePlan, planKey } from '../lib/studyPlan'
 import { fingerprintText, captureTextSelection } from '../reading/lib/sourceAnchor'
 import { createMemoryAdapter } from './adapter'
 import reading from './fixtures/reading.md?raw'
 
-const states = [['ready', '阅读正文'], ['empty', '空资料'], ['long', '长标题'], ['repeat', '重复摘句'], ['formula', '公式'], ['plain', '无笔记摘录'], ['noted', '已有笔记'], ['failed', '保存失败'], ['missing', '来源失效'], ['answer', '复习显答']]
+const states = [['ready', '阅读正文'], ['empty', '空资料'], ['long', '长标题'], ['repeat', '重复摘句'], ['formula', '公式'], ['plain', '无笔记摘录'], ['noted', '已有笔记'], ['failed', '保存失败'], ['missing', '来源失效'], ['answer', '复习显答'], ['plan', '本次学习']]
 const quote = '记住结论并不等于能够解释结论。'
 const title = '线性变换与面积'
 const fixtureDecks = [{ id: 'fixture-linear', name: '线性代数' }, { id: 'fixture-reading', name: '阅读摘录' }]
@@ -37,7 +40,7 @@ export default function Showroom() {
         <button onClick={() => setVersion(v => v + 1)}>重置场景</button>
       </div>
     </header>
-    {scenario === 'answer' ? <AnswerScene key={version}/> : <ReadingScene key={`${scenario}-${version}`} scenario={scenario} layout={layout}/>}
+    {scenario === 'plan' ? <PlanScene key={version}/> : scenario === 'answer' ? <AnswerScene key={version}/> : <ReadingScene key={`${scenario}-${version}`} scenario={scenario} layout={layout}/>}
     <footer className="showroom-footer">MX-02 · {typeof __MNEMOS_BUILD__ === 'undefined' ? '测试' : `${__MNEMOS_BUILD__.version} / ${__MNEMOS_BUILD__.commit}`} · 原创 fixture / 2026-09-16 · 共享编辑与来源组件 · 样板数据不写入用户库</footer>
   </div>
 }
@@ -121,4 +124,22 @@ function AnswerScene() {
     <p className="review-feedback" role="status">{rating !== null ? `样板评价已记录：${{ 1: '重来', 2: '困难', 4: '良好', 5: '容易' }[rating]}` : ''}</p>
     {rating !== null && <button className="btn btn-ghost review-undo" onClick={() => { setRating(null); setFlipped(true) }}>撤销上一张</button>}
   </main>
+}
+
+const planFixtures = [
+  { kind: 'deck', id: 'fixture-deck', title: '线性代数', label: '卡组', route: '/deck/fixture-deck' },
+  { kind: 'document', id: 'fixture-doc', title: '线性变换与面积', label: '文档', route: '/reading/doc/fixture-doc' },
+]
+const fixtureCatalog = () => planFixtures
+function PlanScene() {
+  const [service] = useState(() => {
+    let value = normalizePlan({ items: [] })
+    const save = next => { value = normalizePlan(next); return value }
+    return { load: () => value, save,
+      add: (plan, refs) => save({ ...plan, items: [...plan.items, ...refs] }),
+      remove: (plan, key) => save({ ...plan, items: plan.items.filter(item => planKey(item) !== key) }),
+      move: (plan, key, target) => { const items = [...plan.items]; const index = items.findIndex(item => planKey(item) === key); const [item] = items.splice(index, 1); items.splice(target, 0, item); return save({ ...plan, items }) },
+    }
+  })
+  return <MemoryRouter><StudyTray service={service} catalogProvider={fixtureCatalog}/></MemoryRouter>
 }

@@ -35,7 +35,8 @@ Settings → 完整备份 exports one JSON object:
   "exportedAt": "2026-07-04T00:00:00.000Z",
   "flashcard": {},
   "quiz": {},
-  "reading": {}
+  "reading": {},
+  "plan": {}
 }
 ```
 
@@ -46,6 +47,7 @@ Settings → 完整备份 exports one JSON object:
 | `flashcard` | object | Flashcard module payload. |
 | `quiz` | object | Quiz module payload. |
 | `reading` | object | Reading module payload. |
+| `plan` | object, optional | Ordered local study references and current item. |
 
 The full-backup envelope and each module payload have independent versions.
 
@@ -284,3 +286,30 @@ mnemos-quarantine-<key>-<date>.txt
 That text file is intentionally not auto-repaired in-app. The intended recovery
 path is: export the raw string, repair it externally, then re-import a valid JSON
 backup through the normal restore flow.
+
+
+## Optional Study Plan
+
+`plan` has `version: 1`, `planId`, `items`, `cursor`, and `updatedAt`.
+Each item stores `kind` (`deck`, `subject`, `collection`, `document`) and the
+original string `id`; unresolved imports additionally carry `unresolved: true`.
+Cursor is the JSON key of `[kind,id]` (with an additional `"unresolved"` element
+for unresolved refs). It follows object identity through sorting. Plans do not
+change due dates, scores, or activity completion. Users advance with “下一项”.
+
+Full replacement of an older backup without a plan clears the existing plan.
+Merge without a plan preserves it. Merge remaps deck/collection/document IDs;
+missing maps remain unresolved instead of binding to a same-ID local object.
+Subjects retain their raw identity. References are deduplicated by typed key.
+
+Confirmed flashcard merges record additive `importBatch` (SHA-256 of the imported
+flashcard payload and source-ID maps) and `importedFromId` on created decks/cards. Repeating the same
+payload reuses its imported objects and deck mapping, including after a plan
+write fails. Edited imported objects are preserved; a changed payload is a new
+batch. Legacy readers may ignore these fields. A full multi-module restore is
+still not globally atomic; a later failure can leave earlier module writes.
+
+An unresolved key is quarantined from a local same-ID object. When a later
+import supplies an explicit mapping for its original kind/id, the importer
+replaces that unresolved entry and moves the cursor to the resolved key; it does
+not keep both copies or infer resolution merely from a matching local ID.
