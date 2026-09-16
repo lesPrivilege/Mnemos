@@ -2247,3 +2247,13 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
 .study-picker label { display: flex; gap: var(--sp-6); align-items: center; }
 .study-picker input[type="text"], .study-picker input:not([type]) { min-width: 0; border: 1px solid var(--border); padding: var(--sp-4); }
 .study-drag { margin-right: var(--sp-6); font-size: var(--text-sm); color: var(--ink-3); cursor: grab; }
+.activity-range { display: flex; flex-wrap: wrap; align-items: end; gap: var(--sp-6); margin-block: var(--sp-7); }
+.activity-range label { display: flex; flex-direction: column; gap: var(--sp-4); font-size: var(--text-sm); }
+.activity-range input { min-width: 0; color: var(--ink); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r-sm); padding: var(--sp-4); font: inherit; }
+.activity-filter-result { font-size: var(--text-sm); color: var(--ink-2); margin-top: var(--sp-7); }
+.activity-table-scroll { overflow-x: auto; }
+.activity-filter-result table { width: 100%; border-collapse: collapse; }
+.activity-filter-result th, .activity-filter-result td { padding: var(--sp-4); border-bottom: 1px solid var(--border-soft); text-align: left; white-space: nowrap; }
+.activity-filter-result caption { text-align: left; margin-bottom: var(--sp-6); color: var(--ink-3); }
+.activity-entry-list { padding-left: var(--sp-8); }
+.activity-entry-list li { padding-block: var(--sp-4); overflow-wrap: anywhere; }

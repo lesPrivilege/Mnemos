@@ -57,7 +57,7 @@ function addRecall(daysByDate, events) {
 
 /* 练习之两源与阅读之源皆由 derive/activeDays 供给——兜底该不该取，那里判一次，
    此处不再各自决断（记-32）。 */
-function addPractice(daysByDate, events) {
+function addPractice(daysByDate, events, attempts = readLegacyPracticeAttempts(events)) {
   for (const e of events) {
     if (e.module !== 'practice') continue
     const day = daysByDate.get(dayKeyFromMs(e.timestamp))
@@ -65,7 +65,7 @@ function addPractice(daysByDate, events) {
     day.practice += 1
     if (e.correct) day.practiceCorrect += 1
   }
-  for (const attempt of readLegacyPracticeAttempts(events)) {
+  for (const attempt of attempts) {
     const day = daysByDate.get(dayKeyFromMs(attempt.timestamp))
     if (!day) continue
     day.practice += 1
@@ -73,9 +73,9 @@ function addPractice(daysByDate, events) {
   }
 }
 
-function addReading(daysByDate) {
-  for (const session of readReadingSessions()) {
-    if (!session.startedAt) continue
+function addReading(daysByDate, sessions = readReadingSessions()) {
+  for (const session of sessions) {
+    if (!session?.startedAt || !Number.isFinite(session.minutesRead) || session.minutesRead < 0) continue
     const day = daysByDate.get(dayKeyFromMs(session.startedAt))
     if (!day) continue
     day.reading += session.minutesRead || 0
@@ -133,16 +133,35 @@ export function getActivityDashboard() {
  */
 export function getHeatmapData() {
   const events = readEvents()
+  const attempts = readLegacyPracticeAttempts(events)
+  const sessions = readReadingSessions().filter(session => session?.startedAt && Number.isFinite(session.minutesRead) && session.minutesRead >= 0)
   const dates = trailingDays(90)
   const byDate = new Map(dates.map((date) => [date, emptyDay(date)]))
   addRecall(byDate, events)
-  addPractice(byDate, events)
-  addReading(byDate)
+  addPractice(byDate, events, attempts)
+  addReading(byDate, sessions)
 
+  const entries = new Map(dates.map(date => [date, []]))
+  const recorded = new Map(dates.map(date => [date, { recall: false, practice: false, reading: false }]))
+  for (const event of events) {
+    const flags = recorded.get(dayKeyFromMs(event.timestamp))
+    if (flags && ['recall', 'practice'].includes(event.module)) {
+      flags[event.module] = true
+      entries.get(dayKeyFromMs(event.timestamp)).push(event)
+    }
+  }
+  for (const attempt of attempts) {
+    const flags = recorded.get(dayKeyFromMs(attempt.timestamp))
+    if (flags) { flags.practice = true; entries.get(dayKeyFromMs(attempt.timestamp)).push({ ...attempt, module: 'practice', legacy: true }) }
+  }
+  for (const session of sessions) {
+    const flags = recorded.get(dayKeyFromMs(session.startedAt))
+    if (flags && Number.isFinite(session.minutesRead)) { flags.reading = true; entries.get(dayKeyFromMs(session.startedAt)).push({ ...session, module: 'reading' }) }
+  }
   const days = dates.map(date => {
     const d = byDate.get(date)
     const total = d.recall + d.practice + d.reading
-    return { date, recall: d.recall, practice: d.practice, reading: d.reading, total }
+    return { date, recall: d.recall, practice: d.practice, reading: d.reading, total, recorded: recorded.get(date), entries: entries.get(date) }
   })
   const maxTotal = Math.max(1, ...days.map(d => d.total))
   return { days, maxTotal }

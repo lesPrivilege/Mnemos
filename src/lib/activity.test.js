@@ -133,3 +133,14 @@ describe('getActivityDashboard · 本周之量纲（记-32）', () => {
     expect(d.streak).toBe(0)
   })
 })
+
+it('keeps an explicit zero-minute record distinct from absent and invalid readings', async () => {
+  const { getHeatmapData } = await import('./activity')
+  localStorage.setItem('reading-stats', JSON.stringify({ sessions: [
+    { startedAt: at(0), minutesRead: 0 }, { startedAt: at(1), minutesRead: -5 }, { startedAt: at(2) },
+  ] }))
+  const { days } = getHeatmapData()
+  expect(days.at(-1)).toMatchObject({ reading: 0, recorded: { reading: true, recall: false } })
+  expect(days.at(-2)).toMatchObject({ reading: 0, recorded: { reading: false } })
+  expect(days.at(-3)).toMatchObject({ reading: 0, recorded: { reading: false } })
+})

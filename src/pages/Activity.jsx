@@ -1,4 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { getCard } from '../lib/storage'
+import { loadQuestions } from '../quiz/lib/storage'
+import { getDocument } from '../reading/lib/storage'
+import { buildQuizRoute } from '../quiz/lib/routes'
+import ActivityHistory from '../components/ActivityHistory'
 import { CheckIcon } from '../components/Icons'
 import { FocusHeader } from '../components/FocusHeader'
 import { getActivityDashboard, getHeatmapData } from '../lib/activity'
@@ -36,145 +41,27 @@ function ProgressRow({ name, value, target, unit, tone, meta, scaleOnly }) {
   )
 }
 
-/* 混色取 oklab 而非 oklch：oklch 走极坐标，accent（hue 30）与 bg-raised
-   （hue 240 之极低彩度）之间要插值 hue，途经紫区——实测四档全泛蓝紫。
-   oklab 走直角坐标，无 hue 可插，色相不飘（记-31）。 */
-const HEATMAP_LEVELS = [
-  'var(--bg-raised)',
-  'color-mix(in oklab, var(--accent) 25%, var(--bg-raised))',
-  'color-mix(in oklab, var(--accent) 50%, var(--bg-raised))',
-  'color-mix(in oklab, var(--accent) 75%, var(--bg-raised))',
-  'var(--accent)',
-]
-const DAY_LABELS_SHORT = S.activity.dayLabelsShort
-
-// Parse 'YYYY-MM-DD' as local date (new Date(str) would parse as UTC and
-// shift the weekday in negative-offset timezones)
-function localWeekday(dateStr) {
-  const [y, m, d] = dateStr.split('-').map(Number)
-  return new Date(y, m - 1, d).getDay()
-}
-
-function HeatmapGrid() {
-  const { days } = getHeatmapData()
-  const [selectedDate, setSelectedDate] = useState('')
-  const scrollerRef = useRef(null)
-  const selected = days.find(day => day.date === selectedDate) || null
-
-  // Newest week visible by default
-  useEffect(() => {
-    const el = scrollerRef.current
-    if (el) el.scrollLeft = el.scrollWidth
-  }, [])
-
-  // Align columns to real weeks: pad the first column so row index === weekday (Sun→Sat)
-  const offset = days.length ? localWeekday(days[0].date) : 0
-  const padded = [...Array(offset).fill(null), ...days]
-  const weeks = []
-  for (let i = 0; i < padded.length; i += 7) {
-    weeks.push(padded.slice(i, i + 7))
-  }
-
-  // Intensity levels based on fixed thresholds against daily targets (20 recall + 20 practice + 30 reading = 70)
-  const level = (total) => {
-    if (total === 0) return 0
-    if (total < 15) return 1
-    if (total < 35) return 2
-    if (total < 55) return 3
-    return 4
-  }
-
-  // Month label above a week iff its month differs from the previous week's
-  const MONTH_NAMES = S.activity.monthNames
-  const monthOf = (week) => {
-    const first = week.find(Boolean)
-    return first ? Number(first.date.slice(5, 7)) : null
-  }
-  const monthLabels = weeks.map((week, wi) => {
-    const month = monthOf(week)
-    if (month == null) return null
-    if (wi === 0 || month !== monthOf(weeks[wi - 1])) return MONTH_NAMES[month]
-    return null
-  })
-
-  return (
-    <section className="act-section activity-section">
-      <div className="activity-section-head">
-        <div className="section-title">{S.activity.heatmapTitle}</div>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-2xs)', color: 'var(--ink-3)' }}>{S.activity.heatmapDays}</span>
-      </div>
-      <div className="activity-date-picker">
-        <label htmlFor="activity-date">{S.activity.datePickerLabel}</label>
-        <select
-          id="activity-date"
-          value={selectedDate}
-          onChange={(event) => setSelectedDate(event.target.value)}
-          aria-label={S.activity.datePickerLabel}
-        >
-          <option value="">{S.activity.datePickerPlaceholder}</option>
-          {days.map(day => <option key={day.date} value={day.date}>{day.date}</option>)}
-        </select>
-      </div>
-      <div ref={scrollerRef} className="activity-heatmap-scroll" aria-hidden="true" style={{ overflowX: 'auto', paddingBottom: 4 }}>
-        <div style={{ display: 'inline-flex', flexDirection: 'column', gap: 2, minWidth: weeks.length * 14 + 20 }}>
-          {/* Month labels */}
-          <div style={{ display: 'flex', gap: 2, paddingLeft: 18 }}>
-            {monthLabels.map((label, i) => (
-              <div key={i} style={{ width: 14, fontFamily: 'var(--font-mono)', fontSize: 'var(--text-2xs)', color: 'var(--ink-3)', textAlign: 'center' }}>
-                {label || ''}
-              </div>
-            ))}
-          </div>
-          {/* Grid rows */}
-          <div style={{ display: 'flex', gap: 2 }}>
-            {/* Day labels */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 2, width: 16, flexShrink: 0 }}>
-              {DAY_LABELS_SHORT.map((label, i) => (
-                <div key={i} style={{ height: 14, fontFamily: 'var(--font-mono)', fontSize: 'var(--text-2xs)', color: 'var(--ink-3)', display: 'flex', alignItems: 'center', justifyContent: i % 2 === 1 ? 'center' : 'flex-end' }}>
-                  {i % 2 === 1 ? label : ''}
-                </div>
-              ))}
-            </div>
-            {/* Cells */}
-            {weeks.map((week, wi) => (
-              <div key={wi} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                {Array.from({ length: 7 }, (_, di) => {
-                  const day = week[di]
-                  if (!day) return <div key={di} style={{ width: 14, height: 14 }} />
-                  const lv = level(day.total)
-                  return (
-                    <div key={di}
-                      className={`activity-heatmap-cell${selected?.date === day.date ? ' selected' : ''}`}
-                      onClick={() => setSelectedDate(selected?.date === day.date ? '' : day.date)}
-                      style={{
-                        background: HEATMAP_LEVELS[lv],
-                      }}
-                      title={S.activity.cellTitle(day)}
-                    />
-                  )
-                })}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-      {/* Detail line */}
-      <div className="activity-detail" aria-live="polite" style={{ marginTop: selected ? 8 : 0, fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--ink-2)', display: 'flex', gap: 8, alignItems: 'center' }}>
-        {selected && <>
-          <span>{selected.date}</span>
-          <span style={{ color: 'var(--ink-4)' }}>·</span>
-          <span>{S.activity.recallDetailPrefix}{selected.recall}</span>
-          <span style={{ color: 'var(--ink-4)' }}>·</span>
-          <span>{S.activity.practiceDetailPrefix}{selected.practice}</span>
-          <span style={{ color: 'var(--ink-4)' }}>·</span>
-          <span>{S.activity.readingDetailPrefix}{selected.reading} min</span>
-        </>}
-      </div>
-    </section>
-  )
-}
 
 export default function Activity() {
+  const [params, setParams] = useSearchParams()
+  const from = params.get('from') || ''
+  const to = params.get('to') || ''
+  const returnTo = `/activity${params.size ? `?${params}` : ''}`
+  function recordLink(entry) {
+    let title, route
+    if (entry.module === 'recall') {
+      const card = getCard(entry.itemId)
+      if (card) { title = card.front || '卡片'; route = `/browse/${encodeURIComponent(card.deckId)}?card=${encodeURIComponent(card.id)}` }
+    } else if (entry.module === 'practice' && !entry.legacy) {
+      const question = loadQuestions().find(item => item.id === entry.itemId)
+      if (question) { title = question.question || question.id; route = buildQuizRoute(question.type === 'choice' ? 'quiz' : 'quiz-review', question.subject, { qid: question.id }) }
+    } else if (entry.module === 'reading') {
+      const doc = getDocument(entry.docId)
+      if (doc) { title = doc.title; route = `/reading/doc/${encodeURIComponent(doc.id)}` }
+    }
+    const label = { recall: '记忆', practice: '练习', reading: '阅读' }[entry.module]
+    return route ? <Link to={route} state={{ returnTo }}>{label} · {title}</Link> : <span>{label} · {entry.legacy ? '旧记录无资料定位' : '原资料已不可用'}</span>
+  }
   const data = getActivityDashboard()
   const maxModule = Math.max(1, data.totals.recall, data.totals.practice, data.totals.reading)
 
@@ -208,7 +95,12 @@ export default function Activity() {
               target={data.targets.reading} unit={S.activity.minuteUnit} tone="reading" />
           </section>
 
-          <HeatmapGrid />
+          <ActivityHistory days={getHeatmapData().days} initialFrom={from} initialTo={to} renderEntry={recordLink} onRangeChange={(start, end) => {
+            const next = new URLSearchParams(params)
+            if (start) next.set('from', start); else next.delete('from')
+            if (end) next.set('to', end); else next.delete('to')
+            setParams(next, { replace: true })
+          }} />
 
           <section className="act-section">
             <div className="act-section-head">
