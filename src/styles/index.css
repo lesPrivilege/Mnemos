@@ -2257,3 +2257,10 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin
 .activity-filter-result caption { text-align: left; margin-bottom: var(--sp-6); color: var(--ink-3); }
 .activity-entry-list { padding-left: var(--sp-8); }
 .activity-entry-list li { padding-block: var(--sp-4); overflow-wrap: anywhere; }
+.study-row-actions button, .study-drag { min-height: var(--hit-target); padding-inline: var(--sp-4); border: 1px solid var(--border); border-radius: var(--r-sm); }
+.study-tray summary, .study-picker label, .rating-preview summary, .activity-filter-result summary { min-height: var(--hit-target); align-content: center; }
+.activity-range input, .search-results select, .rating-preview input { min-height: var(--hit-target); }
+.reader-receipt button { min-height: var(--hit-target); }
+.activity-table-scroll { scrollbar-width: thin; }
+.activity-table-scroll::-webkit-scrollbar { height: var(--sp-4); }
+.activity-table-scroll::-webkit-scrollbar-thumb { background: var(--border); }

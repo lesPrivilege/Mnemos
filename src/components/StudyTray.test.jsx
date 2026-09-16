@@ -31,3 +31,20 @@ it('does not silently advance past an unavailable current item', () => {
   expect(screen.getByRole('button', { name: '继续', exact: true }).disabled).toBe(true)
   expect(screen.getByText('当前：gone（不可用）')).not.toBeNull()
 })
+
+it('moves only an active local drag and keeps the current identity', () => {
+  savePlan({ items: [{ kind: 'deck', id: 'd' }, { kind: 'document', id: 'r' }] })
+  mount()
+  fireEvent.click(screen.getByText('展开顺序'))
+  const handle = screen.getByRole('button', { name: '拖动 阅读' })
+  const target = screen.getByRole('button', { name: '拖动 代数' }).closest('li')
+  fireEvent.drop(target)
+  expect(loadPlan().items[0].kind).toBe('deck')
+  const dataTransfer = { setData: vi.fn(), effectAllowed: '' }
+  fireEvent.dragStart(handle, { dataTransfer })
+  expect(dataTransfer.setData).toHaveBeenCalledWith('text/plain', planKey({ kind: 'document', id: 'r' }))
+  fireEvent.drop(target)
+  expect(loadPlan().items[0].kind).toBe('document')
+  expect(loadPlan().cursor).toBe(planKey({ kind: 'deck', id: 'd' }))
+  expect(document.activeElement).toBe(handle.closest('li'))
+})

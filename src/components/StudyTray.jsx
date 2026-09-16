@@ -40,7 +40,7 @@ export default function StudyTray({ service = productionService, catalogProvider
     {plan.items.length > 0 && <details><summary>展开顺序</summary><ol>{plan.items.map((item, index) => {
       const key = planKey(item); const target = resolvePlanItem(item, catalog)
       return <li key={key} tabIndex={-1} ref={node => { if (node) rows.current.set(key, node); else rows.current.delete(key) }} onDragOver={event => event.preventDefault()} onDrop={event => { event.preventDefault(); if (dragged) moveItem(dragged, index); setDragged(null) }}>
-        <div><button className="study-drag" draggable onDragStart={() => setDragged(key)} onDragEnd={() => setDragged(null)} aria-label={`拖动 ${target.title}`}>拖动</button><span>{target.label} · {target.title}</span>{key === plan.cursor && <span> · 当前</span>}</div>
+        <div><button className="study-drag" draggable onDragStart={event => { event.dataTransfer.setData('text/plain', key); event.dataTransfer.effectAllowed = 'move'; setDragged(key) }} onDragEnd={() => setDragged(null)} aria-label={`拖动 ${target.title}`}>拖动</button><span>{target.label} · {target.title}</span>{key === plan.cursor && <span> · 当前</span>}</div>
         <div className="study-row-actions"><button disabled={index === 0} aria-label={`上移 ${target.title}`} onClick={() => moveItem(key, index - 1)}>上移</button><button disabled={index === plan.items.length - 1} aria-label={`下移 ${target.title}`} onClick={() => moveItem(key, index + 1)}>下移</button><button disabled={target.missing} onClick={() => continueItem(item)}>从此处继续</button><button aria-label={`移除 ${target.title}`} onClick={() => mutate(() => service.remove(plan, key), '已从本次学习移除')}>移除</button></div>
       </li>
     })}</ol></details>}

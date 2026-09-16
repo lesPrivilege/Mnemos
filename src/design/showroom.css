@@ -7,8 +7,8 @@ html:has(#design-root), body:has(#design-root) { height: auto; overflow: auto; b
 .showroom-controls { display: flex; flex-wrap: wrap; gap: var(--sp-7); margin-top: var(--sp-8); align-items: end; }
 .showroom label { display: flex; flex-direction: column; gap: var(--sp-3); font-size: var(--text-md); }
 .showroom button, .showroom select, .showroom summary { min-height: var(--hit-target); }
-.showroom button:not(.btn), .showroom select { border: 1px solid var(--border); border-radius: var(--r-md); padding: var(--sp-5) var(--sp-6); background: var(--bg-card); }
-.showroom button:not(.btn):hover { background: var(--bg-raised); }
+.showroom-controls button:not(.btn), .showroom-controls select { border: 1px solid var(--border); border-radius: var(--r-md); padding: var(--sp-5) var(--sp-6); background: var(--bg-card); }
+.showroom-controls button:not(.btn):hover { background: var(--bg-raised); }
 .showroom :focus-visible { outline: 2px solid var(--ink); outline-offset: var(--sp-1); }
 .showroom select { color: var(--ink); max-width: 100%; }
 .showroom .showroom-check { flex-direction: row; align-items: center; min-height: var(--hit-target); }
@@ -51,3 +51,4 @@ html:has(#design-root), body:has(#design-root) { height: auto; overflow: auto; b
 .showroom .card-draft-editor label { margin-top: 0; }
 
 .showroom-answer { max-width: var(--col-session); margin-inline: auto; }
+html:has(.showroom[data-text-scale="2"]) { font-size: 200%; }

@@ -193,3 +193,5 @@ iPad sidebar 仍只保留在 Phase B 設計資產中，未實作。
 ## UX / Motion 样板间 programme
 
 [串行施工](design/implementation.md)：MX-00 入账 → MX-01 隔离样板 → MX-02 阅读闭环 → MX-03 复习 → MX-04 学习托盘 → MX-05 活动 → MX-06 推广。各单元独立验收，状态见 [执行回执](design/execution.md)。
+
+MX-00—06 施工已收口；MX-05 日期范围与活动明细、MX-06 共享样板与视觉证据已交付。原生、独立交互和实际拖放仍保留补验，详见 [验收账](design/acceptance.md)。
