@@ -3,7 +3,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
-: "${ANDROID_HOME:=${ANDROID_SDK_ROOT:-}"}"
+if [[ -z "${ANDROID_HOME:-}" ]]; then export ANDROID_HOME="${ANDROID_SDK_ROOT:-}"; fi
 if [[ -z "$ANDROID_HOME" || ! -d "$ANDROID_HOME" ]]; then
   echo 'Android SDK missing: build via GitHub Actions or install Android SDK 36' >&2
   exit 2
