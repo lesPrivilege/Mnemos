@@ -20,10 +20,12 @@ if [[ "$ACTUAL_SHA" != "$UPSTREAM_SHA" ]]; then
   exit 3
 fi
 python -m pip install --disable-pip-version-check --quiet 'Pillow>=10,<13'
+# Upstream provenance hashes and screenshot baselines are valid BEFORE the visual transforms.
+# Validate pristine upstream once; then our separate test covers the deliberate PNG edits.
+(cd upstream && python scripts/icontool.py check)
 python scripts/test_icons.py
 python scripts/prepare_icons.py --repo upstream --out "$ROOT/dist/oneui-icon-qa.json"
 cd upstream
-python scripts/icontool.py check
 chmod +x gradlew
 ./gradlew --no-daemon :app:assembleDebug
 mkdir -p "$ROOT/dist"
