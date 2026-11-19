@@ -1,0 +1,54 @@
+name: Build Classic iOS One UI APK
+
+on:
+  push:
+    branches:
+      - build/classic-ios-oneui
+    paths:
+      - 'iconpack/**'
+      - '.github/workflows/build-classic-ios-oneui.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: classic-ios-oneui-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - name: Check out isolated Mnemos branch
+        uses: actions/checkout@v4
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Install Android SDK 36
+        run: |
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+      - name: Build debug signed APK and validate
+        run: bash iconpack/scripts/build.sh
+      - name: Upload installable APK and QA files
+        uses: actions/upload-artifact@v4
+        with:
+          name: Classic-iOS-OneUI-APK
+          path: |
+            iconpack/dist/Classic-iOS-OneUI-debug.apk
+            iconpack/dist/Classic-iOS-OneUI-debug.apk.sha256
+            iconpack/dist/signature-verification.txt
+            iconpack/dist/upstream-version.txt
+            iconpack/dist/oneui-icon-qa.json
+          retention-days: 30
+          if-no-files-found: error
