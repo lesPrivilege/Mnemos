@@ -80,6 +80,24 @@ def render_brand(svg_path:Path, bg:str, fg:str, scale:float, alpha:Image.Image):
     svg_png=cairosvg.svg2png(bytestring=source.encode(),output_width=n,output_height=n)
     symbol=Image.open(io.BytesIO(svg_png)).convert('RGBA')
     tile=Image.new('RGBA',(SIZE,SIZE),bg)
+    if svg_path.name == 'qq.svg':
+        # Restore recognizable QQ penguin details while keeping the vector silhouette.
+        # This is an original personal-use simplification, not official QQ master art.
+        from PIL import ImageChops
+        paint=Image.new('RGBA',(n,n),(0,0,0,0))
+        p=ImageDraw.Draw(paint)
+        p.ellipse((int(n*.26),int(n*.42),int(n*.74),int(n*.86)),fill='#FFFFFF')
+        p.ellipse((int(n*.36),int(n*.31),int(n*.46),int(n*.41)),fill='#FFFFFF')
+        p.ellipse((int(n*.55),int(n*.31),int(n*.65),int(n*.41)),fill='#FFFFFF')
+        p.ellipse((int(n*.405),int(n*.34),int(n*.443),int(n*.39)),fill='#111111')
+        p.ellipse((int(n*.59),int(n*.34),int(n*.628),int(n*.39)),fill='#111111')
+        p.polygon([(int(n*.43),int(n*.44)),(int(n*.57),int(n*.44)),(int(n*.5),int(n*.51))],fill='#F5B127')
+        p.polygon([(int(n*.25),int(n*.54)),(int(n*.76),int(n*.51)),
+                   (int(n*.73),int(n*.61)),(int(n*.29),int(n*.64))],fill='#E6252A')
+        p.polygon([(int(n*.63),int(n*.58)),(int(n*.74),int(n*.60)),
+                   (int(n*.82),int(n*.83)),(int(n*.73),int(n*.87))],fill='#E6252A')
+        paint.putalpha(ImageChops.multiply(paint.getchannel('A'),symbol.getchannel('A')))
+        symbol.alpha_composite(paint)
     tile.alpha_composite(symbol,((SIZE-n)//2,(SIZE-n)//2))
     tile.putalpha(alpha)
     return tile
