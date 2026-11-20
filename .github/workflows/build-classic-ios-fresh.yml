@@ -1,0 +1,44 @@
+name: Build Fresh iOS One UI APK
+on:
+  push:
+    branches: [build/classic-ios-fresh]
+    paths: ["iconpack-fresh/**", ".github/workflows/build-classic-ios-fresh.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Android SDK 36
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK_ROOT="$ANDROID_HOME"
+          MANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager | sort -V | tail -n 1)"
+          test -n "$MANAGER"
+          yes | "$MANAGER" --licenses > /dev/null || true
+          "$MANAGER" 'platforms;android-36' 'build-tools;36.0.0'
+      - name: Generate and build
+        run: bash iconpack-fresh/scripts/build.sh
+      - name: Upload APK and QA
+        uses: actions/upload-artifact@v4
+        with:
+          name: Fresh-iOS-OneUI-APK
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            iconpack-fresh/dist/Fresh-iOS-OneUI-debug.apk
+            iconpack-fresh/dist/apk-sha256.txt
+            iconpack-fresh/dist/apk-signature.txt
+            iconpack-fresh/dist/qa.json
+            iconpack-fresh/dist/preview-grid.png

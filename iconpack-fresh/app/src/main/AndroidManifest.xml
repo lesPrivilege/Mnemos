@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <application android:label="@string/app_name"
+      android:icon="@drawable/ios18_settings" android:roundIcon="@drawable/ios18_settings"
+      android:allowBackup="false" android:theme="@android:style/Theme.Material.Light.NoActionBar">
+    <activity android:name=".MainActivity" android:exported="true">
+      <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+      <intent-filter><action android:name="org.adw.launcher.THEMES"/><category android:name="android.intent.category.DEFAULT"/></intent-filter>
+      <intent-filter><action android:name="org.adw.launcher.icons.ACTION_PICK_ICON"/><category android:name="android.intent.category.DEFAULT"/></intent-filter>
+      <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="com.teslacoilsw.launcher.THEME"/></intent-filter>
+      <intent-filter><action android:name="com.novalauncher.THEME"/><category android:name="com.novalauncher.category.CUSTOM_ICON_PICKER"/></intent-filter>
+      <intent-filter><action android:name="ch.deletescape.lawnchair.ICONPACK"/><category android:name="ch.deletescape.lawnchair.PICK_ICON"/></intent-filter>
+    </activity>
+  </application>
+</manifest>
