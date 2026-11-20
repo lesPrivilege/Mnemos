@@ -14,7 +14,8 @@ import re
 from collections import Counter
 from pathlib import Path
 from xml.etree import ElementTree
-from PIL import Image, ImageChops, ImageDraw
+from PIL import Image, ImageChops, ImageDraw, ImageOps
+from strict_mappings import apply as apply_strict_mappings
 
 SUPERELLIPSE_N = 4.75
 
@@ -48,13 +49,13 @@ def brand(root: Path) -> None:
     data = build.read_text()
     token = 'applicationId MyApp.appId'
     assert data.count(token) == 1, 'unexpected upstream appId configuration'
-    build.write_text(data.replace(token, 'applicationId "org.classicios.oneui.personal"'))
+    build.write_text(data.replace(token, 'applicationId "org.classicios.oneui.personal.v2"'))
 
     strings = root / 'app/src/main/res/values/strings.xml'
     data = strings.read_text()
     data, count = re.subn(
         r'(<string name="app_name"[^>]*>)[^<]*(</string>)',
-        r'\1Classic iOS One UI\2', data,
+        r'\1Classic iOS One UI v2\2', data,
     )
     assert count == 1, 'unexpected app_name'
     strings.write_text(data)
@@ -74,6 +75,19 @@ def brand(root: Path) -> None:
 
 def prepare(root: Path, report_path: Path) -> dict:
     brand(root)
+    mapping_report = apply_strict_mappings(root)
+    # Fallback images are consumed by launchers that honor ADW iconback/iconmask.
+    # Transparent inside the mask means KEEP, opaque black outside means ERASE.
+    fallback_dir = root / 'app/src/main/res/drawable-xxxhdpi'
+    tray_shape = squircle_mask(512)
+    tray_back = Image.new('RGBA', (512, 512), 'white')
+    tray_back.putalpha(tray_shape)
+    tray_back.save(fallback_dir / 'oneui_ios_tray_back.png', optimize=True)
+    tray_mask = Image.new('RGBA', (512, 512), 'black')
+    tray_mask.putalpha(ImageOps.invert(tray_shape))
+    tray_mask.save(fallback_dir / 'oneui_ios_tray_mask.png', optimize=True)
+    assert tray_mask.getpixel((0, 0))[3] == 255
+    assert tray_mask.getpixel((256, 256))[3] == 0
     appfilter = root / 'app/src/main/res/xml/appfilter.xml'
     mapping = ElementTree.parse(appfilter)
     ids = {x.get('drawable') for x in mapping.iter('item') if x.get('drawable')}
@@ -117,6 +131,7 @@ def prepare(root: Path, report_path: Path) -> dict:
         'counts': dict(counts),
         'review': notes,
         'device_tested': False,
+        'mapping_audit': mapping_report,
     }
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(report, indent=2))

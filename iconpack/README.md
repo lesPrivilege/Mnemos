@@ -42,3 +42,9 @@ screenshots can establish device visual acceptance.
 This branch contains transformation/build scripts, not upstream raster assets.
 The upstream project licenses its code under MIT; third-party art remains subject
 to separate owner rights. Intended for personal use. Do not publish the APK.
+
+## v2 semantic safety and fallback
+
+The second pass **removes unsupported feature substitutions** (e.g. ChatGPT/Claude -> Settings, Slack -> Teams and Firefox -> Safari). Only explicitly vetted system-equivalent packages and exact same-brand icons remain in `appfilter.xml` and `appmap.xml`. For all other Android apps, their native icon is used; launchers implementing the ADW `iconback/iconmask` standard may additionally show that native icon on the iOS squircle tray. **Samsung Theme Park may ignore those fallback declarations**: the native icon remains native, and its Shape/Tray editor controls the fallback on One UI. No launcher, shortcuts or accessibility overlays are installed.
+
+v2 package ID: `org.classicios.oneui.personal.v2` (side-by-side with v1). Debug key is per-run and cannot silently update an older signed APK. Android icon pack has no guarantee of automating Theme Park's system-generated tray.

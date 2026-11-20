@@ -24,6 +24,7 @@ python -m pip install --disable-pip-version-check --quiet 'Pillow>=10,<13'
 # Validate pristine upstream once; then our separate test covers the deliberate PNG edits.
 (cd upstream && python scripts/icontool.py check)
 python scripts/test_icons.py
+python -m py_compile scripts/strict_mappings.py
 python scripts/prepare_icons.py --repo upstream --out "$ROOT/dist/oneui-icon-qa.json"
 cd upstream
 chmod +x gradlew
